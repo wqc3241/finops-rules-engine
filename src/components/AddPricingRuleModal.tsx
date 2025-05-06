@@ -1,186 +1,180 @@
 
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { FormEvent } from "react";
-import { toast } from "sonner";
-
-interface PricingRuleData {
-  programName: string;
-  programType: string;
-  term: number;
-  buyRate: number;
-  maxMarkup: number;
-  dealerDiscount: number;
-  programFee: number;
-}
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface AddPricingRuleModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: PricingRuleData) => void;
+  onSave: (data: any) => void;
 }
 
 const AddPricingRuleModal = ({ isOpen, onClose, onSave }: AddPricingRuleModalProps) => {
-  const [formData, setFormData] = useState<PricingRuleData>({
+  const [formData, setFormData] = useState({
+    bulletinId: "",
     programName: "",
-    programType: "Loan",
-    term: 0,
-    buyRate: 0,
-    maxMarkup: 0,
-    dealerDiscount: 0,
-    programFee: 0
+    pricingConfig: "",
+    pricingType: "",
+    advertised: false,
+    pricingValue: "",
+    lenderList: "",
+    geoCode: "",
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    
-    // Handle numeric fields
-    if (["term", "buyRate", "maxMarkup", "dealerDiscount", "programFee"].includes(name)) {
-      setFormData({
-        ...formData,
-        [name]: parseFloat(value) || 0
-      });
-    } else {
-      setFormData({
-        ...formData,
-        [name]: value
-      });
-    }
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleCheckboxChange = (checked: boolean) => {
+    setFormData((prev) => ({
+      ...prev,
+      advertised: checked,
+    }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!formData.programName) {
-      toast.error("Program Name is required");
-      return;
-    }
-    
     onSave(formData);
-    toast.success("Pricing rule added successfully!");
+    resetForm();
     onClose();
-    
-    // Reset form
+  };
+
+  const resetForm = () => {
     setFormData({
+      bulletinId: "",
       programName: "",
-      programType: "Loan",
-      term: 0,
-      buyRate: 0,
-      maxMarkup: 0,
-      dealerDiscount: 0,
-      programFee: 0
+      pricingConfig: "",
+      pricingType: "",
+      advertised: false,
+      pricingValue: "",
+      lenderList: "",
+      geoCode: "",
     });
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle>Add New Pricing Rule</DialogTitle>
-        </DialogHeader>
         <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-2 gap-4 py-4">
-            <div className="col-span-2">
-              <Label htmlFor="programName">Program Name</Label>
-              <Input 
-                id="programName" 
-                name="programName"
-                value={formData.programName}
-                onChange={handleChange}
-                required
-              />
+          <DialogHeader>
+            <DialogTitle>Add New Bulletin Pricing Rule</DialogTitle>
+            <DialogDescription>
+              Fill out the form below to create a new bulletin pricing rule.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex flex-col space-y-1.5">
+                <Label htmlFor="bulletinId">Bulletin ID</Label>
+                <Input
+                  id="bulletinId"
+                  name="bulletinId"
+                  value={formData.bulletinId}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div className="flex flex-col space-y-1.5">
+                <Label htmlFor="programName">Financial Program</Label>
+                <Input
+                  id="programName"
+                  name="programName"
+                  value={formData.programName}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
             </div>
-            
-            <div>
-              <Label htmlFor="programType">Program Type</Label>
-              <select 
-                id="programType"
-                name="programType"
-                value={formData.programType}
-                onChange={handleChange}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
-                required
-              >
-                <option value="Loan">Loan</option>
-                <option value="Lease">Lease</option>
-              </select>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex flex-col space-y-1.5">
+                <Label htmlFor="pricingConfig">Pricing Config</Label>
+                <Input
+                  id="pricingConfig"
+                  name="pricingConfig"
+                  value={formData.pricingConfig}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="flex flex-col space-y-1.5">
+                <Label htmlFor="pricingType">Pricing Type</Label>
+                <Input
+                  id="pricingType"
+                  name="pricingType"
+                  value={formData.pricingType}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
             </div>
-            
-            <div>
-              <Label htmlFor="term">Term (months)</Label>
-              <Input 
-                id="term" 
-                name="term"
-                type="number"
-                min="0"
-                value={formData.term}
-                onChange={handleChange}
-                required
-              />
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex flex-col space-y-1.5">
+                <Label htmlFor="pricingValue">Pricing Value</Label>
+                <Input
+                  id="pricingValue"
+                  name="pricingValue"
+                  value={formData.pricingValue}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div className="flex flex-col space-y-1.5">
+                <Label htmlFor="lenderList">Lender List</Label>
+                <Input
+                  id="lenderList"
+                  name="lenderList"
+                  value={formData.lenderList}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
             </div>
-            
-            <div>
-              <Label htmlFor="buyRate">Buy Rate (%)</Label>
-              <Input 
-                id="buyRate" 
-                name="buyRate"
-                type="number"
-                min="0"
-                step="0.1"
-                value={formData.buyRate}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="maxMarkup">Max Markup (%)</Label>
-              <Input 
-                id="maxMarkup" 
-                name="maxMarkup"
-                type="number"
-                min="0"
-                step="0.1"
-                value={formData.maxMarkup}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="dealerDiscount">Dealer Discount (%)</Label>
-              <Input 
-                id="dealerDiscount" 
-                name="dealerDiscount"
-                type="number"
-                min="0"
-                step="0.1"
-                value={formData.dealerDiscount}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="programFee">Program Fee ($)</Label>
-              <Input 
-                id="programFee" 
-                name="programFee"
-                type="number"
-                min="0"
-                value={formData.programFee}
-                onChange={handleChange}
-                required
-              />
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex flex-col space-y-1.5">
+                <Label htmlFor="geoCode">Geo Code</Label>
+                <Input
+                  id="geoCode"
+                  name="geoCode"
+                  value={formData.geoCode}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div className="flex items-end space-y-1.5">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="advertised"
+                    checked={formData.advertised}
+                    onCheckedChange={handleCheckboxChange}
+                  />
+                  <Label htmlFor="advertised">Advertised</Label>
+                </div>
+              </div>
             </div>
           </div>
-          
+
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
-            <Button type="submit">Save Rule</Button>
+            <Button variant="outline" type="button" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button type="submit">Create Rule</Button>
           </DialogFooter>
         </form>
       </DialogContent>
