@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import GeoTable from "./GeoTable";
 import LeaseConfigTable from "./LeaseConfigTable";
 import GatewayTable from "./GatewayTable";
+import Button from "./Button"; // Import the Button component
 
 const LFSSetupTabs = () => {
   const handleEditClick = (id: string) => {
