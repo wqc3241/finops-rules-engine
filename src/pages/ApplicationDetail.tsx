@@ -7,6 +7,7 @@ import { applicationDetails } from '@/data/mockApplications';
 import ApplicationHeader from '@/components/applications/ApplicationDetails/ApplicationHeader';
 import ApplicationTabs from '@/components/applications/ApplicationDetails/ApplicationTabs';
 import ApplicationData from '@/components/applications/ApplicationDetails/ApplicationData';
+import DealStructureSection from '@/components/applications/ApplicationDetails/DealStructure/DealStructureSection';
 import OrderDetailsView from '@/components/applications/ApplicationDetails/OrderDetailsView';
 import ApplicationHistoryView from '@/components/applications/ApplicationDetails/ApplicationHistoryView';
 import NotesView from '@/components/applications/ApplicationDetails/NotesView';
@@ -39,12 +40,15 @@ const ApplicationDetail = () => {
       case 'details':
       default:
         return (
-          <ApplicationData
-            applicantInfo={applicationDetails.applicantInfo}
-            coApplicantInfo={applicationDetails.coApplicantInfo}
-            vehicleData={applicationDetails.vehicleData}
-            appDtReferences={applicationDetails.appDtReferences}
-          />
+          <>
+            <ApplicationData
+              applicantInfo={applicationDetails.applicantInfo}
+              coApplicantInfo={applicationDetails.coApplicantInfo}
+              vehicleData={applicationDetails.vehicleData}
+              appDtReferences={applicationDetails.appDtReferences}
+            />
+            <DealStructureSection dealStructure={applicationDetails.dealStructure} />
+          </>
         );
     }
   };
