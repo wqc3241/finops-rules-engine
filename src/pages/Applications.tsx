@@ -2,6 +2,7 @@
 import React from "react";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
+import ApplicationList from "@/components/applications/ApplicationList";
 
 const Applications = () => {
   const [sidebarOpen, setSidebarOpen] = React.useState(true);
@@ -19,8 +20,8 @@ const Applications = () => {
         <main className="flex-1 overflow-auto p-4">
           <div className="container mx-auto px-4 py-6">
             <div className="bg-white rounded-lg shadow-sm p-6">
-              <h1 className="text-2xl font-semibold mb-4">Applications</h1>
-              <p className="text-gray-600">This page is under construction.</p>
+              <h1 className="text-2xl font-semibold mb-6">Applications</h1>
+              <ApplicationList />
             </div>
           </div>
         </main>
