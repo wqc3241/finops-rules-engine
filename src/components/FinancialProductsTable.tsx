@@ -1,9 +1,8 @@
-
 import { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Pencil, Trash2 } from "lucide-react";
+import { Copy, Edit, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
@@ -14,6 +13,12 @@ interface FinancialProduct {
   geoCode: string;
   category: string;
   isActive: boolean;
+}
+
+interface FinancialProductsTableProps {
+  onEdit: (id: string) => void;
+  onCopy: (id: string) => void;
+  onRemove: (id: string) => void;
 }
 
 const initialFinancialProducts: FinancialProduct[] = [
@@ -83,7 +88,7 @@ const initialFinancialProducts: FinancialProduct[] = [
   }
 ];
 
-const FinancialProductsTable = () => {
+const FinancialProductsTable = ({ onEdit, onCopy, onRemove }: FinancialProductsTableProps) => {
   const [products, setProducts] = useState<FinancialProduct[]>(initialFinancialProducts);
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -117,17 +122,14 @@ const FinancialProductsTable = () => {
     if (productToDelete) {
       setProducts(current => current.filter(product => product.id !== productToDelete));
       setSelectedProducts(current => current.filter(id => id !== productToDelete));
-      toast.success("Financial product deleted");
+      
+      // Call the onRemove prop after internal state is updated
+      if (onRemove) {
+        onRemove(productToDelete);
+      }
     }
     setDeleteDialogOpen(false);
     setProductToDelete(null);
-  };
-
-  const handleEditClick = (id: string) => {
-    if (!id) return; // Skip products with empty IDs
-    
-    // This would open an edit modal in a real implementation
-    toast.info(`Editing product ${id} - functionality to be implemented`);
   };
 
   return (
@@ -175,10 +177,18 @@ const FinancialProductsTable = () => {
                     <Button 
                       variant="ghost" 
                       size="icon"
-                      onClick={() => handleEditClick(product.id)}
+                      onClick={() => onEdit(product.id)}
                       className="h-8 w-8"
                     >
-                      <Pencil className="h-4 w-4" />
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
+                      onClick={() => onCopy(product.id)}
+                      className="h-8 w-8"
+                    >
+                      <Copy className="h-4 w-4" />
                     </Button>
                     <Button 
                       variant="ghost" 
