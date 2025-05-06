@@ -17,34 +17,30 @@ const Dashboard = () => {
         <Tabs defaultValue="bulletin-pricing">
           <div className="px-6 border-b border-gray-200">
             <TabsList className="border-b-0">
-              <TabsTrigger value="advertised-offer">Advertised Offer</TabsTrigger>
-              <TabsTrigger value="product">Product</TabsTrigger>
               <TabsTrigger value="credit-profile">Credit Profile</TabsTrigger>
-              <TabsTrigger value="program">Program</TabsTrigger>
-              <TabsTrigger value="inventory-type">Inventory Type</TabsTrigger>
+              <TabsTrigger value="pricing-config">Pricing Config</TabsTrigger>
+              <TabsTrigger value="product">Financial Product</TabsTrigger>
+              <TabsTrigger value="program">Financial Program Config</TabsTrigger>
               <TabsTrigger value="bulletin-pricing">Bulletin Pricing</TabsTrigger>
-              <TabsTrigger value="vehicle-data">Vehicle Data</TabsTrigger>
+              <TabsTrigger value="advertised-offer">Advertised Offer</TabsTrigger>
+              <TabsTrigger value="inventory-type">Pricing Type</TabsTrigger>
             </TabsList>
           </div>
-          
-          <TabsContent value="advertised-offer">
-            <RulesSection title="Advertised Offer Rules" />
-          </TabsContent>
-          
-          <TabsContent value="product">
-            <RulesSection title="Product Rules" />
-          </TabsContent>
           
           <TabsContent value="credit-profile" className="p-0">
             <RulesSection title="Credit Profile Rules" />
           </TabsContent>
           
-          <TabsContent value="program">
-            <RulesSection title="Program Rules" />
+          <TabsContent value="pricing-config">
+            <RulesSection title="Pricing Config Rules" />
           </TabsContent>
           
-          <TabsContent value="inventory-type">
-            <RulesSection title="Inventory Type Rules" />
+          <TabsContent value="product">
+            <RulesSection title="Financial Product Rules" />
+          </TabsContent>
+          
+          <TabsContent value="program">
+            <RulesSection title="Financial Program Config Rules" />
           </TabsContent>
           
           <TabsContent value="bulletin-pricing">
@@ -55,8 +51,12 @@ const Dashboard = () => {
             />
           </TabsContent>
           
-          <TabsContent value="vehicle-data">
-            <RulesSection title="Vehicle Data Rules" />
+          <TabsContent value="advertised-offer">
+            <RulesSection title="Advertised Offer Rules" />
+          </TabsContent>
+          
+          <TabsContent value="inventory-type">
+            <RulesSection title="Pricing Type Rules" />
           </TabsContent>
         </Tabs>
       </div>
