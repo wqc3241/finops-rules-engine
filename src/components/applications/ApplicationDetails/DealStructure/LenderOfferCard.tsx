@@ -99,8 +99,8 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({ offer, isExpanded }) 
     <div className="space-y-3">
       {items.map((item, index) => (
         <div key={index} className="flex">
-          <span className="text-sm text-gray-600 min-w-[180px]">{label: item.label}</span>
-          <span className="text-sm font-medium">{value: item.value}</span>
+          <span className="text-sm text-gray-600 min-w-[180px]">{item.label}</span>
+          <span className="text-sm font-medium">{item.value}</span>
         </div>
       ))}
     </div>
