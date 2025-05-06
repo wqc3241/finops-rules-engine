@@ -46,10 +46,16 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({ offer, isExpanded }) 
             <h4 className="text-md font-medium mb-4">Requested</h4>
             {renderOfferItems(offer.requested)}
           </div>
+          
+          <Separator orientation="vertical" className="mx-3" />
+          
           <div>
             <h4 className="text-md font-medium mb-4">Approved</h4>
             {renderOfferItems(offer.approved)}
           </div>
+          
+          <Separator orientation="vertical" className="mx-3" />
+          
           <div>
             <h4 className="text-md font-medium mb-4">Customer</h4>
             {renderOfferItems(offer.customer)}
@@ -58,6 +64,8 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({ offer, isExpanded }) 
 
         {offer.stipulations.length > 0 && (
           <>
+            <Separator className="my-6" />
+            
             <div className="flex justify-between items-center my-6">
               <h4 className="text-md font-medium">Stipulations</h4>
               <div className="space-x-2">
