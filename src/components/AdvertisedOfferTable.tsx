@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Edit, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 type AdvertisedOffer = {
   id: string;
@@ -21,12 +22,24 @@ type AdvertisedOffer = {
 };
 
 const initialData: AdvertisedOffer[] = [
-  { id: "1", bulletinPricing: "BT001", disclosure: "Disclosure Text", loanAmountPer10k: "", totalCostOfCredit: "" },
-  { id: "2", bulletinPricing: "BTKSA02", disclosure: "Disclosure Text", loanAmountPer10k: "", totalCostOfCredit: "" },
+  { 
+    id: "1", 
+    bulletinPricing: "BT001", 
+    disclosure: "Disclosure Text", 
+    loanAmountPer10k: "$186.43/month", 
+    totalCostOfCredit: "$1,345.80" 
+  },
+  { 
+    id: "2", 
+    bulletinPricing: "BTKSA02", 
+    disclosure: "Disclosure Text", 
+    loanAmountPer10k: "$194.15/month", 
+    totalCostOfCredit: "$1,649.00" 
+  },
 ];
 
 const AdvertisedOfferTable = () => {
-  const [data] = useState<AdvertisedOffer[]>(initialData);
+  const [data, setData] = useState<AdvertisedOffer[]>(initialData);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
 
   const handleSelectItem = (id: string) => {
@@ -48,12 +61,16 @@ const AdvertisedOfferTable = () => {
 
   const handleEdit = (id: string) => {
     console.log(`Editing item with ID: ${id}`);
+    toast.info(`Editing advertised offer with ID: ${id}`);
     // Implement edit functionality
   };
 
   const handleDelete = (id: string) => {
     console.log(`Deleting item with ID: ${id}`);
-    // Implement delete functionality
+    toast.success(`Advertised offer deleted successfully`);
+    // Here you would delete the item and update state
+    setData(data.filter(item => item.id !== id));
+    setSelectedItems(selectedItems.filter(item => item !== id));
   };
 
   return (
