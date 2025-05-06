@@ -7,6 +7,9 @@ import FinancialProgramConfigSection from "./FinancialProgramConfigSection";
 import PricingRulesSection from "./PricingRulesSection";
 import AdvertisedOfferSection from "./AdvertisedOfferSection";
 import PricingTypeSection from "./PricingTypeSection";
+import { Button } from "@/components/ui/button";
+import { Copy, Edit, Trash2 } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 interface TabsSectionProps {
   showAddPricingModal: boolean;

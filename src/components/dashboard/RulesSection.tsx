@@ -10,6 +10,13 @@ interface RulesSectionProps {
   title: string;
 }
 
+// Adding onEdit, onCopy, onRemove props to RulesTable component in this file
+interface RulesTableProps {
+  onEdit: (id: string) => void;
+  onCopy: (id: string) => void;
+  onRemove: (id: string) => void;
+}
+
 const RulesSection = ({ title }: RulesSectionProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   

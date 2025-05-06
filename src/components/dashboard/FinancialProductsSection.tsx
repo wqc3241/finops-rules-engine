@@ -10,6 +10,13 @@ interface FinancialProductsSectionProps {
   title: string;
 }
 
+// Adding onEdit, onCopy, onRemove props to FinancialProductsTable component in this file
+interface FinancialProductsTableProps {
+  onEdit: (id: string) => void;
+  onCopy: (id: string) => void;
+  onRemove: (id: string) => void;
+}
+
 const FinancialProductsSection = ({ title }: FinancialProductsSectionProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   
