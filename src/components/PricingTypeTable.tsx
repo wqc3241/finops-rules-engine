@@ -12,6 +12,14 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Edit, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 type PricingType = {
   id: string;
@@ -39,8 +47,10 @@ const initialData: PricingType[] = [
 ];
 
 const PricingTypeTable = () => {
-  const [data] = useState<PricingType[]>(initialData);
+  const [data, setData] = useState<PricingType[]>(initialData);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const handleSelectItem = (id: string) => {
     setSelectedItems((prev) => 
@@ -51,10 +61,10 @@ const PricingTypeTable = () => {
   };
 
   const handleSelectAll = () => {
-    if (selectedItems.length === data.length) {
+    if (selectedItems.length === paginatedData.length) {
       setSelectedItems([]);
     } else {
-      const allIds = data.map((item) => item.id);
+      const allIds = paginatedData.map((item) => item.id);
       setSelectedItems(allIds);
     }
   };
@@ -67,8 +77,19 @@ const PricingTypeTable = () => {
 
   const handleDelete = (id: string) => {
     console.log(`Deleting item with ID: ${id}`);
+    setData(data.filter(item => item.id !== id));
+    setSelectedItems(selectedItems.filter(itemId => itemId !== id));
     toast.success(`Pricing type deleted successfully`);
-    // Implement delete functionality
+  };
+
+  const addNewPricingType = (typeCode: string, typeName: string) => {
+    const newId = String(data.length + 1);
+    const newPricingType = {
+      id: newId,
+      typeCode,
+      typeName,
+    };
+    setData([...data, newPricingType]);
   };
 
   const getRowStyle = (typeName: string) => {
@@ -82,58 +103,99 @@ const PricingTypeTable = () => {
     return "";
   };
 
+  // Paginate data
+  const totalPages = Math.ceil(data.length / itemsPerPage);
+  const paginatedData = data.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
   return (
-    <div className="overflow-hidden border rounded-md">
-      <Table className="min-w-full">
-        <TableHeader className="bg-gray-100">
-          <TableRow>
-            <TableHead className="w-[50px] px-2">
-              <Checkbox
-                checked={selectedItems.length === data.length && data.length > 0}
-                onCheckedChange={handleSelectAll}
-              />
-            </TableHead>
-            <TableHead>Type Code</TableHead>
-            <TableHead>Type Name</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {data.map((item) => (
-            <TableRow
-              key={item.id}
-              className={`hover:bg-gray-50 ${getRowStyle(item.typeName)}`}
-            >
-              <TableCell className="px-2">
+    <div className="space-y-4">
+      <div className="overflow-hidden border rounded-md">
+        <Table className="min-w-full">
+          <TableHeader className="bg-gray-100">
+            <TableRow>
+              <TableHead className="w-[50px] px-2">
                 <Checkbox
-                  checked={selectedItems.includes(item.id)}
-                  onCheckedChange={() => handleSelectItem(item.id)}
+                  checked={selectedItems.length === paginatedData.length && paginatedData.length > 0}
+                  onCheckedChange={handleSelectAll}
                 />
-              </TableCell>
-              <TableCell>{item.typeCode}</TableCell>
-              <TableCell>{item.typeName}</TableCell>
-              <TableCell className="text-right space-x-2">
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  onClick={() => handleEdit(item.id)}
-                >
-                  <Edit className="h-4 w-4" />
-                </Button>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  onClick={() => handleDelete(item.id)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </TableCell>
+              </TableHead>
+              <TableHead>Type Code</TableHead>
+              <TableHead>Type Name</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {paginatedData.map((item) => (
+              <TableRow
+                key={item.id}
+                className={`hover:bg-gray-50 ${getRowStyle(item.typeName)}`}
+              >
+                <TableCell className="px-2">
+                  <Checkbox
+                    checked={selectedItems.includes(item.id)}
+                    onCheckedChange={() => handleSelectItem(item.id)}
+                  />
+                </TableCell>
+                <TableCell>{item.typeCode}</TableCell>
+                <TableCell>{item.typeName}</TableCell>
+                <TableCell className="text-right space-x-2">
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => handleEdit(item.id)}
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => handleDelete(item.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+
+      {totalPages > 1 && (
+        <Pagination className="mt-4">
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious 
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"} 
+              />
+            </PaginationItem>
+            
+            {Array.from({ length: totalPages }).map((_, index) => (
+              <PaginationItem key={index}>
+                <PaginationLink 
+                  isActive={currentPage === index + 1} 
+                  onClick={() => setCurrentPage(index + 1)}
+                >
+                  {index + 1}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+            
+            <PaginationItem>
+              <PaginationNext 
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"} 
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      )}
     </div>
   );
 };
 
+export { PricingTypeTable, type PricingType };
 export default PricingTypeTable;
