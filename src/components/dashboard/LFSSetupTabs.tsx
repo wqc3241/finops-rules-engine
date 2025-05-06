@@ -6,7 +6,11 @@ import GeoTable from "./GeoTable";
 import LeaseConfigTable from "./LeaseConfigTable";
 import GatewayTable from "./GatewayTable";
 import Button from "./Button"; // Import the Button component
-import FinancialProductsTable from "./FinancialProductsTable"; // Import the new FinancialProductsTable component
+import FinancialProductsTable from "./FinancialProductsTable"; // Import the FinancialProductsTable component
+import DealerTable from "./DealerTable"; // Import the new DealerTable component
+import LenderTable from "./LenderTable"; // Import the new LenderTable component
+import VehicleConditionTable from "./VehicleConditionTable"; // Import the new VehicleConditionTable component
+import RoutingRuleTable from "./RoutingRuleTable"; // Import the new RoutingRuleTable component
 
 const LFSSetupTabs = () => {
   const handleEditClick = (id: string) => {
@@ -128,20 +132,68 @@ const LFSSetupTabs = () => {
         />
       </TabsContent>
 
-      <TabsContent value="dealer">
-        <RulesSection title="Dealer Rules" />
+      <TabsContent value="dealer" className="p-6">
+        <div className="mb-4 flex justify-between items-center">
+          <h2 className="text-lg font-medium">Dealer Rules</h2>
+          <Button
+            onClick={() => toast.info("Add new dealer record functionality to be implemented")}
+          >
+            Add New Record
+          </Button>
+        </div>
+        <DealerTable 
+          onEdit={handleEditClick}
+          onCopy={handleCopyClick}
+          onRemove={handleRemoveClick}
+        />
       </TabsContent>
 
-      <TabsContent value="lender">
-        <RulesSection title="Lender Rules" />
+      <TabsContent value="lender" className="p-6">
+        <div className="mb-4 flex justify-between items-center">
+          <h2 className="text-lg font-medium">Lender Rules</h2>
+          <Button
+            onClick={() => toast.info("Add new lender record functionality to be implemented")}
+          >
+            Add New Record
+          </Button>
+        </div>
+        <LenderTable 
+          onEdit={handleEditClick}
+          onCopy={handleCopyClick}
+          onRemove={handleRemoveClick}
+        />
       </TabsContent>
 
-      <TabsContent value="vehicle-condition">
-        <RulesSection title="Vehicle Condition Rules" />
+      <TabsContent value="vehicle-condition" className="p-6">
+        <div className="mb-4 flex justify-between items-center">
+          <h2 className="text-lg font-medium">Vehicle Condition Rules</h2>
+          <Button
+            onClick={() => toast.info("Add new vehicle condition record functionality to be implemented")}
+          >
+            Add New Record
+          </Button>
+        </div>
+        <VehicleConditionTable 
+          onEdit={handleEditClick}
+          onCopy={handleCopyClick}
+          onRemove={handleRemoveClick}
+        />
       </TabsContent>
 
-      <TabsContent value="routing-rule">
-        <RulesSection title="Routing Rules" />
+      <TabsContent value="routing-rule" className="p-6">
+        <div className="mb-4 flex justify-between items-center">
+          <h2 className="text-lg font-medium">Routing Rules</h2>
+          <Button
+            onClick={() => toast.info("Add new routing rule record functionality to be implemented")}
+          >
+            Add New Record
+          </Button>
+        </div>
+        <RoutingRuleTable 
+          onEdit={handleEditClick}
+          onCopy={handleCopyClick}
+          onRemove={handleRemoveClick}
+        />
       </TabsContent>
 
       <TabsContent value="stipulation">
