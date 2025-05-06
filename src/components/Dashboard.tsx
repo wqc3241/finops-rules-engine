@@ -3,9 +3,12 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import RulesTable from "./RulesTable";
+import PricingRulesTable from "./PricingRulesTable";
+import AddPricingRuleModal from "./AddPricingRuleModal";
 
 const Dashboard = () => {
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showAddPricingModal, setShowAddPricingModal] = useState(false);
 
   return (
     <div className="container mx-auto px-4 py-6">
@@ -44,7 +47,11 @@ const Dashboard = () => {
           </TabsContent>
           
           <TabsContent value="bulletin-pricing">
-            <RulesSection title="Bulletin Pricing Rules" />
+            <PricingRulesSection 
+              title="Bulletin Pricing Rules" 
+              showAddModal={showAddPricingModal}
+              setShowAddModal={setShowAddPricingModal}
+            />
           </TabsContent>
           
           <TabsContent value="vehicle-data">
@@ -83,6 +90,57 @@ const RulesSection = ({ title }: { title: string }) => {
       </div>
       
       {!isCollapsed && <RulesTable />}
+    </div>
+  );
+};
+
+const PricingRulesSection = ({ 
+  title, 
+  showAddModal, 
+  setShowAddModal 
+}: { 
+  title: string; 
+  showAddModal: boolean; 
+  setShowAddModal: (open: boolean) => void;
+}) => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  
+  const handleSavePricingRule = (data: any) => {
+    console.log("New pricing rule:", data);
+    // Here you would normally save the data to your state or backend
+  };
+  
+  return (
+    <div className="p-6">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center">
+          <h2 className="text-lg font-medium text-gray-800">{title.replace(" Rules", "")}</h2>
+          <button 
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="ml-2 text-gray-400 hover:text-gray-600"
+          >
+            {isCollapsed ? (
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" />
+              </svg>
+            )}
+          </button>
+        </div>
+        <Button onClick={() => setShowAddModal(true)}>Add New Pricing Rule</Button>
+      </div>
+      
+      {!isCollapsed && <PricingRulesTable />}
+      
+      {/* Modal for adding new pricing rules */}
+      <AddPricingRuleModal
+        isOpen={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onSave={handleSavePricingRule}
+      />
     </div>
   );
 };
