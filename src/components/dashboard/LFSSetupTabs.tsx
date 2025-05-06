@@ -1,4 +1,3 @@
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import RulesSection from "./RulesSection";
 import { toast } from "sonner";
@@ -11,6 +10,9 @@ import DealerTable from "./DealerTable"; // Import the new DealerTable component
 import LenderTable from "./LenderTable"; // Import the new LenderTable component
 import VehicleConditionTable from "./VehicleConditionTable"; // Import the new VehicleConditionTable component
 import RoutingRuleTable from "./RoutingRuleTable"; // Import the new RoutingRuleTable component
+import StipulationTable from "./StipulationTable"; // Import the new StipulationTable component
+import VehicleOptionsTable from "./VehicleOptionsTable"; // Import the new VehicleOptionsTable component
+import VehicleStyleDecodingTable from "./VehicleStyleDecodingTable"; // Import the new VehicleStyleDecodingTable component
 
 const LFSSetupTabs = () => {
   const handleEditClick = (id: string) => {
@@ -196,16 +198,52 @@ const LFSSetupTabs = () => {
         />
       </TabsContent>
 
-      <TabsContent value="stipulation">
-        <RulesSection title="Stipulation Rules" />
+      <TabsContent value="stipulation" className="p-6">
+        <div className="mb-4 flex justify-between items-center">
+          <h2 className="text-lg font-medium">Stipulation Rules</h2>
+          <Button
+            onClick={() => toast.info("Add new stipulation record functionality to be implemented")}
+          >
+            Add New Record
+          </Button>
+        </div>
+        <StipulationTable 
+          onEdit={handleEditClick}
+          onCopy={handleCopyClick}
+          onRemove={handleRemoveClick}
+        />
       </TabsContent>
 
-      <TabsContent value="vehicle-options">
-        <RulesSection title="Vehicle Options Rules" />
+      <TabsContent value="vehicle-options" className="p-6">
+        <div className="mb-4 flex justify-between items-center">
+          <h2 className="text-lg font-medium">Vehicle Options Rules</h2>
+          <Button
+            onClick={() => toast.info("Add new vehicle option record functionality to be implemented")}
+          >
+            Add New Record
+          </Button>
+        </div>
+        <VehicleOptionsTable 
+          onEdit={handleEditClick}
+          onCopy={handleCopyClick}
+          onRemove={handleRemoveClick}
+        />
       </TabsContent>
 
-      <TabsContent value="vehicle-style-coding">
-        <RulesSection title="Vehicle Style Coding Rules" />
+      <TabsContent value="vehicle-style-coding" className="p-6">
+        <div className="mb-4 flex justify-between items-center">
+          <h2 className="text-lg font-medium">Vehicle Style Coding Rules</h2>
+          <Button
+            onClick={() => toast.info("Add new vehicle style coding record functionality to be implemented")}
+          >
+            Add New Record
+          </Button>
+        </div>
+        <VehicleStyleDecodingTable 
+          onEdit={handleEditClick}
+          onCopy={handleCopyClick}
+          onRemove={handleRemoveClick}
+        />
       </TabsContent>
     </Tabs>
   );
