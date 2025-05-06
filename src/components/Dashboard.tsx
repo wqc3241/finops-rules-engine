@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -6,6 +5,7 @@ import RulesTable from "./RulesTable";
 import PricingRulesTable from "./PricingRulesTable";
 import PricingConfigRulesTable from "./PricingConfigRulesTable";
 import FinancialProductsTable from "./FinancialProductsTable";
+import FinancialProgramConfigTable from "./FinancialProgramConfigTable";
 import AddPricingRuleModal from "./AddPricingRuleModal";
 import { toast } from "sonner";
 
@@ -44,7 +44,7 @@ const Dashboard = () => {
           </TabsContent>
           
           <TabsContent value="program">
-            <RulesSection title="Financial Program Config Rules" />
+            <FinancialProgramConfigSection title="Financial Program Config Rules" />
           </TabsContent>
           
           <TabsContent value="bulletin-pricing">
@@ -215,6 +215,37 @@ const PricingRulesSection = ({
         onClose={() => setShowAddModal(false)}
         onSave={handleSavePricingRule}
       />
+    </div>
+  );
+};
+
+const FinancialProgramConfigSection = ({ title }: { title: string }) => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  
+  return (
+    <div className="p-6">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center">
+          <h2 className="text-lg font-medium text-gray-800">{title.replace(" Rules", "")}</h2>
+          <button 
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="ml-2 text-gray-400 hover:text-gray-600"
+          >
+            {isCollapsed ? (
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" />
+              </svg>
+            )}
+          </button>
+        </div>
+        <Button>Add New Program Config</Button>
+      </div>
+      
+      {!isCollapsed && <FinancialProgramConfigTable />}
     </div>
   );
 };
