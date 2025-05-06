@@ -1,5 +1,5 @@
 
-import { Button } from "./Button"; 
+import Button from "./Button"; 
 import { toast } from "sonner";
 import { ReactNode } from "react";
 
