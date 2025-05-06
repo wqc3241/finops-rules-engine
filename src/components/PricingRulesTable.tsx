@@ -2,6 +2,10 @@
 import { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Pencil, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 interface PricingRule {
   id: string;
@@ -64,6 +68,8 @@ const formatCurrency = (value: number) => {
 const PricingRulesTable = () => {
   const [pricingRules, setPricingRules] = useState<PricingRule[]>(initialPricingRules);
   const [selectedRules, setSelectedRules] = useState<string[]>([]);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [ruleToDelete, setRuleToDelete] = useState<string | null>(null);
 
   const toggleSelectAll = () => {
     if (selectedRules.length === pricingRules.length) {
@@ -77,6 +83,26 @@ const PricingRulesTable = () => {
     setSelectedRules(current =>
       current.includes(id) ? current.filter(ruleId => ruleId !== id) : [...current, id]
     );
+  };
+
+  const handleDeleteClick = (id: string) => {
+    setRuleToDelete(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (ruleToDelete) {
+      setPricingRules(current => current.filter(rule => rule.id !== ruleToDelete));
+      setSelectedRules(current => current.filter(id => id !== ruleToDelete));
+      toast.success("Pricing rule deleted");
+    }
+    setDeleteDialogOpen(false);
+    setRuleToDelete(null);
+  };
+
+  const handleEditClick = (id: string) => {
+    // This would open an edit modal in a real implementation
+    toast.info(`Editing rule ${id} - functionality to be implemented`);
   };
 
   return (
@@ -101,7 +127,6 @@ const PricingRulesTable = () => {
             <TableHead>Dealer Discount</TableHead>
             <TableHead>Program Fee</TableHead>
             <TableHead className="text-right">Actions</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -123,24 +148,45 @@ const PricingRulesTable = () => {
               <TableCell className="highlight">{formatPercent(rule.maxMarkup)}</TableCell>
               <TableCell>{formatPercent(rule.dealerDiscount)}</TableCell>
               <TableCell>{formatCurrency(rule.programFee)}</TableCell>
-              <TableCell className="text-right">
-                <button className="action-icon" title="Edit">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                  </svg>
-                </button>
-              </TableCell>
-              <TableCell className="text-right">
-                <button className="action-icon" title="Delete">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
-                </button>
+              <TableCell className="text-right space-x-2">
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  onClick={() => handleEditClick(rule.id)}
+                  className="h-8 w-8"
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  onClick={() => handleDeleteClick(rule.id)}
+                  className="h-8 w-8 text-destructive"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
+      
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Pricing Rule</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this pricing rule? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

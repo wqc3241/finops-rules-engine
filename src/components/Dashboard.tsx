@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import RulesTable from "./RulesTable";
 import PricingRulesTable from "./PricingRulesTable";
 import AddPricingRuleModal from "./AddPricingRuleModal";
+import { toast } from "sonner";
 
 const Dashboard = () => {
   const [showAddModal, setShowAddModal] = useState(false);
@@ -13,7 +14,7 @@ const Dashboard = () => {
   return (
     <div className="container mx-auto px-4 py-6">
       <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-        <Tabs defaultValue="product">
+        <Tabs defaultValue="bulletin-pricing">
           <div className="px-6 border-b border-gray-200">
             <TabsList className="border-b-0">
               <TabsTrigger value="advertised-offer">Advertised Offer</TabsTrigger>
@@ -108,6 +109,8 @@ const PricingRulesSection = ({
   const handleSavePricingRule = (data: any) => {
     console.log("New pricing rule:", data);
     // Here you would normally save the data to your state or backend
+    // In a real implementation, this would update the PricingRulesTable
+    toast.success(`New pricing rule "${data.programName}" created`);
   };
   
   return (

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { FormEvent } from "react";
+import { toast } from "sonner";
 
 interface PricingRuleData {
   programName: string;
@@ -52,7 +53,14 @@ const AddPricingRuleModal = ({ isOpen, onClose, onSave }: AddPricingRuleModalPro
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
+    
+    if (!formData.programName) {
+      toast.error("Program Name is required");
+      return;
+    }
+    
     onSave(formData);
+    toast.success("Pricing rule added successfully!");
     onClose();
     
     // Reset form
