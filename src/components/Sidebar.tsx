@@ -1,6 +1,15 @@
 
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
+import { 
+  Layers, 
+  DollarSign, 
+  LayoutDashboard, 
+  BarChart, 
+  ListTodo, 
+  Settings, 
+  Receipt 
+} from 'lucide-react';
 
 interface NavItemProps {
   title: string;
@@ -26,69 +35,41 @@ const NavItem = ({ title, icon, active = false, onClick }: NavItemProps) => {
 
 interface SidebarProps {
   open: boolean;
+  activeItem: string;
+  setActiveItem: (item: string) => void;
 }
 
-const Sidebar = ({ open }: SidebarProps) => {
-  const [activeItem, setActiveItem] = useState('Dashboard');
-  
+const Sidebar = ({ open, activeItem, setActiveItem }: SidebarProps) => {
   if (!open) return null;
 
   const navItems = [
     {
       title: 'Applications',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-        </svg>
-      ),
+      icon: <Layers className="h-5 w-5" />,
     },
     {
       title: 'Financial Pricing',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-        </svg>
-      ),
+      icon: <DollarSign className="h-5 w-5" />,
     },
     {
       title: 'Dashboard',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-        </svg>
-      ),
+      icon: <LayoutDashboard className="h-5 w-5" />,
     },
     {
       title: 'Report',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-        </svg>
-      ),
+      icon: <BarChart className="h-5 w-5" />,
     },
     {
       title: 'Tasks',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-        </svg>
-      ),
+      icon: <ListTodo className="h-5 w-5" />,
     },
     {
       title: 'LFS Setup',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-        </svg>
-      ),
+      icon: <Settings className="h-5 w-5" />,
     },
     {
       title: 'Fee & Tax',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-        </svg>
-      ),
+      icon: <Receipt className="h-5 w-5" />,
     },
   ];
 
