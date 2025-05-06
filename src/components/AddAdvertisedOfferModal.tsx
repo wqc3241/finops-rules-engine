@@ -1,16 +1,9 @@
 
 import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
 interface AddAdvertisedOfferModalProps {
@@ -19,7 +12,11 @@ interface AddAdvertisedOfferModalProps {
   onSave: (data: any) => void;
 }
 
-const AddAdvertisedOfferModal = ({ isOpen, onClose, onSave }: AddAdvertisedOfferModalProps) => {
+const AddAdvertisedOfferModal = ({
+  isOpen,
+  onClose,
+  onSave,
+}: AddAdvertisedOfferModalProps) => {
   const [formData, setFormData] = useState({
     bulletinPricing: "",
     disclosure: "",
@@ -29,89 +26,74 @@ const AddAdvertisedOfferModal = ({ isOpen, onClose, onSave }: AddAdvertisedOffer
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSave(formData);
-    resetForm();
-    onClose();
-  };
-
-  const resetForm = () => {
     setFormData({
       bulletinPricing: "",
       disclosure: "",
       loanAmountPer10k: "",
       totalCostOfCredit: "",
     });
+    onClose();
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px]">
-        <form onSubmit={handleSubmit}>
-          <DialogHeader>
-            <DialogTitle>Add New Advertised Offer</DialogTitle>
-            <DialogDescription>
-              Fill out the form below to create a new advertised offer.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="grid gap-4 py-4">
-            <div className="flex flex-col space-y-1.5">
-              <Label htmlFor="bulletinPricing">Bulletin Pricing</Label>
-              <Input
-                id="bulletinPricing"
-                name="bulletinPricing"
-                value={formData.bulletinPricing}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div className="flex flex-col space-y-1.5">
-              <Label htmlFor="disclosure">Disclosure</Label>
-              <Textarea
-                id="disclosure"
-                name="disclosure"
-                value={formData.disclosure}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col space-y-1.5">
-                <Label htmlFor="loanAmountPer10k">Loan Amount per $10000</Label>
-                <Input
-                  id="loanAmountPer10k"
-                  name="loanAmountPer10k"
-                  value={formData.loanAmountPer10k}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="flex flex-col space-y-1.5">
-                <Label htmlFor="totalCostOfCredit">Loan Total Cost of Credit</Label>
-                <Input
-                  id="totalCostOfCredit"
-                  name="totalCostOfCredit"
-                  value={formData.totalCostOfCredit}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Add New Advertised Offer</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4 pt-4">
+          <div className="grid gap-2">
+            <Label htmlFor="bulletinPricing">Bulletin Pricing</Label>
+            <Input
+              id="bulletinPricing"
+              name="bulletinPricing"
+              value={formData.bulletinPricing}
+              onChange={handleChange}
+              required
+            />
           </div>
-
+          <div className="grid gap-2">
+            <Label htmlFor="disclosure">Disclosure</Label>
+            <Textarea
+              id="disclosure"
+              name="disclosure"
+              value={formData.disclosure}
+              onChange={handleChange}
+              rows={3}
+              required
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="loanAmountPer10k">Loan Amount per $10,000</Label>
+            <Input
+              id="loanAmountPer10k"
+              name="loanAmountPer10k"
+              value={formData.loanAmountPer10k}
+              onChange={handleChange}
+              placeholder="e.g. $186.43/month"
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="totalCostOfCredit">Total Cost of Credit</Label>
+            <Input
+              id="totalCostOfCredit"
+              name="totalCostOfCredit"
+              value={formData.totalCostOfCredit}
+              onChange={handleChange}
+              placeholder="e.g. $1,345.80"
+            />
+          </div>
           <DialogFooter>
             <Button variant="outline" type="button" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit">Create Offer</Button>
+            <Button type="submit">Save</Button>
           </DialogFooter>
         </form>
       </DialogContent>
