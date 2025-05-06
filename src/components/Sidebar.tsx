@@ -1,5 +1,6 @@
 
 import { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { 
   Layers, 
@@ -16,11 +17,13 @@ interface NavItemProps {
   icon: React.ReactNode;
   active?: boolean;
   onClick: () => void;
+  to: string;
 }
 
-const NavItem = ({ title, icon, active = false, onClick }: NavItemProps) => {
+const NavItem = ({ title, icon, active = false, onClick, to }: NavItemProps) => {
   return (
-    <div 
+    <Link
+      to={to}
       onClick={onClick}
       className={cn(
         "flex items-center px-4 py-3 text-gray-600 cursor-pointer hover:bg-gray-100 transition-colors",
@@ -29,7 +32,7 @@ const NavItem = ({ title, icon, active = false, onClick }: NavItemProps) => {
     >
       <div className="mr-3">{icon}</div>
       <span className="text-sm font-medium">{title}</span>
-    </div>
+    </Link>
   );
 };
 
@@ -41,35 +44,44 @@ interface SidebarProps {
 
 const Sidebar = ({ open, activeItem, setActiveItem }: SidebarProps) => {
   if (!open) return null;
+  
+  const location = useLocation();
 
   const navItems = [
     {
       title: 'Applications',
       icon: <Layers className="h-5 w-5" />,
+      path: '/applications'
     },
     {
       title: 'Financial Pricing',
       icon: <DollarSign className="h-5 w-5" />,
+      path: '/'
     },
     {
       title: 'Dashboard',
       icon: <LayoutDashboard className="h-5 w-5" />,
+      path: '/dashboard'
     },
     {
       title: 'Report',
       icon: <BarChart className="h-5 w-5" />,
+      path: '/report'
     },
     {
       title: 'Tasks',
       icon: <ListTodo className="h-5 w-5" />,
+      path: '/tasks'
     },
     {
       title: 'LFS Setup',
       icon: <Settings className="h-5 w-5" />,
+      path: '/'
     },
     {
       title: 'Fee & Tax',
       icon: <Receipt className="h-5 w-5" />,
+      path: '/'
     },
   ];
 
@@ -84,6 +96,7 @@ const Sidebar = ({ open, activeItem, setActiveItem }: SidebarProps) => {
               icon={item.icon}
               active={activeItem === item.title}
               onClick={() => setActiveItem(item.title)}
+              to={item.path}
             />
           ))}
         </div>
