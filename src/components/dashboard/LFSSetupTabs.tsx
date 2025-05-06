@@ -1,8 +1,27 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import RulesSection from "./RulesSection";
+import { toast } from "sonner";
+import GeoTable from "./GeoTable";
+import LeaseConfigTable from "./LeaseConfigTable";
+import GatewayTable from "./GatewayTable";
 
 const LFSSetupTabs = () => {
+  const handleEditClick = (id: string) => {
+    console.log(`Edit rule ${id} clicked`);
+    toast.info(`Edit rule ${id} functionality to be implemented`);
+  };
+  
+  const handleCopyClick = (id: string) => {
+    console.log(`Copy rule ${id} clicked`);
+    toast.info(`Rule ${id} has been copied`);
+  };
+  
+  const handleRemoveClick = (id: string) => {
+    console.log(`Remove rule ${id} clicked`);
+    toast.info(`Rule ${id} has been removed`);
+  };
+
   return (
     <Tabs defaultValue="geo" className="w-full">
       <div className="border-b border-gray-200">
@@ -40,33 +59,78 @@ const LFSSetupTabs = () => {
         </TabsList>
       </div>
 
-      <TabsContent value="geo">
-        <RulesSection title="Geo Rules" />
+      <TabsContent value="geo" className="p-6">
+        <div className="mb-4 flex justify-between items-center">
+          <h2 className="text-lg font-medium">Geo Rules</h2>
+          <Button
+            onClick={() => toast.info("Add new geo record functionality to be implemented")}
+          >
+            Add New Record
+          </Button>
+        </div>
+        <GeoTable 
+          onEdit={handleEditClick}
+          onCopy={handleCopyClick}
+          onRemove={handleRemoveClick}
+        />
       </TabsContent>
-      <TabsContent value="lease-config">
-        <RulesSection title="Lease Config Rules" />
+
+      <TabsContent value="lease-config" className="p-6">
+        <div className="mb-4 flex justify-between items-center">
+          <h2 className="text-lg font-medium">Lease Config Rules</h2>
+          <Button
+            onClick={() => toast.info("Add new lease config record functionality to be implemented")}
+          >
+            Add New Record
+          </Button>
+        </div>
+        <LeaseConfigTable 
+          onEdit={handleEditClick}
+          onCopy={handleCopyClick}
+          onRemove={handleRemoveClick}
+        />
       </TabsContent>
-      <TabsContent value="gateway">
-        <RulesSection title="Gateway Rules" />
+
+      <TabsContent value="gateway" className="p-6">
+        <div className="mb-4 flex justify-between items-center">
+          <h2 className="text-lg font-medium">Gateway Rules</h2>
+          <Button
+            onClick={() => toast.info("Add new gateway record functionality to be implemented")}
+          >
+            Add New Record
+          </Button>
+        </div>
+        <GatewayTable 
+          onEdit={handleEditClick}
+          onCopy={handleCopyClick}
+          onRemove={handleRemoveClick}
+        />
       </TabsContent>
+
       <TabsContent value="dealer">
         <RulesSection title="Dealer Rules" />
       </TabsContent>
+
       <TabsContent value="lender">
         <RulesSection title="Lender Rules" />
       </TabsContent>
+
       <TabsContent value="vehicle-condition">
         <RulesSection title="Vehicle Condition Rules" />
       </TabsContent>
+
       <TabsContent value="routing-rule">
         <RulesSection title="Routing Rules" />
       </TabsContent>
+
       <TabsContent value="stipulation">
         <RulesSection title="Stipulation Rules" />
       </TabsContent>
+
       <TabsContent value="vehicle-options">
         <RulesSection title="Vehicle Options Rules" />
       </TabsContent>
+
       <TabsContent value="vehicle-style-coding">
         <RulesSection title="Vehicle Style Coding Rules" />
       </TabsContent>
