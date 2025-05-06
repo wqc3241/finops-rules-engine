@@ -2,6 +2,7 @@
 import LFSSetupTabs from "./LFSSetupTabs";
 import FinancialPricingTabs from "./FinancialPricingTabs";
 import DashboardTabs from "./DashboardTabs";
+import FeeTaxTabs from "./FeeTaxTabs";
 
 interface TabsSectionProps {
   activeSection: string;
@@ -33,6 +34,11 @@ const TabsSection = ({
         setShowAddPricingTypeModal={setShowAddPricingTypeModal}
       />
     );
+  }
+
+  // Fee & Tax tabs
+  if (activeSection === "Fee & Tax") {
+    return <FeeTaxTabs />;
   }
 
   // Dashboard as default
