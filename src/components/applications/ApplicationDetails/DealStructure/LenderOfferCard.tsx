@@ -43,7 +43,7 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({ offer, isExpanded }) 
       <>
         <div className="grid grid-cols-3 gap-6 mb-6">
           <div className="flex flex-col h-full">
-            <h4 className="text-md font-medium mb-4">Requested</h4>
+            <h4 className="text-xs font-medium mb-3">Requested</h4>
             <div className="flex-grow">
               {renderOfferItems(offer.requested)}
             </div>
@@ -52,7 +52,7 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({ offer, isExpanded }) 
           <Separator orientation="vertical" className="mx-3" />
           
           <div className="flex flex-col h-full">
-            <h4 className="text-md font-medium mb-4">Approved</h4>
+            <h4 className="text-xs font-medium mb-3">Approved</h4>
             <div className="flex-grow">
               {renderOfferItems(offer.approved)}
             </div>
@@ -61,7 +61,7 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({ offer, isExpanded }) 
           <Separator orientation="vertical" className="mx-3" />
           
           <div className="flex flex-col h-full">
-            <h4 className="text-md font-medium mb-4">Customer</h4>
+            <h4 className="text-xs font-medium mb-3">Customer</h4>
             <div className="flex-grow">
               {renderOfferItems(offer.customer)}
             </div>
@@ -96,11 +96,11 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({ offer, isExpanded }) 
   };
 
   const renderOfferItems = (items: DealStructureItem[]) => (
-    <div className="space-y-3">
+    <div className="space-y-2">
       {items.map((item, index) => (
         <div key={index} className="flex">
-          <span className="text-sm text-gray-600 min-w-[180px]">{item.label}</span>
-          <span className="text-sm font-medium">{item.value}</span>
+          <span className="text-xs text-gray-600 min-w-[120px]">{item.label}</span>
+          <span className="text-xs font-medium">{item.value}</span>
         </div>
       ))}
     </div>
