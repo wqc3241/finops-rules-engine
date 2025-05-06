@@ -6,6 +6,7 @@ import GeoTable from "./GeoTable";
 import LeaseConfigTable from "./LeaseConfigTable";
 import GatewayTable from "./GatewayTable";
 import Button from "./Button"; // Import the Button component
+import FinancialProductsTable from "./FinancialProductsTable"; // Import the new FinancialProductsTable component
 
 const LFSSetupTabs = () => {
   const handleEditClick = (id: string) => {
@@ -35,6 +36,9 @@ const LFSSetupTabs = () => {
           </TabsTrigger>
           <TabsTrigger value="gateway" className="py-3 px-6 data-[state=active]:border-b-2 data-[state=active]:border-gray-900 data-[state=active]:bg-transparent rounded-none">
             Gateway
+          </TabsTrigger>
+          <TabsTrigger value="financial-products" className="py-3 px-6 data-[state=active]:border-b-2 data-[state=active]:border-gray-900 data-[state=active]:bg-transparent rounded-none">
+            Financial Products
           </TabsTrigger>
           <TabsTrigger value="dealer" className="py-3 px-6 data-[state=active]:border-b-2 data-[state=active]:border-gray-900 data-[state=active]:bg-transparent rounded-none">
             Dealer
@@ -102,6 +106,22 @@ const LFSSetupTabs = () => {
           </Button>
         </div>
         <GatewayTable 
+          onEdit={handleEditClick}
+          onCopy={handleCopyClick}
+          onRemove={handleRemoveClick}
+        />
+      </TabsContent>
+
+      <TabsContent value="financial-products" className="p-6">
+        <div className="mb-4 flex justify-between items-center">
+          <h2 className="text-lg font-medium">Financial Products</h2>
+          <Button
+            onClick={() => toast.info("Add new financial product functionality to be implemented")}
+          >
+            Add New Record
+          </Button>
+        </div>
+        <FinancialProductsTable 
           onEdit={handleEditClick}
           onCopy={handleCopyClick}
           onRemove={handleRemoveClick}
