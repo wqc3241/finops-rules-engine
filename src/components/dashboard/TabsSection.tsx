@@ -11,9 +11,16 @@ import PricingTypeSection from "./PricingTypeSection";
 interface TabsSectionProps {
   showAddPricingModal: boolean;
   setShowAddPricingModal: (open: boolean) => void;
+  showAddPricingTypeModal: boolean;
+  setShowAddPricingTypeModal: (open: boolean) => void;
 }
 
-const TabsSection = ({ showAddPricingModal, setShowAddPricingModal }: TabsSectionProps) => {
+const TabsSection = ({ 
+  showAddPricingModal, 
+  setShowAddPricingModal,
+  showAddPricingTypeModal,
+  setShowAddPricingTypeModal
+}: TabsSectionProps) => {
   return (
     <Tabs defaultValue="bulletin-pricing">
       <div className="px-6 border-b border-gray-200">
@@ -57,7 +64,11 @@ const TabsSection = ({ showAddPricingModal, setShowAddPricingModal }: TabsSectio
       </TabsContent>
       
       <TabsContent value="inventory-type">
-        <PricingTypeSection title="Pricing Type Rules" />
+        <PricingTypeSection 
+          title="Pricing Type Rules"
+          showAddModal={showAddPricingTypeModal}
+          setShowAddModal={setShowAddPricingTypeModal}
+        />
       </TabsContent>
     </Tabs>
   );

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import {
   Table,
@@ -11,7 +10,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
-import { ChevronDown, ChevronUp, Edit, Trash2 } from "lucide-react";
+import { ChevronDown, ChevronUp, Edit, Trash2, Copy } from "lucide-react";
+import { toast } from "sonner";
 
 type BulletinPricing = {
   id: string;
@@ -110,11 +110,25 @@ const PricingRulesTable = () => {
 
   const handleEdit = (id: string) => {
     console.log(`Editing item with ID: ${id}`);
+    toast.info(`Editing bulletin pricing with ID: ${id}`);
     // Implement edit functionality here
+  };
+
+  const handleCopy = (id: string) => {
+    const itemToCopy = data.find(item => item.id === id);
+    if (itemToCopy) {
+      const newItem = {
+        ...itemToCopy,
+        id: `${itemToCopy.id}_COPY`,
+      };
+      setData([...data, newItem]);
+      toast.success(`Copied bulletin pricing: ${itemToCopy.id}`);
+    }
   };
 
   const handleDelete = (id: string) => {
     console.log(`Deleting item with ID: ${id}`);
+    toast.success(`Bulletin pricing deleted successfully`);
     // Here you would delete the item and update state
     setData(data.filter((item) => item.id !== id));
     setSelectedItems(selectedItems.filter((item) => item !== id));
@@ -209,6 +223,9 @@ const PricingRulesTable = () => {
               <TableCell className="space-x-2">
                 <Button size="icon" variant="ghost" onClick={() => handleEdit(item.id)}>
                   <Edit className="h-4 w-4" />
+                </Button>
+                <Button size="icon" variant="ghost" onClick={() => handleCopy(item.id)}>
+                  <Copy className="h-4 w-4" />
                 </Button>
                 <Button size="icon" variant="ghost" onClick={() => handleDelete(item.id)}>
                   <Trash2 className="h-4 w-4" />

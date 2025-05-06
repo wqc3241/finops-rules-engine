@@ -32,7 +32,7 @@ const PricingRulesSection = ({
         isCollapsed={isCollapsed} 
         setIsCollapsed={setIsCollapsed}
       >
-        <Button onClick={() => setShowAddModal(true)}>Add New Pricing Rule</Button>
+        <Button onClick={() => setShowAddModal(true)}>Add New Record</Button>
       </SectionHeader>
       
       {!isCollapsed && <PricingRulesTable />}

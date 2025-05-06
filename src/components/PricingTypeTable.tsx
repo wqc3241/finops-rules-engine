@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Trash2, Copy } from "lucide-react";
 import { toast } from "sonner";
 import {
   Pagination,
@@ -75,6 +75,20 @@ const PricingTypeTable = () => {
     // Implement edit functionality
   };
 
+  const handleCopy = (id: string) => {
+    const itemToCopy = data.find(item => item.id === id);
+    if (itemToCopy) {
+      const newId = String(data.length + 1);
+      const newItem = {
+        ...itemToCopy,
+        id: newId,
+        typeCode: `${itemToCopy.typeCode}_COPY`,
+      };
+      setData([...data, newItem]);
+      toast.success(`Copied pricing type: ${itemToCopy.typeName}`);
+    }
+  };
+
   const handleDelete = (id: string) => {
     console.log(`Deleting item with ID: ${id}`);
     setData(data.filter(item => item.id !== id));
@@ -90,17 +104,6 @@ const PricingTypeTable = () => {
       typeName,
     };
     setData([...data, newPricingType]);
-  };
-
-  const getRowStyle = (typeName: string) => {
-    // Highlight rows with "Min Down Payment" and "Per Mile fee over Alloted"
-    if (
-      typeName === "Min Down Payment" || 
-      typeName === "Per Mile fee over Alloted"
-    ) {
-      return "bg-yellow-100";
-    }
-    return "";
   };
 
   // Paginate data
@@ -129,10 +132,7 @@ const PricingTypeTable = () => {
           </TableHeader>
           <TableBody>
             {paginatedData.map((item) => (
-              <TableRow
-                key={item.id}
-                className={`hover:bg-gray-50 ${getRowStyle(item.typeName)}`}
-              >
+              <TableRow key={item.id} className="hover:bg-gray-50">
                 <TableCell className="px-2">
                   <Checkbox
                     checked={selectedItems.includes(item.id)}
@@ -148,6 +148,13 @@ const PricingTypeTable = () => {
                     onClick={() => handleEdit(item.id)}
                   >
                     <Edit className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => handleCopy(item.id)}
+                  >
+                    <Copy className="h-4 w-4" />
                   </Button>
                   <Button
                     size="icon"

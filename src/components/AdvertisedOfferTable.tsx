@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Trash2, Copy } from "lucide-react";
 import { toast } from "sonner";
 
 type AdvertisedOffer = {
@@ -65,6 +65,20 @@ const AdvertisedOfferTable = () => {
     // Implement edit functionality
   };
 
+  const handleCopy = (id: string) => {
+    const itemToCopy = data.find(item => item.id === id);
+    if (itemToCopy) {
+      const newId = String(data.length + 1);
+      const newItem = {
+        ...itemToCopy,
+        id: newId,
+        bulletinPricing: `${itemToCopy.bulletinPricing}_COPY`,
+      };
+      setData([...data, newItem]);
+      toast.success(`Copied advertised offer for: ${itemToCopy.bulletinPricing}`);
+    }
+  };
+
   const handleDelete = (id: string) => {
     console.log(`Deleting item with ID: ${id}`);
     toast.success(`Advertised offer deleted successfully`);
@@ -107,6 +121,9 @@ const AdvertisedOfferTable = () => {
               <TableCell className="space-x-2">
                 <Button size="icon" variant="ghost" onClick={() => handleEdit(item.id)}>
                   <Edit className="h-4 w-4" />
+                </Button>
+                <Button size="icon" variant="ghost" onClick={() => handleCopy(item.id)}>
+                  <Copy className="h-4 w-4" />
                 </Button>
                 <Button size="icon" variant="ghost" onClick={() => handleDelete(item.id)}>
                   <Trash2 className="h-4 w-4" />
