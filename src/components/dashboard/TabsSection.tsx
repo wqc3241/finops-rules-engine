@@ -19,35 +19,33 @@ const TabsSection = ({
   showAddPricingTypeModal,
   setShowAddPricingTypeModal
 }: TabsSectionProps) => {
-  // LFS Setup tabs
-  if (activeSection === "LFS Setup") {
-    return <LFSSetupTabs />;
+  // Use the appropriate tabs component based on activeSection
+  switch(activeSection) {
+    case "LFS Setup": 
+      return <LFSSetupTabs />;
+    
+    case "Financial Pricing":
+      return (
+        <FinancialPricingTabs
+          showAddPricingModal={showAddPricingModal}
+          setShowAddPricingModal={setShowAddPricingModal}
+          showAddPricingTypeModal={showAddPricingTypeModal}
+          setShowAddPricingTypeModal={setShowAddPricingTypeModal}
+        />
+      );
+    
+    case "Fee & Tax":
+      return <FeeTaxTabs />;
+      
+    default:
+      // Dashboard as default
+      return (
+        <DashboardTabs 
+          showAddPricingModal={showAddPricingModal}
+          setShowAddPricingModal={setShowAddPricingModal}
+        />
+      );
   }
-
-  // Financial Pricing tabs
-  if (activeSection === "Financial Pricing") {
-    return (
-      <FinancialPricingTabs
-        showAddPricingModal={showAddPricingModal}
-        setShowAddPricingModal={setShowAddPricingModal}
-        showAddPricingTypeModal={showAddPricingTypeModal}
-        setShowAddPricingTypeModal={setShowAddPricingTypeModal}
-      />
-    );
-  }
-
-  // Fee & Tax tabs
-  if (activeSection === "Fee & Tax") {
-    return <FeeTaxTabs />;
-  }
-
-  // Dashboard as default
-  return (
-    <DashboardTabs 
-      showAddPricingModal={showAddPricingModal}
-      setShowAddPricingModal={setShowAddPricingModal}
-    />
-  );
 };
 
 export default TabsSection;

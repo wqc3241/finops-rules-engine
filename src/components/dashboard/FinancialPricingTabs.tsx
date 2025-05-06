@@ -1,5 +1,5 @@
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import TabComponent, { TabItem } from "./TabComponent";
 import AdvertisedOfferSection from "./AdvertisedOfferSection";
 import PricingRulesSection from "./PricingRulesSection";
 import PricingTypeSection from "./PricingTypeSection";
@@ -21,65 +21,57 @@ const FinancialPricingTabs = ({
   showAddPricingTypeModal,
   setShowAddPricingTypeModal
 }: FinancialPricingTabsProps) => {
-  return (
-    <Tabs defaultValue="pricing-rules" className="w-full">
-      <div className="border-b border-gray-200">
-        <TabsList className="bg-transparent h-auto p-0 w-full flex overflow-x-auto">
-          <TabsTrigger value="pricing-rules" className="py-3 px-6 data-[state=active]:border-b-2 data-[state=active]:border-gray-900 data-[state=active]:bg-transparent rounded-none">
-            Pricing Rules
-          </TabsTrigger>
-          <TabsTrigger value="pricing-types" className="py-3 px-6 data-[state=active]:border-b-2 data-[state=active]:border-gray-900 data-[state=active]:bg-transparent rounded-none">
-            Pricing Types
-          </TabsTrigger>
-          <TabsTrigger value="rules" className="py-3 px-6 data-[state=active]:border-b-2 data-[state=active]:border-gray-900 data-[state=active]:bg-transparent rounded-none">
-            Rules
-          </TabsTrigger>
-          <TabsTrigger value="pricing-config-rules" className="py-3 px-6 data-[state=active]:border-b-2 data-[state=active]:border-gray-900 data-[state=active]:bg-transparent rounded-none">
-            Config Rules
-          </TabsTrigger>
-          <TabsTrigger value="financial-products" className="py-3 px-6 data-[state=active]:border-b-2 data-[state=active]:border-gray-900 data-[state=active]:bg-transparent rounded-none">
-            Financial Products
-          </TabsTrigger>
-          <TabsTrigger value="financial-program-config" className="py-3 px-6 data-[state=active]:border-b-2 data-[state=active]:border-gray-900 data-[state=active]:bg-transparent rounded-none">
-            Financial Program Config
-          </TabsTrigger>
-          <TabsTrigger value="advertised-offers" className="py-3 px-6 data-[state=active]:border-b-2 data-[state=active]:border-gray-900 data-[state=active]:bg-transparent rounded-none">
-            Advertised Offers
-          </TabsTrigger>
-        </TabsList>
-      </div>
-
-      <TabsContent value="pricing-rules">
+  const tabItems: TabItem[] = [
+    {
+      value: "pricing-rules",
+      label: "Pricing Rules",
+      content: (
         <PricingRulesSection 
           title="Pricing Rules"
           showAddModal={showAddPricingModal} 
           setShowAddModal={setShowAddPricingModal} 
         />
-      </TabsContent>
-      <TabsContent value="pricing-types">
+      )
+    },
+    {
+      value: "pricing-types",
+      label: "Pricing Types",
+      content: (
         <PricingTypeSection 
           title="Pricing Types"
           showAddModal={showAddPricingTypeModal} 
           setShowAddModal={setShowAddPricingTypeModal} 
         />
-      </TabsContent>
-      <TabsContent value="rules">
-        <RulesSection title="Rules" />
-      </TabsContent>
-      <TabsContent value="pricing-config-rules">
-        <PricingConfigRulesSection title="Config Rules" />
-      </TabsContent>
-      <TabsContent value="financial-products">
-        <FinancialProductsSection title="Financial Products" />
-      </TabsContent>
-      <TabsContent value="financial-program-config">
-        <FinancialProgramConfigSection title="Financial Program Config" />
-      </TabsContent>
-      <TabsContent value="advertised-offers">
-        <AdvertisedOfferSection title="Advertised Offers" />
-      </TabsContent>
-    </Tabs>
-  );
+      )
+    },
+    {
+      value: "rules",
+      label: "Rules",
+      content: <RulesSection title="Rules" />
+    },
+    {
+      value: "pricing-config-rules",
+      label: "Config Rules",
+      content: <PricingConfigRulesSection title="Config Rules" />
+    },
+    {
+      value: "financial-products",
+      label: "Financial Products",
+      content: <FinancialProductsSection title="Financial Products" />
+    },
+    {
+      value: "financial-program-config",
+      label: "Financial Program Config",
+      content: <FinancialProgramConfigSection title="Financial Program Config" />
+    },
+    {
+      value: "advertised-offers",
+      label: "Advertised Offers",
+      content: <AdvertisedOfferSection title="Advertised Offers" />
+    }
+  ];
+
+  return <TabComponent defaultValue="pricing-rules" items={tabItems} />;
 };
 
 export default FinancialPricingTabs;

@@ -1,4 +1,5 @@
 
+import { useState } from "react";
 import { 
   Table,
   TableBody,
@@ -8,6 +9,7 @@ import {
   TableRow
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Copy, Edit, Trash2 } from "lucide-react";
 import {
   Pagination,
@@ -17,9 +19,22 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { BatchOperations } from "./BatchOperations";
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 
 const mockVehicleStyleData = [
   {
+    id: "L25A1",
     styleId: "L25A1",
     algCode: "ZL_MV001",
     geoCode: "",
@@ -31,6 +46,7 @@ const mockVehicleStyleData = [
     priority: "1"
   },
   {
+    id: "L25A2",
     styleId: "L25A2",
     algCode: "ZL_MV002",
     geoCode: "",
@@ -42,6 +58,7 @@ const mockVehicleStyleData = [
     priority: "1"
   },
   {
+    id: "L25A3",
     styleId: "L25A3",
     algCode: "ZL_MV003",
     geoCode: "",
@@ -53,6 +70,7 @@ const mockVehicleStyleData = [
     priority: "2"
   },
   {
+    id: "KSA25A1",
     styleId: "KSA25A1",
     algCode: "",
     geoCode: "ME-KSA",
@@ -72,12 +90,67 @@ interface VehicleStyleDecodingTableProps {
 }
 
 const VehicleStyleDecodingTable = ({ onEdit, onCopy, onRemove }: VehicleStyleDecodingTableProps) => {
+  const [data, setData] = useState(mockVehicleStyleData);
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [itemToDelete, setItemToDelete] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
+  const toggleSelectAll = () => {
+    if (selectedItems.length === data.length) {
+      setSelectedItems([]);
+    } else {
+      setSelectedItems(data.map(item => item.id));
+    }
+  };
+
+  const toggleSelectItem = (id: string) => {
+    setSelectedItems(current =>
+      current.includes(id) ? current.filter(itemId => itemId !== id) : [...current, id]
+    );
+  };
+
+  const handleDeleteClick = (id: string) => {
+    setItemToDelete(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (itemToDelete) {
+      setData(current => current.filter(item => item.id !== itemToDelete));
+      setSelectedItems(current => current.filter(id => id !== itemToDelete));
+      
+      // Call the onRemove prop
+      onRemove(itemToDelete);
+      toast.success("Item deleted successfully");
+    }
+    setDeleteDialogOpen(false);
+    setItemToDelete(null);
+  };
+
+  const handleBatchDelete = () => {
+    setData(current => current.filter(item => !selectedItems.includes(item.id)));
+    // In a real app, you'd call an API to delete these items
+  };
+
   return (
-    <div>
+    <div className="space-y-4">
+      <BatchOperations 
+        selectedItems={selectedItems}
+        onClearSelection={() => setSelectedItems([])}
+        onBatchDelete={handleBatchDelete}
+      />
+      
       <div className="rounded-md border">
         <Table className="min-w-full">
           <TableHeader>
             <TableRow className="bg-gray-50">
+              <TableHead className="w-10">
+                <Checkbox 
+                  checked={selectedItems.length === data.length && data.length > 0} 
+                  onCheckedChange={toggleSelectAll}
+                  aria-label="Select all"
+                />
+              </TableHead>
               <TableHead>Style ID</TableHead>
               <TableHead>ALG Code (Local RV code)</TableHead>
               <TableHead>Geo code</TableHead>
@@ -91,8 +164,15 @@ const VehicleStyleDecodingTable = ({ onEdit, onCopy, onRemove }: VehicleStyleDec
             </TableRow>
           </TableHeader>
           <TableBody>
-            {mockVehicleStyleData.map((row) => (
-              <TableRow key={row.styleId} className="hover:bg-gray-50">
+            {data.map((row) => (
+              <TableRow key={row.id} className="hover:bg-gray-50">
+                <TableCell>
+                  <Checkbox 
+                    checked={selectedItems.includes(row.id)}
+                    onCheckedChange={() => toggleSelectItem(row.id)}
+                    aria-label={`Select ${row.styleId}`}
+                  />
+                </TableCell>
                 <TableCell className="font-medium">{row.styleId}</TableCell>
                 <TableCell>{row.algCode}</TableCell>
                 <TableCell>{row.geoCode}</TableCell>
@@ -107,21 +187,21 @@ const VehicleStyleDecodingTable = ({ onEdit, onCopy, onRemove }: VehicleStyleDec
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => onEdit(row.styleId)}
+                      onClick={() => onEdit(row.id)}
                     >
                       <Edit className="h-4 w-4" />
                     </Button>
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => onCopy(row.styleId)}
+                      onClick={() => onCopy(row.id)}
                     >
                       <Copy className="h-4 w-4" />
                     </Button>
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => onRemove(row.styleId)}
+                      onClick={() => handleDeleteClick(row.id)}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -132,6 +212,7 @@ const VehicleStyleDecodingTable = ({ onEdit, onCopy, onRemove }: VehicleStyleDec
           </TableBody>
         </Table>
       </div>
+      
       <Pagination className="mt-4">
         <PaginationContent>
           <PaginationItem>
@@ -147,6 +228,26 @@ const VehicleStyleDecodingTable = ({ onEdit, onCopy, onRemove }: VehicleStyleDec
           </PaginationItem>
         </PaginationContent>
       </Pagination>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Item</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this item? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDelete} 
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

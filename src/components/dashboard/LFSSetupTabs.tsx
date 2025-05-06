@@ -1,18 +1,18 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import RulesSection from "./RulesSection";
+
+import TabComponent, { TabItem } from "./TabComponent";
 import { toast } from "sonner";
 import GeoTable from "./GeoTable";
 import LeaseConfigTable from "./LeaseConfigTable";
 import GatewayTable from "./GatewayTable";
-import Button from "./Button"; // Import the Button component
-import FinancialProductsTable from "./FinancialProductsTable"; // Import the FinancialProductsTable component
-import DealerTable from "./DealerTable"; // Import the new DealerTable component
-import LenderTable from "./LenderTable"; // Import the new LenderTable component
-import VehicleConditionTable from "./VehicleConditionTable"; // Import the new VehicleConditionTable component
-import RoutingRuleTable from "./RoutingRuleTable"; // Import the new RoutingRuleTable component
-import StipulationTable from "./StipulationTable"; // Import the new StipulationTable component
-import VehicleOptionsTable from "./VehicleOptionsTable"; // Import the new VehicleOptionsTable component
-import VehicleStyleDecodingTable from "./VehicleStyleDecodingTable"; // Import the new VehicleStyleDecodingTable component
+import FinancialProductsTable from "./FinancialProductsTable";
+import DealerTable from "./DealerTable";
+import LenderTable from "./LenderTable";
+import VehicleConditionTable from "./VehicleConditionTable";
+import RoutingRuleTable from "./RoutingRuleTable";
+import StipulationTable from "./StipulationTable";
+import VehicleOptionsTable from "./VehicleOptionsTable";
+import VehicleStyleDecodingTable from "./VehicleStyleDecodingTable";
+import LFSSetupTabContent from "./LFSSetupTabContent";
 
 const LFSSetupTabs = () => {
   const handleEditClick = (id: string) => {
@@ -30,223 +30,153 @@ const LFSSetupTabs = () => {
     toast.info(`Rule ${id} has been removed`);
   };
 
-  return (
-    <Tabs defaultValue="geo" className="w-full">
-      <div className="border-b border-gray-200">
-        <TabsList className="bg-transparent h-auto p-0 w-full flex overflow-x-auto">
-          <TabsTrigger value="geo" className="py-3 px-6 data-[state=active]:border-b-2 data-[state=active]:border-gray-900 data-[state=active]:bg-transparent rounded-none">
-            Geo
-          </TabsTrigger>
-          <TabsTrigger value="lease-config" className="py-3 px-6 data-[state=active]:border-b-2 data-[state=active]:border-gray-900 data-[state=active]:bg-transparent rounded-none">
-            Lease Config
-          </TabsTrigger>
-          <TabsTrigger value="gateway" className="py-3 px-6 data-[state=active]:border-b-2 data-[state=active]:border-gray-900 data-[state=active]:bg-transparent rounded-none">
-            Gateway
-          </TabsTrigger>
-          <TabsTrigger value="financial-products" className="py-3 px-6 data-[state=active]:border-b-2 data-[state=active]:border-gray-900 data-[state=active]:bg-transparent rounded-none">
-            Financial Products
-          </TabsTrigger>
-          <TabsTrigger value="dealer" className="py-3 px-6 data-[state=active]:border-b-2 data-[state=active]:border-gray-900 data-[state=active]:bg-transparent rounded-none">
-            Dealer
-          </TabsTrigger>
-          <TabsTrigger value="lender" className="py-3 px-6 data-[state=active]:border-b-2 data-[state=active]:border-gray-900 data-[state=active]:bg-transparent rounded-none">
-            Lender
-          </TabsTrigger>
-          <TabsTrigger value="vehicle-condition" className="py-3 px-6 data-[state=active]:border-b-2 data-[state=active]:border-gray-900 data-[state=active]:bg-transparent rounded-none">
-            Vehicle Condition
-          </TabsTrigger>
-          <TabsTrigger value="routing-rule" className="py-3 px-6 data-[state=active]:border-b-2 data-[state=active]:border-gray-900 data-[state=active]:bg-transparent rounded-none">
-            Routing Rule
-          </TabsTrigger>
-          <TabsTrigger value="stipulation" className="py-3 px-6 data-[state=active]:border-b-2 data-[state=active]:border-gray-900 data-[state=active]:bg-transparent rounded-none">
-            Stipulation
-          </TabsTrigger>
-          <TabsTrigger value="vehicle-options" className="py-3 px-6 data-[state=active]:border-b-2 data-[state=active]:border-gray-900 data-[state=active]:bg-transparent rounded-none">
-            Vehicle Options
-          </TabsTrigger>
-          <TabsTrigger value="vehicle-style-coding" className="py-3 px-6 data-[state=active]:border-b-2 data-[state=active]:border-gray-900 data-[state=active]:bg-transparent rounded-none">
-            Vehicle Style Coding
-          </TabsTrigger>
-        </TabsList>
-      </div>
+  const tabItems: TabItem[] = [
+    {
+      value: "geo",
+      label: "Geo",
+      content: (
+        <LFSSetupTabContent title="Geo Rules">
+          <GeoTable 
+            onEdit={handleEditClick}
+            onCopy={handleCopyClick}
+            onRemove={handleRemoveClick}
+          />
+        </LFSSetupTabContent>
+      )
+    },
+    {
+      value: "lease-config",
+      label: "Lease Config",
+      content: (
+        <LFSSetupTabContent title="Lease Config Rules">
+          <LeaseConfigTable 
+            onEdit={handleEditClick}
+            onCopy={handleCopyClick}
+            onRemove={handleRemoveClick}
+          />
+        </LFSSetupTabContent>
+      )
+    },
+    {
+      value: "gateway",
+      label: "Gateway",
+      content: (
+        <LFSSetupTabContent title="Gateway Rules">
+          <GatewayTable 
+            onEdit={handleEditClick}
+            onCopy={handleCopyClick}
+            onRemove={handleRemoveClick}
+          />
+        </LFSSetupTabContent>
+      )
+    },
+    {
+      value: "financial-products",
+      label: "Financial Products",
+      content: (
+        <LFSSetupTabContent title="Financial Products">
+          <FinancialProductsTable 
+            onEdit={handleEditClick}
+            onCopy={handleCopyClick}
+            onRemove={handleRemoveClick}
+          />
+        </LFSSetupTabContent>
+      )
+    },
+    {
+      value: "dealer",
+      label: "Dealer",
+      content: (
+        <LFSSetupTabContent title="Dealer Rules">
+          <DealerTable 
+            onEdit={handleEditClick}
+            onCopy={handleCopyClick}
+            onRemove={handleRemoveClick}
+          />
+        </LFSSetupTabContent>
+      )
+    },
+    {
+      value: "lender",
+      label: "Lender",
+      content: (
+        <LFSSetupTabContent title="Lender Rules">
+          <LenderTable 
+            onEdit={handleEditClick}
+            onCopy={handleCopyClick}
+            onRemove={handleRemoveClick}
+          />
+        </LFSSetupTabContent>
+      )
+    },
+    {
+      value: "vehicle-condition",
+      label: "Vehicle Condition",
+      content: (
+        <LFSSetupTabContent title="Vehicle Condition Rules">
+          <VehicleConditionTable 
+            onEdit={handleEditClick}
+            onCopy={handleCopyClick}
+            onRemove={handleRemoveClick}
+          />
+        </LFSSetupTabContent>
+      )
+    },
+    {
+      value: "routing-rule",
+      label: "Routing Rule",
+      content: (
+        <LFSSetupTabContent title="Routing Rules">
+          <RoutingRuleTable 
+            onEdit={handleEditClick}
+            onCopy={handleCopyClick}
+            onRemove={handleRemoveClick}
+          />
+        </LFSSetupTabContent>
+      )
+    },
+    {
+      value: "stipulation",
+      label: "Stipulation",
+      content: (
+        <LFSSetupTabContent title="Stipulation Rules">
+          <StipulationTable 
+            onEdit={handleEditClick}
+            onCopy={handleCopyClick}
+            onRemove={handleRemoveClick}
+          />
+        </LFSSetupTabContent>
+      )
+    },
+    {
+      value: "vehicle-options",
+      label: "Vehicle Options",
+      content: (
+        <LFSSetupTabContent title="Vehicle Options Rules">
+          <VehicleOptionsTable 
+            onEdit={handleEditClick}
+            onCopy={handleCopyClick}
+            onRemove={handleRemoveClick}
+          />
+        </LFSSetupTabContent>
+      )
+    },
+    {
+      value: "vehicle-style-coding",
+      label: "Vehicle Style Coding",
+      content: (
+        <LFSSetupTabContent title="Vehicle Style Coding Rules">
+          <VehicleStyleDecodingTable 
+            onEdit={handleEditClick}
+            onCopy={handleCopyClick}
+            onRemove={handleRemoveClick}
+          />
+        </LFSSetupTabContent>
+      )
+    }
+  ];
 
-      <TabsContent value="geo" className="p-6">
-        <div className="mb-4 flex justify-between items-center">
-          <h2 className="text-lg font-medium">Geo Rules</h2>
-          <Button
-            onClick={() => toast.info("Add new geo record functionality to be implemented")}
-          >
-            Add New Record
-          </Button>
-        </div>
-        <GeoTable 
-          onEdit={handleEditClick}
-          onCopy={handleCopyClick}
-          onRemove={handleRemoveClick}
-        />
-      </TabsContent>
-
-      <TabsContent value="lease-config" className="p-6">
-        <div className="mb-4 flex justify-between items-center">
-          <h2 className="text-lg font-medium">Lease Config Rules</h2>
-          <Button
-            onClick={() => toast.info("Add new lease config record functionality to be implemented")}
-          >
-            Add New Record
-          </Button>
-        </div>
-        <LeaseConfigTable 
-          onEdit={handleEditClick}
-          onCopy={handleCopyClick}
-          onRemove={handleRemoveClick}
-        />
-      </TabsContent>
-
-      <TabsContent value="gateway" className="p-6">
-        <div className="mb-4 flex justify-between items-center">
-          <h2 className="text-lg font-medium">Gateway Rules</h2>
-          <Button
-            onClick={() => toast.info("Add new gateway record functionality to be implemented")}
-          >
-            Add New Record
-          </Button>
-        </div>
-        <GatewayTable 
-          onEdit={handleEditClick}
-          onCopy={handleCopyClick}
-          onRemove={handleRemoveClick}
-        />
-      </TabsContent>
-
-      <TabsContent value="financial-products" className="p-6">
-        <div className="mb-4 flex justify-between items-center">
-          <h2 className="text-lg font-medium">Financial Products</h2>
-          <Button
-            onClick={() => toast.info("Add new financial product functionality to be implemented")}
-          >
-            Add New Record
-          </Button>
-        </div>
-        <FinancialProductsTable 
-          onEdit={handleEditClick}
-          onCopy={handleCopyClick}
-          onRemove={handleRemoveClick}
-        />
-      </TabsContent>
-
-      <TabsContent value="dealer" className="p-6">
-        <div className="mb-4 flex justify-between items-center">
-          <h2 className="text-lg font-medium">Dealer Rules</h2>
-          <Button
-            onClick={() => toast.info("Add new dealer record functionality to be implemented")}
-          >
-            Add New Record
-          </Button>
-        </div>
-        <DealerTable 
-          onEdit={handleEditClick}
-          onCopy={handleCopyClick}
-          onRemove={handleRemoveClick}
-        />
-      </TabsContent>
-
-      <TabsContent value="lender" className="p-6">
-        <div className="mb-4 flex justify-between items-center">
-          <h2 className="text-lg font-medium">Lender Rules</h2>
-          <Button
-            onClick={() => toast.info("Add new lender record functionality to be implemented")}
-          >
-            Add New Record
-          </Button>
-        </div>
-        <LenderTable 
-          onEdit={handleEditClick}
-          onCopy={handleCopyClick}
-          onRemove={handleRemoveClick}
-        />
-      </TabsContent>
-
-      <TabsContent value="vehicle-condition" className="p-6">
-        <div className="mb-4 flex justify-between items-center">
-          <h2 className="text-lg font-medium">Vehicle Condition Rules</h2>
-          <Button
-            onClick={() => toast.info("Add new vehicle condition record functionality to be implemented")}
-          >
-            Add New Record
-          </Button>
-        </div>
-        <VehicleConditionTable 
-          onEdit={handleEditClick}
-          onCopy={handleCopyClick}
-          onRemove={handleRemoveClick}
-        />
-      </TabsContent>
-
-      <TabsContent value="routing-rule" className="p-6">
-        <div className="mb-4 flex justify-between items-center">
-          <h2 className="text-lg font-medium">Routing Rules</h2>
-          <Button
-            onClick={() => toast.info("Add new routing rule record functionality to be implemented")}
-          >
-            Add New Record
-          </Button>
-        </div>
-        <RoutingRuleTable 
-          onEdit={handleEditClick}
-          onCopy={handleCopyClick}
-          onRemove={handleRemoveClick}
-        />
-      </TabsContent>
-
-      <TabsContent value="stipulation" className="p-6">
-        <div className="mb-4 flex justify-between items-center">
-          <h2 className="text-lg font-medium">Stipulation Rules</h2>
-          <Button
-            onClick={() => toast.info("Add new stipulation record functionality to be implemented")}
-          >
-            Add New Record
-          </Button>
-        </div>
-        <StipulationTable 
-          onEdit={handleEditClick}
-          onCopy={handleCopyClick}
-          onRemove={handleRemoveClick}
-        />
-      </TabsContent>
-
-      <TabsContent value="vehicle-options" className="p-6">
-        <div className="mb-4 flex justify-between items-center">
-          <h2 className="text-lg font-medium">Vehicle Options Rules</h2>
-          <Button
-            onClick={() => toast.info("Add new vehicle option record functionality to be implemented")}
-          >
-            Add New Record
-          </Button>
-        </div>
-        <VehicleOptionsTable 
-          onEdit={handleEditClick}
-          onCopy={handleCopyClick}
-          onRemove={handleRemoveClick}
-        />
-      </TabsContent>
-
-      <TabsContent value="vehicle-style-coding" className="p-6">
-        <div className="mb-4 flex justify-between items-center">
-          <h2 className="text-lg font-medium">Vehicle Style Coding Rules</h2>
-          <Button
-            onClick={() => toast.info("Add new vehicle style coding record functionality to be implemented")}
-          >
-            Add New Record
-          </Button>
-        </div>
-        <VehicleStyleDecodingTable 
-          onEdit={handleEditClick}
-          onCopy={handleCopyClick}
-          onRemove={handleRemoveClick}
-        />
-      </TabsContent>
-    </Tabs>
-  );
+  return <TabComponent defaultValue="geo" items={tabItems} />;
 };
 
 export default LFSSetupTabs;
