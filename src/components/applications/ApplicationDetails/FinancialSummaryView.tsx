@@ -25,15 +25,10 @@ const FinancialSummaryView: React.FC<FinancialSummaryViewProps> = ({ financialSu
     <Card>
       <CardContent className="p-4">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-base font-semibold">LFS Approved & Accepted Offers</h3>
+          <div></div>
           <div className="flex items-center cursor-pointer" onClick={toggleExpanded}>
             {expanded ? <ChevronUp className="h-4 w-4 text-gray-400" /> : <ChevronDown className="h-4 w-4 text-gray-400" />}
           </div>
-        </div>
-        
-        <div className="mb-2 text-xs font-medium">
-          <span className="text-yellow-600">⬤</span> Accepted Offers 
-          <span className="mx-4">Customer Accepted : Yes</span>
         </div>
         
         {expanded && (
