@@ -5,7 +5,6 @@ import { toast } from "sonner";
 import GeoTable from "./GeoTable";
 import LeaseConfigTable from "./LeaseConfigTable";
 import GatewayTable from "./GatewayTable";
-import FinancialProductsTable from "./FinancialProductsTable";
 import DealerTable from "./DealerTable";
 import LenderTable from "./LenderTable";
 import VehicleConditionTable from "./VehicleConditionTable";
@@ -103,24 +102,6 @@ const LFSSetupTabs = ({ onSelectionChange, selectedItems = [] }: LFSSetupTabsPro
           onAddRecord={() => handleAddRecord("Gateway")}
         >
           <GatewayTable 
-            onEdit={handleEditClick}
-            onCopy={handleCopyClick}
-            onRemove={handleRemoveClick}
-            onSelectionChange={handleSelectionChange}
-            selectedItems={selectedItems}
-          />
-        </LFSSetupTabContent>
-      )
-    },
-    {
-      value: "financial-products",
-      label: "Financial Products",
-      content: (
-        <LFSSetupTabContent 
-          title="Financial Products"
-          onAddRecord={() => handleAddRecord("Financial Products")}
-        >
-          <FinancialProductsTable 
             onEdit={handleEditClick}
             onCopy={handleCopyClick}
             onRemove={handleRemoveClick}
