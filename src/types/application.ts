@@ -91,13 +91,23 @@ export interface OrderDetail {
   registrationData: Array<{label: string; value: string}>;
 }
 
+// Updated HistoryItem interface to include new fields
 export interface HistoryItem {
   title: string;
-  previously: string;
-  now: string;
+  previously?: string;
+  now?: string;
   time: string;
   date: string;
   user: string;
+  // New fields for version history
+  previousPayment: string;
+  paymentChange: string;
+  paymentDirection: 'increase' | 'decrease';
+  changes: Array<{
+    field: string;
+    previously: string;
+    now: string;
+  }>;
 }
 
 export interface Note {
