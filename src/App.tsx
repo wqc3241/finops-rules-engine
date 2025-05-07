@@ -11,6 +11,9 @@ import ApplicationDetail from "./pages/ApplicationDetail";
 import DashboardPage from "./pages/DashboardPage";
 import Report from "./pages/Report";
 import Tasks from "./pages/Tasks";
+import FinancialPricingPage from "./pages/FinancialPricingPage";
+import LFSSetupPage from "./pages/LFSSetupPage";
+import FeeTaxPage from "./pages/FeeTaxPage";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +31,9 @@ const App = () => (
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/report" element={<Report />} />
           <Route path="/tasks" element={<Tasks />} />
+          <Route path="/financial-pricing" element={<FinancialPricingPage />} />
+          <Route path="/lfs-setup" element={<LFSSetupPage />} />
+          <Route path="/fee-tax" element={<FeeTaxPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { 
   Layers, 
@@ -22,8 +22,7 @@ interface NavItemProps {
 
 const NavItem = ({ title, icon, active = false, onClick, to }: NavItemProps) => {
   return (
-    <Link
-      to={to}
+    <div
       onClick={onClick}
       className={cn(
         "flex items-center px-4 py-3 text-gray-600 cursor-pointer hover:bg-gray-100 transition-colors",
@@ -32,7 +31,7 @@ const NavItem = ({ title, icon, active = false, onClick, to }: NavItemProps) => 
     >
       <div className="mr-3">{icon}</div>
       <span className="text-sm font-medium">{title}</span>
-    </Link>
+    </div>
   );
 };
 
@@ -45,7 +44,16 @@ interface SidebarProps {
 const Sidebar = ({ open, activeItem, setActiveItem }: SidebarProps) => {
   if (!open) return null;
   
+  const navigate = useNavigate();
   const location = useLocation();
+
+  const handleItemClick = (title: string, path: string) => {
+    setActiveItem(title);
+    
+    if (path) {
+      navigate(path);
+    }
+  };
 
   const navItems = [
     {
@@ -56,7 +64,7 @@ const Sidebar = ({ open, activeItem, setActiveItem }: SidebarProps) => {
     {
       title: 'Financial Pricing',
       icon: <DollarSign className="h-5 w-5" />,
-      path: '/'
+      path: '/financial-pricing'
     },
     {
       title: 'Dashboard',
@@ -76,12 +84,12 @@ const Sidebar = ({ open, activeItem, setActiveItem }: SidebarProps) => {
     {
       title: 'LFS Setup',
       icon: <Settings className="h-5 w-5" />,
-      path: '/'
+      path: '/lfs-setup'
     },
     {
       title: 'Fee & Tax',
       icon: <Receipt className="h-5 w-5" />,
-      path: '/'
+      path: '/fee-tax'
     },
   ];
 
@@ -95,7 +103,7 @@ const Sidebar = ({ open, activeItem, setActiveItem }: SidebarProps) => {
               title={item.title}
               icon={item.icon}
               active={activeItem === item.title}
-              onClick={() => setActiveItem(item.title)}
+              onClick={() => handleItemClick(item.title, item.path)}
               to={item.path}
             />
           ))}

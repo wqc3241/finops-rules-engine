@@ -1,4 +1,5 @@
 
+import { useState } from "react";
 import TabComponent, { TabItem } from "./TabComponent";
 import AdvertisedOfferSection from "./AdvertisedOfferSection";
 import PricingRulesSection from "./PricingRulesSection";
@@ -7,20 +8,64 @@ import RulesSection from "./RulesSection";
 import PricingConfigRulesSection from "./PricingConfigRulesSection";
 import FinancialProductsSection from "./FinancialProductsSection";
 import FinancialProgramConfigSection from "./FinancialProgramConfigSection";
+import { toast } from "sonner";
 
 interface FinancialPricingTabsProps {
   showAddPricingModal: boolean;
   setShowAddPricingModal: (show: boolean) => void;
   showAddPricingTypeModal: boolean;
   setShowAddPricingTypeModal: (show: boolean) => void;
+  onSelectionChange?: (items: string[]) => void;
+  selectedItems?: string[];
 }
 
 const FinancialPricingTabs = ({
   showAddPricingModal,
   setShowAddPricingModal,
   showAddPricingTypeModal,
-  setShowAddPricingTypeModal
+  setShowAddPricingTypeModal,
+  onSelectionChange,
+  selectedItems = []
 }: FinancialPricingTabsProps) => {
+  const [activeTab, setActiveTab] = useState("pricing-rules");
+  const [showRulesModal, setShowRulesModal] = useState(false);
+  const [showConfigRulesModal, setShowConfigRulesModal] = useState(false);
+  const [showFinancialProductsModal, setShowFinancialProductsModal] = useState(false);
+  const [showFinancialProgramConfigModal, setShowFinancialProgramConfigModal] = useState(false);
+  const [showAdvertisedOffersModal, setShowAdvertisedOffersModal] = useState(false);
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+  };
+
+  const handleAddNewRecord = () => {
+    switch (activeTab) {
+      case "rules":
+        setShowRulesModal(true);
+        break;
+      case "pricing-config-rules":
+        setShowConfigRulesModal(true);
+        break;
+      case "financial-products":
+        setShowFinancialProductsModal(true);
+        break;
+      case "financial-program-config":
+        setShowFinancialProgramConfigModal(true);
+        break;
+      case "advertised-offers":
+        setShowAdvertisedOffersModal(true);
+        break;
+      case "pricing-rules":
+        setShowAddPricingModal(true);
+        break;
+      case "pricing-types":
+        setShowAddPricingTypeModal(true);
+        break;
+      default:
+        toast.info("Add functionality not implemented for this tab yet");
+    }
+  };
+
   const tabItems: TabItem[] = [
     {
       value: "pricing-rules",
@@ -30,6 +75,8 @@ const FinancialPricingTabs = ({
           title="Pricing Rules"
           showAddModal={showAddPricingModal} 
           setShowAddModal={setShowAddPricingModal} 
+          onSelectionChange={onSelectionChange}
+          selectedItems={selectedItems}
         />
       )
     },
@@ -40,38 +87,86 @@ const FinancialPricingTabs = ({
         <PricingTypeSection 
           title="Pricing Types"
           showAddModal={showAddPricingTypeModal} 
-          setShowAddModal={setShowAddPricingTypeModal} 
+          setShowAddModal={setShowAddPricingTypeModal}
+          onSelectionChange={onSelectionChange}
+          selectedItems={selectedItems}
         />
       )
     },
     {
       value: "rules",
       label: "Rules",
-      content: <RulesSection title="Rules" />
+      content: (
+        <RulesSection 
+          title="Rules" 
+          showAddModal={showRulesModal}
+          setShowAddModal={setShowRulesModal}
+          onSelectionChange={onSelectionChange}
+          selectedItems={selectedItems}
+        />
+      )
     },
     {
       value: "pricing-config-rules",
       label: "Config Rules",
-      content: <PricingConfigRulesSection title="Config Rules" />
+      content: (
+        <PricingConfigRulesSection 
+          title="Config Rules"
+          showAddModal={showConfigRulesModal}
+          setShowAddModal={setShowConfigRulesModal}
+          onSelectionChange={onSelectionChange}
+          selectedItems={selectedItems}
+        />
+      )
     },
     {
       value: "financial-products",
       label: "Financial Products",
-      content: <FinancialProductsSection title="Financial Products" />
+      content: (
+        <FinancialProductsSection 
+          title="Financial Products"
+          showAddModal={showFinancialProductsModal}
+          setShowAddModal={setShowFinancialProductsModal}
+          onSelectionChange={onSelectionChange}
+          selectedItems={selectedItems}
+        />
+      )
     },
     {
       value: "financial-program-config",
       label: "Financial Program Config",
-      content: <FinancialProgramConfigSection title="Financial Program Config" />
+      content: (
+        <FinancialProgramConfigSection 
+          title="Financial Program Config"
+          showAddModal={showFinancialProgramConfigModal}
+          setShowAddModal={setShowFinancialProgramConfigModal}
+          onSelectionChange={onSelectionChange}
+          selectedItems={selectedItems}
+        />
+      )
     },
     {
       value: "advertised-offers",
       label: "Advertised Offers",
-      content: <AdvertisedOfferSection title="Advertised Offers" />
+      content: (
+        <AdvertisedOfferSection 
+          title="Advertised Offers"
+          showAddModal={showAdvertisedOffersModal}
+          setShowAddModal={setShowAdvertisedOffersModal}
+          onSelectionChange={onSelectionChange}
+          selectedItems={selectedItems}
+        />
+      )
     }
   ];
 
-  return <TabComponent defaultValue="pricing-rules" items={tabItems} />;
+  return (
+    <TabComponent 
+      defaultValue="pricing-rules" 
+      items={tabItems} 
+      onValueChange={handleTabChange}
+    />
+  );
 };
 
 export default FinancialPricingTabs;

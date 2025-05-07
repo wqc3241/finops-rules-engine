@@ -11,11 +11,16 @@ export interface TabItem {
 interface TabComponentProps {
   defaultValue: string;
   items: TabItem[];
+  onValueChange?: (value: string) => void;
 }
 
-const TabComponent = ({ defaultValue, items }: TabComponentProps) => {
+const TabComponent = ({ defaultValue, items, onValueChange }: TabComponentProps) => {
   return (
-    <Tabs defaultValue={defaultValue} className="w-full">
+    <Tabs 
+      defaultValue={defaultValue} 
+      className="w-full"
+      onValueChange={onValueChange}
+    >
       <div className="border-b border-gray-200">
         <TabsList className="bg-transparent h-auto p-0 w-full flex overflow-x-auto">
           {items.map((item) => (

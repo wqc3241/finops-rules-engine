@@ -3,6 +3,8 @@ import LFSSetupTabs from "./LFSSetupTabs";
 import FinancialPricingTabs from "./FinancialPricingTabs";
 import DashboardTabs from "./DashboardTabs";
 import FeeTaxTabs from "./FeeTaxTabs";
+import { useState } from "react";
+import BatchOperations from "./BatchOperations";
 
 interface TabsSectionProps {
   activeSection: string;
@@ -19,19 +21,56 @@ const TabsSection = ({
   showAddPricingTypeModal,
   setShowAddPricingTypeModal
 }: TabsSectionProps) => {
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [showBatchOperations, setShowBatchOperations] = useState(false);
+  
+  const handleSelectionChange = (items: string[]) => {
+    setSelectedItems(items);
+    setShowBatchOperations(items.length > 0);
+  };
+
   // Use the appropriate tabs component based on activeSection
   switch(activeSection) {
     case "LFS Setup": 
-      return <LFSSetupTabs />;
+      return (
+        <div className="relative">
+          {showBatchOperations && (
+            <BatchOperations 
+              count={selectedItems.length}
+              onClear={() => {
+                setSelectedItems([]);
+                setShowBatchOperations(false);
+              }}
+            />
+          )}
+          <LFSSetupTabs 
+            onSelectionChange={handleSelectionChange} 
+            selectedItems={selectedItems}
+          />
+        </div>
+      );
     
     case "Financial Pricing":
       return (
-        <FinancialPricingTabs
-          showAddPricingModal={showAddPricingModal}
-          setShowAddPricingModal={setShowAddPricingModal}
-          showAddPricingTypeModal={showAddPricingTypeModal}
-          setShowAddPricingTypeModal={setShowAddPricingTypeModal}
-        />
+        <div className="relative">
+          {showBatchOperations && (
+            <BatchOperations 
+              count={selectedItems.length}
+              onClear={() => {
+                setSelectedItems([]);
+                setShowBatchOperations(false);
+              }}
+            />
+          )}
+          <FinancialPricingTabs
+            showAddPricingModal={showAddPricingModal}
+            setShowAddPricingModal={setShowAddPricingModal}
+            showAddPricingTypeModal={showAddPricingTypeModal}
+            setShowAddPricingTypeModal={setShowAddPricingTypeModal}
+            onSelectionChange={handleSelectionChange}
+            selectedItems={selectedItems}
+          />
+        </div>
       );
     
     case "Fee & Tax":
