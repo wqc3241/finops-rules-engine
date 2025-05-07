@@ -2,6 +2,7 @@
 import React from 'react';
 import { DealStructureStipulation } from '@/types/application';
 import { ArrowUp, ArrowDown } from 'lucide-react';
+import { Button } from "@/components/ui/button";
 
 interface StipulationsTableProps {
   stipulations: DealStructureStipulation[];
@@ -51,35 +52,6 @@ const StipulationsTable: React.FC<StipulationsTableProps> = ({ stipulations }) =
         </tbody>
       </table>
     </div>
-  );
-};
-
-const Button = ({ 
-  children, 
-  variant = "default",
-  size = "default"
-}: { 
-  children: React.ReactNode;
-  variant?: "default" | "outline" | "ghost";
-  size?: "default" | "icon";
-}) => {
-  const baseClasses = "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50";
-  
-  const variantClasses = {
-    default: "bg-primary text-primary-foreground hover:bg-primary/90",
-    outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
-    ghost: "hover:bg-accent hover:text-accent-foreground"
-  };
-  
-  const sizeClasses = {
-    default: "h-10 py-2 px-4",
-    icon: "h-9 w-9"
-  };
-  
-  return (
-    <button className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]}`}>
-      {children}
-    </button>
   );
 };
 

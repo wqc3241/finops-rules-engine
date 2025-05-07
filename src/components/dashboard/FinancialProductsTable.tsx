@@ -18,6 +18,14 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 
+interface FinancialProductsTableProps {
+  onEdit: (id: string) => void;
+  onCopy: (id: string) => void;
+  onRemove: (id: string) => void;
+  onSelectionChange?: (items: string[]) => void;
+  selectedItems?: string[];
+}
+
 const mockFinancialProductsData = [
   {
     id: "USLN",
@@ -85,13 +93,13 @@ const mockFinancialProductsData = [
   }
 ];
 
-interface FinancialProductsTableProps {
-  onEdit: (id: string) => void;
-  onCopy: (id: string) => void;
-  onRemove: (id: string) => void;
-}
-
-const FinancialProductsTable = ({ onEdit, onCopy, onRemove }: FinancialProductsTableProps) => {
+const FinancialProductsTable = ({ 
+  onEdit, 
+  onCopy, 
+  onRemove,
+  onSelectionChange,
+  selectedItems = []
+}: FinancialProductsTableProps) => {
   return (
     <div>
       <div className="rounded-md border">
