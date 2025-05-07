@@ -22,33 +22,34 @@ const FinancialSummaryView: React.FC<FinancialSummaryViewProps> = ({ financialSu
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <Card className="h-fit">
-        <CardContent className="p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-medium">Financial Summary</h3>
-            <div className="flex items-center cursor-pointer" onClick={toggleExpanded}>
-              {expanded ? <ChevronUp className="h-4 w-4 text-gray-400" /> : <ChevronDown className="h-4 w-4 text-gray-400" />}
-            </div>
+    <Card className="h-fit">
+      <CardContent className="p-6">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-medium">Financial Summary</h3>
+          <div className="flex items-center cursor-pointer" onClick={toggleExpanded}>
+            {expanded ? <ChevronUp className="h-4 w-4 text-gray-400" /> : <ChevronDown className="h-4 w-4 text-gray-400" />}
           </div>
-          
-          {expanded && (
-            <>
-              {/* Tabs */}
-              <div className="flex mb-4">
-                {financialSummary.lfs.tabs.map((tab, index) => (
-                  <Button 
-                    key={index} 
-                    variant={tab === activeTab ? "default" : "outline"}
-                    size="sm"
-                    className="mr-2 text-xs"
-                    onClick={() => handleTabChange(tab)}
-                  >
-                    {tab}
-                  </Button>
-                ))}
-              </div>
-              
+        </div>
+        
+        {expanded && (
+          <>
+            {/* Tabs */}
+            <div className="flex mb-4">
+              {financialSummary.lfs.tabs.map((tab, index) => (
+                <Button 
+                  key={index} 
+                  variant={tab === activeTab ? "default" : "outline"}
+                  size="sm"
+                  className="mr-2 text-xs"
+                  onClick={() => handleTabChange(tab)}
+                >
+                  {tab}
+                </Button>
+              ))}
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Left Column */}
               <div className="space-y-4">
                 {/* Capitalized Value Selection */}
                 <section className="mb-4">
@@ -93,16 +94,8 @@ const FinancialSummaryView: React.FC<FinancialSummaryViewProps> = ({ financialSu
                   </div>
                 </section>
               </div>
-            </>
-          )}
-        </CardContent>
-      </Card>
 
-      <Card className="h-fit">
-        <CardContent className="p-6">
-          {expanded && (
-            <>
-              <h3 className="text-lg font-medium mb-4">Additional Details</h3>
+              {/* Right Column */}
               <div className="space-y-4">
                 {/* Capitalized Tax */}
                 <section className="mb-4">
@@ -152,55 +145,55 @@ const FinancialSummaryView: React.FC<FinancialSummaryViewProps> = ({ financialSu
                     <DataField label="Amount Financed" value={financialSummary.lfs[activeTab.toLowerCase()].amountFinanced} />
                   </div>
                 </section>
+
+                {/* Approved Offers */}
+                <section className="mt-6">
+                  <h4 className="font-medium mb-3">Approved Offers</h4>
+                  <Card className="border-gray-200">
+                    <CardContent className="p-4">
+                      <div className="space-y-2">
+                        <DataField label="Term" value="18" />
+                        <DataField label="Allowed Mileage" value="15,000" />
+                        <DataField label="Down Payment" value="0" />
+                        <DataField label="Est. Monthly Pmt (incl. tax)" value="1,610.77" />
+                        <DataField label="Due At Delivery" value="4,106.34" />
+                        <DataField label="Approved Date" value="Apr 27, 2025" />
+                        <DataField label="Lender Name" value="Lucid Financial Services" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </section>
+
+                {/* TradeIn Details */}
+                <section className="mt-6">
+                  <h4 className="font-medium mb-3">TradeIn Details</h4>
+                  <Card className="border-gray-200">
+                    <CardContent className="p-4">
+                      <div className="space-y-2">
+                        <DataField label="Year" value="-" />
+                        <DataField label="Make" value="-" />
+                        <DataField label="Model" value="-" />
+                        <DataField label="Trim" value="-" />
+                        <DataField label="Lien Holder" value="-" />
+                        <DataField label="Total Value" value="-" />
+                        <DataField label="PayOff Amount" value="-" />
+                        <DataField label="Gross Trade Allowance" value="-" />
+                        <DataField label="Net TradeIn" value="-" />
+                        <DataField label="Max Allowed CCR from Trade" value="-" />
+                        <DataField label="Max allowed Cash CCR" value="28847.83" />
+                        <DataField label="Equity applied to due at delivery" value="-" />
+                        <DataField label="Equity Applied to CCR" value="0" />
+                        <DataField label="Remaining equity post financing" value="0" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </section>
               </div>
-
-              {/* Approved Offers */}
-              <section className="mt-6">
-                <h4 className="font-medium mb-3">Approved Offers</h4>
-                <Card className="border-gray-200">
-                  <CardContent className="p-4">
-                    <div className="space-y-2">
-                      <DataField label="Term" value="18" />
-                      <DataField label="Allowed Mileage" value="15,000" />
-                      <DataField label="Down Payment" value="0" />
-                      <DataField label="Est. Monthly Pmt (incl. tax)" value="1,610.77" />
-                      <DataField label="Due At Delivery" value="4,106.34" />
-                      <DataField label="Approved Date" value="Apr 27, 2025" />
-                      <DataField label="Lender Name" value="Lucid Financial Services" />
-                    </div>
-                  </CardContent>
-                </Card>
-              </section>
-
-              {/* TradeIn Details */}
-              <section className="mt-6">
-                <h4 className="font-medium mb-3">TradeIn Details</h4>
-                <Card className="border-gray-200">
-                  <CardContent className="p-4">
-                    <div className="space-y-2">
-                      <DataField label="Year" value="-" />
-                      <DataField label="Make" value="-" />
-                      <DataField label="Model" value="-" />
-                      <DataField label="Trim" value="-" />
-                      <DataField label="Lien Holder" value="-" />
-                      <DataField label="Total Value" value="-" />
-                      <DataField label="PayOff Amount" value="-" />
-                      <DataField label="Gross Trade Allowance" value="-" />
-                      <DataField label="Net TradeIn" value="-" />
-                      <DataField label="Max Allowed CCR from Trade" value="-" />
-                      <DataField label="Max allowed Cash CCR" value="28847.83" />
-                      <DataField label="Equity applied to due at delivery" value="-" />
-                      <DataField label="Equity Applied to CCR" value="0" />
-                      <DataField label="Remaining equity post financing" value="0" />
-                    </div>
-                  </CardContent>
-                </Card>
-              </section>
-            </>
-          )}
-        </CardContent>
-      </Card>
-    </div>
+            </div>
+          </>
+        )}
+      </CardContent>
+    </Card>
   );
 };
 
