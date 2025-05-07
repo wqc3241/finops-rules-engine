@@ -17,6 +17,7 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({ application }) => {
 
   const statusColor = application.status === 'Approved' ? 'bg-green-500' : 
                       application.status === 'Pending' ? 'bg-orange-500' : 
+                      application.status === 'Submitted' ? 'bg-blue-500' :
                       application.status === 'Rejected' ? 'bg-red-500' : 'bg-blue-500';
 
   return (
@@ -30,8 +31,7 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({ application }) => {
             <div className="flex-1">
               <div className="flex justify-between items-center mb-2">
                 <h3 className="text-lg font-medium text-gray-900 flex items-center">
-                  {application.orderNumber} 
-                  <span className="ml-2 text-gray-500 text-sm font-normal">[ Order Number ]</span>
+                  {application.orderNumber}
                 </h3>
                 <ChevronRight className="text-gray-400" />
               </div>
