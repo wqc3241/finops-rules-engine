@@ -146,47 +146,38 @@ const FinancialSummaryView: React.FC<FinancialSummaryViewProps> = ({ financialSu
                   </div>
                 </section>
 
-                {/* Approved Offers */}
+                {/* Financial Term (previously "Approved Offers") */}
                 <section className="mt-6">
-                  <h4 className="font-medium mb-3">Approved Offers</h4>
-                  <Card className="border-gray-200">
-                    <CardContent className="p-4">
-                      <div className="space-y-2">
-                        <DataField label="Term" value="18" />
-                        <DataField label="Allowed Mileage" value="15,000" />
-                        <DataField label="Down Payment" value="0" />
-                        <DataField label="Est. Monthly Pmt (incl. tax)" value="1,610.77" />
-                        <DataField label="Due At Delivery" value="4,106.34" />
-                        <DataField label="Approved Date" value="Apr 27, 2025" />
-                        <DataField label="Lender Name" value="Lucid Financial Services" />
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <h4 className="font-medium mb-3">Financial Term</h4>
+                  <div className="p-4">
+                    <div className="space-y-2">
+                      <DataField label="Term" value="18" />
+                      <DataField label="Allowed Mileage" value="15,000" />
+                      <DataField label="Down Payment" value="0" />
+                      <DataField label="Est. Monthly Pmt (incl. tax)" value="1,610.77" />
+                      <DataField label="Due At Delivery" value="4,106.34" />
+                      <DataField label="Approved Date" value="Apr 27, 2025" />
+                      <DataField label="Lender Name" value="Lucid Financial Services" />
+                    </div>
+                  </div>
                 </section>
 
                 {/* TradeIn Details */}
                 <section className="mt-6">
                   <h4 className="font-medium mb-3">TradeIn Details</h4>
-                  <Card className="border-gray-200">
-                    <CardContent className="p-4">
-                      <div className="space-y-2">
-                        <DataField label="Year" value="-" />
-                        <DataField label="Make" value="-" />
-                        <DataField label="Model" value="-" />
-                        <DataField label="Trim" value="-" />
-                        <DataField label="Lien Holder" value="-" />
-                        <DataField label="Total Value" value="-" />
-                        <DataField label="PayOff Amount" value="-" />
-                        <DataField label="Gross Trade Allowance" value="-" />
-                        <DataField label="Net TradeIn" value="-" />
-                        <DataField label="Max Allowed CCR from Trade" value="-" />
-                        <DataField label="Max allowed Cash CCR" value="28847.83" />
-                        <DataField label="Equity applied to due at delivery" value="-" />
-                        <DataField label="Equity Applied to CCR" value="0" />
-                        <DataField label="Remaining equity post financing" value="0" />
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <div className="p-4">
+                    <div className="space-y-2">
+                      <DataField label="Total Value" value="-" />
+                      <DataField label="PayOff Amount" value="-" />
+                      <DataField label="Gross Trade Allowance" value="-" />
+                      <DataField label="Net TradeIn" value="-" />
+                      <DataField label="Max Allowed CCR from Trade" value="-" />
+                      <DataField label="Max allowed Cash CCR" value="28847.83" />
+                      <DataField label="Equity applied to due at delivery" value="-" />
+                      <DataField label="Equity Applied to CCR" value="0" />
+                      <DataField label="Remaining equity post financing" value="0" />
+                    </div>
+                  </div>
                 </section>
               </div>
             </div>
