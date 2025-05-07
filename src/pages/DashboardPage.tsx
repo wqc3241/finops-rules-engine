@@ -1,11 +1,17 @@
 
-import React from "react";
+import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
+import Dashboard from "@/components/Dashboard";
 
 const DashboardPage = () => {
-  const [sidebarOpen, setSidebarOpen] = React.useState(true);
-  const [activeItem, setActiveItem] = React.useState('Dashboard');
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [activeItem, setActiveItem] = useState('Dashboard');
+
+  // Ensure that the activeItem is correctly set on page load
+  useEffect(() => {
+    setActiveItem('Dashboard');
+  }, []);
 
   return (
     <div className="h-screen flex flex-col bg-gray-50">
@@ -17,12 +23,7 @@ const DashboardPage = () => {
           setActiveItem={setActiveItem} 
         />
         <main className="flex-1 overflow-auto p-4">
-          <div className="container mx-auto px-4 py-6">
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <h1 className="text-2xl font-semibold mb-4">Dashboard</h1>
-              <p className="text-gray-600">This page is under construction.</p>
-            </div>
-          </div>
+          <Dashboard activeSection={activeItem} />
         </main>
       </div>
     </div>

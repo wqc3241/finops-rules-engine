@@ -37,7 +37,7 @@ export const BatchOperations = ({
   if (selectedItems.length === 0) return null;
 
   return (
-    <div className="flex items-center gap-2 py-2">
+    <div className="flex items-center gap-2 py-2 px-6 bg-muted/30 border-b border-muted">
       <span className="text-sm font-medium">
         {selectedItems.length} item{selectedItems.length !== 1 ? "s" : ""} selected
       </span>

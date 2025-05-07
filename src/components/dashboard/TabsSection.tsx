@@ -4,7 +4,7 @@ import FinancialPricingTabs from "./FinancialPricingTabs";
 import DashboardTabs from "./DashboardTabs";
 import FeeTaxTabs from "./FeeTaxTabs";
 import { useState } from "react";
-import BatchOperations from "./BatchOperations";
+import { BatchOperations } from "./BatchOperations";
 
 interface TabsSectionProps {
   activeSection: string;
@@ -29,6 +29,17 @@ const TabsSection = ({
     setShowBatchOperations(items.length > 0);
   };
 
+  const handleClearSelection = () => {
+    setSelectedItems([]);
+    setShowBatchOperations(false);
+  };
+
+  const handleBatchDelete = () => {
+    console.log(`Deleting ${selectedItems.length} items`);
+    setSelectedItems([]);
+    setShowBatchOperations(false);
+  };
+
   // Use the appropriate tabs component based on activeSection
   switch(activeSection) {
     case "LFS Setup": 
@@ -36,11 +47,9 @@ const TabsSection = ({
         <div className="relative">
           {showBatchOperations && (
             <BatchOperations 
-              count={selectedItems.length}
-              onClear={() => {
-                setSelectedItems([]);
-                setShowBatchOperations(false);
-              }}
+              selectedItems={selectedItems}
+              onClearSelection={handleClearSelection}
+              onBatchDelete={handleBatchDelete}
             />
           )}
           <LFSSetupTabs 
@@ -55,11 +64,9 @@ const TabsSection = ({
         <div className="relative">
           {showBatchOperations && (
             <BatchOperations 
-              count={selectedItems.length}
-              onClear={() => {
-                setSelectedItems([]);
-                setShowBatchOperations(false);
-              }}
+              selectedItems={selectedItems}
+              onClearSelection={handleClearSelection}
+              onBatchDelete={handleBatchDelete}
             />
           )}
           <FinancialPricingTabs

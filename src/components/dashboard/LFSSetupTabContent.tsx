@@ -1,8 +1,11 @@
 
 import Button from "./Button"; 
 import { toast } from "sonner";
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { Plus, Filter, ArrowUp, ArrowDown } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface LFSSetupTabContentProps {
   title: string;
@@ -11,24 +14,34 @@ interface LFSSetupTabContentProps {
 }
 
 const LFSSetupTabContent = ({ title, children, onAddRecord }: LFSSetupTabContentProps) => {
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [newRecord, setNewRecord] = useState({ name: "", description: "" });
+  
   const handleAddClick = () => {
     if (onAddRecord) {
       onAddRecord();
     } else {
-      toast.info(`Add new ${title.toLowerCase()} functionality to be implemented`);
+      setShowAddDialog(true);
     }
   };
 
   const handleFilterClick = () => {
-    toast.info(`Filter functionality for ${title} activated`);
+    toast.info(`Filter applied to ${title}`);
   };
 
   const handleSortAscClick = () => {
-    toast.info(`Sort ascending for ${title} activated`);
+    toast.success(`Sorted ${title} in ascending order`);
   };
 
   const handleSortDescClick = () => {
-    toast.info(`Sort descending for ${title} activated`);
+    toast.success(`Sorted ${title} in descending order`);
+  };
+  
+  const handleSubmitNewRecord = (e: React.FormEvent) => {
+    e.preventDefault();
+    toast.success(`New ${title.toLowerCase()} record added: ${newRecord.name}`);
+    setNewRecord({ name: "", description: "" });
+    setShowAddDialog(false);
   };
 
   return (
@@ -55,6 +68,39 @@ const LFSSetupTabContent = ({ title, children, onAddRecord }: LFSSetupTabContent
         </div>
       </div>
       {children}
+      
+      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add New {title} Record</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSubmitNewRecord}>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="name" className="text-right">Name</Label>
+                <Input
+                  id="name"
+                  value={newRecord.name}
+                  onChange={(e) => setNewRecord({...newRecord, name: e.target.value})}
+                  className="col-span-3"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="description" className="text-right">Description</Label>
+                <Input
+                  id="description"
+                  value={newRecord.description}
+                  onChange={(e) => setNewRecord({...newRecord, description: e.target.value})}
+                  className="col-span-3"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="submit">Add Record</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

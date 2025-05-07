@@ -49,10 +49,7 @@ const Sidebar = ({ open, activeItem, setActiveItem }: SidebarProps) => {
 
   const handleItemClick = (title: string, path: string) => {
     setActiveItem(title);
-    
-    if (path) {
-      navigate(path);
-    }
+    navigate(path);
   };
 
   const navItems = [

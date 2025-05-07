@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import Dashboard from "@/components/Dashboard";
@@ -7,6 +7,11 @@ import Dashboard from "@/components/Dashboard";
 const FeeTaxPage = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeItem, setActiveItem] = useState('Fee & Tax');
+
+  // Ensure that the activeItem is correctly set on page load
+  useEffect(() => {
+    setActiveItem('Fee & Tax');
+  }, []);
 
   return (
     <div className="h-screen flex flex-col bg-gray-50">
