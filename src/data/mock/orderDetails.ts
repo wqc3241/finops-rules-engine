@@ -1,15 +1,14 @@
-
 import { OrderDetail } from '../../types/application';
 
 export const orderDetails: OrderDetail = {
   vehicleTradeIn: {
-    year: 'Placeholder Text',
-    make: 'Placeholder Text',
-    model: 'Placeholder Text',
-    trim: 'Placeholder Text',
-    lienHolder: 'Placeholder Text',
-    totalValue: 'Placeholder Text',
-    payoffAmount: 'Placeholder Text'
+    year: '2018',
+    make: 'Tesla',
+    model: 'Model 3',
+    trim: 'Base',
+    lienHolder: 'Bank of America',
+    totalValue: '$50,000',
+    payoffAmount: '$35,000'
   },
   sale: {
     invoiceSummary: {
