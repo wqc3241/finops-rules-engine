@@ -69,26 +69,44 @@ interface StipulationTableProps {
   onEdit: (id: string) => void;
   onCopy: (id: string) => void;
   onRemove: (id: string) => void;
+  onSelectionChange?: (items: string[]) => void;
+  selectedItems?: string[];
 }
 
-const StipulationTable = ({ onEdit, onCopy, onRemove }: StipulationTableProps) => {
+const StipulationTable = ({ 
+  onEdit, 
+  onCopy, 
+  onRemove,
+  onSelectionChange,
+  selectedItems = []
+}: StipulationTableProps) => {
   const [data, setData] = useState(mockStipulationData);
-  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [localSelectedItems, setLocalSelectedItems] = useState<string[]>([]);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  
+  // Use either prop or local state for selections
+  const effectiveSelectedItems = selectedItems.length ? selectedItems : localSelectedItems;
 
   const toggleSelectAll = () => {
-    if (selectedItems.length === data.length) {
-      setSelectedItems([]);
-    } else {
-      setSelectedItems(data.map(item => item.id));
+    const allIds = data.map(item => item.id);
+    const newSelection = effectiveSelectedItems.length === data.length ? [] : allIds;
+    
+    setLocalSelectedItems(newSelection);
+    if (onSelectionChange) {
+      onSelectionChange(newSelection);
     }
   };
 
   const toggleSelectItem = (id: string) => {
-    setSelectedItems(current =>
-      current.includes(id) ? current.filter(itemId => itemId !== id) : [...current, id]
-    );
+    const newSelection = effectiveSelectedItems.includes(id)
+      ? effectiveSelectedItems.filter(itemId => itemId !== id)
+      : [...effectiveSelectedItems, id];
+    
+    setLocalSelectedItems(newSelection);
+    if (onSelectionChange) {
+      onSelectionChange(newSelection);
+    }
   };
 
   const handleDeleteClick = (id: string) => {
@@ -99,7 +117,7 @@ const StipulationTable = ({ onEdit, onCopy, onRemove }: StipulationTableProps) =
   const confirmDelete = () => {
     if (itemToDelete) {
       setData(current => current.filter(item => item.id !== itemToDelete));
-      setSelectedItems(current => current.filter(id => id !== itemToDelete));
+      setLocalSelectedItems(current => current.filter(id => id !== itemToDelete));
       
       // Call the onRemove prop
       onRemove(itemToDelete);
@@ -110,15 +128,24 @@ const StipulationTable = ({ onEdit, onCopy, onRemove }: StipulationTableProps) =
   };
 
   const handleBatchDelete = () => {
-    setData(current => current.filter(item => !selectedItems.includes(item.id)));
+    setData(current => current.filter(item => !effectiveSelectedItems.includes(item.id)));
     // In a real app, you'd call an API to delete these items
+    toast.success(`${effectiveSelectedItems.length} items deleted`);
+    
+    setLocalSelectedItems([]);
+    if (onSelectionChange) {
+      onSelectionChange([]);
+    }
   };
 
   return (
     <div className="space-y-4">
       <BatchOperations 
-        selectedItems={selectedItems}
-        onClearSelection={() => setSelectedItems([])}
+        selectedItems={effectiveSelectedItems}
+        onClearSelection={() => {
+          setLocalSelectedItems([]);
+          if (onSelectionChange) onSelectionChange([]);
+        }}
         onBatchDelete={handleBatchDelete}
       />
       
@@ -128,7 +155,7 @@ const StipulationTable = ({ onEdit, onCopy, onRemove }: StipulationTableProps) =
             <TableRow className="bg-gray-50">
               <TableHead className="w-10">
                 <Checkbox 
-                  checked={selectedItems.length === data.length && data.length > 0} 
+                  checked={effectiveSelectedItems.length === data.length && data.length > 0} 
                   onCheckedChange={toggleSelectAll}
                   aria-label="Select all"
                 />
@@ -148,7 +175,7 @@ const StipulationTable = ({ onEdit, onCopy, onRemove }: StipulationTableProps) =
               <TableRow key={row.id} className="hover:bg-gray-50">
                 <TableCell>
                   <Checkbox 
-                    checked={selectedItems.includes(row.id)}
+                    checked={effectiveSelectedItems.includes(row.id)}
                     onCheckedChange={() => toggleSelectItem(row.id)}
                     aria-label={`Select ${row.stipulationName}`}
                   />

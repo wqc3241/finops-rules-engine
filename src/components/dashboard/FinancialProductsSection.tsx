@@ -51,6 +51,18 @@ const FinancialProductsSection = ({
     setNewProduct({ name: "", productType: "", description: "" });
     setShowAddModal(false);
   };
+  
+  const handleEditClick = (id: string) => {
+    toast.info(`Editing financial product: ${id}`);
+  };
+  
+  const handleCopyClick = (id: string) => {
+    toast.info(`Copying financial product: ${id}`);
+  };
+  
+  const handleRemoveClick = (id: string) => {
+    toast.info(`Removing financial product: ${id}`);
+  };
 
   return (
     <div className="p-6">
@@ -62,7 +74,15 @@ const FinancialProductsSection = ({
         <Button onClick={handleAddClick}>Add New Record</Button>
       </SectionHeader>
 
-      {!isCollapsed && <FinancialProductsTable />}
+      {!isCollapsed && (
+        <FinancialProductsTable 
+          onEdit={handleEditClick}
+          onCopy={handleCopyClick}
+          onRemove={handleRemoveClick}
+          onSelectionChange={onSelectionChange}
+          selectedItems={selectedItems}
+        />
+      )}
 
       <Dialog open={showAddModal} onOpenChange={setShowAddModal}>
         <DialogContent>
