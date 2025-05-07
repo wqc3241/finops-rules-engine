@@ -12,33 +12,6 @@ export const applications: Application[] = [
     date: '2024-05-01'
   },
   {
-    id: '2',
-    orderNumber: 'AD 24567-17246',
-    name: 'Becca Yukelson',
-    type: 'Loan',
-    status: 'Approved',
-    notes: 'A series of short comments may go here, a series of short comments may go here, a series of short comments may go here, a series of short comments may go here.',
-    date: '2024-04-20'
-  },
-  {
-    id: '3',
-    orderNumber: 'AD 24567-17246',
-    name: 'Becca Yukelson',
-    type: 'Loan',
-    status: 'Approved',
-    notes: 'A series of short comments may go here, a series of short comments may go here, a series of short comments may go here, a series of short comments may go here.',
-    date: '2024-04-15'
-  },
-  {
-    id: '4',
-    orderNumber: 'AD 24567-17246',
-    name: 'Becca Yukelson',
-    type: 'Loan',
-    status: 'Approved',
-    notes: 'A series of short comments may go here, a series of short comments may go here, a series of short comments may go here, a series of short comments may go here.',
-    date: '2024-04-10'
-  },
-  {
     id: '5',
     orderNumber: 'AD 87432-21958',
     name: 'Michael Torres',
