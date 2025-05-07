@@ -29,14 +29,14 @@ const ApplicationDetail = () => {
   // Determine which content to show based on the current tab
   const renderTabContent = () => {
     switch (tab) {
+      case 'financial-summary':
+        return <FinancialSummaryView financialSummary={applicationDetails.financialSummary} />;
       case 'order-details':
         return <OrderDetailsView orderDetails={applicationDetails.orderDetails} />;
       case 'history':
         return <ApplicationHistoryView history={applicationDetails.history} />;
       case 'notes':
         return <NotesView notes={applicationDetails.notes} />;
-      case 'financial-summary':
-        return <FinancialSummaryView financialSummary={applicationDetails.financialSummary} />;
       case 'details':
       default:
         return (
