@@ -22,362 +22,193 @@ const FinancialSummaryView: React.FC<FinancialSummaryViewProps> = ({ financialSu
   };
 
   return (
-    <Card>
-      <CardContent className="p-4">
-        <div className="flex justify-between items-center mb-4">
-          <div></div>
-          <div className="flex items-center cursor-pointer" onClick={toggleExpanded}>
-            {expanded ? <ChevronUp className="h-4 w-4 text-gray-400" /> : <ChevronDown className="h-4 w-4 text-gray-400" />}
-          </div>
-        </div>
-        
-        {expanded && (
-          <>
-            {/* Tabs */}
-            <div className="flex mb-3">
-              {financialSummary.lfs.tabs.map((tab, index) => (
-                <Button 
-                  key={index} 
-                  variant={tab === activeTab ? "default" : "outline"}
-                  size="sm"
-                  className="mr-2 text-xs"
-                  onClick={() => handleTabChange(tab)}
-                >
-                  {tab}
-                </Button>
-              ))}
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <Card className="h-fit">
+        <CardContent className="p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-medium">Financial Summary</h3>
+            <div className="flex items-center cursor-pointer" onClick={toggleExpanded}>
+              {expanded ? <ChevronUp className="h-4 w-4 text-gray-400" /> : <ChevronDown className="h-4 w-4 text-gray-400" />}
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-3">
+          </div>
+          
+          {expanded && (
+            <>
+              {/* Tabs */}
+              <div className="flex mb-4">
+                {financialSummary.lfs.tabs.map((tab, index) => (
+                  <Button 
+                    key={index} 
+                    variant={tab === activeTab ? "default" : "outline"}
+                    size="sm"
+                    className="mr-2 text-xs"
+                    onClick={() => handleTabChange(tab)}
+                  >
+                    {tab}
+                  </Button>
+                ))}
+              </div>
+              
+              <div className="space-y-4">
                 {/* Capitalized Value Selection */}
-                <section className="mb-2">
-                  <h4 className="text-xs font-medium mb-2 border-b border-gray-200 pb-1 text-blue-600">Capitalized Value Selection</h4>
-                  <div className="grid grid-cols-3 gap-2">
-                    <div className="border-b border-gray-100 pb-1">
-                      <p className="text-xs text-gray-600">Base Price</p>
-                      <p className="text-xs">{financialSummary.lfs[activeTab.toLowerCase()].basePrice}</p>
-                    </div>
-                    <div className="border-b border-gray-100 pb-1">
-                      <p className="text-xs text-gray-600">Dest. Fee</p>
-                      <p className="text-xs">{financialSummary.lfs[activeTab.toLowerCase()].destFee}</p>
-                    </div>
-                    <div className="border-b border-gray-100 pb-1">
-                      <p className="text-xs text-gray-600">MSRP</p>
-                      <p className="text-xs">{financialSummary.lfs[activeTab.toLowerCase()].msrp}</p>
-                    </div>
-                    <div className="border-b border-gray-100 pb-1">
-                      <p className="text-xs text-gray-600">Discounts</p>
-                      <p className="text-xs">{financialSummary.lfs[activeTab.toLowerCase()].discounts}</p>
-                    </div>
-                    <div className="border-b border-gray-100 pb-1">
-                      <p className="text-xs text-gray-600">Cash Price on Contract</p>
-                      <p className="text-xs">{financialSummary.lfs[activeTab.toLowerCase()].cashPriceOnContract}</p>
-                    </div>
-                    <div className="border-b border-gray-100 pb-1">
-                      <p className="text-xs text-gray-600">Federal EV Credit</p>
-                      <p className="text-xs">{financialSummary.lfs[activeTab.toLowerCase()].federalEvCredit}</p>
-                    </div>
-                    <div className="border-b border-gray-100 pb-1">
-                      <p className="text-xs text-gray-600">Additional Advance Amount</p>
-                      <p className="text-xs">{financialSummary.lfs[activeTab.toLowerCase()].additionalAdvanceAmount}</p>
-                    </div>
-                    <div className="border-b border-gray-100 pb-1">
-                      <p className="text-xs text-gray-600">Rebate</p>
-                      <p className="text-xs">{financialSummary.lfs[activeTab.toLowerCase()].rebate}</p>
-                    </div>
-                    <div className="border-b border-gray-100 pb-1">
-                      <p className="text-xs text-gray-600">Capitalized Cost Base</p>
-                      <p className="text-xs">{financialSummary.lfs[activeTab.toLowerCase()].capitalizedCostBase}</p>
-                    </div>
-                    <div className="border-b border-gray-100 pb-1">
-                      <p className="text-xs text-gray-600">Gross Capitalized Cost</p>
-                      <p className="text-xs">{financialSummary.lfs[activeTab.toLowerCase()].grossCapitalizedCost}</p>
-                    </div>
-                    <div className="border-b border-gray-100 pb-1">
-                      <p className="text-xs text-gray-600">Adjusted Capitalized Cost</p>
-                      <p className="text-xs">{financialSummary.lfs[activeTab.toLowerCase()].adjustedCapitalizedCost}</p>
-                    </div>
+                <section className="mb-4">
+                  <h4 className="font-medium mb-3">Capitalized Value Selection</h4>
+                  <div className="space-y-2">
+                    <DataField label="Base Price" value={financialSummary.lfs[activeTab.toLowerCase()].basePrice} />
+                    <DataField label="Dest. Fee" value={financialSummary.lfs[activeTab.toLowerCase()].destFee} />
+                    <DataField label="MSRP" value={financialSummary.lfs[activeTab.toLowerCase()].msrp} />
+                    <DataField label="Discounts" value={financialSummary.lfs[activeTab.toLowerCase()].discounts} />
+                    <DataField label="Cash Price on Contract" value={financialSummary.lfs[activeTab.toLowerCase()].cashPriceOnContract} />
+                    <DataField label="Federal EV Credit" value={financialSummary.lfs[activeTab.toLowerCase()].federalEvCredit} />
+                    <DataField label="Additional Advance Amount" value={financialSummary.lfs[activeTab.toLowerCase()].additionalAdvanceAmount} />
+                    <DataField label="Rebate" value={financialSummary.lfs[activeTab.toLowerCase()].rebate} />
+                    <DataField label="Capitalized Cost Base" value={financialSummary.lfs[activeTab.toLowerCase()].capitalizedCostBase} />
+                    <DataField label="Gross Capitalized Cost" value={financialSummary.lfs[activeTab.toLowerCase()].grossCapitalizedCost} />
+                    <DataField label="Adjusted Capitalized Cost" value={financialSummary.lfs[activeTab.toLowerCase()].adjustedCapitalizedCost} />
                   </div>
                 </section>
                 
                 {/* Residual Value */}
-                <section className="mb-2">
-                  <h4 className="text-xs font-medium mb-2 border-b border-gray-200 pb-1 text-blue-600">Residual Value</h4>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="border-b border-gray-100 pb-1">
-                      <p className="text-xs text-gray-600">Original RV %</p>
-                      <p className="text-xs">{financialSummary.lfs[activeTab.toLowerCase()].originalRvPercent}</p>
-                    </div>
-                    <div className="border-b border-gray-100 pb-1">
-                      <p className="text-xs text-gray-600">Subvented RV %</p>
-                      <p className="text-xs">{financialSummary.lfs[activeTab.toLowerCase()].subventedRvPercent}</p>
-                    </div>
-                    <div className="border-b border-gray-100 pb-1">
-                      <p className="text-xs text-gray-600">Enhanced RV %</p>
-                      <p className="text-xs">{financialSummary.lfs[activeTab.toLowerCase()].enhancedRvPercent}</p>
-                    </div>
-                    <div className="border-b border-gray-100 pb-1">
-                      <p className="text-xs text-gray-600">Enhanced RV</p>
-                      <p className="text-xs">{financialSummary.lfs[activeTab.toLowerCase()].enhancedRv}</p>
-                    </div>
+                <section className="mb-4">
+                  <h4 className="font-medium mb-3">Residual Value</h4>
+                  <div className="space-y-2">
+                    <DataField label="Original RV %" value={financialSummary.lfs[activeTab.toLowerCase()].originalRvPercent} />
+                    <DataField label="Subvented RV %" value={financialSummary.lfs[activeTab.toLowerCase()].subventedRvPercent} />
+                    <DataField label="Enhanced RV %" value={financialSummary.lfs[activeTab.toLowerCase()].enhancedRvPercent} />
+                    <DataField label="Enhanced RV" value={financialSummary.lfs[activeTab.toLowerCase()].enhancedRv} />
                   </div>
                 </section>
                 
                 {/* Payment */}
-                <section className="mb-2">
-                  <h4 className="text-xs font-medium mb-2 border-b border-gray-200 pb-1 text-blue-600">Payment</h4>
-                  <div className="grid grid-cols-3 gap-2">
-                    <div className="border-b border-gray-100 pb-1">
-                      <p className="text-xs text-gray-600">Standard MF</p>
-                      <p className="text-xs">{financialSummary.lfs[activeTab.toLowerCase()].standardMf}</p>
-                    </div>
-                    <div className="border-b border-gray-100 pb-1">
-                      <p className="text-xs text-gray-600">Customer MF</p>
-                      <p className="text-xs">{financialSummary.lfs[activeTab.toLowerCase()].customerMf}</p>
-                    </div>
-                    <div className="border-b border-gray-100 pb-1">
-                      <p className="text-xs text-gray-600">Depreciation and Amortized Amounts</p>
-                      <p className="text-xs">{financialSummary.lfs[activeTab.toLowerCase()].depreciationAndAmortizedAmounts}</p>
-                    </div>
-                    <div className="border-b border-gray-100 pb-1">
-                      <p className="text-xs text-gray-600">Rent Charge</p>
-                      <p className="text-xs">{financialSummary.lfs[activeTab.toLowerCase()].rentCharge}</p>
-                    </div>
-                    <div className="border-b border-gray-100 pb-1">
-                      <p className="text-xs text-gray-600">Total Of Base Monthly Payment</p>
-                      <p className="text-xs">{financialSummary.lfs[activeTab.toLowerCase()].totalOfBaseMonthlyPayment}</p>
-                    </div>
-                    <div className="border-b border-gray-100 pb-1">
-                      <p className="text-xs text-gray-600">Lease Term</p>
-                      <p className="text-xs">{financialSummary.lfs[activeTab.toLowerCase()].leaseTerm}</p>
-                    </div>
-                    <div className="border-b border-gray-100 pb-1">
-                      <p className="text-xs text-gray-600">Base Monthly Payment</p>
-                      <p className="text-xs">{financialSummary.lfs[activeTab.toLowerCase()].baseMonthlyPayment}</p>
-                    </div>
-                  </div>
-                </section>
-                
-                {/* Payment Contd. */}
-                <section className="mb-2">
-                  <h4 className="text-xs font-medium mb-2 border-b border-gray-200 pb-1 text-blue-600">Payment Cont.</h4>
-                  <div className="grid grid-cols-3 gap-2">
-                    <div className="border-b border-gray-100 pb-1">
-                      <p className="text-xs text-gray-600">Monthly Sales Tax / Use Tax Rate</p>
-                      <p className="text-xs">{financialSummary.lfs[activeTab.toLowerCase()].monthlySalesTaxRate}</p>
-                    </div>
-                    <div className="border-b border-gray-100 pb-1">
-                      <p className="text-xs text-gray-600">Monthly Sales Tax / Use Tax</p>
-                      <p className="text-xs">{financialSummary.lfs[activeTab.toLowerCase()].monthlySalesTax}</p>
-                    </div>
-                    <div className="border-b border-gray-100 pb-1">
-                      <p className="text-xs text-gray-600">Total Monthly Payment(incl. use Taxes)</p>
-                      <p className="text-xs">{financialSummary.lfs[activeTab.toLowerCase()].totalMonthlyPayment}</p>
-                    </div>
-                    <div className="border-b border-gray-100 pb-1">
-                      <p className="text-xs text-gray-600">Purchase Option Fee</p>
-                      <p className="text-xs">{financialSummary.lfs[activeTab.toLowerCase()].purchaseOptionFee}</p>
-                    </div>
-                    <div className="border-b border-gray-100 pb-1">
-                      <p className="text-xs text-gray-600">Disposition Fee</p>
-                      <p className="text-xs">{financialSummary.lfs[activeTab.toLowerCase()].dispositionFee}</p>
-                    </div>
-                    <div className="border-b border-gray-100 pb-1">
-                      <p className="text-xs text-gray-600">Next Payment Date</p>
-                      <p className="text-xs">{financialSummary.lfs[activeTab.toLowerCase()].nextPaymentDate}</p>
-                    </div>
+                <section className="mb-4">
+                  <h4 className="font-medium mb-3">Payment</h4>
+                  <div className="space-y-2">
+                    <DataField label="Standard MF" value={financialSummary.lfs[activeTab.toLowerCase()].standardMf} />
+                    <DataField label="Customer MF" value={financialSummary.lfs[activeTab.toLowerCase()].customerMf} />
+                    <DataField label="Depreciation and Amortized Amounts" value={financialSummary.lfs[activeTab.toLowerCase()].depreciationAndAmortizedAmounts} />
+                    <DataField label="Rent Charge" value={financialSummary.lfs[activeTab.toLowerCase()].rentCharge} />
+                    <DataField label="Total Of Base Monthly Payment" value={financialSummary.lfs[activeTab.toLowerCase()].totalOfBaseMonthlyPayment} />
+                    <DataField label="Lease Term" value={financialSummary.lfs[activeTab.toLowerCase()].leaseTerm} />
+                    <DataField label="Base Monthly Payment" value={financialSummary.lfs[activeTab.toLowerCase()].baseMonthlyPayment} />
                   </div>
                 </section>
               </div>
+            </>
+          )}
+        </CardContent>
+      </Card>
 
-              <div className="space-y-3">
+      <Card className="h-fit">
+        <CardContent className="p-6">
+          {expanded && (
+            <>
+              <h3 className="text-lg font-medium mb-4">Additional Details</h3>
+              <div className="space-y-4">
                 {/* Capitalized Tax */}
-                <section className="mb-2">
-                  <h4 className="text-xs font-medium mb-2 border-b border-gray-200 pb-1 text-blue-600">Capitalized Tax</h4>
-                  <div className="grid grid-cols-3 gap-2">
-                    <div className="border-b border-gray-100 pb-1">
-                      <p className="text-xs text-gray-600">CCR Tax</p>
-                      <p className="text-xs">{financialSummary.lfs[activeTab.toLowerCase()].ccrTaxCap}</p>
-                    </div>
-                    <div className="border-b border-gray-100 pb-1">
-                      <p className="text-xs text-gray-600">Sales Tax</p>
-                      <p className="text-xs">{financialSummary.lfs[activeTab.toLowerCase()].salesTaxCap}</p>
-                    </div>
-                    <div className="border-b border-gray-100 pb-1">
-                      <p className="text-xs text-gray-600">Total Capitalized Tax</p>
-                      <p className="text-xs">{financialSummary.lfs[activeTab.toLowerCase()].totalCapitalizedTax}</p>
-                    </div>
+                <section className="mb-4">
+                  <h4 className="font-medium mb-3">Capitalized Tax</h4>
+                  <div className="space-y-2">
+                    <DataField label="CCR Tax" value={financialSummary.lfs[activeTab.toLowerCase()].ccrTaxCap} />
+                    <DataField label="Sales Tax" value={financialSummary.lfs[activeTab.toLowerCase()].salesTaxCap} />
+                    <DataField label="Total Capitalized Tax" value={financialSummary.lfs[activeTab.toLowerCase()].totalCapitalizedTax} />
                   </div>
                 </section>
                 
                 {/* Upfront Tax */}
-                <section className="mb-2">
-                  <h4 className="text-xs font-medium mb-2 border-b border-gray-200 pb-1 text-blue-600">Upfront Tax</h4>
-                  <div className="grid grid-cols-3 gap-2">
-                    <div className="border-b border-gray-100 pb-1">
-                      <p className="text-xs text-gray-600">CCR Tax</p>
-                      <p className="text-xs">{financialSummary.lfs[activeTab.toLowerCase()].ccrTaxUpfront}</p>
-                    </div>
-                    <div className="border-b border-gray-100 pb-1">
-                      <p className="text-xs text-gray-600">Sales Tax</p>
-                      <p className="text-xs">{financialSummary.lfs[activeTab.toLowerCase()].salesTaxUpfront}</p>
-                    </div>
-                    <div className="border-b border-gray-100 pb-1">
-                      <p className="text-xs text-gray-600">Total Upfront Tax</p>
-                      <p className="text-xs">{financialSummary.lfs[activeTab.toLowerCase()].totalUpfrontTax}</p>
-                    </div>
+                <section className="mb-4">
+                  <h4 className="font-medium mb-3">Upfront Tax</h4>
+                  <div className="space-y-2">
+                    <DataField label="CCR Tax" value={financialSummary.lfs[activeTab.toLowerCase()].ccrTaxUpfront} />
+                    <DataField label="Sales Tax" value={financialSummary.lfs[activeTab.toLowerCase()].salesTaxUpfront} />
+                    <DataField label="Total Upfront Tax" value={financialSummary.lfs[activeTab.toLowerCase()].totalUpfrontTax} />
                   </div>
                 </section>
                 
                 {/* Capitalized Fees */}
-                <section className="mb-2">
-                  <h4 className="text-xs font-medium mb-2 border-b border-gray-200 pb-1 text-blue-600">Capitalized Fees</h4>
-                  <div className="grid grid-cols-3 gap-2">
-                    <div className="border-b border-gray-100 pb-1">
-                      <p className="text-xs text-gray-600">Documentation Fee</p>
-                      <p className="text-xs">{financialSummary.lfs[activeTab.toLowerCase()].documentationFee}</p>
-                    </div>
-                    <div className="border-b border-gray-100 pb-1">
-                      <p className="text-xs text-gray-600">Acquisition Fee</p>
-                      <p className="text-xs">{financialSummary.lfs[activeTab.toLowerCase()].acquisitionFee}</p>
-                    </div>
-                    <div className="border-b border-gray-100 pb-1">
-                      <p className="text-xs text-gray-600">Total Capitalized Fees</p>
-                      <p className="text-xs">{financialSummary.lfs[activeTab.toLowerCase()].totalCapitalizedFees}</p>
-                    </div>
+                <section className="mb-4">
+                  <h4 className="font-medium mb-3">Capitalized Fees</h4>
+                  <div className="space-y-2">
+                    <DataField label="Documentation Fee" value={financialSummary.lfs[activeTab.toLowerCase()].documentationFee} />
+                    <DataField label="Acquisition Fee" value={financialSummary.lfs[activeTab.toLowerCase()].acquisitionFee} />
+                    <DataField label="Total Capitalized Fees" value={financialSummary.lfs[activeTab.toLowerCase()].totalCapitalizedFees} />
                   </div>
                 </section>
                 
                 {/* Upfront Fees */}
-                <section className="mb-2">
-                  <h4 className="text-xs font-medium mb-2 border-b border-gray-200 pb-1 text-blue-600">Upfront Fees</h4>
-                  <div className="grid grid-cols-3 gap-2">
-                    <div className="border-b border-gray-100 pb-1">
-                      <p className="text-xs text-gray-600">Optional Electronic Registration Fee</p>
-                      <p className="text-xs">{financialSummary.lfs[activeTab.toLowerCase()].optionalElectronicRegistrationFee}</p>
-                    </div>
-                    <div className="border-b border-gray-100 pb-1">
-                      <p className="text-xs text-gray-600">Registration/Transfer/Titling Fees</p>
-                      <p className="text-xs">{financialSummary.lfs[activeTab.toLowerCase()].registrationTransferTitlingFees}</p>
-                    </div>
-                    <div className="border-b border-gray-100 pb-1">
-                      <p className="text-xs text-gray-600">Total Govt and Additional Fees</p>
-                      <p className="text-xs">{financialSummary.lfs[activeTab.toLowerCase()].totalGovtAndAdditionalFees}</p>
-                    </div>
+                <section className="mb-4">
+                  <h4 className="font-medium mb-3">Upfront Fees</h4>
+                  <div className="space-y-2">
+                    <DataField label="Optional Electronic Registration Fee" value={financialSummary.lfs[activeTab.toLowerCase()].optionalElectronicRegistrationFee} />
+                    <DataField label="Registration/Transfer/Titling Fees" value={financialSummary.lfs[activeTab.toLowerCase()].registrationTransferTitlingFees} />
+                    <DataField label="Total Govt and Additional Fees" value={financialSummary.lfs[activeTab.toLowerCase()].totalGovtAndAdditionalFees} />
                   </div>
                 </section>
                 
                 {/* Amount Paid In Signing */}
-                <section className="mb-2">
-                  <h4 className="text-xs font-medium mb-2 border-b border-gray-200 pb-1 text-blue-600">Amount Paid In Signing</h4>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="border-b border-gray-100 pb-1">
-                      <p className="text-xs text-gray-600">Cash Paid by Customer</p>
-                      <p className="text-xs">{financialSummary.lfs[activeTab.toLowerCase()].cashPaidByCustomer}</p>
-                    </div>
-                    <div className="border-b border-gray-100 pb-1">
-                      <p className="text-xs text-gray-600">Amount Financed</p>
-                      <p className="text-xs">{financialSummary.lfs[activeTab.toLowerCase()].amountFinanced}</p>
-                    </div>
-                  </div>
-                </section>
-                
-                {/* Miscellaneous */}
-                <section className="mb-2">
-                  <h4 className="text-xs font-medium mb-2 border-b border-gray-200 pb-1 text-blue-600">Miscellaneous</h4>
-                  <div className="grid grid-cols-3 gap-2">
-                    <div className="border-b border-gray-100 pb-1">
-                      <p className="text-xs text-gray-600">Accepted Offer Date</p>
-                      <p className="text-xs">{financialSummary.lfs[activeTab.toLowerCase()].acceptedOfferDate}</p>
-                    </div>
-                    <div className="border-b border-gray-100 pb-1">
-                      <p className="text-xs text-gray-600">Transaction ID</p>
-                      <p className="text-xs">{financialSummary.lfs[activeTab.toLowerCase()].transactionId}</p>
-                    </div>
-                    <div className="border-b border-gray-100 pb-1">
-                      <p className="text-xs text-gray-600">Transaction Version</p>
-                      <p className="text-xs">{financialSummary.lfs[activeTab.toLowerCase()].transactionVersion}</p>
-                    </div>
+                <section className="mb-4">
+                  <h4 className="font-medium mb-3">Amount Paid In Signing</h4>
+                  <div className="space-y-2">
+                    <DataField label="Cash Paid by Customer" value={financialSummary.lfs[activeTab.toLowerCase()].cashPaidByCustomer} />
+                    <DataField label="Amount Financed" value={financialSummary.lfs[activeTab.toLowerCase()].amountFinanced} />
                   </div>
                 </section>
               </div>
-            </div>
 
-            {/* Approved Offers */}
-            <section className="mt-4">
-              <h4 className="text-xs font-semibold mb-2 pb-1">Approved Offers</h4>
-              <div className="grid grid-cols-7 gap-2 text-xs">
-                <div className="font-medium">Term</div>
-                <div className="font-medium">Allowed Mileage</div>
-                <div className="font-medium">Down Payment</div>
-                <div className="font-medium">Est. Monthly Pmt (incl. tax)</div>
-                <div className="font-medium">Due At Delivery</div>
-                <div className="font-medium">Approved Date</div>
-                <div className="font-medium">Lender Name</div>
-              </div>
-              <div className="grid grid-cols-7 gap-2 text-xs mt-1">
-                <div>18</div>
-                <div>15,000</div>
-                <div>0</div>
-                <div>1,610.77</div>
-                <div>4,106.34</div>
-                <div>Apr 27, 2025</div>
-                <div>Lucid Financial Services</div>
-              </div>
-            </section>
+              {/* Approved Offers */}
+              <section className="mt-6">
+                <h4 className="font-medium mb-3">Approved Offers</h4>
+                <Card className="border-gray-200">
+                  <CardContent className="p-4">
+                    <div className="space-y-2">
+                      <DataField label="Term" value="18" />
+                      <DataField label="Allowed Mileage" value="15,000" />
+                      <DataField label="Down Payment" value="0" />
+                      <DataField label="Est. Monthly Pmt (incl. tax)" value="1,610.77" />
+                      <DataField label="Due At Delivery" value="4,106.34" />
+                      <DataField label="Approved Date" value="Apr 27, 2025" />
+                      <DataField label="Lender Name" value="Lucid Financial Services" />
+                    </div>
+                  </CardContent>
+                </Card>
+              </section>
 
-            {/* TradeIn Details */}
-            <section className="mt-4">
-              <h4 className="text-xs font-semibold mb-2 pb-1">TradeIn Details</h4>
-              <div className="grid grid-cols-7 gap-2 text-xs">
-                <div className="font-medium">Year</div>
-                <div className="font-medium">Make</div>
-                <div className="font-medium">Model</div>
-                <div className="font-medium">Trim</div>
-                <div className="font-medium">Lien Holder</div>
-                <div className="font-medium">Total Value</div>
-                <div className="font-medium">PayOff Amount</div>
-              </div>
-              <div className="grid grid-cols-7 gap-2 text-xs mt-1 border-b border-gray-200 pb-1">
-                <div>-</div>
-                <div>-</div>
-                <div>-</div>
-                <div>-</div>
-                <div>-</div>
-                <div>-</div>
-                <div>-</div>
-              </div>
-
-              <div className="grid grid-cols-5 gap-2 text-xs mt-2">
-                <div className="font-medium">Gross Trade Allowance</div>
-                <div className="font-medium">Net TradeIn</div>
-                <div className="font-medium">Max Allowed CCR from Trade</div>
-                <div className="font-medium">Max allowed Cash CCR</div>
-                <div className="font-medium">Equity applied to due at delivery</div>
-              </div>
-              <div className="grid grid-cols-5 gap-2 text-xs mt-1">
-                <div>-</div>
-                <div>-</div>
-                <div>-</div>
-                <div>28847.83</div>
-                <div>-</div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2 text-xs mt-2">
-                <div className="font-medium">Equity Applied to CCR</div>
-                <div className="font-medium">Remaining equity post financing</div>
-              </div>
-              <div className="grid grid-cols-2 gap-2 text-xs mt-1">
-                <div>0</div>
-                <div>0</div>
-              </div>
-            </section>
-          </>
-        )}
-      </CardContent>
-    </Card>
+              {/* TradeIn Details */}
+              <section className="mt-6">
+                <h4 className="font-medium mb-3">TradeIn Details</h4>
+                <Card className="border-gray-200">
+                  <CardContent className="p-4">
+                    <div className="space-y-2">
+                      <DataField label="Year" value="-" />
+                      <DataField label="Make" value="-" />
+                      <DataField label="Model" value="-" />
+                      <DataField label="Trim" value="-" />
+                      <DataField label="Lien Holder" value="-" />
+                      <DataField label="Total Value" value="-" />
+                      <DataField label="PayOff Amount" value="-" />
+                      <DataField label="Gross Trade Allowance" value="-" />
+                      <DataField label="Net TradeIn" value="-" />
+                      <DataField label="Max Allowed CCR from Trade" value="-" />
+                      <DataField label="Max allowed Cash CCR" value="28847.83" />
+                      <DataField label="Equity applied to due at delivery" value="-" />
+                      <DataField label="Equity Applied to CCR" value="0" />
+                      <DataField label="Remaining equity post financing" value="0" />
+                    </div>
+                  </CardContent>
+                </Card>
+              </section>
+            </>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 };
+
+const DataField: React.FC<{ label: string; value: string }> = ({ label, value }) => (
+  <div className="flex items-center justify-between">
+    <span className="text-sm text-gray-600">{label}</span>
+    <span className="text-sm">{value}</span>
+  </div>
+);
 
 export default FinancialSummaryView;
