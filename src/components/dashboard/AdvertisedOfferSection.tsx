@@ -18,12 +18,16 @@ interface AdvertisedOfferSectionProps {
   title: string;
   showAddModal?: boolean;
   setShowAddModal?: (show: boolean) => void;
+  onSelectionChange?: (items: string[]) => void;
+  selectedItems?: string[];
 }
 
 const AdvertisedOfferSection = ({ 
   title, 
   showAddModal = false, 
-  setShowAddModal = () => {} 
+  setShowAddModal = () => {},
+  onSelectionChange,
+  selectedItems = []
 }: AdvertisedOfferSectionProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [localShowAddModal, setLocalShowAddModal] = useState(false);

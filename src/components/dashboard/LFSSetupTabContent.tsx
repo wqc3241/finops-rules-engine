@@ -1,5 +1,5 @@
 
-import Button from "./Button"; 
+import { Button } from "@/components/ui/button";  
 import { toast } from "sonner";
 import { ReactNode, useState } from "react";
 import { Plus, Filter, ArrowUp, ArrowDown } from "lucide-react";

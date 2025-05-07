@@ -9,6 +9,8 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Copy, Edit, Trash2 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useState } from "react";
 import {
   Pagination,
   PaginationContent,
@@ -49,15 +51,57 @@ interface DealerTableProps {
   onEdit: (id: string) => void;
   onCopy: (id: string) => void;
   onRemove: (id: string) => void;
+  onSelectionChange?: (items: string[]) => void;
+  selectedItems?: string[];
 }
 
-const DealerTable = ({ onEdit, onCopy, onRemove }: DealerTableProps) => {
+const DealerTable = ({ 
+  onEdit, 
+  onCopy, 
+  onRemove, 
+  onSelectionChange,
+  selectedItems = []
+}: DealerTableProps) => {
+  const [data] = useState(mockDealerData);
+  const [localSelectedItems, setLocalSelectedItems] = useState<string[]>([]);
+  
+  // Use either prop or local state for selections
+  const effectiveSelectedItems = selectedItems.length ? selectedItems : localSelectedItems;
+  
+  const toggleSelectAll = () => {
+    const allIds = data.map(item => item.id);
+    const newSelection = effectiveSelectedItems.length === data.length ? [] : allIds;
+    
+    setLocalSelectedItems(newSelection);
+    if (onSelectionChange) {
+      onSelectionChange(newSelection);
+    }
+  };
+  
+  const toggleSelectItem = (id: string) => {
+    const newSelection = effectiveSelectedItems.includes(id)
+      ? effectiveSelectedItems.filter(itemId => itemId !== id)
+      : [...effectiveSelectedItems, id];
+    
+    setLocalSelectedItems(newSelection);
+    if (onSelectionChange) {
+      onSelectionChange(newSelection);
+    }
+  };
+
   return (
     <div>
       <div className="rounded-md border">
         <Table className="min-w-full">
           <TableHeader>
             <TableRow className="bg-gray-50">
+              <TableHead className="w-10">
+                <Checkbox 
+                  checked={effectiveSelectedItems.length === data.length && data.length > 0} 
+                  onCheckedChange={toggleSelectAll}
+                  aria-label="Select all"
+                />
+              </TableHead>
               <TableHead>ID</TableHead>
               <TableHead>Gateway Dealer ID</TableHead>
               <TableHead>Gateway ID</TableHead>
@@ -74,6 +118,13 @@ const DealerTable = ({ onEdit, onCopy, onRemove }: DealerTableProps) => {
           <TableBody>
             {mockDealerData.map((row) => (
               <TableRow key={row.id} className="hover:bg-gray-50">
+                <TableCell>
+                  <Checkbox 
+                    checked={effectiveSelectedItems.includes(row.id)}
+                    onCheckedChange={() => toggleSelectItem(row.id)}
+                    aria-label={`Select ${row.id}`}
+                  />
+                </TableCell>
                 <TableCell className="font-medium">{row.id}</TableCell>
                 <TableCell>{row.gatewayDealerId}</TableCell>
                 <TableCell>{row.gatewayId}</TableCell>

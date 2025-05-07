@@ -4,12 +4,12 @@ import { Button } from "@/components/ui/button";
 import FinancialProgramConfigTable from "../FinancialProgramConfigTable";
 import SectionHeader from "./SectionHeader";
 import { toast } from "sonner";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogFooter 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,52 +18,53 @@ interface FinancialProgramConfigSectionProps {
   title: string;
   showAddModal?: boolean;
   setShowAddModal?: (show: boolean) => void;
+  onSelectionChange?: (items: string[]) => void;
+  selectedItems?: string[];
 }
 
-const FinancialProgramConfigSection = ({ 
-  title, 
-  showAddModal = false, 
-  setShowAddModal = () => {} 
+const FinancialProgramConfigSection = ({
+  title,
+  showAddModal: externalShowAddModal,
+  setShowAddModal: externalSetShowAddModal,
+  onSelectionChange,
+  selectedItems = []
 }: FinancialProgramConfigSectionProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [localShowAddModal, setLocalShowAddModal] = useState(false);
+  const [internalShowAddModal, setInternalShowAddModal] = useState(false);
   const [newConfig, setNewConfig] = useState({
-    name: "",
+    programName: "",
     programType: "",
     description: ""
   });
-  
-  // Use either the prop or local state
-  const effectiveShowAddModal = showAddModal || localShowAddModal;
-  const effectiveSetShowAddModal = (show: boolean) => {
-    setShowAddModal(show);
-    setLocalShowAddModal(show);
-  };
-  
+
+  // Use either external state (if provided) or internal state
+  const showAddModal = externalShowAddModal !== undefined ? externalShowAddModal : internalShowAddModal;
+  const setShowAddModal = externalSetShowAddModal || setInternalShowAddModal;
+
   const handleAddClick = () => {
-    effectiveSetShowAddModal(true);
+    setShowAddModal(true);
   };
-  
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success(`New financial program config added: ${newConfig.name}`);
-    setNewConfig({ name: "", programType: "", description: "" });
-    effectiveSetShowAddModal(false);
+    toast.success(`New financial program config added: ${newConfig.programName}`);
+    setNewConfig({ programName: "", programType: "", description: "" });
+    setShowAddModal(false);
   };
-  
+
   return (
     <div className="p-6">
-      <SectionHeader 
-        title={title.replace(" Rules", "")} 
-        isCollapsed={isCollapsed} 
+      <SectionHeader
+        title={title}
+        isCollapsed={isCollapsed}
         setIsCollapsed={setIsCollapsed}
       >
         <Button onClick={handleAddClick}>Add New Record</Button>
       </SectionHeader>
-      
+
       {!isCollapsed && <FinancialProgramConfigTable />}
-      
-      <Dialog open={effectiveShowAddModal} onOpenChange={effectiveSetShowAddModal}>
+
+      <Dialog open={showAddModal} onOpenChange={setShowAddModal}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Add New Financial Program Config</DialogTitle>
@@ -71,11 +72,11 @@ const FinancialProgramConfigSection = ({
           <form onSubmit={handleSubmit}>
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="name" className="text-right">Name</Label>
+                <Label htmlFor="programName" className="text-right">Program Name</Label>
                 <Input
-                  id="name"
-                  value={newConfig.name}
-                  onChange={(e) => setNewConfig({...newConfig, name: e.target.value})}
+                  id="programName"
+                  value={newConfig.programName}
+                  onChange={(e) => setNewConfig({...newConfig, programName: e.target.value})}
                   className="col-span-3"
                 />
               </div>

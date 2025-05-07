@@ -10,12 +10,16 @@ interface PricingRulesSectionProps {
   title: string;
   showAddModal: boolean;
   setShowAddModal: (open: boolean) => void;
+  onSelectionChange?: (items: string[]) => void;
+  selectedItems?: string[];
 }
 
 const PricingRulesSection = ({ 
   title, 
   showAddModal, 
-  setShowAddModal 
+  setShowAddModal,
+  onSelectionChange,
+  selectedItems = []
 }: PricingRulesSectionProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   

@@ -33,8 +33,8 @@ export const sortByProperty = <T extends Record<string, any>>(
         : valueB - valueA;
     }
     
-    // Handle date comparison
-    if (valueA instanceof Date && valueB instanceof Date) {
+    // Handle date comparison - fix the instanceof Date check
+    if (valueA && valueB && typeof valueA.getTime === 'function' && typeof valueB.getTime === 'function') {
       return direction === 'asc' 
         ? valueA.getTime() - valueB.getTime() 
         : valueB.getTime() - valueA.getTime();

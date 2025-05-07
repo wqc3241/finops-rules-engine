@@ -8,6 +8,10 @@ import { Copy, Edit, Trash2 } from "lucide-react";
 
 interface RulesSectionProps {
   title: string;
+  showAddModal?: boolean;
+  setShowAddModal?: (show: boolean) => void;
+  onSelectionChange?: (items: string[]) => void;
+  selectedItems?: string[];
 }
 
 // Adding onEdit, onCopy, onRemove props to RulesTable component in this file
@@ -17,13 +21,23 @@ interface RulesTableProps {
   onRemove: (id: string) => void;
 }
 
-const RulesSection = ({ title }: RulesSectionProps) => {
+const RulesSection = ({ 
+  title, 
+  showAddModal,
+  setShowAddModal,
+  onSelectionChange,
+  selectedItems = [] 
+}: RulesSectionProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   
   const handleAddClick = () => {
     // Here you would typically open a modal for adding a new record
-    console.log("Add new rule clicked");
-    toast.info("Add new rule functionality to be implemented");
+    if (setShowAddModal) {
+      setShowAddModal(true);
+    } else {
+      console.log("Add new rule clicked");
+      toast.info("Add new rule functionality to be implemented");
+    }
   };
   
   const handleEditClick = (id: string) => {

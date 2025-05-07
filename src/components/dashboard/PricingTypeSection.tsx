@@ -10,12 +10,16 @@ interface PricingTypeSectionProps {
   title: string;
   showAddModal?: boolean;
   setShowAddModal?: (open: boolean) => void;
+  onSelectionChange?: (items: string[]) => void;
+  selectedItems?: string[];
 }
 
 const PricingTypeSection = ({ 
   title, 
   showAddModal: externalShowAddModal, 
-  setShowAddModal: externalSetShowAddModal 
+  setShowAddModal: externalSetShowAddModal,
+  onSelectionChange,
+  selectedItems = []
 }: PricingTypeSectionProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [internalShowAddModal, setInternalShowAddModal] = useState(false);

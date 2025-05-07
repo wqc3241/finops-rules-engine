@@ -9,6 +9,8 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Copy, Edit, Trash2 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useState } from "react";
 import {
   Pagination,
   PaginationContent,
@@ -69,15 +71,57 @@ interface RoutingRuleTableProps {
   onEdit: (id: string) => void;
   onCopy: (id: string) => void;
   onRemove: (id: string) => void;
+  onSelectionChange?: (items: string[]) => void;
+  selectedItems?: string[];
 }
 
-const RoutingRuleTable = ({ onEdit, onCopy, onRemove }: RoutingRuleTableProps) => {
+const RoutingRuleTable = ({ 
+  onEdit, 
+  onCopy, 
+  onRemove,
+  onSelectionChange,
+  selectedItems = []
+}: RoutingRuleTableProps) => {
+  const [data] = useState(mockRoutingRuleData);
+  const [localSelectedItems, setLocalSelectedItems] = useState<string[]>([]);
+  
+  // Use either prop or local state for selections
+  const effectiveSelectedItems = selectedItems.length ? selectedItems : localSelectedItems;
+  
+  const toggleSelectAll = () => {
+    const allIds = data.map(item => item.id);
+    const newSelection = effectiveSelectedItems.length === data.length ? [] : allIds;
+    
+    setLocalSelectedItems(newSelection);
+    if (onSelectionChange) {
+      onSelectionChange(newSelection);
+    }
+  };
+  
+  const toggleSelectItem = (id: string) => {
+    const newSelection = effectiveSelectedItems.includes(id)
+      ? effectiveSelectedItems.filter(itemId => itemId !== id)
+      : [...effectiveSelectedItems, id];
+    
+    setLocalSelectedItems(newSelection);
+    if (onSelectionChange) {
+      onSelectionChange(newSelection);
+    }
+  };
+  
   return (
     <div>
       <div className="rounded-md border">
         <Table className="min-w-full">
           <TableHeader>
             <TableRow className="bg-gray-50">
+              <TableHead className="w-10">
+                <Checkbox 
+                  checked={effectiveSelectedItems.length === data.length && data.length > 0} 
+                  onCheckedChange={toggleSelectAll}
+                  aria-label="Select all"
+                />
+              </TableHead>
               <TableHead>Rule ID</TableHead>
               <TableHead>Dealer</TableHead>
               <TableHead>Lender</TableHead>
@@ -91,8 +135,15 @@ const RoutingRuleTable = ({ onEdit, onCopy, onRemove }: RoutingRuleTableProps) =
             </TableRow>
           </TableHeader>
           <TableBody>
-            {mockRoutingRuleData.map((row) => (
+            {data.map((row) => (
               <TableRow key={row.id} className="hover:bg-gray-50">
+                <TableCell>
+                  <Checkbox 
+                    checked={effectiveSelectedItems.includes(row.id)}
+                    onCheckedChange={() => toggleSelectItem(row.id)}
+                    aria-label={`Select ${row.id}`}
+                  />
+                </TableCell>
                 <TableCell className="font-medium">{row.id}</TableCell>
                 <TableCell>{row.dealer}</TableCell>
                 <TableCell>{row.lender}</TableCell>
