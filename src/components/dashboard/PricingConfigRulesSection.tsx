@@ -30,14 +30,14 @@ const PricingConfigRulesSection = ({
   const handleAddClick = () => {
     setShowAddModal(true);
     // Here you would typically open a modal for adding a new record
-    console.log("Add new config rule clicked");
-    toast.info("Add new config rule functionality to be implemented");
+    console.log("Add new pricing config clicked");
+    toast.info("Add new pricing config functionality to be implemented");
   };
   
   return (
     <div className="p-6">
       <SectionHeader 
-        title={title.replace(" Rules", "")} 
+        title={title} 
         isCollapsed={isCollapsed} 
         setIsCollapsed={setIsCollapsed}
       >

@@ -35,30 +35,30 @@ const RulesSection = ({
     if (setShowAddModal) {
       setShowAddModal(true);
     } else {
-      console.log("Add new rule clicked");
-      toast.info("Add new rule functionality to be implemented");
+      console.log("Add new credit profile clicked");
+      toast.info("Add new credit profile functionality to be implemented");
     }
   };
   
   const handleEditClick = (id: string) => {
-    console.log(`Edit rule ${id} clicked`);
-    toast.info(`Edit rule ${id} functionality to be implemented`);
+    console.log(`Edit credit profile ${id} clicked`);
+    toast.info(`Edit credit profile ${id} functionality to be implemented`);
   };
   
   const handleCopyClick = (id: string) => {
-    console.log(`Copy rule ${id} clicked`);
-    toast.info(`Rule ${id} has been copied`);
+    console.log(`Copy credit profile ${id} clicked`);
+    toast.info(`Credit profile ${id} has been copied`);
   };
   
   const handleRemoveClick = (id: string) => {
-    console.log(`Remove rule ${id} clicked`);
-    toast.info(`Rule ${id} has been removed`);
+    console.log(`Remove credit profile ${id} clicked`);
+    toast.info(`Credit profile ${id} has been removed`);
   };
   
   return (
     <div className="p-6">
       <SectionHeader 
-        title={title.replace(" Rules", "")} 
+        title={title} 
         isCollapsed={isCollapsed}
         setIsCollapsed={setIsCollapsed}
       >

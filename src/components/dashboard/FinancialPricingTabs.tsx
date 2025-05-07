@@ -95,10 +95,10 @@ const FinancialPricingTabs = ({
     },
     {
       value: "rules",
-      label: "Rules",
+      label: "Credit Profile",
       content: (
         <RulesSection 
-          title="Rules" 
+          title="Credit Profile" 
           showAddModal={showRulesModal}
           setShowAddModal={setShowRulesModal}
           onSelectionChange={onSelectionChange}
@@ -108,10 +108,10 @@ const FinancialPricingTabs = ({
     },
     {
       value: "pricing-config-rules",
-      label: "Config Rules",
+      label: "Pricing Config",
       content: (
         <PricingConfigRulesSection 
-          title="Config Rules"
+          title="Pricing Config"
           showAddModal={showConfigRulesModal}
           setShowAddModal={setShowConfigRulesModal}
           onSelectionChange={onSelectionChange}
