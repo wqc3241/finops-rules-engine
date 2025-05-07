@@ -95,9 +95,33 @@ export const historyItems: HistoryItem[] = [
 
 export const notes: Note[] = [
   {
-    content: 'Hey @Tom, this customer is the best',
-    time: '11.22 am',
-    date: 'Friday, Feb 14',
+    content: 'Customer has requested expedited processing. @tom can you please review this application by EOD?',
+    time: '11:22 AM',
+    date: 'May 7, 2025',
+    user: 'Michael McCann'
+  },
+  {
+    content: '@michael I noticed the applicant has a prior lease with us. Their payment history was excellent.',
+    time: '10:45 AM',
+    date: 'May 7, 2025',
+    user: 'Jennifer Liu'
+  },
+  {
+    content: 'Customer requested to be contacted only via email for all future communications.',
+    time: '5:30 PM',
+    date: 'May 6, 2025',
+    user: 'Sarah Johnson'
+  },
+  {
+    content: '@jennifer @michael Credit check has been approved. The customer qualifies for our premier rate.',
+    time: '3:15 PM',
+    date: 'May 5, 2025',
+    user: 'Tom Williams'
+  },
+  {
+    content: 'Customer is looking to take delivery before end of month. @sarah can we expedite the paperwork?',
+    time: '9:10 AM',
+    date: 'May 5, 2025',
     user: 'Michael McCann'
   }
 ];
