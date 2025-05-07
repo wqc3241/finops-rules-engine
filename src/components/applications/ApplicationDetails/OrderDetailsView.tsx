@@ -2,6 +2,7 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { OrderDetail } from '@/types/application';
+import { InfoIcon } from 'lucide-react';
 
 interface OrderDetailsViewProps {
   orderDetails: OrderDetail;
@@ -32,9 +33,29 @@ const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({ orderDetails }) => 
         <Card className="h-fit">
           <CardContent className="p-6">
             <h3 className="text-lg font-medium mb-4">Registration Data</h3>
-            <div className="space-y-2">
+            <div className="space-y-4">
               {orderDetails.registrationData.map((item, index) => (
-                <DataField key={index} label={item.label} value={item.value} />
+                <div key={index} className="border-b border-gray-200 pb-3 last:border-0 last:pb-0">
+                  {item.label === 'Registration Street' ? (
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">{item.label}</span>
+                      <div className="flex items-center gap-1">
+                        <InfoIcon size={16} className="text-gray-400" />
+                        <span className="text-sm">{item.value}</span>
+                      </div>
+                    </div>
+                  ) : item.label === 'Is Mailing Add different than Regis Add?' ? (
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">{item.label}</span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 border border-gray-300 rounded"></div>
+                        <span className="text-sm">{item.value}</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <DataField label={item.label} value={item.value} />
+                  )}
+                </div>
               ))}
             </div>
           </CardContent>

@@ -1,3 +1,4 @@
+
 import { OrderDetail } from '../../types/application';
 
 export const orderDetails: OrderDetail = {
@@ -43,5 +44,17 @@ export const orderDetails: OrderDetail = {
     totalDueAtDelivery: '$22,582.00',
     invoiceSummaryDetails: Array(20).fill({ label: 'Label', subLabel: 'Sub - Label', value: 'Placeholder Text' })
   },
-  registrationData: Array(8).fill({ label: 'Label', value: 'Placeholder Text' })
+  registrationData: [
+    { label: 'Registration Type', value: 'Personal' },
+    { label: 'Global Region', value: 'North America' },
+    { label: 'Registration Country', value: 'United States' },
+    { label: 'Registration State/Province', value: 'Illinois' },
+    { label: 'Registration Street', value: '1000 Pine Tree Ln' },
+    { label: 'Registration City', value: 'Winnetka' },
+    { label: 'Registration Zip/Postal Code', value: '60093' },
+    { label: 'Borough/Municipality', value: '' },
+    { label: 'Buyer DOB', value: '8/20/1975' },
+    { label: "Buyer's DL Expiration Date", value: '8/20/2026' },
+    { label: 'Is Mailing Add different than Regis Add?', value: 'No' }
+  ]
 };
