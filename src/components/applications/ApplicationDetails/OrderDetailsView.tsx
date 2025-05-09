@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { OrderDetail } from '@/types/application';
@@ -8,25 +9,34 @@ interface OrderDetailsViewProps {
 }
 
 const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({ orderDetails }) => {
+  // Check if there's any meaningful vehicle trade in data
+  const hasVehicleTradeIn = 
+    orderDetails.vehicleTradeIn && 
+    (orderDetails.vehicleTradeIn.year || 
+     orderDetails.vehicleTradeIn.make || 
+     orderDetails.vehicleTradeIn.model);
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {/* Left Column: Vehicle Trade In and Registration Data */}
       <div className="space-y-6">
-        {/* Vehicle Trade In Card */}
-        <Card className="h-fit">
-          <CardContent className="p-6">
-            <h3 className="text-lg font-medium mb-4">Vehicle Trade In</h3>
-            <div className="space-y-2">
-              <DataField label="Year" value={orderDetails.vehicleTradeIn.year} />
-              <DataField label="Make" value={orderDetails.vehicleTradeIn.make} />
-              <DataField label="Model" value={orderDetails.vehicleTradeIn.model} />
-              <DataField label="Trim" value={orderDetails.vehicleTradeIn.trim} />
-              <DataField label="Lien Holder" value={orderDetails.vehicleTradeIn.lienHolder} />
-              <DataField label="Total Value" value={orderDetails.vehicleTradeIn.totalValue} />
-              <DataField label="Payoff Amount" value={orderDetails.vehicleTradeIn.payoffAmount} />
-            </div>
-          </CardContent>
-        </Card>
+        {/* Vehicle Trade In Card - only show if there's vehicle trade in data */}
+        {hasVehicleTradeIn && (
+          <Card className="h-fit">
+            <CardContent className="p-6">
+              <h3 className="text-lg font-medium mb-4">Vehicle Trade In</h3>
+              <div className="space-y-2">
+                <DataField label="Year" value={orderDetails.vehicleTradeIn.year} />
+                <DataField label="Make" value={orderDetails.vehicleTradeIn.make} />
+                <DataField label="Model" value={orderDetails.vehicleTradeIn.model} />
+                <DataField label="Trim" value={orderDetails.vehicleTradeIn.trim} />
+                <DataField label="Lien Holder" value={orderDetails.vehicleTradeIn.lienHolder} />
+                <DataField label="Total Value" value={orderDetails.vehicleTradeIn.totalValue} />
+                <DataField label="Payoff Amount" value={orderDetails.vehicleTradeIn.payoffAmount} />
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Registration Data Card */}
         <Card className="h-fit">
