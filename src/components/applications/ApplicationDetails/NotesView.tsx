@@ -23,7 +23,9 @@ const NotesView: React.FC<NotesViewProps> = ({ notes: initialNotes }) => {
   
   // Update local notes when props change
   useEffect(() => {
-    setLocalNotes(initialNotes);
+    if (initialNotes && initialNotes.length > 0) {
+      setLocalNotes(initialNotes);
+    }
   }, [initialNotes]);
   
   // Example list of users that could be tagged

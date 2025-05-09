@@ -14,7 +14,7 @@ import ApplicationHistoryView from '@/components/applications/ApplicationDetails
 import NotesView from '@/components/applications/ApplicationDetails/NotesView';
 import FinancialSummaryView from '@/components/applications/ApplicationDetails/FinancialSummaryView';
 import { notes as defaultNotes } from '@/data/mock/history';
-import { ApplicationDetails } from '@/types/application';
+import { ApplicationDetails, Note } from '@/types/application';
 import { getMockApplicationDetailsById } from '@/data/mock/applicationDetailsMock';
 
 const tabs = [
@@ -25,18 +25,37 @@ const tabs = [
   { id: 'notes', label: 'Notes' },
 ];
 
+// Storage key for applications data
+const APPLICATIONS_STORAGE_KEY = 'lucidApplicationsData';
+
 const ApplicationDetail = () => {
   const [sidebarOpen, setSidebarOpen] = React.useState(true);
   const [activeItem, setActiveItem] = React.useState('Applications');
   const { id, tab = 'details' } = useParams<{ id: string; tab?: string }>();
-  const [currentNotes, setCurrentNotes] = useState(defaultNotes);
+  const [currentNotes, setCurrentNotes] = useState<Note[]>(defaultNotes);
   const [currentApplicationDetails, setCurrentApplicationDetails] = useState<ApplicationDetails>(applicationDetails.details);
   const [currentApplicationFullDetails, setCurrentApplicationFullDetails] = useState(applicationDetails);
+
+  // Load applications from localStorage
+  const getStoredApplications = () => {
+    try {
+      const storedApps = localStorage.getItem(APPLICATIONS_STORAGE_KEY);
+      if (storedApps) {
+        return JSON.parse(storedApps);
+      }
+    } catch (error) {
+      console.error("Error loading stored applications:", error);
+    }
+    return applications; // Fallback to static data
+  };
 
   // Find current application and use its data
   useEffect(() => {
     if (id) {
-      const currentApp = applications.find(app => app.id === id);
+      // Try to get application from localStorage first
+      const storedApplications = getStoredApplications();
+      const currentApp = storedApplications.find((app: any) => app.id === id);
+
       if (currentApp) {
         // If we found the application, create application details object with the correct status
         setCurrentApplicationDetails({
@@ -61,8 +80,15 @@ const ApplicationDetail = () => {
             setCurrentApplicationFullDetails(mockDetails);
             // Use the more detailed application details if available
             setCurrentApplicationDetails(mockDetails.details);
-            // Use the more detailed notes if available
-            if (mockDetails.notes && mockDetails.notes.length > 0) {
+            
+            // Merge stored notes with mock details notes if available
+            if (currentApp.notesArray && currentApp.notesArray.length > 0) {
+              // Use the notes from storage - they are more up-to-date
+              mockDetails.notes = currentApp.notesArray;
+            }
+            
+            // Use the more detailed notes if we don't have any from storage
+            if (mockDetails.notes && mockDetails.notes.length > 0 && (!currentApp.notesArray || currentApp.notesArray.length === 0)) {
               setCurrentNotes(mockDetails.notes);
             }
           }
@@ -73,9 +99,21 @@ const ApplicationDetail = () => {
     }
   }, [id]);
 
-  // Subscribe to global notes updates
+  // Subscribe to global notes updates and refresh when switching tabs
   useEffect(() => {
     const originalUpdateFn = (window as any).updateApplicationNotes;
+    
+    const refreshNotes = () => {
+      if (id) {
+        // Re-fetch application from localStorage to get latest notes
+        const storedApplications = getStoredApplications();
+        const updatedApp = storedApplications.find((app: any) => app.id === id);
+        
+        if (updatedApp && updatedApp.notesArray) {
+          setCurrentNotes(updatedApp.notesArray);
+        }
+      }
+    };
     
     if (typeof window !== 'undefined') {
       (window as any).updateApplicationNotes = (appId: string, newNote: any) => {
@@ -91,13 +129,16 @@ const ApplicationDetail = () => {
       };
     }
     
+    // Refresh notes when tab changes or component mounts
+    refreshNotes();
+    
     return () => {
       // Restore the original function when component unmounts
       if (typeof window !== 'undefined') {
         (window as any).updateApplicationNotes = originalUpdateFn;
       }
     };
-  }, [id]);
+  }, [id, tab]);
 
   // Determine which content to show based on the current tab
   const renderTabContent = () => {

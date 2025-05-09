@@ -1,17 +1,33 @@
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import ApplicationList from "@/components/applications/ApplicationList";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
+// Storage key for detecting updates to applications
+const APPLICATIONS_UPDATE_KEY = 'lucidApplicationsLastUpdate';
+
 const Applications = () => {
   const [sidebarOpen, setSidebarOpen] = React.useState(true);
   const [activeItem, setActiveItem] = React.useState('Applications');
   const [refreshTrigger, setRefreshTrigger] = React.useState(0);
-
-  // Set up a global listener for note updates
+  
+  // Track localStorage changes to refresh the application list
   useEffect(() => {
+    // Create a function to check for updates
+    const checkForUpdates = () => {
+      setRefreshTrigger(prev => prev + 1);
+    };
+    
+    // Listen for storage events from other tabs/windows
+    window.addEventListener('storage', (event) => {
+      if (event.key === 'lucidApplicationsData') {
+        checkForUpdates();
+      }
+    });
+    
+    // Set up a global listener for note updates
     const originalUpdateFn = (window as any).updateApplicationNotes;
     
     if (typeof window !== 'undefined') {
@@ -21,13 +37,22 @@ const Applications = () => {
           originalUpdateFn(appId, newNote);
         }
         
-        // Trigger a refresh by updating the state, but only if the original function didn't handle it
-        // This is a fallback for when we're on the applications list page
-        setRefreshTrigger(prev => prev + 1);
+        // Update lastUpdate time to trigger refresh
+        localStorage.setItem(APPLICATIONS_UPDATE_KEY, new Date().toISOString());
+        
+        // Trigger a refresh of the applications list
+        checkForUpdates();
       };
     }
     
+    // Set up an interval to periodically check for updates
+    const intervalId = setInterval(checkForUpdates, 5000);
+    
     return () => {
+      // Clean up event listeners and intervals
+      window.removeEventListener('storage', checkForUpdates);
+      clearInterval(intervalId);
+      
       // Restore the original function when component unmounts
       if (typeof window !== 'undefined') {
         (window as any).updateApplicationNotes = originalUpdateFn;
