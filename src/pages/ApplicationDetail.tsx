@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Navbar from "@/components/Navbar";
@@ -14,6 +13,7 @@ import ApplicationHistoryView from '@/components/applications/ApplicationDetails
 import NotesView from '@/components/applications/ApplicationDetails/NotesView';
 import FinancialSummaryView from '@/components/applications/ApplicationDetails/FinancialSummaryView';
 import { notes as defaultNotes } from '@/data/mock/history';
+import { ApplicationDetails } from '@/types/application';
 
 const tabs = [
   { id: 'details', label: 'Application Details' },
@@ -28,13 +28,28 @@ const ApplicationDetail = () => {
   const [activeItem, setActiveItem] = React.useState('Applications');
   const { id, tab = 'details' } = useParams<{ id: string; tab?: string }>();
   const [currentNotes, setCurrentNotes] = useState(defaultNotes);
+  const [currentApplicationDetails, setCurrentApplicationDetails] = useState<ApplicationDetails>(applicationDetails.details);
 
-  // Find current application and use its notes if available
+  // Find current application and use its data
   useEffect(() => {
     if (id) {
       const currentApp = applications.find(app => app.id === id);
-      if (currentApp && currentApp.notesArray && currentApp.notesArray.length > 0) {
-        setCurrentNotes(currentApp.notesArray);
+      if (currentApp) {
+        // If we found the application, create application details object with the correct status
+        setCurrentApplicationDetails({
+          ...applicationDetails.details,
+          status: currentApp.status,
+          orderNumber: currentApp.orderNumber,
+          orderedBy: currentApp.name,
+          // Keep other properties from applicationDetails.details
+          model: applicationDetails.details.model,
+          edition: applicationDetails.details.edition
+        });
+        
+        // Set notes if available
+        if (currentApp.notesArray && currentApp.notesArray.length > 0) {
+          setCurrentNotes(currentApp.notesArray);
+        }
       }
     }
   }, [id]);
@@ -103,7 +118,7 @@ const ApplicationDetail = () => {
         />
         <main className="flex-1 overflow-auto p-4">
           <div className="container mx-auto px-4 py-6">
-            <ApplicationHeader details={applicationDetails.details} />
+            <ApplicationHeader details={currentApplicationDetails} />
             <ApplicationTabs tabs={tabs} baseUrl={`/applications/${id}`} />
             {renderTabContent()}
           </div>
