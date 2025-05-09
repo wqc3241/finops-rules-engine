@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Navbar from "@/components/Navbar";
@@ -14,6 +15,7 @@ import NotesView from '@/components/applications/ApplicationDetails/NotesView';
 import FinancialSummaryView from '@/components/applications/ApplicationDetails/FinancialSummaryView';
 import { notes as defaultNotes } from '@/data/mock/history';
 import { ApplicationDetails } from '@/types/application';
+import { getMockApplicationDetailsById } from '@/data/mock/applicationDetailsMock';
 
 const tabs = [
   { id: 'details', label: 'Application Details' },
@@ -29,6 +31,7 @@ const ApplicationDetail = () => {
   const { id, tab = 'details' } = useParams<{ id: string; tab?: string }>();
   const [currentNotes, setCurrentNotes] = useState(defaultNotes);
   const [currentApplicationDetails, setCurrentApplicationDetails] = useState<ApplicationDetails>(applicationDetails.details);
+  const [currentApplicationFullDetails, setCurrentApplicationFullDetails] = useState(applicationDetails);
 
   // Find current application and use its data
   useEffect(() => {
@@ -49,6 +52,22 @@ const ApplicationDetail = () => {
         // Set notes if available
         if (currentApp.notesArray && currentApp.notesArray.length > 0) {
           setCurrentNotes(currentApp.notesArray);
+        }
+        
+        // Try to get extended mock data for this application
+        try {
+          const mockDetails = getMockApplicationDetailsById(id);
+          if (mockDetails) {
+            setCurrentApplicationFullDetails(mockDetails);
+            // Use the more detailed application details if available
+            setCurrentApplicationDetails(mockDetails.details);
+            // Use the more detailed notes if available
+            if (mockDetails.notes && mockDetails.notes.length > 0) {
+              setCurrentNotes(mockDetails.notes);
+            }
+          }
+        } catch (error) {
+          console.log('No extended mock data found for this application ID, using default data');
         }
       }
     }
@@ -84,11 +103,11 @@ const ApplicationDetail = () => {
   const renderTabContent = () => {
     switch (tab) {
       case 'financial-summary':
-        return <FinancialSummaryView financialSummary={applicationDetails.financialSummary} />;
+        return <FinancialSummaryView financialSummary={currentApplicationFullDetails.financialSummary} />;
       case 'order-details':
-        return <OrderDetailsView orderDetails={applicationDetails.orderDetails} />;
+        return <OrderDetailsView orderDetails={currentApplicationFullDetails.orderDetails} />;
       case 'history':
-        return <ApplicationHistoryView history={applicationDetails.history} />;
+        return <ApplicationHistoryView history={currentApplicationFullDetails.history} />;
       case 'notes':
         return <NotesView notes={currentNotes} />;
       case 'details':
@@ -96,12 +115,12 @@ const ApplicationDetail = () => {
         return (
           <>
             <ApplicationData
-              applicantInfo={applicationDetails.applicantInfo}
-              coApplicantInfo={applicationDetails.coApplicantInfo}
-              vehicleData={applicationDetails.vehicleData}
-              appDtReferences={applicationDetails.appDtReferences}
+              applicantInfo={currentApplicationFullDetails.applicantInfo}
+              coApplicantInfo={currentApplicationFullDetails.coApplicantInfo}
+              vehicleData={currentApplicationFullDetails.vehicleData}
+              appDtReferences={currentApplicationFullDetails.appDtReferences}
             />
-            <DealStructureSection dealStructure={applicationDetails.dealStructure} />
+            <DealStructureSection dealStructure={currentApplicationFullDetails.dealStructure} />
           </>
         );
     }

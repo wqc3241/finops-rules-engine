@@ -9,12 +9,32 @@ interface ApplicationHeaderProps {
 }
 
 const ApplicationHeader: React.FC<ApplicationHeaderProps> = ({ details }) => {
-  // Use the same status color mapping as in ApplicationCard component
-  const statusColor = details.status === 'Approved' ? 'bg-green-100 text-green-800' : 
-                      details.status === 'Pending' ? 'bg-orange-100 text-orange-800' : 
-                      details.status === 'Submitted' ? 'bg-blue-100 text-blue-800' :
-                      details.status === 'Rejected' ? 'bg-red-100 text-red-800' : 
-                      'bg-gray-100 text-gray-800';
+  // Enhanced status color mapping with more statuses
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'Approved':
+        return 'bg-green-100 text-green-800';
+      case 'Pending':
+        return 'bg-orange-100 text-orange-800';
+      case 'Submitted':
+        return 'bg-blue-100 text-blue-800';
+      case 'Rejected':
+      case 'Declined':
+        return 'bg-red-100 text-red-800';
+      case 'Conditionally Approved':
+        return 'bg-purple-100 text-purple-800';
+      case 'Pending Signature':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'Booked':
+        return 'bg-indigo-100 text-indigo-800';
+      case 'Funded':
+        return 'bg-emerald-100 text-emerald-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const statusColor = getStatusColor(details.status);
 
   return (
     <div className="border-b border-gray-200 pb-4 mb-4">
