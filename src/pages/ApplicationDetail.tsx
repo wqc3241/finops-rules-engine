@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
-import { applicationDetails } from '@/data/mockApplications';
-import { applications } from '@/data/mock/applicationsData'; // Updated import path
+import { applicationDetails, getMockApplicationDetailsById } from '@/data/mockApplications';
+import { applications } from '@/data/mock/applicationsData';
 import ApplicationHeader from '@/components/applications/ApplicationDetails/ApplicationHeader';
 import ApplicationTabs from '@/components/applications/ApplicationDetails/ApplicationTabs';
 import ApplicationData from '@/components/applications/ApplicationDetails/ApplicationData';
@@ -15,7 +14,6 @@ import NotesView from '@/components/applications/ApplicationDetails/NotesView';
 import FinancialSummaryView from '@/components/applications/ApplicationDetails/FinancialSummaryView';
 import { notes as defaultNotes } from '@/data/mock/history';
 import { ApplicationDetails, Note } from '@/types/application';
-import { getMockApplicationDetailsById } from '@/data/mock/applicationDetailsMock';
 
 const tabs = [
   { id: 'details', label: 'Application Details' },
