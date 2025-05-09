@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { ChevronDown } from 'lucide-react';
 import { Note } from '@/types/application';
@@ -12,12 +13,18 @@ interface NotesViewProps {
   notes: Note[];
 }
 
-const NotesView: React.FC<NotesViewProps> = ({ notes }) => {
+const NotesView: React.FC<NotesViewProps> = ({ notes: initialNotes }) => {
   const [newNote, setNewNote] = useState('');
   const [mentionDropdownOpen, setMentionDropdownOpen] = useState(false);
   const [cursorPosition, setCursorPosition] = useState(0);
+  const [localNotes, setLocalNotes] = useState<Note[]>(initialNotes);
   const { toast } = useToast();
   const { id: applicationId } = useParams<{ id: string }>();
+  
+  // Update local notes when props change
+  useEffect(() => {
+    setLocalNotes(initialNotes);
+  }, [initialNotes]);
   
   // Example list of users that could be tagged
   const users = [
@@ -44,8 +51,8 @@ const NotesView: React.FC<NotesViewProps> = ({ notes }) => {
       (window as any).updateApplicationNotes(applicationId, newNoteObj);
     }
     
-    // Add the note to the current view (local state)
-    notes.unshift(newNoteObj);
+    // Update local state immediately for UI responsiveness
+    setLocalNotes(prevNotes => [newNoteObj, ...prevNotes]);
     
     toast({
       title: "Note Added",
@@ -136,7 +143,7 @@ const NotesView: React.FC<NotesViewProps> = ({ notes }) => {
       </Card>
 
       {/* Notes list */}
-      {notes.map((note, index) => (
+      {localNotes.map((note, index) => (
         <Card key={index} className="bg-gray-50">
           <CardContent className="p-6">
             <div className="flex space-x-4">

@@ -21,7 +21,8 @@ const Applications = () => {
           originalUpdateFn(appId, newNote);
         }
         
-        // Trigger a refresh by updating the state
+        // Trigger a refresh by updating the state, but only if the original function didn't handle it
+        // This is a fallback for when we're on the applications list page
         setRefreshTrigger(prev => prev + 1);
       };
     }

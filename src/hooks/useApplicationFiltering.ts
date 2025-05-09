@@ -5,11 +5,31 @@ import { sortByProperty } from '@/utils/sortFilterUtils';
 import { toast } from "sonner";
 
 export const useApplicationFiltering = (initialApplications: Application[]) => {
-  const [sortOption, setSortOption] = useState('date');
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc'); // Default to newest first
+  // Get saved sort preferences from localStorage or use defaults
+  const getSavedSortOption = () => {
+    const saved = localStorage.getItem('applicationSortOption');
+    return saved || 'date';
+  };
+  
+  const getSavedSortDirection = () => {
+    const saved = localStorage.getItem('applicationSortDirection');
+    return (saved as 'asc' | 'desc') || 'desc'; // Default to newest first
+  };
+
+  const [sortOption, setSortOption] = useState(getSavedSortOption);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>(getSavedSortDirection);
   const [applications, setApplications] = useState<Application[]>(initialApplications);
   const [statusFilters, setStatusFilters] = useState<string[]>([]);
   const [typeFilters, setTypeFilters] = useState<string[]>([]);
+  
+  // Save sort preferences when they change
+  useEffect(() => {
+    localStorage.setItem('applicationSortOption', sortOption);
+  }, [sortOption]);
+  
+  useEffect(() => {
+    localStorage.setItem('applicationSortDirection', sortDirection);
+  }, [sortDirection]);
   
   // Extract unique status and type values for filter options
   const uniqueStatuses = useMemo(() => {
