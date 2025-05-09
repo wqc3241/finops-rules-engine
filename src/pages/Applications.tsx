@@ -17,8 +17,24 @@ const Applications = () => {
   useEffect(() => {
     // Create a function to check for updates
     const checkForUpdates = () => {
-      setRefreshTrigger(prev => prev + 1);
+      // Only refresh if there's an actual update
+      const lastUpdate = localStorage.getItem(APPLICATIONS_UPDATE_KEY);
+      if (lastUpdate) {
+        const lastUpdateTime = new Date(lastUpdate).getTime();
+        const lastRefreshTime = parseInt(localStorage.getItem('lastRefreshTime') || '0');
+        
+        // Only refresh if there's a new update since our last refresh
+        if (lastUpdateTime > lastRefreshTime) {
+          localStorage.setItem('lastRefreshTime', Date.now().toString());
+          setRefreshTrigger(prev => prev + 1);
+        }
+      }
     };
+    
+    // Set initial refresh time
+    if (!localStorage.getItem('lastRefreshTime')) {
+      localStorage.setItem('lastRefreshTime', Date.now().toString());
+    }
     
     // Listen for storage events from other tabs/windows
     window.addEventListener('storage', (event) => {
@@ -45,13 +61,12 @@ const Applications = () => {
       };
     }
     
-    // Set up an interval to periodically check for updates
-    const intervalId = setInterval(checkForUpdates, 5000);
+    // Only check for updates when needed, not on an interval
+    // This removes the continuous polling that was causing filter resets
     
     return () => {
-      // Clean up event listeners and intervals
+      // Clean up event listeners
       window.removeEventListener('storage', checkForUpdates);
-      clearInterval(intervalId);
       
       // Restore the original function when component unmounts
       if (typeof window !== 'undefined') {

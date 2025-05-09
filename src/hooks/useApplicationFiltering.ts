@@ -1,3 +1,4 @@
+
 import { useState, useMemo, useEffect } from 'react';
 import { Application } from '../types/application';
 import { sortByProperty } from '@/utils/sortFilterUtils';
@@ -5,17 +6,32 @@ import { toast } from "sonner";
 
 // Storage key for applications data
 const APPLICATIONS_STORAGE_KEY = 'lucidApplicationsData';
+// Storage keys for filter preferences
+const SORT_OPTION_KEY = 'applicationSortOption';
+const SORT_DIRECTION_KEY = 'applicationSortDirection';
+const STATUS_FILTERS_KEY = 'applicationStatusFilters';
+const TYPE_FILTERS_KEY = 'applicationTypeFilters';
 
 export const useApplicationFiltering = (initialApplications: Application[]) => {
   // Get saved sort preferences from localStorage or use defaults
   const getSavedSortOption = () => {
-    const saved = localStorage.getItem('applicationSortOption');
+    const saved = localStorage.getItem(SORT_OPTION_KEY);
     return saved || 'date';
   };
   
   const getSavedSortDirection = () => {
-    const saved = localStorage.getItem('applicationSortDirection');
+    const saved = localStorage.getItem(SORT_DIRECTION_KEY);
     return (saved as 'asc' | 'desc') || 'desc'; // Default to newest first
+  };
+
+  const getSavedStatusFilters = (): string[] => {
+    const saved = localStorage.getItem(STATUS_FILTERS_KEY);
+    return saved ? JSON.parse(saved) : [];
+  };
+
+  const getSavedTypeFilters = (): string[] => {
+    const saved = localStorage.getItem(TYPE_FILTERS_KEY);
+    return saved ? JSON.parse(saved) : [];
   };
 
   // Load applications from localStorage or use initial data
@@ -35,8 +51,8 @@ export const useApplicationFiltering = (initialApplications: Application[]) => {
   const [sortOption, setSortOption] = useState(getSavedSortOption);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>(getSavedSortDirection);
   const [applications, setApplications] = useState<Application[]>(getInitialApplications());
-  const [statusFilters, setStatusFilters] = useState<string[]>([]);
-  const [typeFilters, setTypeFilters] = useState<string[]>([]);
+  const [statusFilters, setStatusFilters] = useState<string[]>(getSavedStatusFilters());
+  const [typeFilters, setTypeFilters] = useState<string[]>(getSavedTypeFilters());
   
   // Save applications to localStorage whenever they change
   useEffect(() => {
@@ -45,12 +61,21 @@ export const useApplicationFiltering = (initialApplications: Application[]) => {
   
   // Save sort preferences when they change
   useEffect(() => {
-    localStorage.setItem('applicationSortOption', sortOption);
+    localStorage.setItem(SORT_OPTION_KEY, sortOption);
   }, [sortOption]);
   
   useEffect(() => {
-    localStorage.setItem('applicationSortDirection', sortDirection);
+    localStorage.setItem(SORT_DIRECTION_KEY, sortDirection);
   }, [sortDirection]);
+  
+  // Save filter preferences when they change
+  useEffect(() => {
+    localStorage.setItem(STATUS_FILTERS_KEY, JSON.stringify(statusFilters));
+  }, [statusFilters]);
+  
+  useEffect(() => {
+    localStorage.setItem(TYPE_FILTERS_KEY, JSON.stringify(typeFilters));
+  }, [typeFilters]);
   
   // Initialize application data if localStorage is empty
   useEffect(() => {
@@ -91,24 +116,32 @@ export const useApplicationFiltering = (initialApplications: Application[]) => {
   // Toggle status filter
   const toggleStatusFilter = (status: string) => {
     setStatusFilters(prev => {
-      if (prev.includes(status)) {
-        return prev.filter(s => s !== status);
-      } else {
+      const newFilters = prev.includes(status) 
+        ? prev.filter(s => s !== status)
+        : [...prev, status];
+      
+      // Show toast only when adding a filter
+      if (!prev.includes(status)) {
         toast.success(`Filtered by status: ${status}`);
-        return [...prev, status];
       }
+      
+      return newFilters;
     });
   };
   
   // Toggle type filter
   const toggleTypeFilter = (type: string) => {
     setTypeFilters(prev => {
-      if (prev.includes(type)) {
-        return prev.filter(t => t !== type);
-      } else {
+      const newFilters = prev.includes(type)
+        ? prev.filter(t => t !== type)
+        : [...prev, type];
+      
+      // Show toast only when adding a filter
+      if (!prev.includes(type)) {
         toast.success(`Filtered by type: ${type}`);
-        return [...prev, type];
       }
+      
+      return newFilters;
     });
   };
   
