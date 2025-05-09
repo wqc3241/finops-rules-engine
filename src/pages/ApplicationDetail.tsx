@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import { applicationDetails } from '@/data/mockApplications';
-import { applications } from '@/data/mock/applications'; // Import applications directly
+import { applications } from '@/data/mock/applicationsData'; // Updated import path
 import ApplicationHeader from '@/components/applications/ApplicationDetails/ApplicationHeader';
 import ApplicationTabs from '@/components/applications/ApplicationDetails/ApplicationTabs';
 import ApplicationData from '@/components/applications/ApplicationDetails/ApplicationData';

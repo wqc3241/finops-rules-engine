@@ -1,5 +1,5 @@
 
-import { applications } from './mock/applications';
+import { applications } from './mock/applicationsData';
 import { applicationDetails } from './mock/applicationDetails';
 import { notes, historyItems } from './mock/history';
 
