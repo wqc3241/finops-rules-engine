@@ -20,6 +20,11 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({ application }) => {
                       application.status === 'Submitted' ? 'bg-blue-500' :
                       application.status === 'Rejected' ? 'bg-red-500' : 'bg-blue-500';
 
+  // Get the latest note content from the notesArray (if available)
+  const latestNoteContent = application.notesArray && application.notesArray.length > 0 
+    ? application.notesArray[0].content 
+    : application.notes;
+
   return (
     <div 
       className="bg-white rounded-lg shadow-sm mb-4 cursor-pointer overflow-hidden hover:shadow-md transition-shadow"
@@ -55,7 +60,7 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({ application }) => {
             </div>
             <div className="flex-1 ml-8">
               <p className="text-sm text-gray-500 mb-1">Notes</p>
-              <p className="text-gray-600 text-sm line-clamp-2">{application.notes}</p>
+              <p className="text-gray-600 text-sm line-clamp-2">{latestNoteContent}</p>
             </div>
           </div>
         </div>
