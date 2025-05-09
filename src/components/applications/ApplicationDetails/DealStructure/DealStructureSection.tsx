@@ -1,11 +1,10 @@
-
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { ChevronUp, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DealStructureOffer } from '@/types/application';
-import LenderOfferCard from './LenderOfferCard';
 import { Separator } from '@/components/ui/separator';
+import LenderOfferCard from './LenderOfferCard';
 
 interface DealStructureSectionProps {
   dealStructure: DealStructureOffer[];
