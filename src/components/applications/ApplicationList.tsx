@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import ApplicationCard from './ApplicationCard';
 import { Application } from '../../types/application';
 import { applications as initialApplications } from '../../data/mockApplications';
@@ -21,18 +21,18 @@ const ApplicationList: React.FC = () => {
   
   // Extract unique status and type values for filter options
   const uniqueStatuses = useMemo(() => {
-    const statuses = Array.from(new Set(initialApplications.map(app => app.status)));
+    const statuses = Array.from(new Set(applications.map(app => app.status)));
     return statuses.sort();
-  }, [initialApplications]);
+  }, [applications]);
   
   const uniqueTypes = useMemo(() => {
-    const types = Array.from(new Set(initialApplications.map(app => app.type)));
+    const types = Array.from(new Set(applications.map(app => app.type)));
     return types.sort();
-  }, [initialApplications]);
+  }, [applications]);
   
   // Calculate filtered applications
   const filteredApplications = useMemo(() => {
-    let filtered = [...initialApplications];
+    let filtered = [...applications];
     
     // Apply status filter if any status is selected
     if (statusFilters.length > 0) {
@@ -46,7 +46,7 @@ const ApplicationList: React.FC = () => {
     
     // Apply sorting
     return sortByProperty(filtered, sortOption as keyof Application, sortDirection);
-  }, [initialApplications, statusFilters, typeFilters, sortOption, sortDirection]);
+  }, [applications, statusFilters, typeFilters, sortOption, sortDirection]);
   
   // Toggle status filter
   const toggleStatusFilter = (status: string) => {
@@ -95,26 +95,35 @@ const ApplicationList: React.FC = () => {
   // Count active filters
   const activeFiltersCount = statusFilters.length + typeFilters.length;
   
-  // Make this available globally so it can be used by other components
-  if (typeof window !== 'undefined') {
-    (window as any).updateApplicationNotes = (appId: string, newNote: any) => {
-      setApplications(prevApps => {
-        return prevApps.map(app => {
-          if (app.id === appId) {
-            // Add the new note to the notesArray
-            const updatedNotesArray = [newNote, ...(app.notesArray || [])];
-            // Update the notes field with the latest note content
-            return {
-              ...app,
-              notes: newNote.content,
-              notesArray: updatedNotesArray
-            };
-          }
-          return app;
+  // Set up global note update function to ensure notes stay current
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      (window as any).updateApplicationNotes = (appId: string, newNote: any) => {
+        setApplications(prevApps => {
+          return prevApps.map(app => {
+            if (app.id === appId) {
+              // Add the new note to the notesArray (ensuring it exists)
+              const updatedNotesArray = [newNote, ...(app.notesArray || [])];
+              // Update the notes field with the latest note content for backwards compatibility
+              return {
+                ...app,
+                notes: newNote.content,
+                notesArray: updatedNotesArray
+              };
+            }
+            return app;
+          });
         });
-      });
+      };
+    }
+    
+    return () => {
+      // Clean up the global function when component unmounts
+      if (typeof window !== 'undefined') {
+        (window as any).updateApplicationNotes = undefined;
+      }
     };
-  }
+  }, []);
 
   return (
     <div>

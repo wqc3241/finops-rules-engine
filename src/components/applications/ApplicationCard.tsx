@@ -21,15 +21,37 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({ application }) => {
     navigate(`/applications/${application.id}`);
   };
 
-  const statusColor = application.status === 'Approved' ? 'bg-green-500' : 
-                      application.status === 'Pending' ? 'bg-orange-500' : 
-                      application.status === 'Submitted' ? 'bg-blue-500' :
-                      application.status === 'Rejected' ? 'bg-red-500' : 'bg-blue-500';
+  // Enhanced status color mapping to match application details page
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'Approved':
+        return 'bg-green-500';
+      case 'Pending':
+        return 'bg-orange-500';
+      case 'Submitted':
+        return 'bg-blue-500';
+      case 'Rejected':
+      case 'Declined':
+        return 'bg-red-500';
+      case 'Conditionally Approved':
+        return 'bg-purple-500';
+      case 'Pending Signature':
+        return 'bg-yellow-500';
+      case 'Booked':
+        return 'bg-indigo-500';
+      case 'Funded':
+        return 'bg-emerald-500';
+      default:
+        return 'bg-gray-500';
+    }
+  };
 
-  // Get the latest note content from the notesArray (if available)
+  const statusColor = getStatusColor(application.status);
+
+  // Get the latest note content from the notesArray
   const latestNoteContent = application.notesArray && application.notesArray.length > 0 
     ? application.notesArray[0].content 
-    : application.notes;
+    : application.notes || 'No notes available';
 
   // Format the timestamp if it exists
   const formattedDate = application.date 
@@ -90,7 +112,7 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({ application }) => {
             </div>
           </div>
         </div>
-        <div className="absolute right-0 top-0 h-full w-1 bg-green-500"></div>
+        <div className={`absolute right-0 top-0 h-full w-1 ${statusColor}`}></div>
       </div>
     </div>
   );

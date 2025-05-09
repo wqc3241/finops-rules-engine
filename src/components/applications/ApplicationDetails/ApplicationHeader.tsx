@@ -9,7 +9,7 @@ interface ApplicationHeaderProps {
 }
 
 const ApplicationHeader: React.FC<ApplicationHeaderProps> = ({ details }) => {
-  // Enhanced status color mapping with more statuses
+  // Enhanced status color mapping with more statuses (text colors for badges)
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'Approved':
