@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Application } from '../../types/application';
 import { ChevronRight } from 'lucide-react';
@@ -48,12 +47,39 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({ application }) => {
 
   const statusColor = getStatusColor(application.status);
 
-  // Get the latest note content correctly
+  // Improved function to get the latest note content
   const getLatestNoteContent = () => {
+    // Check if the notesArray exists and has content
     if (application.notesArray && application.notesArray.length > 0) {
-      // Ensure we're getting the most recent note (first in the array)
-      return application.notesArray[0].content;
+      // Sort by date and time to ensure the most recent is first
+      // Make a copy of the array to avoid mutating the original
+      const sortedNotes = [...application.notesArray].sort((a, b) => {
+        // Try to parse the dates
+        const dateA = a.date ? new Date(a.date) : new Date(0);
+        const dateB = b.date ? new Date(b.date) : new Date(0);
+        
+        // If dates are the same, compare times
+        if (dateA.getTime() === dateB.getTime()) {
+          // Convert 12h time format to 24h for comparison
+          const timeToMinutes = (timeStr) => {
+            if (!timeStr) return 0;
+            const [time, modifier] = timeStr.split(' ');
+            let [hours, minutes] = time.split(':');
+            if (hours === '12') hours = '00';
+            if (modifier === 'PM') hours = parseInt(hours, 10) + 12;
+            return parseInt(hours, 10) * 60 + parseInt(minutes, 10);
+          };
+          
+          return timeToMinutes(b.time) - timeToMinutes(a.time); // Latest time first
+        }
+        
+        // Otherwise sort by date
+        return dateB.getTime() - dateA.getTime(); // Latest date first
+      });
+      
+      return sortedNotes[0].content;
     }
+    
     // Fallback to the notes string field if notesArray is empty or undefined
     return application.notes || 'No notes available';
   };

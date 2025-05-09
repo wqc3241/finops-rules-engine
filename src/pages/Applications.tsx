@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import ApplicationList from "@/components/applications/ApplicationList";
@@ -8,6 +8,31 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 const Applications = () => {
   const [sidebarOpen, setSidebarOpen] = React.useState(true);
   const [activeItem, setActiveItem] = React.useState('Applications');
+  const [refreshTrigger, setRefreshTrigger] = React.useState(0);
+
+  // Set up a global listener for note updates
+  useEffect(() => {
+    const originalUpdateFn = (window as any).updateApplicationNotes;
+    
+    if (typeof window !== 'undefined') {
+      (window as any).updateApplicationNotes = (appId: string, newNote: any) => {
+        // Call the original function to update the global state
+        if (originalUpdateFn) {
+          originalUpdateFn(appId, newNote);
+        }
+        
+        // Trigger a refresh by updating the state
+        setRefreshTrigger(prev => prev + 1);
+      };
+    }
+    
+    return () => {
+      // Restore the original function when component unmounts
+      if (typeof window !== 'undefined') {
+        (window as any).updateApplicationNotes = originalUpdateFn;
+      }
+    };
+  }, []);
 
   return (
     <div className="h-screen flex flex-col bg-gray-50">
@@ -23,7 +48,7 @@ const Applications = () => {
             <div className="bg-white rounded-lg shadow-sm p-6">
               <h1 className="text-2xl font-semibold mb-6">Applications</h1>
               <TooltipProvider>
-                <ApplicationList />
+                <ApplicationList key={refreshTrigger} />
               </TooltipProvider>
             </div>
           </div>
