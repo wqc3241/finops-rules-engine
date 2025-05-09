@@ -2,13 +2,35 @@
 import React, { useState } from 'react';
 import ApplicationCard from './ApplicationCard';
 import { Application } from '../../types/application';
-import { applications } from '../../data/mockApplications';
+import { applications as initialApplications } from '../../data/mockApplications';
 import { ChevronDown, SlidersHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const ApplicationList: React.FC = () => {
   const [sortOption, setSortOption] = useState('date');
   const [showFilters, setShowFilters] = useState(false);
+  const [applications, setApplications] = useState<Application[]>(initialApplications);
+  
+  // Make this available globally so it can be used by other components
+  if (typeof window !== 'undefined') {
+    (window as any).updateApplicationNotes = (appId: string, newNote: any) => {
+      setApplications(prevApps => {
+        return prevApps.map(app => {
+          if (app.id === appId) {
+            // Add the new note to the notesArray
+            const updatedNotesArray = [...(app.notesArray || []), newNote];
+            // Update the notes field with the latest note content
+            return {
+              ...app,
+              notes: newNote.content,
+              notesArray: updatedNotesArray
+            };
+          }
+          return app;
+        });
+      });
+    };
+  }
 
   return (
     <div>

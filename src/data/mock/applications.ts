@@ -1,5 +1,6 @@
 
-import { Application } from '../../types/application';
+import { Application, Note } from '../../types/application';
+import { notes } from './history';
 
 export const applications: Application[] = [
   {
@@ -9,6 +10,14 @@ export const applications: Application[] = [
     type: 'Lease',
     status: 'Approved',
     notes: 'Customer confirmed delivery date for next Tuesday.',
+    notesArray: [
+      {
+        content: 'Customer confirmed delivery date for next Tuesday.',
+        time: '2:45 PM',
+        date: '2024-05-01',
+        user: 'Michael McCann'
+      }
+    ],
     date: '2024-05-01'
   },
   {
@@ -18,6 +27,14 @@ export const applications: Application[] = [
     type: 'Loan',
     status: 'Submitted',
     notes: 'Customer uploaded all required documentation. Waiting for credit check.',
+    notesArray: [
+      {
+        content: 'Customer uploaded all required documentation. Waiting for credit check.',
+        time: '10:30 AM',
+        date: '2024-05-03',
+        user: 'Jennifer Liu'
+      }
+    ],
     date: '2024-05-03'
   },
   {
@@ -27,6 +44,14 @@ export const applications: Application[] = [
     type: 'Lease',
     status: 'Pending',
     notes: 'Still waiting on proof of income documents from applicant.',
+    notesArray: [
+      {
+        content: 'Still waiting on proof of income documents from applicant.',
+        time: '3:15 PM',
+        date: '2024-05-02',
+        user: 'Tom Williams'
+      }
+    ],
     date: '2024-05-02'
   },
   {
@@ -36,6 +61,14 @@ export const applications: Application[] = [
     type: 'Loan',
     status: 'Pending',
     notes: 'Co-signer information needed before proceeding with application.',
+    notesArray: [
+      {
+        content: 'Co-signer information needed before proceeding with application.',
+        time: '11:45 AM',
+        date: '2024-04-28',
+        user: 'Sarah Johnson'
+      }
+    ],
     date: '2024-04-28'
   }
 ];

@@ -1,9 +1,10 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import { applicationDetails } from '@/data/mockApplications';
+import { applications } from '@/data/mock/applications'; // Import applications directly
 import ApplicationHeader from '@/components/applications/ApplicationDetails/ApplicationHeader';
 import ApplicationTabs from '@/components/applications/ApplicationDetails/ApplicationTabs';
 import ApplicationData from '@/components/applications/ApplicationDetails/ApplicationData';
@@ -12,6 +13,7 @@ import OrderDetailsView from '@/components/applications/ApplicationDetails/Order
 import ApplicationHistoryView from '@/components/applications/ApplicationDetails/ApplicationHistoryView';
 import NotesView from '@/components/applications/ApplicationDetails/NotesView';
 import FinancialSummaryView from '@/components/applications/ApplicationDetails/FinancialSummaryView';
+import { notes as defaultNotes } from '@/data/mock/history';
 
 const tabs = [
   { id: 'details', label: 'Application Details' },
@@ -25,6 +27,43 @@ const ApplicationDetail = () => {
   const [sidebarOpen, setSidebarOpen] = React.useState(true);
   const [activeItem, setActiveItem] = React.useState('Applications');
   const { id, tab = 'details' } = useParams<{ id: string; tab?: string }>();
+  const [currentNotes, setCurrentNotes] = useState(defaultNotes);
+
+  // Find current application and use its notes if available
+  useEffect(() => {
+    if (id) {
+      const currentApp = applications.find(app => app.id === id);
+      if (currentApp && currentApp.notesArray && currentApp.notesArray.length > 0) {
+        setCurrentNotes(currentApp.notesArray);
+      }
+    }
+  }, [id]);
+
+  // Subscribe to global notes updates
+  useEffect(() => {
+    const originalUpdateFn = (window as any).updateApplicationNotes;
+    
+    if (typeof window !== 'undefined') {
+      (window as any).updateApplicationNotes = (appId: string, newNote: any) => {
+        // Call the original function to update the global state
+        if (originalUpdateFn) {
+          originalUpdateFn(appId, newNote);
+        }
+        
+        // Update local state if this is the current application
+        if (appId === id) {
+          setCurrentNotes(prev => [newNote, ...prev]);
+        }
+      };
+    }
+    
+    return () => {
+      // Restore the original function when component unmounts
+      if (typeof window !== 'undefined') {
+        (window as any).updateApplicationNotes = originalUpdateFn;
+      }
+    };
+  }, [id]);
 
   // Determine which content to show based on the current tab
   const renderTabContent = () => {
@@ -36,7 +75,7 @@ const ApplicationDetail = () => {
       case 'history':
         return <ApplicationHistoryView history={applicationDetails.history} />;
       case 'notes':
-        return <NotesView notes={applicationDetails.notes} />;
+        return <NotesView notes={currentNotes} />;
       case 'details':
       default:
         return (

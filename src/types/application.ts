@@ -1,11 +1,11 @@
-
 export interface Application {
   id: string;
   orderNumber: string;
   name: string;
   type: string;
   status: string;
-  notes: string;
+  notes: string; // Keeping this for backward compatibility
+  notesArray?: Note[]; // Adding array of notes
   date: string;
 }
 

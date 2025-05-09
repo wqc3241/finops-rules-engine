@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
+import { useParams } from 'react-router-dom';
 
 interface NotesViewProps {
   notes: Note[];
@@ -17,7 +18,8 @@ const NotesView: React.FC<NotesViewProps> = ({ notes }) => {
   const [mentionDropdownOpen, setMentionDropdownOpen] = useState(false);
   const [cursorPosition, setCursorPosition] = useState(0);
   const { toast } = useToast();
-
+  const { id: applicationId } = useParams<{ id: string }>();
+  
   // Example list of users that could be tagged
   const users = [
     { name: "Michael McCann", username: "michael" },
@@ -29,12 +31,28 @@ const NotesView: React.FC<NotesViewProps> = ({ notes }) => {
   const handleAddNote = () => {
     if (!newNote.trim()) return;
     
-    // In a real app, this would make an API call to save the note
-    console.log("Add note:", newNote);
+    // Create a new note object
+    const currentDate = new Date();
+    const newNoteObj: Note = {
+      content: newNote,
+      time: currentDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+      date: currentDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
+      user: "Michael McCann" // Assuming current user
+    };
+    
+    // Update the global application state (in a real app, this would be an API call)
+    if (typeof window !== 'undefined' && (window as any).updateApplicationNotes && applicationId) {
+      (window as any).updateApplicationNotes(applicationId, newNoteObj);
+    }
+    
+    // Add the note to the current view (local state)
+    notes.unshift(newNoteObj);
+    
     toast({
       title: "Note Added",
       description: "Your note has been added to the application"
     });
+    
     setNewNote('');
   };
 
