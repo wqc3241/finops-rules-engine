@@ -9,6 +9,13 @@ interface ApplicationHeaderProps {
 }
 
 const ApplicationHeader: React.FC<ApplicationHeaderProps> = ({ details }) => {
+  // Use the same status color mapping as in ApplicationCard component
+  const statusColor = details.status === 'Approved' ? 'bg-green-100 text-green-800' : 
+                      details.status === 'Pending' ? 'bg-orange-100 text-orange-800' : 
+                      details.status === 'Submitted' ? 'bg-blue-100 text-blue-800' :
+                      details.status === 'Rejected' ? 'bg-red-100 text-red-800' : 
+                      'bg-gray-100 text-gray-800';
+
   return (
     <div className="border-b border-gray-200 pb-4 mb-4">
       <div className="flex items-center mb-1">
@@ -18,11 +25,7 @@ const ApplicationHeader: React.FC<ApplicationHeaderProps> = ({ details }) => {
         <div className="ml-2">
           <div className="flex items-center">
             <h2 className="text-lg font-medium">Order Number: {details.orderNumber}</h2>
-            <span className={`ml-4 px-3 py-1 text-sm font-medium rounded-full ${
-              details.status === 'Approved' ? 'bg-green-100 text-green-800' : 
-              details.status === 'On Track' ? 'bg-blue-100 text-blue-800' : 
-              'bg-gray-100 text-gray-800'
-            }`}>
+            <span className={`ml-4 px-3 py-1 text-sm font-medium rounded-full ${statusColor}`}>
               {details.status}
             </span>
           </div>
