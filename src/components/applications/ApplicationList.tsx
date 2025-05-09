@@ -18,7 +18,7 @@ const ApplicationList: React.FC = () => {
         return prevApps.map(app => {
           if (app.id === appId) {
             // Add the new note to the notesArray
-            const updatedNotesArray = [...(app.notesArray || []), newNote];
+            const updatedNotesArray = [newNote, ...(app.notesArray || [])];
             // Update the notes field with the latest note content
             return {
               ...app,
