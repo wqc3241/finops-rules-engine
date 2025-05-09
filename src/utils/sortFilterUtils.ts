@@ -1,3 +1,4 @@
+
 import { toast } from "sonner";
 
 /**
@@ -39,9 +40,11 @@ export const sortByProperty = <T extends Record<string, any>>(
     
     // Handle date comparison - improved date handling
     if (valueA && valueB) {
-      const dateA = valueA instanceof Date ? valueA : new Date(valueA);
-      const dateB = valueB instanceof Date ? valueB : new Date(valueB);
+      // Check if the values might be dates
+      const dateA = valueA instanceof Date ? valueA : new Date(String(valueA));
+      const dateB = valueB instanceof Date ? valueB : new Date(String(valueB));
       
+      // Only proceed with date comparison if both values produce valid dates
       if (!isNaN(dateA.getTime()) && !isNaN(dateB.getTime())) {
         return direction === 'asc' 
           ? dateA.getTime() - dateB.getTime() 

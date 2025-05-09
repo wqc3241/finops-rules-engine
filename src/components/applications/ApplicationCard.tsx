@@ -4,6 +4,11 @@ import { Application } from '../../types/application';
 import { ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger
+} from "@/components/ui/tooltip";
 
 interface ApplicationCardProps {
   application: Application;
@@ -68,7 +73,14 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({ application }) => {
               <div className="flex justify-between">
                 <div>
                   <p className="text-sm text-gray-500 mb-1">Notes</p>
-                  <p className="text-gray-600 text-sm line-clamp-2">{latestNoteContent}</p>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <p className="text-gray-600 text-sm line-clamp-2">{latestNoteContent}</p>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="max-w-xs">{latestNoteContent}</p>
+                    </TooltipContent>
+                  </Tooltip>
                 </div>
                 <div className="text-right">
                   <p className="text-sm text-gray-500 mb-1">Submitted</p>

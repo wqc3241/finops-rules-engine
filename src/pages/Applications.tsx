@@ -10,26 +10,26 @@ const Applications = () => {
   const [activeItem, setActiveItem] = React.useState('Applications');
 
   return (
-    <TooltipProvider>
-      <div className="h-screen flex flex-col bg-gray-50">
-        <Navbar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-        <div className="flex flex-1 overflow-hidden">
-          <Sidebar 
-            open={sidebarOpen}
-            activeItem={activeItem}
-            setActiveItem={setActiveItem} 
-          />
-          <main className="flex-1 overflow-auto p-4">
-            <div className="container mx-auto px-4 py-6">
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h1 className="text-2xl font-semibold mb-6">Applications</h1>
+    <div className="h-screen flex flex-col bg-gray-50">
+      <Navbar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+      <div className="flex flex-1 overflow-hidden">
+        <Sidebar 
+          open={sidebarOpen}
+          activeItem={activeItem}
+          setActiveItem={setActiveItem} 
+        />
+        <main className="flex-1 overflow-auto p-4">
+          <div className="container mx-auto px-4 py-6">
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <h1 className="text-2xl font-semibold mb-6">Applications</h1>
+              <TooltipProvider>
                 <ApplicationList />
-              </div>
+              </TooltipProvider>
             </div>
-          </main>
-        </div>
+          </div>
+        </main>
       </div>
-    </TooltipProvider>
+    </div>
   );
 };
 
