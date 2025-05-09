@@ -38,11 +38,11 @@ export const sortByProperty = <T extends Record<string, any>>(
         : valueB - valueA;
     }
     
-    // Handle date comparison - improved date handling
+    // Handle date comparison - improved date handling with proper type checking
     if (valueA && valueB) {
-      // Check if the values might be dates
-      const dateA = valueA instanceof Date ? valueA : new Date(String(valueA));
-      const dateB = valueB instanceof Date ? valueB : new Date(String(valueB));
+      // Try to convert to dates if they're not already, but handle type checking properly
+      const dateA = new Date(String(valueA));
+      const dateB = new Date(String(valueB));
       
       // Only proceed with date comparison if both values produce valid dates
       if (!isNaN(dateA.getTime()) && !isNaN(dateB.getTime())) {
