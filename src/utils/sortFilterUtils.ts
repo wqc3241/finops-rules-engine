@@ -1,4 +1,3 @@
-
 import { toast } from "sonner";
 
 /**
@@ -13,12 +12,8 @@ export const sortByProperty = <T extends Record<string, any>>(
   property: keyof T,
   direction: 'asc' | 'desc' = 'asc'
 ): T[] => {
-  // For property date, use a specific success message
-  if (property === 'date') {
-    toast.success(`Sorted by date: ${direction === 'asc' ? 'oldest first' : 'newest first'}`);
-  } else {
-    toast.success(`Sorted by ${String(property)} in ${direction === 'asc' ? 'ascending' : 'descending'} order`);
-  }
+  // Remove the toast notification from here as it's causing an infinite loop
+  // It's better to show toasts at the UI component level when sorting is triggered
   
   return [...array].sort((a, b) => {
     const valueA = a[property];
@@ -71,6 +66,7 @@ export const filterByProperty = <T extends Record<string, any>>(
   property: keyof T,
   value: any
 ): T[] => {
+  // We keep this toast since it's not in a component render function and won't loop
   toast.success(`Filtered by ${String(property)} containing "${value}"`);
   
   return array.filter(item => {

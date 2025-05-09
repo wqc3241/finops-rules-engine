@@ -20,6 +20,13 @@ const SortPopover: React.FC<SortPopoverProps> = ({
   setSortDirection,
   toggleSortDirection
 }) => {
+  const handleToggleSortDirection = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    toggleSortDirection();
+    // Show toast here instead of in the sort function
+    toast.success(`Sorted ${sortDirection === 'desc' ? 'oldest to newest' : 'newest to oldest'}`);
+  };
+
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -32,10 +39,7 @@ const SortPopover: React.FC<SortPopoverProps> = ({
             {sortOption === 'date' && (
               <ArrowUpDown 
                 className="mr-2 h-4 w-4 cursor-pointer" 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  toggleSortDirection();
-                }}
+                onClick={handleToggleSortDirection}
               />
             )}
             <ChevronDown className="h-4 w-4" />

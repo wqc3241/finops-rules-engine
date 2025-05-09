@@ -1,4 +1,3 @@
-
 import { useState, useMemo, useEffect } from 'react';
 import { Application } from '../types/application';
 import { sortByProperty } from '@/utils/sortFilterUtils';
@@ -85,7 +84,7 @@ export const useApplicationFiltering = (initialApplications: Application[]) => {
       filtered = filtered.filter(app => typeFilters.includes(app.type));
     }
     
-    // Apply sorting
+    // Apply sorting (removed toast from sortByProperty call)
     return sortByProperty(filtered, sortOption as keyof Application, sortDirection);
   }, [applications, statusFilters, typeFilters, sortOption, sortDirection]);
   
@@ -120,10 +119,9 @@ export const useApplicationFiltering = (initialApplications: Application[]) => {
     toast.success('All filters cleared');
   };
   
-  // Toggle sort direction
+  // Toggle sort direction - don't show toast here, do it in the UI component
   const toggleSortDirection = () => {
     setSortDirection(prev => (prev === 'asc' ? 'desc' : 'asc'));
-    toast.success(`Sorted ${sortDirection === 'asc' ? 'newest to oldest' : 'oldest to newest'}`);
   };
 
   // Set up global note update function to ensure notes stay current

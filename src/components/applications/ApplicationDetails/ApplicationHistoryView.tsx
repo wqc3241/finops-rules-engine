@@ -8,6 +8,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger
 } from "@/components/ui/collapsible";
+import { toast } from "sonner";
 
 interface ApplicationHistoryViewProps {
   history: HistoryItem[];
@@ -23,6 +24,18 @@ const ApplicationHistoryView: React.FC<ApplicationHistoryViewProps> = ({ history
       ...prev,
       [index]: !prev[index]
     }));
+  };
+  
+  const handleToggleSortBy = () => {
+    const newSortBy = sortBy === 'date' ? 'change' : 'date';
+    setSortBy(newSortBy);
+    toast.success(`Sorting by ${newSortBy}`);
+  };
+  
+  const handleToggleSortOrder = () => {
+    const newSortOrder = sortOrder === 'newest' ? 'oldest' : 'newest'; 
+    setSortOrder(newSortOrder);
+    toast.success(`Showing ${newSortOrder} first`);
   };
   
   const sortedHistory = [...history].sort((a, b) => {
@@ -44,7 +57,7 @@ const ApplicationHistoryView: React.FC<ApplicationHistoryViewProps> = ({ history
       <div className="flex justify-end gap-4">
         <div className="relative inline-block text-left">
           <div 
-            onClick={() => setSortBy(sortBy === 'date' ? 'change' : 'date')}
+            onClick={handleToggleSortBy}
             className="inline-flex items-center justify-center gap-1 rounded-md bg-white px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 cursor-pointer hover:bg-gray-50"
           >
             <span>Sort By {sortBy === 'date' ? 'Date' : 'Change'}</span>
@@ -54,7 +67,7 @@ const ApplicationHistoryView: React.FC<ApplicationHistoryViewProps> = ({ history
         
         <div className="relative inline-block text-left">
           <div 
-            onClick={() => setSortOrder(sortOrder === 'newest' ? 'oldest' : 'newest')}
+            onClick={handleToggleSortOrder}
             className="inline-flex items-center justify-center gap-1 rounded-md bg-white px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 cursor-pointer hover:bg-gray-50"
           >
             <span>{sortOrder === 'newest' ? 'Newest First' : 'Oldest First'}</span>
