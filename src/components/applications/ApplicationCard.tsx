@@ -48,10 +48,17 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({ application }) => {
 
   const statusColor = getStatusColor(application.status);
 
-  // Get the latest note content from the notesArray
-  const latestNoteContent = application.notesArray && application.notesArray.length > 0 
-    ? application.notesArray[0].content 
-    : application.notes || 'No notes available';
+  // Get the latest note content correctly
+  const getLatestNoteContent = () => {
+    if (application.notesArray && application.notesArray.length > 0) {
+      // Ensure we're getting the most recent note (first in the array)
+      return application.notesArray[0].content;
+    }
+    // Fallback to the notes string field if notesArray is empty or undefined
+    return application.notes || 'No notes available';
+  };
+
+  const latestNoteContent = getLatestNoteContent();
 
   // Format the timestamp if it exists
   const formattedDate = application.date 
