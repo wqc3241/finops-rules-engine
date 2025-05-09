@@ -163,7 +163,7 @@ export const dealStructureData: DealStructureOffer[] = [
 ];
 
 // Loan offers template for reuse
-const loanOfferTemplate = (lenderName: string, status: string = "Available") => ({
+export const loanOfferTemplate = (lenderName: string, status: string = "Available") => ({
   lenderName,
   status,
   requested: [
@@ -197,7 +197,7 @@ const loanOfferTemplate = (lenderName: string, status: string = "Available") => 
 });
 
 // Lease offers template for reuse
-const leaseOfferTemplate = (lenderName: string, status: string = "Available") => ({
+export const leaseOfferTemplate = (lenderName: string, status: string = "Available") => ({
   lenderName,
   status,
   requested: [
@@ -235,4 +235,3 @@ const leaseOfferTemplate = (lenderName: string, status: string = "Available") =>
     dueAtSigning: "8000.00"
   }
 });
-

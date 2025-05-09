@@ -1,3 +1,4 @@
+
 import { 
   ApplicationFullDetails, 
   DealStructureOffer,
@@ -9,7 +10,7 @@ import { vehicleData, appDtReferences } from './vehicleData';
 import { orderDetails } from './orderDetails';
 import { historyItems, notes } from './history';
 import { financialSummaryData } from './financialSummary';
-import { dealStructureData, loanOfferTemplate, leaseOfferTemplate } from './dealStructure';
+import { dealStructureData } from './dealStructure';
 
 // Mock data for application details based on ID
 export const getMockApplicationDetailsById = (id: string): ApplicationFullDetails => {
@@ -604,4 +605,41 @@ export const getMockApplicationDetailsById = (id: string): ApplicationFullDetail
               { name: "termLength", label: "Term Length (months)", value: "36" },
               { name: "mileageAllowance", label: "Mileage Allowance", value: "12,000" },
               { name: "rv", label: "RV%", value: "62.00%" },
-              { name: "rvs", label:
+              { name: "rvs", label: "RV$", value: "$80,600.00" },
+              { name: "ccrDownPayment", label: "CCR/Down Payment", value: "$12,000.00" },
+              { name: "maxLtv", label: "Max LTV", value: "N/A" },
+              { name: "ltv", label: "LTV", value: "62%" },
+              { name: "dti", label: "DTI", value: "22%" },
+              { name: "pti", label: "PTI", value: "9%" },
+              { name: "fico", label: "FICO", value: "815" },
+              { name: "mf", label: "MF", value: "0.00020" }
+            ],
+            approved: [
+              { name: "termLength", label: "Term Length (months)", value: "36" },
+              { name: "mileageAllowance", label: "Mileage Allowance", value: "12,000" },
+              { name: "rv", label: "RV%", value: "62.00%" },
+              { name: "rvs", label: "RV$", value: "$80,600.00" },
+              { name: "ccrDownPayment", label: "CCR/Down Payment", value: "$12,000.00" },
+              { name: "maxLtv", label: "Max LTV", value: "N/A" },
+              { name: "ltv", label: "LTV", value: "62%" },
+              { name: "dti", label: "DTI", value: "22%" },
+              { name: "pti", label: "PTI", value: "9%" },
+              { name: "fico", label: "FICO", value: "815" },
+              { name: "mf", label: "MF", value: "0.00020" }
+            ],
+            customer: [],
+            stipulations: [],
+            contractStatus: "Not Selected",
+            collapsedView: {
+              termLength: "36",
+              monthlyPayments: "1,950.20",
+              dueAtSigning: "12000.00"
+            }
+          }
+        ]
+      };
+
+    default:
+      return baseData;
+  }
+};
