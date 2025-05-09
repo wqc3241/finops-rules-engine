@@ -1,4 +1,3 @@
-
 import { toast } from "sonner";
 
 /**
@@ -13,7 +12,12 @@ export const sortByProperty = <T extends Record<string, any>>(
   property: keyof T,
   direction: 'asc' | 'desc' = 'asc'
 ): T[] => {
-  toast.success(`Sorted by ${String(property)} in ${direction === 'asc' ? 'ascending' : 'descending'} order`);
+  // For property date, use a specific success message
+  if (property === 'date') {
+    toast.success(`Sorted by date: ${direction === 'asc' ? 'oldest first' : 'newest first'}`);
+  } else {
+    toast.success(`Sorted by ${String(property)} in ${direction === 'asc' ? 'ascending' : 'descending'} order`);
+  }
   
   return [...array].sort((a, b) => {
     const valueA = a[property];
@@ -33,11 +37,16 @@ export const sortByProperty = <T extends Record<string, any>>(
         : valueB - valueA;
     }
     
-    // Handle date comparison - fix the instanceof Date check
-    if (valueA && valueB && typeof valueA.getTime === 'function' && typeof valueB.getTime === 'function') {
-      return direction === 'asc' 
-        ? valueA.getTime() - valueB.getTime() 
-        : valueB.getTime() - valueA.getTime();
+    // Handle date comparison - improved date handling
+    if (valueA && valueB) {
+      const dateA = valueA instanceof Date ? valueA : new Date(valueA);
+      const dateB = valueB instanceof Date ? valueB : new Date(valueB);
+      
+      if (!isNaN(dateA.getTime()) && !isNaN(dateB.getTime())) {
+        return direction === 'asc' 
+          ? dateA.getTime() - dateB.getTime() 
+          : dateB.getTime() - dateA.getTime();
+      }
     }
     
     // Default comparison for other types

@@ -3,6 +3,7 @@ import React from 'react';
 import { Application } from '../../types/application';
 import { ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { format } from 'date-fns';
 
 interface ApplicationCardProps {
   application: Application;
@@ -24,6 +25,11 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({ application }) => {
   const latestNoteContent = application.notesArray && application.notesArray.length > 0 
     ? application.notesArray[0].content 
     : application.notes;
+
+  // Format the timestamp if it exists
+  const formattedDate = application.date 
+    ? format(new Date(application.date), 'MMM d, yyyy h:mm a')
+    : 'No date';
 
   return (
     <div 
@@ -59,8 +65,16 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({ application }) => {
               </div>
             </div>
             <div className="flex-1 ml-8">
-              <p className="text-sm text-gray-500 mb-1">Notes</p>
-              <p className="text-gray-600 text-sm line-clamp-2">{latestNoteContent}</p>
+              <div className="flex justify-between">
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">Notes</p>
+                  <p className="text-gray-600 text-sm line-clamp-2">{latestNoteContent}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-gray-500 mb-1">Submitted</p>
+                  <p className="text-gray-600 text-sm">{formattedDate}</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>

@@ -3,16 +3,17 @@ import React, { useState, useMemo } from 'react';
 import ApplicationCard from './ApplicationCard';
 import { Application } from '../../types/application';
 import { applications as initialApplications } from '../../data/mockApplications';
-import { ChevronDown, SlidersHorizontal, X } from 'lucide-react';
+import { ChevronDown, SlidersHorizontal, X, ArrowUpDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { filterByProperty } from '@/utils/sortFilterUtils';
+import { filterByProperty, sortByProperty } from '@/utils/sortFilterUtils';
 import { toast } from "sonner";
 
 const ApplicationList: React.FC = () => {
   const [sortOption, setSortOption] = useState('date');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc'); // Default to newest first
   const [showFilters, setShowFilters] = useState(false);
   const [applications, setApplications] = useState<Application[]>(initialApplications);
   const [statusFilters, setStatusFilters] = useState<string[]>([]);
@@ -43,8 +44,9 @@ const ApplicationList: React.FC = () => {
       filtered = filtered.filter(app => typeFilters.includes(app.type));
     }
     
-    return filtered;
-  }, [initialApplications, statusFilters, typeFilters]);
+    // Apply sorting
+    return sortByProperty(filtered, sortOption as keyof Application, sortDirection);
+  }, [initialApplications, statusFilters, typeFilters, sortOption, sortDirection]);
   
   // Toggle status filter
   const toggleStatusFilter = (status: string) => {
@@ -77,6 +79,19 @@ const ApplicationList: React.FC = () => {
     toast.success('All filters cleared');
   };
   
+  // Toggle sort direction
+  const toggleSortDirection = () => {
+    setSortDirection(prev => (prev === 'asc' ? 'desc' : 'asc'));
+    toast.success(`Sorted ${sortDirection === 'asc' ? 'newest to oldest' : 'oldest to newest'}`);
+  };
+  
+  // Handle sort option change
+  const handleSortOptionChange = () => {
+    const nextOption = sortOption === 'date' ? 'name' : 'date';
+    setSortOption(nextOption);
+    toast.success(`Sort by ${nextOption}`);
+  };
+  
   // Count active filters
   const activeFiltersCount = statusFilters.length + typeFilters.length;
   
@@ -104,16 +119,78 @@ const ApplicationList: React.FC = () => {
   return (
     <div>
       <div className="flex justify-end mb-6 gap-4">
-        <div className="relative">
-          <Button 
-            variant="outline" 
-            className="flex items-center justify-between min-w-[200px] border border-gray-300"
-            onClick={() => setSortOption(sortOption === 'date' ? 'name' : 'date')}
-          >
-            <span>Sort ({sortOption})</span>
-            <ChevronDown className="ml-2 h-4 w-4" />
-          </Button>
-        </div>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button 
+              variant="outline" 
+              className="flex items-center justify-between min-w-[200px] border border-gray-300"
+            >
+              <span>Sort ({sortOption === 'date' ? 'Date' : 'Name'})</span>
+              <div className="flex items-center">
+                {sortOption === 'date' && (
+                  <ArrowUpDown 
+                    className="mr-2 h-4 w-4 cursor-pointer" 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleSortDirection();
+                    }}
+                  />
+                )}
+                <ChevronDown className="h-4 w-4" />
+              </div>
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-56 p-2" align="end">
+            <div className="space-y-1">
+              <Button 
+                variant={sortOption === 'date' ? 'secondary' : 'ghost'} 
+                className="w-full justify-start"
+                onClick={() => {
+                  setSortOption('date');
+                  toast.success('Sorted by date');
+                }}
+              >
+                By Date
+              </Button>
+              <Button 
+                variant={sortOption === 'name' ? 'secondary' : 'ghost'} 
+                className="w-full justify-start"
+                onClick={() => {
+                  setSortOption('name');
+                  toast.success('Sorted by name');
+                }}
+              >
+                By Name
+              </Button>
+              
+              {sortOption === 'date' && (
+                <>
+                  <hr className="my-2" />
+                  <Button 
+                    variant={sortDirection === 'desc' ? 'secondary' : 'ghost'} 
+                    className="w-full justify-start"
+                    onClick={() => {
+                      setSortDirection('desc');
+                      toast.success('Sorted newest to oldest');
+                    }}
+                  >
+                    Newest first
+                  </Button>
+                  <Button 
+                    variant={sortDirection === 'asc' ? 'secondary' : 'ghost'} 
+                    className="w-full justify-start"
+                    onClick={() => {
+                      setSortDirection('asc');
+                      toast.success('Sorted oldest to newest');
+                    }}
+                  >
+                    Oldest first
+                  </Button>
+                </>
+              )}
+            </div>
+          </PopoverContent>
+        </Popover>
         <Popover>
           <PopoverTrigger asChild>
             <Button 
