@@ -17,6 +17,7 @@ export const fundedApplications: Record<string, ApplicationFullDetails> = {
     dealStructure: [
       {
         lenderName: "LFS",
+        status: "Approved",
         requested: [
           { name: "termLength", label: "Term Length (months)", value: "36" },
           { name: "mileageAllowance", label: "Mileage Allowance", value: "15,000" },
@@ -61,7 +62,7 @@ export const fundedApplications: Record<string, ApplicationFullDetails> = {
       },
       {
         lenderName: "BMW Financial Services",
-        status: "Not Selected",
+        status: "Declined",
         requested: [
           { name: "termLength", label: "Term Length (months)", value: "24" },
           { name: "mileageAllowance", label: "Mileage Allowance", value: "10,000" },
@@ -99,7 +100,7 @@ export const fundedApplications: Record<string, ApplicationFullDetails> = {
       },
       {
         lenderName: "Chase",
-        status: "Not Selected",
+        status: "Pending",
         requested: [
           { name: "termLength", label: "Term Length (months)", value: "36" },
           { name: "mileageAllowance", label: "Mileage Allowance", value: "12,000" },

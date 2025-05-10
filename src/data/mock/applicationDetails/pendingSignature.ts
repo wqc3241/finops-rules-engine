@@ -18,6 +18,7 @@ export const pendingSignatureApplications: Record<string, ApplicationFullDetails
     dealStructure: [
       {
         lenderName: "Liberty Financial",
+        status: "Approved",
         requested: [
           { name: "termLength", label: "Term Length (months)", value: "60" },
           { name: "apr", label: "APR", value: "4.25%" },
@@ -86,7 +87,7 @@ export const pendingSignatureApplications: Record<string, ApplicationFullDetails
       },
       {
         lenderName: "Chase",
-        status: "Not Selected",
+        status: "Declined",
         requested: [
           { name: "termLength", label: "Term Length (months)", value: "60" },
           { name: "apr", label: "APR", value: "4.35%" },

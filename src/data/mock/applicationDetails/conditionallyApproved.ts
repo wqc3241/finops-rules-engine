@@ -17,6 +17,7 @@ export const conditionallyApprovedApplications: Record<string, ApplicationFullDe
     dealStructure: [
       {
         lenderName: "LFS",
+        status: "Conditionally Approved",
         requested: [
           { name: "termLength", label: "Term Length (months)", value: "24" },
           { name: "mileageAllowance", label: "Mileage Allowance", value: "12,000" },
@@ -67,7 +68,7 @@ export const conditionallyApprovedApplications: Record<string, ApplicationFullDe
       },
       {
         lenderName: "Chase",
-        status: "Application Under Review",
+        status: "Pending",
         requested: [
           { name: "termLength", label: "Term Length (months)", value: "36" },
           { name: "mileageAllowance", label: "Mileage Allowance", value: "10,000" },

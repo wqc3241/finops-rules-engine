@@ -18,6 +18,7 @@ export const bookedApplications: Record<string, ApplicationFullDetails> = {
     dealStructure: [
       {
         lenderName: "Capital One Auto Finance",
+        status: "Approved",
         requested: [
           { name: "termLength", label: "Term Length (months)", value: "72" },
           { name: "apr", label: "APR", value: "5.25%" },
@@ -54,7 +55,7 @@ export const bookedApplications: Record<string, ApplicationFullDetails> = {
       },
       {
         lenderName: "Wells Fargo Auto",
-        status: "Not Selected",
+        status: "Declined",
         requested: [
           { name: "termLength", label: "Term Length (months)", value: "60" },
           { name: "apr", label: "APR", value: "5.49%" },
@@ -86,7 +87,7 @@ export const bookedApplications: Record<string, ApplicationFullDetails> = {
       },
       {
         lenderName: "Chase",
-        status: "Not Selected",
+        status: "Pending",
         requested: [
           { name: "termLength", label: "Term Length (months)", value: "48" },
           { name: "apr", label: "APR", value: "4.99%" },

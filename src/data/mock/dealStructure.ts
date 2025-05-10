@@ -4,6 +4,7 @@ import { DealStructureOffer } from '../../types/application';
 export const dealStructureData: DealStructureOffer[] = [
   {
     lenderName: "LFS",
+    status: "Approved",
     requested: [
       { name: "termLength", label: "Term Length (months)", value: "36" },
       { name: "mileageAllowance", label: "Mileage Allowance", value: "12,000" },
@@ -86,7 +87,7 @@ export const dealStructureData: DealStructureOffer[] = [
   },
   {
     lenderName: "Chase",
-    status: "Offer Presented To Customer",
+    status: "Pending",
     requested: [
       { name: "termLength", label: "Term Length (months)", value: "48" },
       { name: "mileageAllowance", label: "Mileage Allowance", value: "10,000" },
@@ -124,7 +125,7 @@ export const dealStructureData: DealStructureOffer[] = [
   },
   {
     lenderName: "Bank of America",
-    status: "Available",
+    status: "Declined",
     requested: [
       { name: "termLength", label: "Term Length (months)", value: "24" },
       { name: "mileageAllowance", label: "Mileage Allowance", value: "15,000" },

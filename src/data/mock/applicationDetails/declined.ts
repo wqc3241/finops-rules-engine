@@ -17,7 +17,7 @@ export const declinedApplications: Record<string, ApplicationFullDetails> = {
     dealStructure: [
       {
         lenderName: "LFS",
-        status: "Application Declined",
+        status: "Declined",
         requested: [
           { name: "termLength", label: "Term Length (months)", value: "36" },
           { name: "mileageAllowance", label: "Mileage Allowance", value: "10,000" },
@@ -50,7 +50,7 @@ export const declinedApplications: Record<string, ApplicationFullDetails> = {
       },
       {
         lenderName: "Chase",
-        status: "Application Declined",
+        status: "Declined",
         requested: [
           { name: "termLength", label: "Term Length (months)", value: "24" },
           { name: "mileageAllowance", label: "Mileage Allowance", value: "12,000" },
@@ -76,7 +76,7 @@ export const declinedApplications: Record<string, ApplicationFullDetails> = {
       },
       {
         lenderName: "Capital One Auto Finance",
-        status: "Application Declined",
+        status: "Declined",
         requested: [
           { name: "termLength", label: "Term Length (months)", value: "48" },
           { name: "apr", label: "APR", value: "12.99%" },

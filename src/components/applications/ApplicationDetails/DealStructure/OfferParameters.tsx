@@ -12,7 +12,8 @@ const OfferParameters: React.FC<OfferParametersProps> = ({ items, isCustomer = f
     <div className="space-y-3">
       {items.map((item, index) => {
         const isEditableField = isCustomer && 
-          (item.name === 'termLength' || item.name === 'mileageAllowance' || item.name === 'ccrDownPayment');
+          (item.name === 'termLength' || item.name === 'mileageAllowance' || item.name === 'ccrDownPayment' ||
+           item.name === 'downPayment');
         
         return (
           <div key={index} className="flex items-center">
