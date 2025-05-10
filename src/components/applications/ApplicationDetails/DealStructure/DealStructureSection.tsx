@@ -1,4 +1,5 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { ChevronUp, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -11,7 +12,12 @@ interface DealStructureSectionProps {
 }
 
 const DealStructureSection: React.FC<DealStructureSectionProps> = ({ dealStructure }) => {
-  const [isExpanded, setIsExpanded] = React.useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [selectedOfferLender, setSelectedOfferLender] = useState<string | null>(null);
+
+  const handleSelectOffer = (lenderName: string) => {
+    setSelectedOfferLender(lenderName);
+  };
 
   return (
     <Card className="mb-8">
@@ -39,7 +45,9 @@ const DealStructureSection: React.FC<DealStructureSectionProps> = ({ dealStructu
             <LenderOfferCard 
               key={index} 
               offer={offer} 
-              isExpanded={isExpanded} 
+              isExpanded={isExpanded}
+              isSelected={selectedOfferLender === offer.lenderName}
+              onSelectOffer={handleSelectOffer}
             />
           ))}
         </div>
