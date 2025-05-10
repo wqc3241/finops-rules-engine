@@ -19,6 +19,27 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({ offer, isExpanded }) 
   // If the parent is expanded, we force the card to be expanded too
   const cardIsExpanded = isExpanded || isCardExpanded;
 
+  // List of standard financial parameters to always show
+  const standardParams = [
+    'termLength', 'mileageAllowance', 'rv', 'rvs', 'ccrDownPayment', 
+    'maxLtv', 'ltv', 'dti', 'pti', 'fico', 'mf'
+  ];
+  
+  // Standard parameter labels
+  const paramLabels: Record<string, string> = {
+    termLength: "Term Length (months)",
+    mileageAllowance: "Mileage Allowance",
+    rv: "RV%",
+    rvs: "RV$",
+    ccrDownPayment: "CCR/Down Payment",
+    maxLtv: "Max LTV",
+    ltv: "LTV",
+    dti: "DTI",
+    pti: "PTI",
+    fico: "FICO",
+    mf: "MF"
+  };
+
   const renderCollapsedView = () => (
     <div className="grid grid-cols-3 gap-4">
       <div>
@@ -36,23 +57,40 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({ offer, isExpanded }) 
     </div>
   );
 
+  // Helper function to generate standardized parameter items
+  const generateStandardParams = (items: DealStructureItem[]) => {
+    const itemMap = new Map(items.map(item => [item.name, item]));
+    
+    // Convert to standardized array with all required parameters
+    return standardParams.map(paramName => {
+      const item = itemMap.get(paramName);
+      return {
+        name: paramName,
+        label: paramLabels[paramName] || paramName,
+        value: item ? item.value : "-"
+      };
+    });
+  };
+
   const renderExpandedView = () => {
-    if (!offer.requested.length) return null;
+    const standardizedRequested = generateStandardParams(offer.requested);
+    const standardizedApproved = generateStandardParams(offer.approved);
+    const standardizedCustomer = generateStandardParams(offer.customer);
     
     return (
       <>
         <div className="grid grid-cols-3 gap-6 mb-6">
           <div>
             <h4 className="text-md font-medium mb-4">Requested</h4>
-            {renderOfferItems(offer.requested)}
+            {renderOfferItems(standardizedRequested)}
           </div>
           <div>
             <h4 className="text-md font-medium mb-4">Approved</h4>
-            {renderOfferItems(offer.approved)}
+            {renderOfferItems(standardizedApproved)}
           </div>
           <div>
             <h4 className="text-md font-medium mb-4">Customer</h4>
-            {renderOfferItems(offer.customer)}
+            {renderOfferItems(standardizedCustomer)}
           </div>
         </div>
 
