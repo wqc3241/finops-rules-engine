@@ -5,7 +5,8 @@ import Sidebar from "@/components/Sidebar";
 import ApplicationList from "@/components/applications/ApplicationList";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
-// Storage key for detecting updates to applications
+// Storage keys for applications data
+const APPLICATIONS_STORAGE_KEY = 'lucidApplicationsData';
 const APPLICATIONS_UPDATE_KEY = 'lucidApplicationsLastUpdate';
 
 const Applications = () => {
