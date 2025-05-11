@@ -1,11 +1,12 @@
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { Application } from '../types/application';
 import { sortByProperty } from '@/utils/sortFilterUtils';
 import { toast } from "sonner";
 
 // Storage key for applications data
 const APPLICATIONS_STORAGE_KEY = 'lucidApplicationsData';
+const APPLICATIONS_UPDATE_KEY = 'lucidApplicationsLastUpdate';
 // Storage keys for filter preferences
 const SORT_OPTION_KEY = 'applicationSortOption';
 const SORT_DIRECTION_KEY = 'applicationSortDirection';
@@ -35,7 +36,7 @@ export const useApplicationFiltering = (initialApplications: Application[]) => {
   };
 
   // Load applications from localStorage or use initial data
-  const getInitialApplications = (): Application[] => {
+  const getInitialApplications = useCallback((): Application[] => {
     const savedApplications = localStorage.getItem(APPLICATIONS_STORAGE_KEY);
     if (savedApplications) {
       try {
@@ -46,7 +47,7 @@ export const useApplicationFiltering = (initialApplications: Application[]) => {
       }
     }
     return initialApplications;
-  };
+  }, [initialApplications]);
 
   const [sortOption, setSortOption] = useState(getSavedSortOption);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>(getSavedSortDirection);
@@ -56,7 +57,9 @@ export const useApplicationFiltering = (initialApplications: Application[]) => {
   
   // Save applications to localStorage whenever they change
   useEffect(() => {
-    localStorage.setItem(APPLICATIONS_STORAGE_KEY, JSON.stringify(applications));
+    if (applications.length > 0) {
+      localStorage.setItem(APPLICATIONS_STORAGE_KEY, JSON.stringify(applications));
+    }
   }, [applications]);
   
   // Save sort preferences when they change
@@ -83,6 +86,28 @@ export const useApplicationFiltering = (initialApplications: Application[]) => {
       setApplications(initialApplications);
     }
   }, [applications.length, initialApplications]);
+  
+  // Listen for external changes to localStorage
+  useEffect(() => {
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === APPLICATIONS_STORAGE_KEY) {
+        try {
+          const updatedApps = event.newValue ? JSON.parse(event.newValue) : [];
+          if (updatedApps.length > 0) {
+            setApplications(updatedApps);
+          }
+        } catch (error) {
+          console.error("Error handling storage change:", error);
+        }
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
   
   // Extract unique status and type values for filter options
   const uniqueStatuses = useMemo(() => {
@@ -181,7 +206,7 @@ export const useApplicationFiltering = (initialApplications: Application[]) => {
           // Save updated applications to localStorage immediately
           localStorage.setItem(APPLICATIONS_STORAGE_KEY, JSON.stringify(updatedApps));
           // Set timestamp for the update
-          localStorage.setItem('lucidApplicationsLastUpdate', new Date().toISOString());
+          localStorage.setItem(APPLICATIONS_UPDATE_KEY, new Date().toISOString());
           
           return updatedApps;
         });

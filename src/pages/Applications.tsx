@@ -46,6 +46,9 @@ const Applications = () => {
     
     window.addEventListener('storage', handleStorageChange);
     
+    // Initial check for updates
+    checkForUpdates();
+    
     // Set up a global listener for note updates
     const originalUpdateFn = (window as any).updateApplicationNotes;
     

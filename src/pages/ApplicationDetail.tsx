@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
@@ -16,6 +16,10 @@ import FinancialSummaryView from '@/components/applications/ApplicationDetails/F
 import { notes as defaultNotes } from '@/data/mock/history';
 import { ApplicationDetails, Note } from '@/types/application';
 
+// Define storage keys for consistency
+const APPLICATIONS_STORAGE_KEY = 'lucidApplicationsData';
+const APPLICATIONS_UPDATE_KEY = 'lucidApplicationsLastUpdate';
+
 const tabs = [
   { id: 'details', label: 'Application Details' },
   { id: 'financial-summary', label: 'Financial Summary' },
@@ -23,9 +27,6 @@ const tabs = [
   { id: 'history', label: 'Application History' },
   { id: 'notes', label: 'Notes' },
 ];
-
-// Storage key for applications data
-const APPLICATIONS_STORAGE_KEY = 'lucidApplicationsData';
 
 const ApplicationDetail = () => {
   const [sidebarOpen, setSidebarOpen] = React.useState(true);
@@ -37,7 +38,7 @@ const ApplicationDetail = () => {
   const [lastRefreshTime, setLastRefreshTime] = useState(Date.now());
 
   // Load applications from localStorage
-  const getStoredApplications = () => {
+  const getStoredApplications = useCallback(() => {
     try {
       const storedApps = localStorage.getItem(APPLICATIONS_STORAGE_KEY);
       if (storedApps) {
@@ -47,7 +48,41 @@ const ApplicationDetail = () => {
       console.error("Error loading stored applications:", error);
     }
     return applications; // Fallback to static data
-  };
+  }, []);
+
+  // Function to refresh notes from localStorage
+  const refreshNotesFromStorage = useCallback(() => {
+    if (id) {
+      const storedApplications = getStoredApplications();
+      const updatedApp = storedApplications.find((app: any) => app.id === id);
+      
+      if (updatedApp && updatedApp.notesArray) {
+        setCurrentNotes(updatedApp.notesArray);
+        
+        // Also update the full application details with the latest notes
+        setCurrentApplicationFullDetails(prevDetails => ({
+          ...prevDetails,
+          notes: updatedApp.notesArray
+        }));
+      }
+    }
+  }, [id, getStoredApplications]);
+  
+  // Listen for storage events to refresh notes
+  useEffect(() => {
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === APPLICATIONS_STORAGE_KEY || event.key === APPLICATIONS_UPDATE_KEY) {
+        refreshNotesFromStorage();
+        setLastRefreshTime(Date.now());
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, [refreshNotesFromStorage]);
 
   // Find current application and use its data
   useEffect(() => {
@@ -99,19 +134,7 @@ const ApplicationDetail = () => {
         }
       }
     }
-  }, [id, lastRefreshTime]);
-
-  // Function to refresh notes from localStorage
-  const refreshNotesFromStorage = () => {
-    if (id) {
-      const storedApplications = getStoredApplications();
-      const updatedApp = storedApplications.find((app: any) => app.id === id);
-      
-      if (updatedApp && updatedApp.notesArray) {
-        setCurrentNotes(updatedApp.notesArray);
-      }
-    }
-  };
+  }, [id, lastRefreshTime, getStoredApplications]);
 
   // Setup the global notes update function
   useEffect(() => {
@@ -127,7 +150,13 @@ const ApplicationDetail = () => {
       // Update local state immediately if this is the current application
       if (appId === id) {
         setCurrentNotes(prev => [newNote, ...prev]);
-        setLastRefreshTime(Date.now()); // Trigger a refresh
+        setCurrentApplicationFullDetails(prev => ({
+          ...prev,
+          notes: [newNote, ...(prev.notes || [])]
+        }));
+        
+        // Force a refresh to ensure all components re-render with updated data
+        setLastRefreshTime(Date.now());
       }
     };
     
@@ -149,7 +178,7 @@ const ApplicationDetail = () => {
     if (tab === 'notes') {
       refreshNotesFromStorage();
     }
-  }, [tab]);
+  }, [tab, refreshNotesFromStorage]);
 
   // Determine which content to show based on the current tab
   const renderTabContent = () => {

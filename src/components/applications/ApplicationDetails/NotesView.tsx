@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { ChevronDown } from 'lucide-react';
 import { Note } from '@/types/application';
@@ -36,7 +36,7 @@ const NotesView: React.FC<NotesViewProps> = ({ notes: initialNotes }) => {
     { name: "Sarah Johnson", username: "sarah" },
   ];
 
-  const handleAddNote = () => {
+  const handleAddNote = useCallback(() => {
     if (!newNote.trim() || !applicationId) return;
     
     // Create a new note object
@@ -48,12 +48,13 @@ const NotesView: React.FC<NotesViewProps> = ({ notes: initialNotes }) => {
       user: "Michael McCann" // Assuming current user
     };
     
-    // Update the global application state
+    // First update local state immediately (optimistic update)
+    setLocalNotes(prevNotes => [newNoteObj, ...prevNotes]);
+    
+    // Then update the global application state
     if (typeof window !== 'undefined' && (window as any).updateApplicationNotes && applicationId) {
       (window as any).updateApplicationNotes(applicationId, newNoteObj);
     }
-    
-    // No need to update localNotes here as it will be updated via the initialNotes prop
     
     toast({
       title: "Note Added",
@@ -61,7 +62,7 @@ const NotesView: React.FC<NotesViewProps> = ({ notes: initialNotes }) => {
     });
     
     setNewNote('');
-  };
+  }, [newNote, applicationId, toast]);
 
   const handleNoteChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
