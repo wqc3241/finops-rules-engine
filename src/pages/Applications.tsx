@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import ApplicationList from "@/components/applications/ApplicationList";
@@ -37,11 +37,13 @@ const Applications = () => {
     }
     
     // Listen for storage events from other tabs/windows
-    window.addEventListener('storage', (event) => {
-      if (event.key === 'lucidApplicationsData') {
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === APPLICATIONS_STORAGE_KEY || event.key === APPLICATIONS_UPDATE_KEY) {
         checkForUpdates();
       }
-    });
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
     
     // Set up a global listener for note updates
     const originalUpdateFn = (window as any).updateApplicationNotes;
@@ -61,12 +63,9 @@ const Applications = () => {
       };
     }
     
-    // Only check for updates when needed, not on an interval
-    // This removes the continuous polling that was causing filter resets
-    
     return () => {
       // Clean up event listeners
-      window.removeEventListener('storage', checkForUpdates);
+      window.removeEventListener('storage', handleStorageChange);
       
       // Restore the original function when component unmounts
       if (typeof window !== 'undefined') {

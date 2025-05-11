@@ -17,13 +17,13 @@ const NotesView: React.FC<NotesViewProps> = ({ notes: initialNotes }) => {
   const [newNote, setNewNote] = useState('');
   const [mentionDropdownOpen, setMentionDropdownOpen] = useState(false);
   const [cursorPosition, setCursorPosition] = useState(0);
-  const [localNotes, setLocalNotes] = useState<Note[]>(initialNotes);
+  const [localNotes, setLocalNotes] = useState<Note[]>([]);
   const { toast } = useToast();
   const { id: applicationId } = useParams<{ id: string }>();
   
   // Update local notes when props change
   useEffect(() => {
-    if (initialNotes && initialNotes.length > 0) {
+    if (initialNotes && Array.isArray(initialNotes)) {
       setLocalNotes(initialNotes);
     }
   }, [initialNotes]);
@@ -37,7 +37,7 @@ const NotesView: React.FC<NotesViewProps> = ({ notes: initialNotes }) => {
   ];
 
   const handleAddNote = () => {
-    if (!newNote.trim()) return;
+    if (!newNote.trim() || !applicationId) return;
     
     // Create a new note object
     const currentDate = new Date();
@@ -48,13 +48,12 @@ const NotesView: React.FC<NotesViewProps> = ({ notes: initialNotes }) => {
       user: "Michael McCann" // Assuming current user
     };
     
-    // Update the global application state (in a real app, this would be an API call)
+    // Update the global application state
     if (typeof window !== 'undefined' && (window as any).updateApplicationNotes && applicationId) {
       (window as any).updateApplicationNotes(applicationId, newNoteObj);
     }
     
-    // Update local state immediately for UI responsiveness
-    setLocalNotes(prevNotes => [newNoteObj, ...prevNotes]);
+    // No need to update localNotes here as it will be updated via the initialNotes prop
     
     toast({
       title: "Note Added",
@@ -145,34 +144,42 @@ const NotesView: React.FC<NotesViewProps> = ({ notes: initialNotes }) => {
       </Card>
 
       {/* Notes list */}
-      {localNotes.map((note, index) => (
-        <Card key={index} className="bg-gray-50">
-          <CardContent className="p-6">
-            <div className="flex space-x-4">
-              <Avatar className="h-10 w-10">
-                <AvatarFallback className="bg-blue-500 text-white">
-                  {getInitials(note.user)}
-                </AvatarFallback>
-              </Avatar>
-              
-              <div className="flex-grow">
-                <div className="flex items-center space-x-2">
-                  <h4 className="font-medium">{note.user}</h4>
-                  <span className="text-sm text-gray-500">{note.time} - {note.date}</span>
-                </div>
-                <div className="mt-2 text-gray-700">
-                  {/* Format the content to highlight mentions */}
-                  {note.content.split(' ').map((word, i) => 
-                    word.startsWith('@') ? 
-                      <span key={i} className="text-blue-600 font-medium">{word} </span> : 
-                      <span key={i}>{word} </span>
-                  )}
+      {localNotes.length > 0 ? (
+        localNotes.map((note, index) => (
+          <Card key={index} className="bg-gray-50">
+            <CardContent className="p-6">
+              <div className="flex space-x-4">
+                <Avatar className="h-10 w-10">
+                  <AvatarFallback className="bg-blue-500 text-white">
+                    {getInitials(note.user)}
+                  </AvatarFallback>
+                </Avatar>
+                
+                <div className="flex-grow">
+                  <div className="flex items-center space-x-2">
+                    <h4 className="font-medium">{note.user}</h4>
+                    <span className="text-sm text-gray-500">{note.time} - {note.date}</span>
+                  </div>
+                  <div className="mt-2 text-gray-700">
+                    {/* Format the content to highlight mentions */}
+                    {note.content.split(' ').map((word, i) => 
+                      word.startsWith('@') ? 
+                        <span key={i} className="text-blue-600 font-medium">{word} </span> : 
+                        <span key={i}>{word} </span>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
+            </CardContent>
+          </Card>
+        ))
+      ) : (
+        <Card className="bg-gray-50">
+          <CardContent className="p-6 text-center text-gray-500">
+            No notes available for this application
           </CardContent>
         </Card>
-      ))}
+      )}
     </div>
   );
 };

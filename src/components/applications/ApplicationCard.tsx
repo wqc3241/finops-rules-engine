@@ -48,53 +48,52 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({ application }) => {
 
   const statusColor = getStatusColor(application.status);
 
-  // Fixed function to get the latest note content - ensure proper sorting
+  // Get the latest note content from notesArray
   const getLatestNoteContent = () => {
-    // Check if the notesArray exists and has content
     if (application.notesArray && application.notesArray.length > 0) {
-      // Sort by date and time to ensure the most recent is first
-      // Make a copy of the array to avoid mutating the original
+      // Create a copy of the array to avoid mutation
       const sortedNotes = [...application.notesArray].sort((a, b) => {
         // Convert date strings to Date objects for comparison
         const dateA = new Date(a.date);
         const dateB = new Date(b.date);
         
-        // If dates are the same, compare times
-        if (dateA.toDateString() === dateB.toDateString()) {
-          // Parse time strings to comparable values
-          const timeA = a.time ? a.time.replace(/[^0-9:]/g, '') : '';
-          const timeB = b.time ? b.time.replace(/[^0-9:]/g, '') : '';
-          
-          // Check if PM/AM is in the time string for 12-hour format
-          const isPmA = a.time && a.time.toLowerCase().includes('pm');
-          const isPmB = b.time && b.time.toLowerCase().includes('pm');
-          
-          // Convert times to minutes for comparison
-          const getMinutes = (time: string, isPm: boolean) => {
-            if (!time) return 0;
-            const [hours, minutes] = time.split(':').map(Number);
-            // Handle 12-hour format
-            let adjustedHours = hours;
-            if (isPm && hours < 12) adjustedHours += 12;
-            if (!isPm && hours === 12) adjustedHours = 0;
-            return adjustedHours * 60 + minutes;
+        if (dateA.getTime() === dateB.getTime()) {
+          // If dates are the same, compare times
+          // Convert time strings to 24h format for comparison
+          const parseTime = (timeStr: string) => {
+            if (!timeStr) return 0;
+            
+            const time = timeStr.toLowerCase();
+            let [hours, minutes] = time.split(':').map(part => {
+              // Extract just the numbers
+              return parseInt(part.replace(/[^0-9]/g, ''), 10);
+            });
+            
+            // Adjust for PM
+            if (time.includes('pm') && hours < 12) {
+              hours += 12;
+            }
+            // Adjust for 12 AM
+            if (time.includes('am') && hours === 12) {
+              hours = 0;
+            }
+            
+            return (hours * 60) + minutes;
           };
           
-          const minutesA = getMinutes(timeA, isPmA);
-          const minutesB = getMinutes(timeB, isPmB);
+          const timeA = parseTime(a.time);
+          const timeB = parseTime(b.time);
           
-          return minutesB - minutesA; // Latest time first
+          return timeB - timeA; // Latest time first
         }
         
-        // Otherwise sort by date
         return dateB.getTime() - dateA.getTime(); // Latest date first
       });
       
-      // Return content of the first (latest) note after sorting
       return sortedNotes[0].content;
     }
     
-    // Fallback to the notes string field if notesArray is empty or undefined
+    // Fallback to the legacy notes field if no notesArray
     return application.notes || 'No notes available';
   };
 

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Navbar from "@/components/Navbar";
@@ -33,6 +34,7 @@ const ApplicationDetail = () => {
   const [currentNotes, setCurrentNotes] = useState<Note[]>(defaultNotes);
   const [currentApplicationDetails, setCurrentApplicationDetails] = useState<ApplicationDetails>(applicationDetails.details);
   const [currentApplicationFullDetails, setCurrentApplicationFullDetails] = useState(applicationDetails);
+  const [lastRefreshTime, setLastRefreshTime] = useState(Date.now());
 
   // Load applications from localStorage
   const getStoredApplications = () => {
@@ -66,77 +68,88 @@ const ApplicationDetail = () => {
           edition: applicationDetails.details.edition
         });
         
-        // Set notes if available
+        // Set notes if available - directly from localStorage
         if (currentApp.notesArray && currentApp.notesArray.length > 0) {
           setCurrentNotes(currentApp.notesArray);
+        } else {
+          setCurrentNotes([]); // Reset notes if none found
         }
         
         // Try to get extended mock data for this application
         try {
           const mockDetails = getMockApplicationDetailsById(id);
           if (mockDetails) {
-            setCurrentApplicationFullDetails(mockDetails);
+            setCurrentApplicationFullDetails({
+              ...mockDetails,
+              // Ensure we use the correct notes from localStorage
+              notes: currentApp.notesArray || []
+            });
+            
             // Use the more detailed application details if available
-            setCurrentApplicationDetails(mockDetails.details);
-            
-            // Merge stored notes with mock details notes if available
-            if (currentApp.notesArray && currentApp.notesArray.length > 0) {
-              // Use the notes from storage - they are more up-to-date
-              mockDetails.notes = currentApp.notesArray;
-            }
-            
-            // Use the more detailed notes if we don't have any from storage
-            if (mockDetails.notes && mockDetails.notes.length > 0 && (!currentApp.notesArray || currentApp.notesArray.length === 0)) {
-              setCurrentNotes(mockDetails.notes);
-            }
+            setCurrentApplicationDetails({
+              ...mockDetails.details,
+              // Make sure we're using accurate information from the card
+              status: currentApp.status,
+              orderNumber: currentApp.orderNumber,
+              orderedBy: currentApp.name
+            });
           }
         } catch (error) {
           console.log('No extended mock data found for this application ID, using default data');
         }
       }
     }
-  }, [id]);
+  }, [id, lastRefreshTime]);
 
-  // Subscribe to global notes updates and refresh when switching tabs
+  // Function to refresh notes from localStorage
+  const refreshNotesFromStorage = () => {
+    if (id) {
+      const storedApplications = getStoredApplications();
+      const updatedApp = storedApplications.find((app: any) => app.id === id);
+      
+      if (updatedApp && updatedApp.notesArray) {
+        setCurrentNotes(updatedApp.notesArray);
+      }
+    }
+  };
+
+  // Setup the global notes update function
   useEffect(() => {
     const originalUpdateFn = (window as any).updateApplicationNotes;
     
-    const refreshNotes = () => {
-      if (id) {
-        // Re-fetch application from localStorage to get latest notes
-        const storedApplications = getStoredApplications();
-        const updatedApp = storedApplications.find((app: any) => app.id === id);
-        
-        if (updatedApp && updatedApp.notesArray) {
-          setCurrentNotes(updatedApp.notesArray);
-        }
+    // Define our new update function that will also update local state
+    const updateNotesFunction = (appId: string, newNote: Note) => {
+      // Call original function if it exists (to update global state)
+      if (originalUpdateFn) {
+        originalUpdateFn(appId, newNote);
+      }
+      
+      // Update local state immediately if this is the current application
+      if (appId === id) {
+        setCurrentNotes(prev => [newNote, ...prev]);
+        setLastRefreshTime(Date.now()); // Trigger a refresh
       }
     };
     
+    // Set the global function
     if (typeof window !== 'undefined') {
-      (window as any).updateApplicationNotes = (appId: string, newNote: any) => {
-        // Call the original function to update the global state
-        if (originalUpdateFn) {
-          originalUpdateFn(appId, newNote);
-        }
-        
-        // Update local state if this is the current application
-        if (appId === id) {
-          setCurrentNotes(prev => [newNote, ...prev]);
-        }
-      };
+      (window as any).updateApplicationNotes = updateNotesFunction;
     }
     
-    // Refresh notes when tab changes or component mounts
-    refreshNotes();
-    
+    // Clean up - restore original function when unmounting
     return () => {
-      // Restore the original function when component unmounts
       if (typeof window !== 'undefined') {
         (window as any).updateApplicationNotes = originalUpdateFn;
       }
     };
-  }, [id, tab]);
+  }, [id]);
+  
+  // Refresh notes when tab changes to Notes tab
+  useEffect(() => {
+    if (tab === 'notes') {
+      refreshNotesFromStorage();
+    }
+  }, [tab]);
 
   // Determine which content to show based on the current tab
   const renderTabContent = () => {

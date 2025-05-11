@@ -14,6 +14,20 @@ export const submittedApplications: Record<string, ApplicationFullDetails> = {
       orderedBy: 'Daniel Patel',
       status: 'Submitted'
     },
+    notes: [
+      {
+        content: "Initial application submitted by customer via online portal",
+        time: "10:30 AM",
+        date: "May 9, 2023",
+        user: "System"
+      },
+      {
+        content: "Credit check initiated, waiting for results",
+        time: "11:15 AM",
+        date: "May 9, 2023",
+        user: "Jennifer Liu"
+      }
+    ],
     dealStructure: [
       {
         lenderName: "Capital One Auto Finance",
@@ -73,6 +87,20 @@ export const submittedApplications: Record<string, ApplicationFullDetails> = {
       orderedBy: 'Michael Torres',
       status: 'Submitted'
     },
+    notes: [
+      {
+        content: "Customer interested in extended warranty options",
+        time: "3:45 PM",
+        date: "May 10, 2023",
+        user: "Tom Williams"
+      },
+      {
+        content: "Vehicle configuration confirmed with dealership",
+        time: "2:20 PM",
+        date: "May 10, 2023",
+        user: "Michael McCann"
+      }
+    ],
     dealStructure: [
       {
         lenderName: "Wells Fargo Auto",

@@ -109,7 +109,7 @@ export const useApplicationFiltering = (initialApplications: Application[]) => {
       filtered = filtered.filter(app => typeFilters.includes(app.type));
     }
     
-    // Apply sorting (removed toast from sortByProperty call)
+    // Apply sorting
     return sortByProperty(filtered, sortOption as keyof Application, sortDirection);
   }, [applications, statusFilters, typeFilters, sortOption, sortDirection]);
   
@@ -152,7 +152,7 @@ export const useApplicationFiltering = (initialApplications: Application[]) => {
     toast.success('All filters cleared');
   };
   
-  // Toggle sort direction - don't show toast here, do it in the UI component
+  // Toggle sort direction
   const toggleSortDirection = () => {
     setSortDirection(prev => (prev === 'asc' ? 'desc' : 'asc'));
   };
@@ -164,21 +164,24 @@ export const useApplicationFiltering = (initialApplications: Application[]) => {
         setApplications(prevApps => {
           const updatedApps = prevApps.map(app => {
             if (app.id === appId) {
-              // Add the new note to the notesArray (ensuring it exists)
-              const updatedNotesArray = [newNote, ...(app.notesArray || [])];
-              // Update the notes field with the latest note content for backwards compatibility
+              // Create notesArray if it doesn't exist or add to existing one
+              const notesArray = app.notesArray ? [newNote, ...app.notesArray] : [newNote];
+              
+              // Update the app with new notes
               const updatedApp = {
                 ...app,
-                notes: newNote.content,
-                notesArray: updatedNotesArray
+                notes: newNote.content, // Keep legacy notes field updated for backward compatibility
+                notesArray: notesArray
               };
               return updatedApp;
             }
             return app;
           });
           
-          // Save updated applications to localStorage
+          // Save updated applications to localStorage immediately
           localStorage.setItem(APPLICATIONS_STORAGE_KEY, JSON.stringify(updatedApps));
+          // Set timestamp for the update
+          localStorage.setItem('lucidApplicationsLastUpdate', new Date().toISOString());
           
           return updatedApps;
         });

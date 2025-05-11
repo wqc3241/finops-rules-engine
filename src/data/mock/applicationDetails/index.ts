@@ -25,5 +25,18 @@ export const getMockApplicationDetailsById = (id: string): ApplicationFullDetail
   };
 
   // Return specific application details if found, otherwise return base details
-  return allApplications[id] || baseApplicationDetails;
+  const foundApplication = allApplications[id];
+  
+  if (foundApplication) {
+    return {
+      ...foundApplication,
+      // Ensure notes is an array for consistency
+      notes: Array.isArray(foundApplication.notes) ? foundApplication.notes : []
+    };
+  }
+  
+  return {
+    ...baseApplicationDetails,
+    notes: [] // Ensure base details has empty notes array
+  };
 };
