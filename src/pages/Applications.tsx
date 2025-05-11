@@ -64,6 +64,9 @@ const Applications = () => {
         
         // Trigger a refresh of the applications list
         checkForUpdates();
+        
+        // Force refresh every time a note is added
+        setRefreshTrigger(prev => prev + 1);
       };
     }
     

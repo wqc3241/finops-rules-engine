@@ -83,7 +83,31 @@ export const useApplicationFiltering = (initialApplications: Application[]) => {
   // Initialize application data if localStorage is empty
   useEffect(() => {
     if (applications.length === 0 && initialApplications.length > 0) {
-      setApplications(initialApplications);
+      // Ensure all applications have notesArray field initialized
+      const appsWithNotesArray = initialApplications.map(app => {
+        if (!app.notesArray) {
+          // Convert legacy notes string to note object if it exists
+          const notesArray = app.notes 
+            ? [{
+                content: app.notes,
+                time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+                date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
+                user: "System"
+              }] 
+            : [];
+            
+          return {
+            ...app,
+            notesArray
+          };
+        }
+        return app;
+      });
+      
+      setApplications(appsWithNotesArray);
+      
+      // Save initialized applications to localStorage
+      localStorage.setItem(APPLICATIONS_STORAGE_KEY, JSON.stringify(appsWithNotesArray));
     }
   }, [applications.length, initialApplications]);
   

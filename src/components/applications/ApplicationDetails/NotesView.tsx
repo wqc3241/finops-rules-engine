@@ -53,7 +53,15 @@ const NotesView: React.FC<NotesViewProps> = ({ notes: initialNotes }) => {
     
     // Then update the global application state
     if (typeof window !== 'undefined' && (window as any).updateApplicationNotes && applicationId) {
+      // The global updateApplicationNotes function will handle storage updates
       (window as any).updateApplicationNotes(applicationId, newNoteObj);
+      
+      // Log for debugging
+      console.log('Note added and global state updated', {
+        applicationId,
+        note: newNoteObj,
+        localNotesCount: localNotes.length + 1 // +1 for the new note
+      });
     }
     
     toast({
@@ -62,7 +70,7 @@ const NotesView: React.FC<NotesViewProps> = ({ notes: initialNotes }) => {
     });
     
     setNewNote('');
-  }, [newNote, applicationId, toast]);
+  }, [newNote, applicationId, toast, localNotes.length]);
 
   const handleNoteChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;

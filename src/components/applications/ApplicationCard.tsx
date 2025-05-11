@@ -50,6 +50,7 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({ application }) => {
 
   // Get the latest note content from notesArray
   const getLatestNoteContent = () => {
+    // First check if notesArray exists and has content
     if (application.notesArray && application.notesArray.length > 0) {
       // Create a copy of the array to avoid mutation
       const sortedNotes = [...application.notesArray].sort((a, b) => {
