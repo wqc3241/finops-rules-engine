@@ -17,6 +17,7 @@ export interface ApplicationDetails {
   edition: string;
   orderedBy: string;
   status: string;
+  type?: string; // Adding type field to match Lease or Loan
 }
 
 export interface ApplicationFullDetails {
