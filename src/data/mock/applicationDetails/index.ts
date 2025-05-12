@@ -33,7 +33,8 @@ export const getMockApplicationDetailsById = (id: string): ApplicationFullDetail
   
   if (foundApplication) {
     // Get the application type directly from the details
-    const appType = foundApplication.details?.type || 'Lease';
+    // Ensure it's either "Lease" or "Loan" - cast it to the correct type
+    const appType = (foundApplication.details?.type || 'Lease') as 'Lease' | 'Loan';
     
     // Ensure the financialSummary includes the type field
     if (foundApplication.financialSummary) {
