@@ -48,6 +48,12 @@ export const getMockApplicationDetailsById = (id: string): ApplicationFullDetail
           ...loanFinancialSummaryData
         };
       }
+      
+      // If it's a lease application, make sure the loan data is removed
+      // This prevents any confusion when displaying financial summaries
+      if (appType === 'Lease' && foundApplication.financialSummary.loan) {
+        delete foundApplication.financialSummary.loan;
+      }
     }
     
     return {

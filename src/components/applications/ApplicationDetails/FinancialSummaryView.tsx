@@ -14,6 +14,11 @@ interface FinancialSummaryViewProps {
 const FinancialSummaryView: React.FC<FinancialSummaryViewProps> = ({ financialSummary }) => {
   const isLoanType = financialSummary.type === 'Loan';
   
+  // Determine which tabs to show based on application type
+  const tabs = isLoanType 
+    ? financialSummary.loan?.tabs || ['Requested', 'Approved', 'Customer']
+    : financialSummary.lfs.tabs;
+  
   const [activeTab, setActiveTab] = useState(
     isLoanType 
       ? financialSummary.loan?.activeTab || 'Approved' 
@@ -29,16 +34,15 @@ const FinancialSummaryView: React.FC<FinancialSummaryViewProps> = ({ financialSu
     setExpanded(!expanded);
   };
 
-  // Determine which tabs to show based on application type
-  const tabs = isLoanType 
-    ? financialSummary.loan?.tabs || ['Requested', 'Approved', 'Customer']
-    : financialSummary.lfs.tabs;
-
+  // Logging for debugging
+  console.log('Financial Summary Type:', financialSummary.type);
+  console.log('Is Loan Type:', isLoanType);
+  
   return (
     <Card className="h-fit">
       <CardContent className="p-6">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-medium">Financial Summary</h3>
+          <h3 className="text-lg font-medium">Financial Summary {isLoanType ? '(Loan)' : '(Lease)'}</h3>
           <div className="flex items-center cursor-pointer" onClick={toggleExpanded}>
             {expanded ? <ChevronUp className="h-4 w-4 text-gray-400" /> : <ChevronDown className="h-4 w-4 text-gray-400" />}
           </div>
