@@ -5,6 +5,37 @@ export interface FinancialSummaryItem {
   value: string;
 }
 
+export interface LoanFinancialSummaryTabData {
+  bankApr: string;
+  customerApr: string;
+  aprDifference: string;
+  term: string;
+  amountFinanced: string;
+  monthlyPayment: string;
+  adjustedTotalFinanceCharge: string;
+  computedLtvRatio: string;
+  cashDownDeposit: string;
+  otherDownPayment: string;
+  totalDownPayment: string;
+  basePrice: string;
+  creditsAndDiscounts: string;
+  destinationFee: string;
+  tireFeeWasteFee: string;
+  leadAcidBatteryFee: string;
+  documentationFee: string;
+  taxableSubTotal: string;
+  electronicFilingFee: string;
+  registrationTransferTitlingFees: string;
+  totalGovtAndAdditionalFees: string;
+  stateTax: string;
+  countyTax: string;
+  cityTax: string;
+  totalTaxes: string;
+  transactionId: string;
+  acceptedOfferDate: string;
+  transactionVersion: string;
+}
+
 export interface FinancialSummaryTabData {
   basePrice: string;
   destFee: string;
@@ -60,5 +91,13 @@ export interface FinancialSummary {
     requested: FinancialSummaryTabData;
     approved: FinancialSummaryTabData;
     customer: FinancialSummaryTabData;
+  };
+  type: 'Lease' | 'Loan';
+  loan?: {
+    tabs: string[];
+    activeTab: string;
+    requested: LoanFinancialSummaryTabData;
+    approved: LoanFinancialSummaryTabData;
+    customer: LoanFinancialSummaryTabData;
   };
 }
