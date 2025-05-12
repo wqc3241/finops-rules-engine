@@ -13,7 +13,8 @@ export const pendingSignatureApplications: Record<string, ApplicationFullDetails
       model: 'Air Grand Touring',
       edition: 'Grand Touring',
       orderedBy: 'Emily Chang',
-      status: 'Pending Signature'
+      status: 'Pending Signature',
+      type: 'Loan'
     },
     dealStructure: [
       {

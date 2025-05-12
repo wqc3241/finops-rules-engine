@@ -12,7 +12,8 @@ export const fundedApplications: Record<string, ApplicationFullDetails> = {
       model: 'Air Dream Edition',
       edition: 'Dream Edition',
       orderedBy: 'Sophia Martinez',
-      status: 'Funded'
+      status: 'Funded',
+      type: 'Lease'
     },
     dealStructure: [
       {

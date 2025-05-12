@@ -1,4 +1,3 @@
-
 import { ApplicationFullDetails } from '../../../types/application';
 import { baseApplicationDetails } from './baseApplicationDetails';
 
@@ -12,7 +11,8 @@ export const submittedApplications: Record<string, ApplicationFullDetails> = {
       model: 'Air Pure',
       edition: 'Pure',
       orderedBy: 'Daniel Patel',
-      status: 'Submitted'
+      status: 'Submitted',
+      type: 'Loan'
     },
     notes: [
       {
@@ -85,7 +85,8 @@ export const submittedApplications: Record<string, ApplicationFullDetails> = {
       model: 'Air Grand Touring Performance',
       edition: 'Grand Touring Performance',
       orderedBy: 'Michael Torres',
-      status: 'Submitted'
+      status: 'Submitted',
+      type: 'Loan'
     },
     notes: [
       {

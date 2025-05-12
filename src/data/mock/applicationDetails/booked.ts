@@ -13,7 +13,8 @@ export const bookedApplications: Record<string, ApplicationFullDetails> = {
       model: 'Air Touring',
       edition: 'Touring',
       orderedBy: 'James Wilson',
-      status: 'Booked'
+      status: 'Booked',
+      type: 'Loan'
     },
     dealStructure: [
       {

@@ -1,4 +1,3 @@
-
 import { ApplicationFullDetails } from '../../../types/application';
 import { baseApplicationDetails } from './baseApplicationDetails';
 
@@ -12,7 +11,8 @@ export const approvedApplications: Record<string, ApplicationFullDetails> = {
       model: 'Air Dream Edition',
       edition: 'Dream Edition',
       orderedBy: 'Becca Yukelson',
-      status: 'Approved'
+      status: 'Approved',
+      type: 'Lease'
     },
     dealStructure: [
       {
@@ -89,7 +89,8 @@ export const approvedApplications: Record<string, ApplicationFullDetails> = {
       model: 'Air Touring',
       edition: 'Touring',
       orderedBy: 'Olivia Thompson',
-      status: 'Approved'
+      status: 'Approved',
+      type: 'Lease'
     },
     dealStructure: [
       {

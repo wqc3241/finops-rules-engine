@@ -1,4 +1,3 @@
-
 import { ApplicationFullDetails } from '../../../types/application';
 import { baseApplicationDetails } from './baseApplicationDetails';
 
@@ -12,7 +11,8 @@ export const pendingApplications: Record<string, ApplicationFullDetails> = {
       model: 'Air Touring',
       edition: 'Touring',
       orderedBy: 'Sarah Johnson',
-      status: 'Pending'
+      status: 'Pending',
+      type: 'Lease'
     },
     dealStructure: [
       {
@@ -51,7 +51,8 @@ export const pendingApplications: Record<string, ApplicationFullDetails> = {
       model: 'Air Pure',
       edition: 'Pure',
       orderedBy: 'David Chen',
-      status: 'Pending'
+      status: 'Pending',
+      type: 'Loan'
     },
     dealStructure: [
       {
@@ -87,7 +88,8 @@ export const pendingApplications: Record<string, ApplicationFullDetails> = {
       model: 'Air Touring',
       edition: 'Touring',
       orderedBy: 'Robert Kim',
-      status: 'Pending'
+      status: 'Pending',
+      type: 'Loan'
     },
     dealStructure: [
       {

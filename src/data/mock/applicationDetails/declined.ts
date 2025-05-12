@@ -12,7 +12,8 @@ export const declinedApplications: Record<string, ApplicationFullDetails> = {
       model: 'Air Pure',
       edition: 'Base',
       orderedBy: 'Aisha Washington',
-      status: 'Declined'
+      status: 'Declined',
+      type: 'Lease'
     },
     dealStructure: [
       {

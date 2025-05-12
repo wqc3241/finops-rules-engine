@@ -12,7 +12,8 @@ export const conditionallyApprovedApplications: Record<string, ApplicationFullDe
       model: 'Air Touring',
       edition: 'Touring',
       orderedBy: 'Carlos Rodriguez',
-      status: 'Conditionally Approved'
+      status: 'Conditionally Approved',
+      type: 'Lease'
     },
     dealStructure: [
       {
