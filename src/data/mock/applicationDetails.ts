@@ -12,11 +12,12 @@ const applicationDetailsData: ApplicationDetails = {
   model: 'Air Dream Edition (GT)',
   edition: 'Dream Edition',
   orderedBy: 'Stephanie Nelson',
-  status: 'Approved'
+  status: 'Approved',
+  type: 'Lease' // Explicitly define type
 };
 
 const financialSummary: FinancialSummary = {
-  type: 'Lease', // Adding required type field
+  type: 'Lease',
   lfs: {
     tabs: ['Requested', 'Approved', 'Customer'],
     activeTab: 'Approved',

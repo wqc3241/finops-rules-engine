@@ -14,7 +14,8 @@ export const baseApplicationDetails: ApplicationFullDetails = {
     model: 'Air',
     edition: 'Standard',
     orderedBy: 'Unknown Customer',
-    status: 'Pending'
+    status: 'Pending',
+    type: 'Lease' // Default to Lease type
   },
   applicantInfo,
   coApplicantInfo,
@@ -24,7 +25,7 @@ export const baseApplicationDetails: ApplicationFullDetails = {
   history: historyItems,
   notes,
   financialSummary: {
-    type: 'Lease', // Adding required type field
+    type: 'Lease', 
     lfs: {
       tabs: ['Requested', 'Approved', 'Customer'],
       activeTab: 'Approved',

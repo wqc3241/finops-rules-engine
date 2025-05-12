@@ -11,6 +11,9 @@ import { pendingApplications } from './pending';
 import { submittedApplications } from './submitted';
 import { loanFinancialSummaryData } from '../loanFinancialSummary';
 
+// Define known loan application IDs
+const loanApplicationIds = ['5', '7', '10', '11', '13', '15', '17'];
+
 // Function to get application details by ID
 export const getMockApplicationDetailsById = (id: string): ApplicationFullDetails => {
   // Combine all application details
@@ -29,10 +32,15 @@ export const getMockApplicationDetailsById = (id: string): ApplicationFullDetail
   const foundApplication = allApplications[id];
   
   if (foundApplication) {
-    // Get the application type from the application details or card data
+    // Get the application type from the application details or determine from ID
     const appType = foundApplication.details?.type || 
-                    (id >= '5' && id <= '17' && ['5', '7', '10', '11', '13', '15', '17'].includes(id)) ? 
-                    'Loan' : 'Lease';
+                   (loanApplicationIds.includes(id)) ? 
+                   'Loan' : 'Lease';
+    
+    // Ensure the type property is set on the application details
+    if (foundApplication.details) {
+      foundApplication.details.type = appType;
+    }
     
     // Ensure the financialSummary includes the type field
     if (foundApplication.financialSummary) {
