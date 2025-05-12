@@ -16,6 +16,7 @@ const applicationDetailsData: ApplicationDetails = {
 };
 
 const financialSummary: FinancialSummary = {
+  type: 'Lease', // Adding required type field
   lfs: {
     tabs: ['Requested', 'Approved', 'Customer'],
     activeTab: 'Approved',

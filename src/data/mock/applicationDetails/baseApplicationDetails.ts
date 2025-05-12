@@ -24,6 +24,7 @@ export const baseApplicationDetails: ApplicationFullDetails = {
   history: historyItems,
   notes,
   financialSummary: {
+    type: 'Lease', // Adding required type field
     lfs: {
       tabs: ['Requested', 'Approved', 'Customer'],
       activeTab: 'Approved',

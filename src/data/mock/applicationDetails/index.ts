@@ -29,8 +29,10 @@ export const getMockApplicationDetailsById = (id: string): ApplicationFullDetail
   const foundApplication = allApplications[id];
   
   if (foundApplication) {
-    // Determine application type and set financial summary type accordingly
-    const appType = foundApplication.details?.type || 'Lease';
+    // Get the application type from the application details or card data
+    const appType = foundApplication.details?.type || 
+                    (id >= '5' && id <= '17' && ['5', '7', '10', '11', '13', '15', '17'].includes(id)) ? 
+                    'Loan' : 'Lease';
     
     // Ensure the financialSummary includes the type field
     if (foundApplication.financialSummary) {
