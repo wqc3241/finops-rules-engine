@@ -5,6 +5,7 @@ export const dealStructureData: DealStructureOffer[] = [
   {
     lenderName: "LFS",
     status: "Approved",
+    applicationType: "Lease",
     requested: [
       { name: "termLength", label: "Term Length (months)", value: "36" },
       { name: "mileageAllowance", label: "Mileage Allowance", value: "12,000" },
@@ -88,6 +89,7 @@ export const dealStructureData: DealStructureOffer[] = [
   {
     lenderName: "Chase",
     status: "Pending",
+    applicationType: "Lease",
     requested: [
       { name: "termLength", label: "Term Length (months)", value: "48" },
       { name: "mileageAllowance", label: "Mileage Allowance", value: "10,000" },
@@ -126,6 +128,7 @@ export const dealStructureData: DealStructureOffer[] = [
   {
     lenderName: "Bank of America",
     status: "Declined",
+    applicationType: "Lease",
     requested: [
       { name: "termLength", label: "Term Length (months)", value: "24" },
       { name: "mileageAllowance", label: "Mileage Allowance", value: "15,000" },
@@ -160,6 +163,51 @@ export const dealStructureData: DealStructureOffer[] = [
       monthlyPayments: "875.30",
       dueAtSigning: "9500.00"
     }
+  },
+  {
+    lenderName: "Capital One Auto Finance",
+    status: "Approved",
+    applicationType: "Loan",
+    requested: [
+      { name: "termLength", label: "Term Length (months)", value: "60" },
+      { name: "apr", label: "APR", value: "4.99%" },
+      { name: "downPayment", label: "Down Payment", value: "$15,000.00" },
+      { name: "amountFinanced", label: "Amount Financed", value: "$75,000.00" },
+      { name: "maxLtv", label: "Max LTV", value: "110%" },
+      { name: "ltv", label: "LTV", value: "85%" },
+      { name: "dti", label: "DTI", value: "30%" },
+      { name: "pti", label: "PTI", value: "15%" },
+      { name: "fico", label: "FICO", value: "720" }
+    ],
+    approved: [
+      { name: "termLength", label: "Term Length (months)", value: "60" },
+      { name: "apr", label: "APR", value: "4.99%" },
+      { name: "downPayment", label: "Down Payment", value: "$15,000.00" },
+      { name: "amountFinanced", label: "Amount Financed", value: "$75,000.00" },
+      { name: "maxLtv", label: "Max LTV", value: "110%" },
+      { name: "ltv", label: "LTV", value: "85%" },
+      { name: "dti", label: "DTI", value: "30%" },
+      { name: "pti", label: "PTI", value: "15%" },
+      { name: "fico", label: "FICO", value: "720" }
+    ],
+    customer: [
+      { name: "termLength", label: "Term Length (months)", value: "60" },
+      { name: "apr", label: "APR", value: "4.99%" },
+      { name: "downPayment", label: "Down Payment", value: "$15,000.00" },
+      { name: "amountFinanced", label: "Amount Financed", value: "$75,000.00" },
+      { name: "maxLtv", label: "Max LTV", value: "110%" },
+      { name: "ltv", label: "LTV", value: "85%" },
+      { name: "dti", label: "DTI", value: "30%" },
+      { name: "pti", label: "PTI", value: "15%" },
+      { name: "fico", label: "FICO", value: "720" }
+    ],
+    stipulations: [],
+    contractStatus: "Offer Is On Track",
+    collapsedView: {
+      termLength: "60",
+      monthlyPayments: "1,328.45",
+      dueAtSigning: "15000.00"
+    }
   }
 ];
 
@@ -167,10 +215,12 @@ export const dealStructureData: DealStructureOffer[] = [
 export const loanOfferTemplate = (lenderName: string, status: string = "Available") => ({
   lenderName,
   status,
+  applicationType: "Loan",
   requested: [
     { name: "termLength", label: "Term Length (months)", value: "60" },
     { name: "apr", label: "APR", value: "4.99%" },
     { name: "downPayment", label: "Down Payment", value: "$15,000.00" },
+    { name: "amountFinanced", label: "Amount Financed", value: "$75,000.00" },
     { name: "maxLtv", label: "Max LTV", value: "110%" },
     { name: "ltv", label: "LTV", value: "85%" },
     { name: "dti", label: "DTI", value: "30%" },
@@ -181,6 +231,7 @@ export const loanOfferTemplate = (lenderName: string, status: string = "Availabl
     { name: "termLength", label: "Term Length (months)", value: "60" },
     { name: "apr", label: "APR", value: "4.99%" },
     { name: "downPayment", label: "Down Payment", value: "$15,000.00" },
+    { name: "amountFinanced", label: "Amount Financed", value: "$75,000.00" },
     { name: "maxLtv", label: "Max LTV", value: "110%" },
     { name: "ltv", label: "LTV", value: "85%" },
     { name: "dti", label: "DTI", value: "30%" },
@@ -201,6 +252,7 @@ export const loanOfferTemplate = (lenderName: string, status: string = "Availabl
 export const leaseOfferTemplate = (lenderName: string, status: string = "Available") => ({
   lenderName,
   status,
+  applicationType: "Lease",
   requested: [
     { name: "termLength", label: "Term Length (months)", value: "36" },
     { name: "mileageAllowance", label: "Mileage Allowance", value: "12,000" },

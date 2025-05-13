@@ -29,6 +29,9 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({ offer, isExpanded, is
   // If the parent is expanded, we force the card to be expanded too
   const cardIsExpanded = isExpanded || isCardExpanded;
   
+  // Determine if this is a loan or lease offer
+  const isLoanOffer = offer.applicationType === 'Loan';
+  
   const handlePresentToCustomer = () => {
     onSelectOffer(offer.lenderName);
     toast({
@@ -63,15 +66,21 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({ offer, isExpanded, is
   };
 
   // Prepare the standardized parameters for each section
-  const standardizedRequested = generateStandardParams(offer.requested);
-  const standardizedApproved = generateStandardParams(offer.approved);
-  const standardizedCustomer = generateStandardParams(offer.customer);
+  const standardizedRequested = generateStandardParams(offer.requested, isLoanOffer);
+  const standardizedApproved = generateStandardParams(offer.approved, isLoanOffer);
+  const standardizedCustomer = generateStandardParams(offer.customer, isLoanOffer);
 
   // Default form values for edit dialog
+  const termLengthField = offer.customer.find(item => item.name === 'termLength');
+  const mileageField = offer.customer.find(item => item.name === 'mileageAllowance');
+  const downPaymentField = isLoanOffer 
+    ? offer.customer.find(item => item.name === 'downPayment')
+    : offer.customer.find(item => item.name === 'ccrDownPayment');
+
   const editFormDefaults = {
-    termLength: offer.customer.find(item => item.name === 'termLength')?.value || '',
-    mileageAllowance: offer.customer.find(item => item.name === 'mileageAllowance')?.value || '',
-    downPayment: offer.customer.find(item => item.name === 'ccrDownPayment')?.value || '',
+    termLength: termLengthField?.value || '',
+    mileageAllowance: mileageField?.value || '',
+    downPayment: downPaymentField?.value || '',
   };
 
   return (
@@ -140,6 +149,7 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({ offer, isExpanded, is
               customer={standardizedCustomer}
               stipulations={offer.stipulations}
               contractStatus={offer.contractStatus}
+              isLoanOffer={isLoanOffer}
             />
           </CollapsibleContent>
         </Collapsible>
