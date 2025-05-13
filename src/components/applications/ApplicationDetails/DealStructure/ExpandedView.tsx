@@ -27,15 +27,15 @@ const ExpandedView: React.FC<ExpandedViewProps> = ({
       <div className="grid grid-cols-3 gap-6 mb-6">
         <div>
           <h4 className="text-md font-medium mb-4">Requested</h4>
-          <OfferParameters items={requested} isLoanOffer={isLoanOffer} />
+          <OfferParameters items={requested} isLoanOffer={isLoanOffer} title="Requested Parameters" />
         </div>
         <div>
           <h4 className="text-md font-medium mb-4">Approved</h4>
-          <OfferParameters items={approved} isLoanOffer={isLoanOffer} />
+          <OfferParameters items={approved} isLoanOffer={isLoanOffer} title="Approved Parameters" />
         </div>
         <div>
           <h4 className="text-md font-medium mb-4">Customer</h4>
-          <OfferParameters items={customer} isCustomer={true} isLoanOffer={isLoanOffer} />
+          <OfferParameters items={customer} isCustomer={true} isLoanOffer={isLoanOffer} title="Customer Parameters" />
         </div>
       </div>
 
