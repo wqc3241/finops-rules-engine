@@ -36,26 +36,26 @@ const Dashboard = ({ activeSection }: DashboardProps) => {
   // Only show "under construction" for the actual Dashboard section
   if (activeSection === "Dashboard") {
     return (
-      <div className="container mx-auto px-4 py-6">
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <h1 className="text-2xl font-semibold mb-4">Dashboard</h1>
-          <p className="text-gray-600">This page is under construction.</p>
+      <div className="container mx-auto px-2 py-3">
+        <div className="bg-white rounded-lg shadow-sm p-3">
+          <h1 className="text-xl font-semibold mb-2">Dashboard</h1>
+          <p className="text-gray-600 text-sm">This page is under construction.</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-6">
+    <div className="container mx-auto px-2 py-3">
       <div className="bg-white rounded-lg shadow-sm overflow-hidden">
         {(activeSection === "Financial Pricing" || activeSection === "Fee & Tax") && (
-          <div className="flex justify-end space-x-4 p-4 border-b border-gray-200">
-            <Button variant="outline" onClick={activeSection === "Financial Pricing" ? handleUploadPricing : handleUploadFeeTax}>
-              <Upload className="h-4 w-4 mr-2" />
+          <div className="flex justify-end space-x-2 p-2 border-b border-gray-200">
+            <Button variant="outline" size="sm" onClick={activeSection === "Financial Pricing" ? handleUploadPricing : handleUploadFeeTax}>
+              <Upload className="h-3 w-3 mr-1" />
               {activeSection === "Financial Pricing" ? "Upload Pricing" : "Upload Fee & Tax"}
             </Button>
-            <Button variant="outline" onClick={activeSection === "Financial Pricing" ? handleDownloadPricing : handleDownloadFeeTax}>
-              <Download className="h-4 w-4 mr-2" />
+            <Button variant="outline" size="sm" onClick={activeSection === "Financial Pricing" ? handleDownloadPricing : handleDownloadFeeTax}>
+              <Download className="h-3 w-3 mr-1" />
               {activeSection === "Financial Pricing" ? "Download Pricing" : "Download Fee & Tax"}
             </Button>
           </div>

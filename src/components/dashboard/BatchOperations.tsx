@@ -1,18 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
-import { useState } from "react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { toast } from "sonner";
+import { X, Trash } from "lucide-react";
 
 interface BatchOperationsProps {
   selectedItems: string[];
@@ -20,61 +8,36 @@ interface BatchOperationsProps {
   onBatchDelete: () => void;
 }
 
-export const BatchOperations = ({
+const BatchOperations = ({ 
   selectedItems,
   onClearSelection,
-  onBatchDelete,
+  onBatchDelete
 }: BatchOperationsProps) => {
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-
-  const handleBatchDelete = () => {
-    onBatchDelete();
-    onClearSelection();
-    setDeleteDialogOpen(false);
-    toast.success(`${selectedItems.length} items deleted successfully`);
-  };
-
-  if (selectedItems.length === 0) return null;
-
   return (
-    <div className="flex items-center gap-2 py-2 px-6 bg-muted/30 border-b border-muted">
-      <span className="text-sm font-medium">
-        {selectedItems.length} item{selectedItems.length !== 1 ? "s" : ""} selected
-      </span>
-      <Button
-        variant="outline"
+    <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 bg-white rounded-lg shadow-lg border p-2 flex items-center gap-2">
+      <span className="text-xs font-medium">{selectedItems.length} item{selectedItems.length !== 1 ? 's' : ''} selected</span>
+      
+      <Button 
+        onClick={onBatchDelete}
         size="sm"
-        onClick={() => onClearSelection()}
-      >
-        Clear selection
-      </Button>
-      <Button
         variant="destructive"
-        size="sm"
-        onClick={() => setDeleteDialogOpen(true)}
+        className="h-7 text-xs"
       >
-        <Trash2 className="h-4 w-4 mr-1" /> Delete selected
+        <Trash className="h-3 w-3 mr-1" />
+        Delete
       </Button>
-
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Items</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete {selectedItems.length} selected item{selectedItems.length !== 1 ? "s" : ""}? This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={handleBatchDelete} 
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      
+      <Button 
+        onClick={onClearSelection}
+        size="sm" 
+        variant="outline"
+        className="h-7 text-xs"
+      >
+        <X className="h-3 w-3 mr-1" />
+        Clear Selection
+      </Button>
     </div>
   );
 };
+
+export { BatchOperations };

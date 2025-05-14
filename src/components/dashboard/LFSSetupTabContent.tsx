@@ -45,24 +45,24 @@ const LFSSetupTabContent = ({ title, children, onAddRecord }: LFSSetupTabContent
   };
 
   return (
-    <div className="p-6">
-      <div className="mb-4 flex justify-between items-center">
-        <h2 className="text-lg font-medium">{title}</h2>
-        <div className="flex space-x-2">
-          <Button onClick={handleFilterClick} variant="outline">
-            <Filter className="h-4 w-4 mr-2" />
+    <div className="p-3">
+      <div className="mb-2 flex justify-between items-center">
+        <h2 className="text-base font-medium">{title}</h2>
+        <div className="flex space-x-1">
+          <Button onClick={handleFilterClick} variant="outline" size="sm">
+            <Filter className="h-3 w-3 mr-1" />
             Filter
           </Button>
-          <Button onClick={handleSortAscClick} variant="outline">
-            <ArrowUp className="h-4 w-4 mr-2" />
+          <Button onClick={handleSortAscClick} variant="outline" size="sm">
+            <ArrowUp className="h-3 w-3 mr-1" />
             Sort Asc
           </Button>
-          <Button onClick={handleSortDescClick} variant="outline">
-            <ArrowDown className="h-4 w-4 mr-2" />
+          <Button onClick={handleSortDescClick} variant="outline" size="sm">
+            <ArrowDown className="h-3 w-3 mr-1" />
             Sort Desc
           </Button>
-          <Button onClick={handleAddClick}>
-            <Plus className="h-4 w-4 mr-2" />
+          <Button onClick={handleAddClick} size="sm">
+            <Plus className="h-3 w-3 mr-1" />
             Add New Record
           </Button>
         </div>
@@ -70,33 +70,35 @@ const LFSSetupTabContent = ({ title, children, onAddRecord }: LFSSetupTabContent
       {children}
       
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent>
+        <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Add New {title} Record</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmitNewRecord}>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="name" className="text-right">Name</Label>
+            <div className="grid gap-2 py-2">
+              <div className="grid grid-cols-4 items-center gap-2">
+                <Label htmlFor="name" className="text-right text-xs">Name</Label>
                 <Input
                   id="name"
+                  size={1}
                   value={newRecord.name}
                   onChange={(e) => setNewRecord({...newRecord, name: e.target.value})}
-                  className="col-span-3"
+                  className="col-span-3 h-8"
                 />
               </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="description" className="text-right">Description</Label>
+              <div className="grid grid-cols-4 items-center gap-2">
+                <Label htmlFor="description" className="text-right text-xs">Description</Label>
                 <Input
                   id="description"
+                  size={1}
                   value={newRecord.description}
                   onChange={(e) => setNewRecord({...newRecord, description: e.target.value})}
-                  className="col-span-3"
+                  className="col-span-3 h-8"
                 />
               </div>
             </div>
             <DialogFooter>
-              <Button type="submit">Add Record</Button>
+              <Button type="submit" size="sm">Add Record</Button>
             </DialogFooter>
           </form>
         </DialogContent>

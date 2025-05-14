@@ -22,7 +22,7 @@ const LFSSetupPage = () => {
           activeItem={activeItem}
           setActiveItem={setActiveItem} 
         />
-        <main className="flex-1 overflow-auto p-4">
+        <main className="flex-1 overflow-auto p-2">
           <Dashboard activeSection={activeItem} />
         </main>
       </div>

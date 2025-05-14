@@ -33,16 +33,12 @@ const FinancialSummaryView: React.FC<FinancialSummaryViewProps> = ({ financialSu
   const toggleExpanded = () => {
     setExpanded(!expanded);
   };
-
-  // Logging for debugging
-  console.log('Financial Summary Type:', financialSummary.type);
-  console.log('Is Loan Type:', isLoanType);
   
   return (
     <Card className="h-fit">
-      <CardContent className="p-6">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-medium">Financial Summary {isLoanType ? '(Loan)' : '(Lease)'}</h3>
+      <CardContent className="p-3">
+        <div className="flex justify-between items-center mb-2">
+          <h3 className="text-base font-medium">Financial Summary {isLoanType ? '(Loan)' : '(Lease)'}</h3>
           <div className="flex items-center cursor-pointer" onClick={toggleExpanded}>
             {expanded ? <ChevronUp className="h-4 w-4 text-gray-400" /> : <ChevronDown className="h-4 w-4 text-gray-400" />}
           </div>
@@ -51,13 +47,13 @@ const FinancialSummaryView: React.FC<FinancialSummaryViewProps> = ({ financialSu
         {expanded && (
           <>
             {/* Tabs */}
-            <div className="flex mb-4">
+            <div className="flex mb-2">
               {tabs.map((tab, index) => (
                 <Button 
                   key={index} 
                   variant={tab === activeTab ? "default" : "outline"}
                   size="sm"
-                  className="mr-2 text-xs"
+                  className="mr-1 text-xs h-7 px-2"
                   onClick={() => handleTabChange(tab)}
                 >
                   {tab}

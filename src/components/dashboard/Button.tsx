@@ -10,7 +10,7 @@ interface ButtonProps {
   className?: string;
 }
 
-const Button = ({ children, onClick, variant = "default", size = "default", className = "" }: ButtonProps) => {
+const Button = ({ children, onClick, variant = "default", size = "sm", className = "" }: ButtonProps) => {
   return (
     <ShadcnButton
       variant={variant}
