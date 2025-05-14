@@ -1,4 +1,5 @@
 
+
 // Deal structure related types
 export interface DealStructureItem {
   name: string;
@@ -16,6 +17,7 @@ export interface DealStructureStipulation {
 export interface DealStructureOffer {
   lenderName: string;
   status?: string;
+  applicationType?: 'Lease' | 'Loan';
   requested: DealStructureItem[];
   approved: DealStructureItem[];
   customer: DealStructureItem[];
@@ -27,3 +29,4 @@ export interface DealStructureOffer {
     dueAtSigning: string;
   };
 }
+

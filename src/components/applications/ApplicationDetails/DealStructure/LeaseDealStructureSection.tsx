@@ -7,11 +7,11 @@ import { DealStructureOffer } from '@/types/application';
 import { Separator } from '@/components/ui/separator';
 import LenderOfferCard from './LenderOfferCard';
 
-interface DealStructureSectionProps {
+interface LeaseDealStructureSectionProps {
   dealStructure: DealStructureOffer[];
 }
 
-const DealStructureSection: React.FC<DealStructureSectionProps> = ({ dealStructure }) => {
+const LeaseDealStructureSection: React.FC<LeaseDealStructureSectionProps> = ({ dealStructure }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [selectedOfferLender, setSelectedOfferLender] = useState<string | null>(null);
 
@@ -19,11 +19,15 @@ const DealStructureSection: React.FC<DealStructureSectionProps> = ({ dealStructu
     setSelectedOfferLender(lenderName);
   };
 
+  if (dealStructure.length === 0) {
+    return null;
+  }
+
   return (
     <Card className="mb-8">
       <CardContent className="p-6">
         <div className="flex justify-between items-center mb-6">
-          <h3 className="text-lg font-semibold">Deal Structure (Offers)</h3>
+          <h3 className="text-lg font-semibold">Deal Structure (Lease Offers)</h3>
           <div className="flex items-center">
             <Button 
               variant="ghost" 
@@ -56,4 +60,4 @@ const DealStructureSection: React.FC<DealStructureSectionProps> = ({ dealStructu
   );
 };
 
-export default DealStructureSection;
+export default LeaseDealStructureSection;

@@ -8,20 +8,29 @@ import { useForm } from 'react-hook-form';
 
 type CustomerParamFormValues = {
   termLength: string;
-  mileageAllowance: string;
+  mileageAllowance?: string;
   downPayment: string;
+  apr?: string;
 };
 
 interface EditOfferDialogProps {
   defaultValues: CustomerParamFormValues;
   onSubmit: (data: CustomerParamFormValues) => void;
   onCancel: () => void;
+  applicationType?: 'Lease' | 'Loan';
 }
 
-const EditOfferDialog: React.FC<EditOfferDialogProps> = ({ defaultValues, onSubmit, onCancel }) => {
+const EditOfferDialog: React.FC<EditOfferDialogProps> = ({ 
+  defaultValues, 
+  onSubmit, 
+  onCancel,
+  applicationType = 'Lease'
+}) => {
   const form = useForm<CustomerParamFormValues>({
     defaultValues
   });
+
+  const isLoan = applicationType === 'Loan';
 
   return (
     <DialogContent>
@@ -44,31 +53,48 @@ const EditOfferDialog: React.FC<EditOfferDialogProps> = ({ defaultValues, onSubm
             )}
           />
           
-          <FormField
-            control={form.control}
-            name="mileageAllowance"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Mileage Allowance</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-              </FormItem>
-            )}
-          />
+          {!isLoan && (
+            <FormField
+              control={form.control}
+              name="mileageAllowance"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Mileage Allowance</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+          )}
           
           <FormField
             control={form.control}
             name="downPayment"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Down Payment</FormLabel>
+                <FormLabel>{isLoan ? "Down Payment" : "CCR/Down Payment"}</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
               </FormItem>
             )}
           />
+
+          {isLoan && (
+            <FormField
+              control={form.control}
+              name="apr"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>APR</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+          )}
           
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>

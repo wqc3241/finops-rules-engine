@@ -1,10 +1,12 @@
 
 import { DealStructureOffer } from '../../types/application';
 
-export const dealStructureData: DealStructureOffer[] = [
+// Lease offers
+export const leaseOffers: DealStructureOffer[] = [
   {
     lenderName: "LFS",
     status: "Approved",
+    applicationType: "Lease",
     requested: [
       { name: "termLength", label: "Term Length (months)", value: "36" },
       { name: "mileageAllowance", label: "Mileage Allowance", value: "12,000" },
@@ -88,6 +90,7 @@ export const dealStructureData: DealStructureOffer[] = [
   {
     lenderName: "Chase",
     status: "Pending",
+    applicationType: "Lease",
     requested: [
       { name: "termLength", label: "Term Length (months)", value: "48" },
       { name: "mileageAllowance", label: "Mileage Allowance", value: "10,000" },
@@ -126,6 +129,7 @@ export const dealStructureData: DealStructureOffer[] = [
   {
     lenderName: "Bank of America",
     status: "Declined",
+    applicationType: "Lease",
     requested: [
       { name: "termLength", label: "Term Length (months)", value: "24" },
       { name: "mileageAllowance", label: "Mileage Allowance", value: "15,000" },
@@ -163,14 +167,108 @@ export const dealStructureData: DealStructureOffer[] = [
   }
 ];
 
+// Loan offers
+export const loanOffers: DealStructureOffer[] = [
+  {
+    lenderName: "Wells Fargo",
+    status: "Approved",
+    applicationType: "Loan",
+    requested: [
+      { name: "termLength", label: "Term Length (months)", value: "60" },
+      { name: "downPayment", label: "Down Payment", value: "$10,000.00" },
+      { name: "apr", label: "APR", value: "3.99%" },
+      { name: "amountFinanced", label: "Amount Financed", value: "$60,000.00" },
+      { name: "maxLtv", label: "Max LTV", value: "110%" },
+      { name: "ltv", label: "LTV", value: "80%" },
+      { name: "dti", label: "DTI", value: "20%" },
+      { name: "pti", label: "PTI", value: "12%" },
+      { name: "fico", label: "FICO", value: "760" }
+    ],
+    approved: [
+      { name: "termLength", label: "Term Length (months)", value: "60" },
+      { name: "downPayment", label: "Down Payment", value: "$10,000.00" },
+      { name: "apr", label: "APR", value: "3.99%" },
+      { name: "amountFinanced", label: "Amount Financed", value: "$60,000.00" },
+      { name: "maxLtv", label: "Max LTV", value: "110%" },
+      { name: "ltv", label: "LTV", value: "80%" },
+      { name: "dti", label: "DTI", value: "20%" },
+      { name: "pti", label: "PTI", value: "12%" },
+      { name: "fico", label: "FICO", value: "760" }
+    ],
+    customer: [
+      { name: "termLength", label: "Term Length (months)", value: "60" },
+      { name: "downPayment", label: "Down Payment", value: "$15,000.00" },
+      { name: "apr", label: "APR", value: "3.99%" },
+      { name: "amountFinanced", label: "Amount Financed", value: "$55,000.00" },
+      { name: "maxLtv", label: "Max LTV", value: "110%" },
+      { name: "ltv", label: "LTV", value: "73%" },
+      { name: "dti", label: "DTI", value: "18%" },
+      { name: "pti", label: "PTI", value: "10%" },
+      { name: "fico", label: "FICO", value: "760" }
+    ],
+    stipulations: [
+      {
+        customerRole: "Primary",
+        requestedDocument: "Proof of Income",
+        status: "Submitted",
+        date: "03/15/2025"
+      },
+      {
+        customerRole: "Primary",
+        requestedDocument: "Proof of Residence",
+        status: "Pending",
+        date: "03/15/2025"
+      }
+    ],
+    contractStatus: "Pending Documentation",
+    collapsedView: {
+      termLength: "60",
+      monthlyPayments: "1,014.52",
+      dueAtSigning: "15000.00"
+    }
+  },
+  {
+    lenderName: "Capital One",
+    status: "Pending",
+    applicationType: "Loan",
+    requested: [
+      { name: "termLength", label: "Term Length (months)", value: "72" },
+      { name: "downPayment", label: "Down Payment", value: "$8,000.00" },
+      { name: "apr", label: "APR", value: "4.25%" },
+      { name: "amountFinanced", label: "Amount Financed", value: "$62,000.00" },
+      { name: "maxLtv", label: "Max LTV", value: "120%" },
+      { name: "ltv", label: "LTV", value: "89%" },
+      { name: "dti", label: "DTI", value: "25%" },
+      { name: "pti", label: "PTI", value: "15%" },
+      { name: "fico", label: "FICO", value: "720" }
+    ],
+    approved: [],
+    customer: [],
+    stipulations: [],
+    contractStatus: "Awaiting Approval",
+    collapsedView: {
+      termLength: "72",
+      monthlyPayments: "958.14",
+      dueAtSigning: "8000.00"
+    }
+  }
+];
+
+export const dealStructureData: DealStructureOffer[] = [
+  ...leaseOffers,
+  ...loanOffers
+];
+
 // Loan offers template for reuse
 export const loanOfferTemplate = (lenderName: string, status: string = "Available") => ({
   lenderName,
   status,
+  applicationType: "Loan",
   requested: [
     { name: "termLength", label: "Term Length (months)", value: "60" },
-    { name: "apr", label: "APR", value: "4.99%" },
     { name: "downPayment", label: "Down Payment", value: "$15,000.00" },
+    { name: "apr", label: "APR", value: "4.99%" },
+    { name: "amountFinanced", label: "Amount Financed", value: "$55,000.00" },
     { name: "maxLtv", label: "Max LTV", value: "110%" },
     { name: "ltv", label: "LTV", value: "85%" },
     { name: "dti", label: "DTI", value: "30%" },
@@ -179,8 +277,9 @@ export const loanOfferTemplate = (lenderName: string, status: string = "Availabl
   ],
   approved: [
     { name: "termLength", label: "Term Length (months)", value: "60" },
-    { name: "apr", label: "APR", value: "4.99%" },
     { name: "downPayment", label: "Down Payment", value: "$15,000.00" },
+    { name: "apr", label: "APR", value: "4.99%" },
+    { name: "amountFinanced", label: "Amount Financed", value: "$55,000.00" },
     { name: "maxLtv", label: "Max LTV", value: "110%" },
     { name: "ltv", label: "LTV", value: "85%" },
     { name: "dti", label: "DTI", value: "30%" },
@@ -201,6 +300,7 @@ export const loanOfferTemplate = (lenderName: string, status: string = "Availabl
 export const leaseOfferTemplate = (lenderName: string, status: string = "Available") => ({
   lenderName,
   status,
+  applicationType: "Lease",
   requested: [
     { name: "termLength", label: "Term Length (months)", value: "36" },
     { name: "mileageAllowance", label: "Mileage Allowance", value: "12,000" },

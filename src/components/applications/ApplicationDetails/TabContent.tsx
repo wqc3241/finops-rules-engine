@@ -1,7 +1,7 @@
 
 import React from 'react';
 import ApplicationData from '@/components/applications/ApplicationDetails/ApplicationData';
-import DealStructureSection from '@/components/applications/ApplicationDetails/DealStructure/DealStructureSection';
+import DealStructureContainer from '@/components/applications/ApplicationDetails/DealStructure/DealStructureContainer';
 import OrderDetailsView from '@/components/applications/ApplicationDetails/OrderDetailsView';
 import ApplicationHistoryView from '@/components/applications/ApplicationDetails/ApplicationHistoryView';
 import NotesView from '@/components/applications/ApplicationDetails/NotesView';
@@ -38,7 +38,10 @@ const TabContent: React.FC<TabContentProps> = ({
             vehicleData={applicationFullDetails.vehicleData}
             appDtReferences={applicationFullDetails.appDtReferences}
           />
-          <DealStructureSection dealStructure={applicationFullDetails.dealStructure} />
+          <DealStructureContainer 
+            dealStructure={applicationFullDetails.dealStructure}
+            applicationType={applicationFullDetails.details.type}
+          />
         </>
       );
   }

@@ -28,6 +28,7 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({ offer, isExpanded, is
 
   // If the parent is expanded, we force the card to be expanded too
   const cardIsExpanded = isExpanded || isCardExpanded;
+  const applicationType = offer.applicationType || 'Lease';
   
   const handlePresentToCustomer = () => {
     onSelectOffer(offer.lenderName);
@@ -50,8 +51,9 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({ offer, isExpanded, is
 
   const handleEditSubmit = (data: {
     termLength: string;
-    mileageAllowance: string;
+    mileageAllowance?: string;
     downPayment: string;
+    apr?: string;
   }) => {
     console.log('Edited customer parameters:', data);
     setIsEditDialogOpen(false);
@@ -63,16 +65,22 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({ offer, isExpanded, is
   };
 
   // Prepare the standardized parameters for each section
-  const standardizedRequested = generateStandardParams(offer.requested);
-  const standardizedApproved = generateStandardParams(offer.approved);
-  const standardizedCustomer = generateStandardParams(offer.customer);
+  const standardizedRequested = generateStandardParams(offer.requested, applicationType);
+  const standardizedApproved = generateStandardParams(offer.approved, applicationType);
+  const standardizedCustomer = generateStandardParams(offer.customer, applicationType);
 
   // Default form values for edit dialog
-  const editFormDefaults = {
-    termLength: offer.customer.find(item => item.name === 'termLength')?.value || '',
-    mileageAllowance: offer.customer.find(item => item.name === 'mileageAllowance')?.value || '',
-    downPayment: offer.customer.find(item => item.name === 'ccrDownPayment')?.value || '',
-  };
+  const editFormDefaults = applicationType === 'Loan' 
+    ? {
+        termLength: offer.customer.find(item => item.name === 'termLength')?.value || '',
+        downPayment: offer.customer.find(item => item.name === 'downPayment')?.value || '',
+        apr: offer.customer.find(item => item.name === 'apr')?.value || '',
+      }
+    : {
+        termLength: offer.customer.find(item => item.name === 'termLength')?.value || '',
+        mileageAllowance: offer.customer.find(item => item.name === 'mileageAllowance')?.value || '',
+        downPayment: offer.customer.find(item => item.name === 'ccrDownPayment')?.value || '',
+      };
 
   return (
     <Card className={`shadow-sm transition-all ${isSelected ? 'border-green-500 border-2' : ''}`}>
@@ -140,6 +148,7 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({ offer, isExpanded, is
               customer={standardizedCustomer}
               stipulations={offer.stipulations}
               contractStatus={offer.contractStatus}
+              applicationType={applicationType}
             />
           </CollapsibleContent>
         </Collapsible>
@@ -150,6 +159,7 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({ offer, isExpanded, is
           defaultValues={editFormDefaults}
           onSubmit={handleEditSubmit}
           onCancel={() => setIsEditDialogOpen(false)}
+          applicationType={applicationType}
         />
       </Dialog>
     </Card>
