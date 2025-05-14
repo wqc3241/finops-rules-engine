@@ -1,6 +1,6 @@
 
 import { Application, Report } from "@/types/application";
-import { applications } from "./mock/applicationsData";
+import { applications } from "../mock/applicationsData";
 import { generateAllReports } from "@/utils/reportUtils";
 
 // Generate all reports using our mock application data
