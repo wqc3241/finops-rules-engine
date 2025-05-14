@@ -20,6 +20,7 @@ export const bookedApplications: Record<string, ApplicationFullDetails> = {
       {
         lenderName: "Capital One Auto Finance",
         status: "Approved",
+        applicationType: "Loan",
         requested: [
           { name: "termLength", label: "Term Length (months)", value: "72" },
           { name: "apr", label: "APR", value: "5.25%" },
@@ -51,12 +52,13 @@ export const bookedApplications: Record<string, ApplicationFullDetails> = {
         collapsedView: {
           termLength: "72",
           monthlyPayments: "1,405.60",
-          dueAtSigning: "12000.00"
+          downPayment: "$12,000.00"
         }
       },
       {
         lenderName: "Wells Fargo Auto",
         status: "Declined",
+        applicationType: "Loan",
         requested: [
           { name: "termLength", label: "Term Length (months)", value: "60" },
           { name: "apr", label: "APR", value: "5.49%" },
@@ -83,12 +85,13 @@ export const bookedApplications: Record<string, ApplicationFullDetails> = {
         collapsedView: {
           termLength: "60",
           monthlyPayments: "1,520.75",
-          dueAtSigning: "15000.00"
+          downPayment: "$15,000.00"
         }
       },
       {
         lenderName: "Chase",
         status: "Pending",
+        applicationType: "Loan",
         requested: [
           { name: "termLength", label: "Term Length (months)", value: "48" },
           { name: "apr", label: "APR", value: "4.99%" },
@@ -115,7 +118,7 @@ export const bookedApplications: Record<string, ApplicationFullDetails> = {
         collapsedView: {
           termLength: "48",
           monthlyPayments: "1,625.30",
-          dueAtSigning: "18000.00"
+          downPayment: "$18,000.00"
         }
       }
     ],

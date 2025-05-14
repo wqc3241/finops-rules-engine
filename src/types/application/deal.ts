@@ -1,5 +1,6 @@
 
 
+
 // Deal structure related types
 export interface DealStructureItem {
   name: string;
@@ -26,7 +27,8 @@ export interface DealStructureOffer {
   collapsedView: {
     termLength: string;
     monthlyPayments: string;
-    dueAtSigning: string;
+    dueAtSigning?: string; // Optional now since loans don't use this
+    downPayment?: string;  // Added for loan applications
   };
 }
 

@@ -10,6 +10,7 @@ import { Dialog } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import StatusBadge from './StatusBadge';
 import CollapsedView from './CollapsedView';
+import LoanCollapsedView from './LoanCollapsedView';
 import ExpandedView from './ExpandedView';
 import EditOfferDialog from './EditOfferDialog';
 import { generateStandardParams } from './utils/offerUtils';
@@ -134,11 +135,19 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({ offer, isExpanded, is
           <Separator className="mb-6" />
 
           {!cardIsExpanded && (
-            <CollapsedView 
-              termLength={offer.collapsedView.termLength}
-              monthlyPayments={offer.collapsedView.monthlyPayments}
-              dueAtSigning={offer.collapsedView.dueAtSigning}
-            />
+            applicationType === 'Loan' ? (
+              <LoanCollapsedView 
+                termLength={offer.collapsedView.termLength}
+                monthlyPayments={offer.collapsedView.monthlyPayments}
+                downPayment={offer.collapsedView.downPayment || "N/A"}
+              />
+            ) : (
+              <CollapsedView 
+                termLength={offer.collapsedView.termLength}
+                monthlyPayments={offer.collapsedView.monthlyPayments}
+                dueAtSigning={offer.collapsedView.dueAtSigning || "N/A"}
+              />
+            )
           )}
           
           <CollapsibleContent>
