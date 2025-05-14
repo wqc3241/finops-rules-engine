@@ -16,7 +16,6 @@ export interface DealStructureStipulation {
 export interface DealStructureOffer {
   lenderName: string;
   status?: string;
-  applicationType?: 'Lease' | 'Loan';
   requested: DealStructureItem[];
   approved: DealStructureItem[];
   customer: DealStructureItem[];

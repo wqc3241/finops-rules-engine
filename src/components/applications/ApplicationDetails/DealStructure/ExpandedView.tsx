@@ -11,7 +11,6 @@ interface ExpandedViewProps {
   customer: DealStructureItem[];
   stipulations: DealStructureStipulation[];
   contractStatus?: string;
-  isLoanOffer?: boolean;
 }
 
 const ExpandedView: React.FC<ExpandedViewProps> = ({ 
@@ -19,23 +18,22 @@ const ExpandedView: React.FC<ExpandedViewProps> = ({
   approved, 
   customer, 
   stipulations, 
-  contractStatus,
-  isLoanOffer = false
+  contractStatus 
 }) => {
   return (
     <>
       <div className="grid grid-cols-3 gap-6 mb-6">
         <div>
           <h4 className="text-md font-medium mb-4">Requested</h4>
-          <OfferParameters items={requested} isLoanOffer={isLoanOffer} title="Requested Parameters" />
+          <OfferParameters items={requested} />
         </div>
         <div>
           <h4 className="text-md font-medium mb-4">Approved</h4>
-          <OfferParameters items={approved} isLoanOffer={isLoanOffer} title="Approved Parameters" />
+          <OfferParameters items={approved} />
         </div>
         <div>
           <h4 className="text-md font-medium mb-4">Customer</h4>
-          <OfferParameters items={customer} isCustomer={true} isLoanOffer={isLoanOffer} title="Customer Parameters" />
+          <OfferParameters items={customer} isCustomer={true} />
         </div>
       </div>
 
