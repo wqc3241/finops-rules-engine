@@ -8,6 +8,7 @@ export interface TabItem {
   label: string | ReactNode;
   content: ReactNode;
   isSelected?: boolean;
+  isPresentedToCustomer?: boolean;
 }
 
 interface TabComponentProps {
@@ -27,7 +28,7 @@ const TabComponent = ({ defaultValue, items, onValueChange }: TabComponentProps)
         <TabsList className="bg-transparent h-auto p-0 w-full flex overflow-x-auto">
           {items.map((item) => {
             // Check if this tab is for a lender that's been presented to customer
-            const isSelectedLender = item.isSelected || 
+            const isSelectedLender = item.isSelected || item.isPresentedToCustomer || 
               (typeof item.label === 'object' && 'props' in item.label && item.label.props?.className?.includes('text-green-600'));
             
             return (

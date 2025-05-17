@@ -9,6 +9,7 @@ import LeaseFinancialSummaryView from './LeaseFinancialSummaryView';
 import { useSearchParams } from 'react-router-dom';
 import TabComponent, { TabItem } from '@/components/dashboard/TabComponent';
 import { cn } from '@/lib/utils';
+import { usePresentedLender } from '@/utils/dealFinanceNavigation';
 
 interface FinancialSummaryViewProps {
   financialSummary: FinancialSummary;
@@ -18,8 +19,12 @@ const FinancialSummaryView: React.FC<FinancialSummaryViewProps> = ({ financialSu
   const [searchParams, setSearchParams] = useSearchParams();
   const lenderFromUrl = searchParams.get('lender');
   const sectionFromUrl = searchParams.get('section') as 'requested' | 'approved' | 'customer' | null;
+  const { presentedLender } = usePresentedLender();
   
   const isLoanType = financialSummary.type === 'Loan';
+  
+  // Check if we have lender summaries to display
+  const hasMultipleLenders = financialSummary.lenderSummaries && Object.keys(financialSummary.lenderSummaries).length > 0;
   
   // If lender summaries exist and a lender is specified in the URL, find that lender
   const selectedLender = lenderFromUrl && financialSummary.lenderSummaries?.[decodeURIComponent(lenderFromUrl)];
@@ -41,6 +46,12 @@ const FinancialSummaryView: React.FC<FinancialSummaryViewProps> = ({ financialSu
           : financialSummary.lfs.activeTab))
   );
   const [expanded, setExpanded] = useState(true);
+  
+  // Set up lender tabs if there are multiple lenders with financial summaries
+  const [selectedLenderName, setSelectedLenderName] = useState<string | null>(
+    lenderFromUrl ? decodeURIComponent(lenderFromUrl) : 
+    hasMultipleLenders ? Object.keys(financialSummary.lenderSummaries!)[0] : null
+  );
 
   // Update active tab when URL changes
   useEffect(() => {
@@ -51,6 +62,16 @@ const FinancialSummaryView: React.FC<FinancialSummaryViewProps> = ({ financialSu
       }
     }
   }, [sectionFromUrl, tabs]);
+  
+  // Update selected lender when URL changes
+  useEffect(() => {
+    if (lenderFromUrl) {
+      setSelectedLenderName(decodeURIComponent(lenderFromUrl));
+    } else if (hasMultipleLenders) {
+      // Default to first lender if none specified
+      setSelectedLenderName(Object.keys(financialSummary.lenderSummaries!)[0]);
+    }
+  }, [lenderFromUrl, hasMultipleLenders, financialSummary.lenderSummaries]);
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
@@ -63,10 +84,6 @@ const FinancialSummaryView: React.FC<FinancialSummaryViewProps> = ({ financialSu
   const toggleExpanded = () => {
     setExpanded(!expanded);
   };
-  
-  // Set up lender tabs if there are multiple lenders with financial summaries
-  const hasMultipleLenders = financialSummary.lenderSummaries && Object.keys(financialSummary.lenderSummaries).length > 0;
-  const [selectedLenderName, setSelectedLenderName] = useState<string | null>(lenderFromUrl || null);
   
   // Handle lender tab change
   const handleLenderChange = (lenderName: string) => {
@@ -104,21 +121,23 @@ const FinancialSummaryView: React.FC<FinancialSummaryViewProps> = ({ financialSu
   
   // Create lender tabs if multiple lenders exist
   const createLenderTabItems = (): TabItem[] => {
-    if (!hasMultipleLenders) return [];
+    if (!hasMultipleLenders || !financialSummary.lenderSummaries) return [];
     
-    return Object.keys(financialSummary.lenderSummaries!).map(lenderName => {
+    return Object.keys(financialSummary.lenderSummaries).map(lenderName => {
       const lenderSummary = financialSummary.lenderSummaries![lenderName];
-      const isPresented = lenderSummary.selectedForCustomer === true;
+      const isPresented = lenderName === presentedLender;
+      const isPresentedToCustomer = lenderSummary.selectedForCustomer === true || isPresented;
       
       return {
         value: lenderName,
         label: (
           <div className="flex items-center gap-1">
             <span>{lenderName}</span>
-            {isPresented && <Check className="h-4 w-4 text-green-600" />}
+            {isPresentedToCustomer && <Check className="h-4 w-4 text-green-600" />}
           </div>
         ),
-        content: <></> // Content is rendered outside of TabContent
+        content: <></>, // Content is rendered outside of TabContent
+        isPresentedToCustomer: isPresentedToCustomer
       };
     });
   };

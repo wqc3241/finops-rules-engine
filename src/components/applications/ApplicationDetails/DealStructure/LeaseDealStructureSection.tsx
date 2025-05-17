@@ -8,6 +8,7 @@ import { Separator } from '@/components/ui/separator';
 import LenderOfferCard from './LenderOfferCard';
 import { useSearchParams, useParams } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
+import { usePresentedLender } from '@/utils/dealFinanceNavigation';
 
 interface LeaseDealStructureSectionProps {
   dealStructure: DealStructureOffer[];
@@ -19,6 +20,7 @@ const LeaseDealStructureSection: React.FC<LeaseDealStructureSectionProps> = ({ d
   const [searchParams] = useSearchParams();
   const { id: applicationId } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { markLenderAsPresented } = usePresentedLender();
   
   // Check if there's a lender in URL to pre-select it
   useEffect(() => {
@@ -38,6 +40,9 @@ const LeaseDealStructureSection: React.FC<LeaseDealStructureSectionProps> = ({ d
   };
   
   const handlePresentToCustomer = (lenderName: string) => {
+    // Mark this lender as presented
+    markLenderAsPresented(lenderName);
+    
     // Navigate to financial summary with this lender pre-selected
     const params = new URLSearchParams();
     params.set('lender', encodeURIComponent(lenderName));

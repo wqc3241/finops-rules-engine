@@ -1,5 +1,5 @@
 
-import { ApplicationFullDetails } from '../../../types/application';
+import { ApplicationFullDetails, FinancialSummary } from '../../../types/application';
 import { baseApplicationDetails } from './baseApplicationDetails';
 import { declinedApplications } from './declined';
 import { conditionallyApprovedApplications } from './conditionallyApproved';
@@ -10,9 +10,56 @@ import { approvedApplications } from './approved';
 import { pendingApplications } from './pending';
 import { submittedApplications } from './submitted';
 import { loanFinancialSummaryData } from '../loanFinancialSummary';
+import { financialSummaryData } from '../financialSummary';
 
-// Define known loan application IDs
-const loanApplicationIds = ['5', '7', '10', '11', '13', '15', '17'];
+// Helper function to create lender-specific financial summaries
+const createLenderSummaries = (application: ApplicationFullDetails): void => {
+  // Skip if no deal structure
+  if (!application.dealStructure || !application.financialSummary) return;
+  
+  // Initialize lender summaries if not present
+  if (!application.financialSummary.lenderSummaries) {
+    application.financialSummary.lenderSummaries = {};
+  }
+  
+  // Process lease and loan offers from deal structure
+  const leaseOffers = application.dealStructure.leaseOffers || [];
+  const loanOffers = application.dealStructure.loanOffers || [];
+  
+  // Process lease offers
+  leaseOffers.forEach(offer => {
+    // Check if lender summary already exists
+    if (!application.financialSummary!.lenderSummaries![offer.lenderName]) {
+      // Create a new lender summary based on the lease financial data
+      application.financialSummary!.lenderSummaries![offer.lenderName] = {
+        type: 'Lease',
+        tabs: ['Requested', 'Approved', 'Customer'],
+        activeTab: 'Approved',
+        selectedForCustomer: false,
+        requested: { ...financialSummaryData.requested },
+        approved: { ...financialSummaryData.approved },
+        customer: { ...financialSummaryData.customer }
+      };
+    }
+  });
+  
+  // Process loan offers
+  loanOffers.forEach(offer => {
+    // Check if lender summary already exists
+    if (!application.financialSummary!.lenderSummaries![offer.lenderName]) {
+      // Create a new lender summary based on the loan financial data
+      application.financialSummary!.lenderSummaries![offer.lenderName] = {
+        type: 'Loan',
+        tabs: ['Requested', 'Approved', 'Customer'],
+        activeTab: 'Approved',
+        selectedForCustomer: false,
+        requested: { ...loanFinancialSummaryData.requested },
+        approved: { ...loanFinancialSummaryData.approved },
+        customer: { ...loanFinancialSummaryData.customer }
+      };
+    }
+  });
+};
 
 // Function to get application details by ID
 export const getMockApplicationDetailsById = (id: string): ApplicationFullDetails => {
@@ -54,6 +101,9 @@ export const getMockApplicationDetailsById = (id: string): ApplicationFullDetail
       if (appType === 'Lease' && foundApplication.financialSummary.loan) {
         delete foundApplication.financialSummary.loan;
       }
+      
+      // Create lender-specific financial summaries
+      createLenderSummaries(foundApplication);
     }
     
     return {
