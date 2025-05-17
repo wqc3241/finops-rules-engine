@@ -22,9 +22,9 @@ const createLenderSummaries = (application: ApplicationFullDetails): void => {
     application.financialSummary.lenderSummaries = {};
   }
   
-  // Process lease and loan offers from deal structure
-  const leaseOffers = application.dealStructure.leaseOffers || [];
-  const loanOffers = application.dealStructure.loanOffers || [];
+  // Process offers by type - Filter lease and loan offers from dealStructure
+  const leaseOffers = application.dealStructure.filter(offer => offer.applicationType !== 'Loan');
+  const loanOffers = application.dealStructure.filter(offer => offer.applicationType === 'Loan');
   
   // Process lease offers
   leaseOffers.forEach(offer => {
