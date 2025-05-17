@@ -100,4 +100,16 @@ export interface FinancialSummary {
     approved: LoanFinancialSummaryTabData;
     customer: LoanFinancialSummaryTabData;
   };
+  // Add new property to track lender-specific financial summaries
+  lenderSummaries?: Record<string, {
+    type: 'Lease' | 'Loan';
+    tabs: string[];
+    activeTab?: string;
+    requested: FinancialSummaryTabData | LoanFinancialSummaryTabData;
+    approved: FinancialSummaryTabData | LoanFinancialSummaryTabData;
+    customer: FinancialSummaryTabData | LoanFinancialSummaryTabData;
+  }>;
+  selectedLender?: string;
+  selectedTab?: string;
 }
+

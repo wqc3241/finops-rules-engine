@@ -158,6 +158,7 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({ offer, isExpanded, is
               stipulations={offer.stipulations}
               contractStatus={offer.contractStatus}
               applicationType={applicationType}
+              lenderName={offer.lenderName}
             />
           </CollapsibleContent>
         </Collapsible>
@@ -176,3 +177,4 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({ offer, isExpanded, is
 };
 
 export default LenderOfferCard;
+

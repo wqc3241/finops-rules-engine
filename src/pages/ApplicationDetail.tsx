@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { useApplicationDetail } from '@/hooks/useApplicationDetail';
 import ApplicationDetailLayout from '@/components/applications/ApplicationDetails/ApplicationDetailLayout';
 
@@ -17,6 +17,8 @@ const ApplicationDetail = () => {
   const [sidebarOpen, setSidebarOpen] = React.useState(true);
   const [activeItem, setActiveItem] = React.useState('Applications');
   const { id, tab = 'details' } = useParams<{ id: string; tab?: string }>();
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   
   // Use our custom hook to manage application details
   const { 
@@ -32,6 +34,16 @@ const ApplicationDetail = () => {
       refreshNotesFromStorage();
     }
   }, [tab, refreshNotesFromStorage]);
+
+  // When lender or section params are present, ensure we're on the financial-summary tab
+  useEffect(() => {
+    const lenderParam = searchParams.get('lender');
+    const sectionParam = searchParams.get('section');
+    
+    if ((lenderParam || sectionParam) && tab !== 'financial-summary') {
+      navigate(`/applications/${id}/financial-summary${window.location.search}`);
+    }
+  }, [searchParams, tab, id, navigate]);
 
   return (
     <ApplicationDetailLayout
