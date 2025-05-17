@@ -105,6 +105,7 @@ export interface FinancialSummary {
     type: 'Lease' | 'Loan';
     tabs: string[];
     activeTab?: string;
+    selectedForCustomer?: boolean; // New property to track if this lender has been presented to customer
     requested: FinancialSummaryTabData | LoanFinancialSummaryTabData;
     approved: FinancialSummaryTabData | LoanFinancialSummaryTabData;
     customer: FinancialSummaryTabData | LoanFinancialSummaryTabData;
@@ -112,4 +113,3 @@ export interface FinancialSummary {
   selectedLender?: string;
   selectedTab?: string;
 }
-

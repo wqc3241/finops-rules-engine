@@ -14,18 +14,27 @@ import LoanCollapsedView from './LoanCollapsedView';
 import ExpandedView from './ExpandedView';
 import EditOfferDialog from './EditOfferDialog';
 import { generateStandardParams } from './utils/offerUtils';
+import { useParams } from 'react-router-dom';
 
 interface LenderOfferCardProps {
   offer: DealStructureOffer;
   isExpanded: boolean;
   isSelected: boolean;
   onSelectOffer: (offerLender: string) => void;
+  onPresentToCustomer?: (lenderName: string) => void;
 }
 
-const LenderOfferCard: React.FC<LenderOfferCardProps> = ({ offer, isExpanded, isSelected, onSelectOffer }) => {
+const LenderOfferCard: React.FC<LenderOfferCardProps> = ({ 
+  offer, 
+  isExpanded, 
+  isSelected, 
+  onSelectOffer, 
+  onPresentToCustomer 
+}) => {
   const [isCardExpanded, setIsCardExpanded] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const { toast } = useToast();
+  const { id: applicationId } = useParams<{ id: string }>();
 
   // If the parent is expanded, we force the card to be expanded too
   const cardIsExpanded = isExpanded || isCardExpanded;
@@ -33,6 +42,12 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({ offer, isExpanded, is
   
   const handlePresentToCustomer = () => {
     onSelectOffer(offer.lenderName);
+    
+    // Call the parent handler if provided
+    if (onPresentToCustomer) {
+      onPresentToCustomer(offer.lenderName);
+    }
+    
     toast({
       title: "Offer Presented",
       description: `${offer.lenderName} offer has been presented to the customer.`,
@@ -96,7 +111,7 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({ offer, isExpanded, is
               <Button 
                 variant="outline" 
                 onClick={handlePresentToCustomer}
-                className="flex items-center"
+                className={`flex items-center ${isSelected ? 'bg-green-50' : ''}`}
               >
                 <User className="h-4 w-4 mr-1" />
                 Present to Customer
@@ -177,4 +192,3 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({ offer, isExpanded, is
 };
 
 export default LenderOfferCard;
-

@@ -11,6 +11,7 @@ interface OfferParametersProps {
   lenderName?: string;
   section?: 'requested' | 'approved' | 'customer';
   onViewFinancialSummary?: () => void;
+  markAsPresented?: boolean;
 }
 
 const OfferParameters: React.FC<OfferParametersProps> = ({ 
@@ -19,18 +20,22 @@ const OfferParameters: React.FC<OfferParametersProps> = ({
   applicationType = 'Lease',
   lenderName,
   section,
-  onViewFinancialSummary
+  onViewFinancialSummary,
+  markAsPresented = false
 }) => {
   const { id: applicationId } = useParams<{ id: string }>();
-  const { navigateToFinancialSummary } = useFinancialNavigation();
+  const { navigateToFinancialSummary, presentedLender } = useFinancialNavigation();
   
   const handleViewFinancialSummary = () => {
     if (onViewFinancialSummary) {
       onViewFinancialSummary();
     } else if (lenderName && section && applicationId) {
-      navigateToFinancialSummary(applicationId, lenderName, section);
+      navigateToFinancialSummary(applicationId, lenderName, section, markAsPresented);
     }
   };
+  
+  // Check if this lender is the one presented to customer
+  const isPresented = presentedLender === lenderName;
   
   return (
     <>
@@ -47,9 +52,15 @@ const OfferParameters: React.FC<OfferParametersProps> = ({
         <div className="mt-4">
           <button
             onClick={handleViewFinancialSummary}
-            className="text-sm text-blue-600 hover:text-blue-800 flex items-center"
+            className={`text-sm text-blue-600 hover:text-blue-800 flex items-center
+                      ${isPresented && isCustomer ? 'font-bold' : ''}`}
           >
             View Financial Summary
+            {isPresented && isCustomer && (
+              <span className="ml-1 px-2 py-0.5 text-xs bg-green-100 text-green-800 rounded-full">
+                Presented
+              </span>
+            )}
           </button>
         </div>
       )}

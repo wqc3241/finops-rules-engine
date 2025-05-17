@@ -1,19 +1,21 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { ChevronUp, ChevronDown } from 'lucide-react';
+import { ChevronUp, ChevronDown, Check } from 'lucide-react';
 import { FinancialSummary } from '@/types/application';
 import { Button } from '@/components/ui/button';
 import LoanFinancialSummaryView from './LoanFinancialSummaryView';
 import LeaseFinancialSummaryView from './LeaseFinancialSummaryView';
 import { useSearchParams } from 'react-router-dom';
+import TabComponent, { TabItem } from '@/components/dashboard/TabComponent';
+import { cn } from '@/lib/utils';
 
 interface FinancialSummaryViewProps {
   financialSummary: FinancialSummary;
 }
 
 const FinancialSummaryView: React.FC<FinancialSummaryViewProps> = ({ financialSummary }) => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const lenderFromUrl = searchParams.get('lender');
   const sectionFromUrl = searchParams.get('section') as 'requested' | 'approved' | 'customer' | null;
   
@@ -24,7 +26,7 @@ const FinancialSummaryView: React.FC<FinancialSummaryViewProps> = ({ financialSu
   
   // Determine which tabs to show based on application type and selected lender
   const tabs = selectedLender
-    ? selectedLender.tabs
+    ? selectedLender.tabs || ['Requested', 'Approved', 'Customer']
     : (isLoanType 
         ? financialSummary.loan?.tabs || ['Requested', 'Approved', 'Customer']
         : financialSummary.lfs.tabs);
@@ -52,6 +54,10 @@ const FinancialSummaryView: React.FC<FinancialSummaryViewProps> = ({ financialSu
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
+    // Update URL to reflect the selected tab
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set('section', tab.toLowerCase());
+    setSearchParams(newParams);
   };
 
   const toggleExpanded = () => {
@@ -62,14 +68,24 @@ const FinancialSummaryView: React.FC<FinancialSummaryViewProps> = ({ financialSu
   const hasMultipleLenders = financialSummary.lenderSummaries && Object.keys(financialSummary.lenderSummaries).length > 0;
   const [selectedLenderName, setSelectedLenderName] = useState<string | null>(lenderFromUrl || null);
   
+  // Handle lender tab change
+  const handleLenderChange = (lenderName: string) => {
+    setSelectedLenderName(lenderName);
+    // Update URL to reflect the selected lender
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set('lender', lenderName);
+    setSearchParams(newParams);
+  };
+
   // Get current financial data based on selected lender and tab
   const getFinancialData = () => {
-    if (selectedLender) {
+    if (selectedLenderName && financialSummary.lenderSummaries?.[selectedLenderName]) {
       // Use selected lender's data
-      const lenderType = selectedLender.type;
+      const lender = financialSummary.lenderSummaries[selectedLenderName];
+      const lenderType = lender.type;
       const tabLower = activeTab.toLowerCase() as 'requested' | 'approved' | 'customer';
       return {
-        data: selectedLender[tabLower],
+        data: lender[tabLower],
         isLoanType: lenderType === 'Loan'
       };
     } else {
@@ -86,13 +102,33 @@ const FinancialSummaryView: React.FC<FinancialSummaryViewProps> = ({ financialSu
 
   const { data, isLoanType: currentTypeIsLoan } = getFinancialData();
   
+  // Create lender tabs if multiple lenders exist
+  const createLenderTabItems = (): TabItem[] => {
+    if (!hasMultipleLenders) return [];
+    
+    return Object.keys(financialSummary.lenderSummaries!).map(lenderName => {
+      const lenderSummary = financialSummary.lenderSummaries![lenderName];
+      const isPresented = lenderSummary.selectedForCustomer === true;
+      
+      return {
+        value: lenderName,
+        label: (
+          <div className="flex items-center gap-1">
+            <span>{lenderName}</span>
+            {isPresented && <Check className="h-4 w-4 text-green-600" />}
+          </div>
+        ),
+        content: <></> // Content is rendered outside of TabContent
+      };
+    });
+  };
+
   return (
     <Card className="h-fit">
       <CardContent className="p-3">
         <div className="flex justify-between items-center mb-2">
           <h3 className="text-base font-medium">
             Financial Summary {currentTypeIsLoan ? '(Loan)' : '(Lease)'} 
-            {selectedLenderName && ` - ${decodeURIComponent(selectedLenderName)}`}
           </h3>
           <div className="flex items-center cursor-pointer" onClick={toggleExpanded}>
             {expanded ? <ChevronUp className="h-4 w-4 text-gray-400" /> : <ChevronDown className="h-4 w-4 text-gray-400" />}
@@ -101,23 +137,14 @@ const FinancialSummaryView: React.FC<FinancialSummaryViewProps> = ({ financialSu
         
         {expanded && (
           <>
-            {/* Lender Selection if multiple lenders */}
+            {/* Lender Selection Tabs */}
             {hasMultipleLenders && (
               <div className="mb-4">
-                <h4 className="text-sm font-medium mb-2">Select Lender</h4>
-                <div className="flex flex-wrap gap-2">
-                  {Object.keys(financialSummary.lenderSummaries!).map((lenderName) => (
-                    <Button
-                      key={lenderName}
-                      variant={selectedLenderName === lenderName ? "default" : "outline"}
-                      size="sm"
-                      className="text-xs h-7 px-2"
-                      onClick={() => setSelectedLenderName(lenderName)}
-                    >
-                      {lenderName}
-                    </Button>
-                  ))}
-                </div>
+                <TabComponent 
+                  defaultValue={selectedLenderName || Object.keys(financialSummary.lenderSummaries!)[0]} 
+                  items={createLenderTabItems()}
+                  onValueChange={handleLenderChange}
+                />
               </div>
             )}
             

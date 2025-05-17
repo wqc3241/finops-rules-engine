@@ -1,11 +1,13 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { ChevronUp, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DealStructureOffer } from '@/types/application';
 import { Separator } from '@/components/ui/separator';
 import LenderOfferCard from './LenderOfferCard';
+import { useSearchParams, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 interface LeaseDealStructureSectionProps {
   dealStructure: DealStructureOffer[];
@@ -14,9 +16,33 @@ interface LeaseDealStructureSectionProps {
 const LeaseDealStructureSection: React.FC<LeaseDealStructureSectionProps> = ({ dealStructure }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [selectedOfferLender, setSelectedOfferLender] = useState<string | null>(null);
+  const [searchParams] = useSearchParams();
+  const { id: applicationId } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  
+  // Check if there's a lender in URL to pre-select it
+  useEffect(() => {
+    const lenderFromUrl = searchParams.get('lender');
+    if (lenderFromUrl) {
+      const decodedLender = decodeURIComponent(lenderFromUrl);
+      // Find if this lender exists in our deal structure
+      const lenderExists = dealStructure.find(offer => offer.lenderName === decodedLender);
+      if (lenderExists) {
+        setSelectedOfferLender(decodedLender);
+      }
+    }
+  }, [searchParams, dealStructure]);
 
   const handleSelectOffer = (lenderName: string) => {
     setSelectedOfferLender(lenderName);
+  };
+  
+  const handlePresentToCustomer = (lenderName: string) => {
+    // Navigate to financial summary with this lender pre-selected
+    const params = new URLSearchParams();
+    params.set('lender', encodeURIComponent(lenderName));
+    params.set('section', 'customer'); // Default to customer tab when presenting
+    navigate(`/applications/${applicationId}/financial-summary?${params.toString()}`);
   };
 
   if (dealStructure.length === 0) {
@@ -52,6 +78,7 @@ const LeaseDealStructureSection: React.FC<LeaseDealStructureSectionProps> = ({ d
               isExpanded={isExpanded}
               isSelected={selectedOfferLender === offer.lenderName}
               onSelectOffer={handleSelectOffer}
+              onPresentToCustomer={handlePresentToCustomer}
             />
           ))}
         </div>
