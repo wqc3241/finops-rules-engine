@@ -31,6 +31,7 @@ export interface ApplicationFullDetails {
   notes: Note[];
   financialSummary: FinancialSummary;
   dealStructure: DealStructureOffer[];
+  riskComplianceData?: RiskComplianceData; // Added optional risk compliance data
 }
 
 // Importing all types needed for the ApplicationFullDetails interface
@@ -40,3 +41,4 @@ import { OrderDetail } from './order';
 import { HistoryItem, Note } from './history';
 import { FinancialSummary } from './financial';
 import { DealStructureOffer } from './deal';
+import { RiskComplianceData } from './report';

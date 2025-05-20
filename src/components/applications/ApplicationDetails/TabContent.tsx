@@ -6,8 +6,10 @@ import OrderDetailsView from '@/components/applications/ApplicationDetails/Order
 import ApplicationHistoryView from '@/components/applications/ApplicationDetails/ApplicationHistoryView';
 import NotesView from '@/components/applications/ApplicationDetails/NotesView';
 import FinancialSummaryView from '@/components/applications/ApplicationDetails/FinancialSummaryView';
+import RiskComplianceView from '@/components/applications/ApplicationDetails/RiskComplianceView';
 import { Note } from '@/types/application';
 import { usePresentedLender } from '@/utils/dealFinanceNavigation';
+import { mockRiskComplianceData } from '@/data/mock/riskCompliance';
 
 interface TabContentProps {
   tab?: string;
@@ -43,6 +45,15 @@ const TabContent: React.FC<TabContentProps> = ({
       return <FinancialSummaryView financialSummary={getFinancialSummaryWithPresentedLender()} />;
     case 'order-details':
       return <OrderDetailsView orderDetails={applicationFullDetails.orderDetails} />;
+    case 'risk-compliance':
+      return (
+        <RiskComplianceView
+          requiredNotices={mockRiskComplianceData.requiredNotices}
+          complianceChecks={mockRiskComplianceData.complianceChecks}
+          activityHistory={mockRiskComplianceData.activityHistory}
+          qcErrors={mockRiskComplianceData.qcErrors}
+        />
+      );
     case 'history':
       return <ApplicationHistoryView history={applicationFullDetails.history} />;
     case 'notes':
