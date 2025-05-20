@@ -1,5 +1,12 @@
 
-import { Application, Report } from "@/types/application";
+import { Application } from "@/types/application";
+import { 
+  Report, 
+  StatusReportData, 
+  ApplicationTypeReportData, 
+  TimelineReportData, 
+  FinancialReportData 
+} from "@/types/application/report";
 import { applications } from "../mock/applicationsData";
 import { generateAllReports } from "@/utils/reportUtils";
 
@@ -22,13 +29,14 @@ export const generateChartData = (reports: Report[]) => {
   
   // Generate chart data for status distribution report
   const statusReport = reports.find(r => r.id === 'status-distribution-report');
-  if (statusReport) {
+  if (statusReport && statusReport.type === 'status') {
+    const statusData = statusReport.data as StatusReportData;
     chartData.push({
       id: 'status-distribution-pie',
       title: 'Application Status Distribution',
       type: 'pie',
       reportId: statusReport.id,
-      data: statusReport.data.statusDistribution.map((item: any) => ({
+      data: statusData.statusDistribution.map((item) => ({
         name: item.status,
         value: item.count
       }))
@@ -39,7 +47,7 @@ export const generateChartData = (reports: Report[]) => {
       title: 'Application Status Counts',
       type: 'bar',
       reportId: statusReport.id,
-      data: statusReport.data.statusDistribution.map((item: any) => ({
+      data: statusData.statusDistribution.map((item) => ({
         name: item.status,
         value: item.count
       }))
@@ -48,13 +56,14 @@ export const generateChartData = (reports: Report[]) => {
   
   // Generate chart data for application type report
   const typeReport = reports.find(r => r.id === 'application-type-report');
-  if (typeReport) {
+  if (typeReport && typeReport.type === 'application') {
+    const typeData = typeReport.data as ApplicationTypeReportData;
     chartData.push({
       id: 'application-type-pie',
       title: 'Lease vs. Loan Distribution',
       type: 'pie',
       reportId: typeReport.id,
-      data: typeReport.data.typeDistribution.map((item: any) => ({
+      data: typeData.typeDistribution.map((item) => ({
         name: item.type,
         value: item.count
       }))
@@ -65,7 +74,7 @@ export const generateChartData = (reports: Report[]) => {
       title: 'Approval Rates by Type',
       type: 'bar',
       reportId: typeReport.id,
-      data: typeReport.data.approvalRates.map((item: any) => ({
+      data: typeData.approvalRates.map((item) => ({
         name: item.type,
         value: item.rate
       }))
@@ -74,13 +83,14 @@ export const generateChartData = (reports: Report[]) => {
   
   // Generate chart data for timeline report
   const timelineReport = reports.find(r => r.id === 'timeline-performance-report');
-  if (timelineReport) {
+  if (timelineReport && timelineReport.type === 'timeline') {
+    const timelineData = timelineReport.data as TimelineReportData;
     chartData.push({
       id: 'applications-over-time',
       title: 'Applications Over Time',
       type: 'line',
       reportId: timelineReport.id,
-      data: timelineReport.data.applicationsOverTime
+      data: timelineData.applicationsOverTime
     });
     
     chartData.push({
@@ -88,21 +98,22 @@ export const generateChartData = (reports: Report[]) => {
       title: 'Average Days in Each Status',
       type: 'bar',
       reportId: timelineReport.id,
-      data: timelineReport.data.statusTransitionTimes
+      data: timelineData.statusTransitionTimes
     });
   }
   
   // Generate chart data for financial report
   const financialReport = reports.find(r => r.id === 'financial-metrics-report');
-  if (financialReport) {
+  if (financialReport && financialReport.type === 'financial') {
+    const financialData = financialReport.data as FinancialReportData;
     chartData.push({
       id: 'financial-metrics-bar',
       title: 'Financial Metrics',
       type: 'bar',
       reportId: financialReport.id,
       data: [
-        { name: 'Avg. Down Payment', value: financialReport.data.averageDownPayment },
-        { name: 'Avg. Monthly Payment', value: financialReport.data.averageMonthlyPayment }
+        { name: 'Avg. Down Payment', value: financialData.averageDownPayment },
+        { name: 'Avg. Monthly Payment', value: financialData.averageMonthlyPayment }
       ]
     });
   }

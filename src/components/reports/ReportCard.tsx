@@ -1,5 +1,5 @@
 
-import { Report } from "@/types/application/report";
+import { Report, StatusReportData, ApplicationTypeReportData, TimelineReportData, FinancialReportData } from "@/types/application/report";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FileText, BarChart } from "lucide-react";
@@ -10,6 +10,19 @@ interface ReportCardProps {
 }
 
 const ReportCard = ({ report, onViewReport }: ReportCardProps) => {
+  // Helper functions to safely access data based on report type
+  const getStatusData = (): StatusReportData | undefined => 
+    report.type === 'status' ? report.data as StatusReportData : undefined;
+  
+  const getApplicationTypeData = (): ApplicationTypeReportData | undefined => 
+    report.type === 'application' ? report.data as ApplicationTypeReportData : undefined;
+  
+  const getTimelineData = (): TimelineReportData | undefined => 
+    report.type === 'timeline' ? report.data as TimelineReportData : undefined;
+  
+  const getFinancialData = (): FinancialReportData | undefined => 
+    report.type === 'financial' ? report.data as FinancialReportData : undefined;
+
   return (
     <Card className="overflow-hidden">
       <CardHeader className="p-3 pb-0">
@@ -24,30 +37,30 @@ const ReportCard = ({ report, onViewReport }: ReportCardProps) => {
           Generated: {new Date(report.generatedDate).toLocaleDateString()}
         </div>
         
-        {report.type === 'status' && (
+        {report.type === 'status' && getStatusData() && (
           <div className="mt-2 text-xs">
-            <div>Total Applications: {report.data.totalApplications}</div>
-            <div>Most Common Status: {report.data.statusDistribution[0]?.status}</div>
+            <div>Total Applications: {getStatusData()?.totalApplications}</div>
+            <div>Most Common Status: {getStatusData()?.statusDistribution[0]?.status}</div>
           </div>
         )}
         
-        {report.type === 'application' && (
+        {report.type === 'application' && getApplicationTypeData() && (
           <div className="mt-2 text-xs">
-            <div>Total Applications: {report.data.totalApplications}</div>
-            <div>Types: {report.data.typeDistribution.map((t: any) => t.type).join(', ')}</div>
+            <div>Total Applications: {getApplicationTypeData()?.totalApplications}</div>
+            <div>Types: {getApplicationTypeData()?.typeDistribution.map(t => t.type).join(', ')}</div>
           </div>
         )}
         
-        {report.type === 'timeline' && (
+        {report.type === 'timeline' && getTimelineData() && (
           <div className="mt-2 text-xs">
-            <div>Avg. Processing Time: {report.data.averageProcessingTime} days</div>
+            <div>Avg. Processing Time: {getTimelineData()?.averageProcessingTime} days</div>
           </div>
         )}
         
-        {report.type === 'financial' && (
+        {report.type === 'financial' && getFinancialData() && (
           <div className="mt-2 text-xs">
-            <div>Avg. Monthly Payment: ${report.data.averageMonthlyPayment}</div>
-            <div>Avg. Term Length: {report.data.averageTermLength} months</div>
+            <div>Avg. Monthly Payment: ${getFinancialData()?.averageMonthlyPayment}</div>
+            <div>Avg. Term Length: {getFinancialData()?.averageTermLength} months</div>
           </div>
         )}
       </CardContent>
