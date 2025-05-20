@@ -1,4 +1,3 @@
-
 import { ApplicationFullDetails, FinancialSummary } from '../../../types/application';
 import { baseApplicationDetails } from './baseApplicationDetails';
 import { declinedApplications } from './declined';
@@ -17,47 +16,40 @@ const createLenderSummaries = (application: ApplicationFullDetails): void => {
   // Skip if no deal structure
   if (!application.dealStructure || !application.financialSummary) return;
   
-  // Initialize lender summaries if not present
-  if (!application.financialSummary.lenderSummaries) {
-    application.financialSummary.lenderSummaries = {};
-  }
+  // Initialize lender summaries - IMPORTANT: create a new object instead of modifying existing one
+  // This ensures we only have lenders from this specific application
+  application.financialSummary.lenderSummaries = {};
   
-  // Process offers by type - Filter lease and loan offers from dealStructure
+  // Filter lease and loan offers from dealStructure
   const leaseOffers = application.dealStructure.filter(offer => offer.applicationType !== 'Loan');
   const loanOffers = application.dealStructure.filter(offer => offer.applicationType === 'Loan');
   
   // Process lease offers
   leaseOffers.forEach(offer => {
-    // Check if lender summary already exists
-    if (!application.financialSummary!.lenderSummaries![offer.lenderName]) {
-      // Create a new lender summary based on the lease financial data
-      application.financialSummary!.lenderSummaries![offer.lenderName] = {
-        type: 'Lease',
-        tabs: ['Requested', 'Approved', 'Customer'],
-        activeTab: 'Approved',
-        selectedForCustomer: false,
-        requested: { ...financialSummaryData.requested },
-        approved: { ...financialSummaryData.approved },
-        customer: { ...financialSummaryData.customer }
-      };
-    }
+    // Create a new lender summary based on the lease financial data
+    application.financialSummary!.lenderSummaries![offer.lenderName] = {
+      type: 'Lease',
+      tabs: ['Requested', 'Approved', 'Customer'],
+      activeTab: 'Approved',
+      selectedForCustomer: false,
+      requested: { ...financialSummaryData.requested },
+      approved: { ...financialSummaryData.approved },
+      customer: { ...financialSummaryData.customer }
+    };
   });
   
   // Process loan offers
   loanOffers.forEach(offer => {
-    // Check if lender summary already exists
-    if (!application.financialSummary!.lenderSummaries![offer.lenderName]) {
-      // Create a new lender summary based on the loan financial data
-      application.financialSummary!.lenderSummaries![offer.lenderName] = {
-        type: 'Loan',
-        tabs: ['Requested', 'Approved', 'Customer'],
-        activeTab: 'Approved',
-        selectedForCustomer: false,
-        requested: { ...loanFinancialSummaryData.requested },
-        approved: { ...loanFinancialSummaryData.approved },
-        customer: { ...loanFinancialSummaryData.customer }
-      };
-    }
+    // Create a new lender summary based on the loan financial data
+    application.financialSummary!.lenderSummaries![offer.lenderName] = {
+      type: 'Loan',
+      tabs: ['Requested', 'Approved', 'Customer'],
+      activeTab: 'Approved',
+      selectedForCustomer: false,
+      requested: { ...loanFinancialSummaryData.requested },
+      approved: { ...loanFinancialSummaryData.approved },
+      customer: { ...loanFinancialSummaryData.customer }
+    };
   });
 };
 
