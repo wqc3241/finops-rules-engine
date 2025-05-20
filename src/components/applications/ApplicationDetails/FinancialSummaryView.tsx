@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { ChevronUp, ChevronDown, Check } from 'lucide-react';
+import { ChevronUp, ChevronDown, Check, ArrowLeft } from 'lucide-react';
 import { FinancialSummary } from '@/types/application';
 import { Button } from '@/components/ui/button';
 import LoanFinancialSummaryView from './LoanFinancialSummaryView';
@@ -13,9 +13,15 @@ import { usePresentedLender } from '@/utils/dealFinanceNavigation';
 
 interface FinancialSummaryViewProps {
   financialSummary: FinancialSummary;
+  showBackButton?: boolean;
+  onBackClick?: () => void;
 }
 
-const FinancialSummaryView: React.FC<FinancialSummaryViewProps> = ({ financialSummary }) => {
+const FinancialSummaryView: React.FC<FinancialSummaryViewProps> = ({ 
+  financialSummary,
+  showBackButton = false,
+  onBackClick
+}) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const lenderFromUrl = searchParams.get('lender');
   const sectionFromUrl = searchParams.get('section') as 'requested' | 'approved' | 'customer' | null;
@@ -146,9 +152,22 @@ const FinancialSummaryView: React.FC<FinancialSummaryViewProps> = ({ financialSu
     <Card className="h-fit">
       <CardContent className="p-3">
         <div className="flex justify-between items-center mb-2">
-          <h3 className="text-base font-medium">
-            Financial Summary {currentTypeIsLoan ? '(Loan)' : '(Lease)'} 
-          </h3>
+          <div className="flex items-center">
+            {showBackButton && onBackClick && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={onBackClick} 
+                className="mr-2"
+              >
+                <ArrowLeft className="h-4 w-4 mr-1" />
+                Back to Deal Structure
+              </Button>
+            )}
+            <h3 className="text-base font-medium">
+              Financial Summary {currentTypeIsLoan ? '(Loan)' : '(Lease)'} 
+            </h3>
+          </div>
           <div className="flex items-center cursor-pointer" onClick={toggleExpanded}>
             {expanded ? <ChevronUp className="h-4 w-4 text-gray-400" /> : <ChevronDown className="h-4 w-4 text-gray-400" />}
           </div>

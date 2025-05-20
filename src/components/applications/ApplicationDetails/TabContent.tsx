@@ -1,15 +1,14 @@
 
 import React from 'react';
 import ApplicationData from '@/components/applications/ApplicationDetails/ApplicationData';
-import DealStructureContainer from '@/components/applications/ApplicationDetails/DealStructure/DealStructureContainer';
 import OrderDetailsView from '@/components/applications/ApplicationDetails/OrderDetailsView';
 import ApplicationHistoryView from '@/components/applications/ApplicationDetails/ApplicationHistoryView';
 import NotesView from '@/components/applications/ApplicationDetails/NotesView';
-import FinancialSummaryView from '@/components/applications/ApplicationDetails/FinancialSummaryView';
 import RiskComplianceView from '@/components/applications/ApplicationDetails/RiskComplianceView';
 import { Note } from '@/types/application';
 import { usePresentedLender } from '@/utils/dealFinanceNavigation';
 import { mockRiskComplianceData } from '@/data/mock/riskCompliance';
+import CombinedFinancialView from './CombinedFinancialView';
 
 interface TabContentProps {
   tab?: string;
@@ -42,7 +41,13 @@ const TabContent: React.FC<TabContentProps> = ({
   
   switch (tab) {
     case 'financial-summary':
-      return <FinancialSummaryView financialSummary={getFinancialSummaryWithPresentedLender()} />;
+      return (
+        <CombinedFinancialView 
+          financialSummary={getFinancialSummaryWithPresentedLender()}
+          dealStructure={applicationFullDetails.dealStructure}
+          applicationType={applicationFullDetails.details.type}
+        />
+      );
     case 'order-details':
       return <OrderDetailsView orderDetails={applicationFullDetails.orderDetails} />;
     case 'risk-compliance':
@@ -61,18 +66,12 @@ const TabContent: React.FC<TabContentProps> = ({
     case 'details':
     default:
       return (
-        <>
-          <ApplicationData
-            applicantInfo={applicationFullDetails.applicantInfo}
-            coApplicantInfo={applicationFullDetails.coApplicantInfo}
-            vehicleData={applicationFullDetails.vehicleData}
-            appDtReferences={applicationFullDetails.appDtReferences}
-          />
-          <DealStructureContainer 
-            dealStructure={applicationFullDetails.dealStructure}
-            applicationType={applicationFullDetails.details.type}
-          />
-        </>
+        <ApplicationData
+          applicantInfo={applicationFullDetails.applicantInfo}
+          coApplicantInfo={applicationFullDetails.coApplicantInfo}
+          vehicleData={applicationFullDetails.vehicleData}
+          appDtReferences={applicationFullDetails.appDtReferences}
+        />
       );
   }
 };

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { DealStructureItem, DealStructureStipulation } from '@/types/application';
 import StipulationsTable from './StipulationsTable';
 import OfferParameters from './OfferParameters';
+import { BarChart2 } from 'lucide-react';
 
 interface ExpandedViewProps {
   requested: DealStructureItem[];
@@ -13,6 +14,8 @@ interface ExpandedViewProps {
   contractStatus?: string;
   applicationType?: 'Lease' | 'Loan';
   lenderName?: string;
+  showFinancialDetailButton?: boolean;
+  onViewFinancialDetail?: () => void;
 }
 
 const ExpandedView: React.FC<ExpandedViewProps> = ({ 
@@ -22,7 +25,9 @@ const ExpandedView: React.FC<ExpandedViewProps> = ({
   stipulations, 
   contractStatus,
   applicationType = 'Lease',
-  lenderName
+  lenderName,
+  showFinancialDetailButton = false,
+  onViewFinancialDetail
 }) => {
   return (
     <>
@@ -76,6 +81,18 @@ const ExpandedView: React.FC<ExpandedViewProps> = ({
           <span className="px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">
             {contractStatus}
           </span>
+        </div>
+      )}
+      
+      {showFinancialDetailButton && onViewFinancialDetail && (
+        <div className="mt-6 flex justify-end">
+          <Button 
+            onClick={onViewFinancialDetail}
+            className="flex items-center"
+          >
+            <BarChart2 className="h-4 w-4 mr-2" />
+            View Financial Summary
+          </Button>
         </div>
       )}
     </>

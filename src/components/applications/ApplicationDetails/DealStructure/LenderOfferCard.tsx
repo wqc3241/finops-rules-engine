@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { ChevronUp, ChevronDown, User, ArrowRight, Pencil } from 'lucide-react';
+import { ChevronUp, ChevronDown, User, ArrowRight, Pencil, BarChart2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DealStructureOffer } from '@/types/application';
 import { Card, CardContent } from '@/components/ui/card';
@@ -15,6 +15,7 @@ import ExpandedView from './ExpandedView';
 import EditOfferDialog from './EditOfferDialog';
 import { generateStandardParams } from './utils/offerUtils';
 import { useParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 
 interface LenderOfferCardProps {
   offer: DealStructureOffer;
@@ -22,6 +23,8 @@ interface LenderOfferCardProps {
   isSelected: boolean;
   onSelectOffer: (offerLender: string) => void;
   onPresentToCustomer?: (lenderName: string) => void;
+  showFinancialDetailButton?: boolean;
+  onViewFinancialDetail?: (lenderName: string) => void;
 }
 
 const LenderOfferCard: React.FC<LenderOfferCardProps> = ({ 
@@ -29,12 +32,15 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
   isExpanded, 
   isSelected, 
   onSelectOffer, 
-  onPresentToCustomer 
+  onPresentToCustomer,
+  showFinancialDetailButton = false,
+  onViewFinancialDetail
 }) => {
   const [isCardExpanded, setIsCardExpanded] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const { toast } = useToast();
   const { id: applicationId } = useParams<{ id: string }>();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   // If the parent is expanded, we force the card to be expanded too
   const cardIsExpanded = isExpanded || isCardExpanded;
@@ -63,6 +69,18 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
       description: `${offer.lenderName} deal has been sent to DT successfully.`,
       duration: 3000
     });
+  };
+
+  const handleViewFinancialDetail = () => {
+    if (onViewFinancialDetail) {
+      onViewFinancialDetail(offer.lenderName);
+    } else {
+      // Fallback behavior - update URL params to show financial detail and select this lender
+      const newParams = new URLSearchParams(searchParams);
+      newParams.set('view', 'financial-detail');
+      newParams.set('lender', offer.lenderName);
+      setSearchParams(newParams);
+    }
   };
 
   const handleEditSubmit = (data: {
@@ -174,6 +192,8 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
               contractStatus={offer.contractStatus}
               applicationType={applicationType}
               lenderName={offer.lenderName}
+              showFinancialDetailButton={showFinancialDetailButton}
+              onViewFinancialDetail={handleViewFinancialDetail}
             />
           </CollapsibleContent>
         </Collapsible>

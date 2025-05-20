@@ -12,12 +12,18 @@ import { usePresentedLender } from '@/utils/dealFinanceNavigation';
 
 interface LeaseDealStructureSectionProps {
   dealStructure: DealStructureOffer[];
+  showFinancialDetailButton?: boolean;
+  onViewFinancialDetail?: (lenderName: string) => void;
 }
 
-const LeaseDealStructureSection: React.FC<LeaseDealStructureSectionProps> = ({ dealStructure }) => {
+const LeaseDealStructureSection: React.FC<LeaseDealStructureSectionProps> = ({ 
+  dealStructure,
+  showFinancialDetailButton = false,
+  onViewFinancialDetail
+}) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [selectedOfferLender, setSelectedOfferLender] = useState<string | null>(null);
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { id: applicationId } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { markLenderAsPresented } = usePresentedLender();
@@ -48,6 +54,18 @@ const LeaseDealStructureSection: React.FC<LeaseDealStructureSectionProps> = ({ d
     params.set('lender', encodeURIComponent(lenderName));
     params.set('section', 'customer'); // Default to customer tab when presenting
     navigate(`/applications/${applicationId}/financial-summary?${params.toString()}`);
+  };
+
+  const handleViewFinancialDetail = (lenderName: string) => {
+    if (onViewFinancialDetail) {
+      onViewFinancialDetail(lenderName);
+    } else {
+      // Update URL with view mode and lender
+      const newParams = new URLSearchParams(searchParams);
+      newParams.set('view', 'financial-detail');
+      newParams.set('lender', lenderName);
+      setSearchParams(newParams);
+    }
   };
 
   if (dealStructure.length === 0) {
@@ -84,6 +102,9 @@ const LeaseDealStructureSection: React.FC<LeaseDealStructureSectionProps> = ({ d
               isSelected={selectedOfferLender === offer.lenderName}
               onSelectOffer={handleSelectOffer}
               onPresentToCustomer={handlePresentToCustomer}
+              showFinancialDetailButton={showFinancialDetailButton}
+              onViewFinancialDetail={handleViewFinancialDetail ? 
+                () => handleViewFinancialDetail(offer.lenderName) : undefined}
             />
           ))}
         </div>
