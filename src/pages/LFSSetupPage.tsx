@@ -6,11 +6,11 @@ import Dashboard from "@/components/Dashboard";
 
 const LFSSetupPage = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [activeItem, setActiveItem] = useState('Business Master Data');
+  const [activeItem, setActiveItem] = useState('Business Reference Data');
 
   // Ensure that the activeItem is correctly set on page load
   useEffect(() => {
-    setActiveItem('Business Master Data');
+    setActiveItem('Business Reference Data');
   }, []);
 
   return (
