@@ -39,3 +39,60 @@ export interface RiskComplianceData {
   activityHistory: ActivityHistoryItem[];
   qcErrors: QCError[];
 }
+
+// Report related types
+export interface Report {
+  id: string;
+  title: string;
+  description: string;
+  type: 'status' | 'application' | 'timeline' | 'financial';
+  generatedDate: string;
+  filters: any[];
+  data: StatusReportData | ApplicationTypeReportData | TimelineReportData | FinancialReportData;
+}
+
+export interface StatusReportData {
+  totalApplications: number;
+  statusDistribution: Array<{
+    status: string;
+    count: number;
+    percentage: number;
+  }>;
+}
+
+export interface ApplicationTypeReportData {
+  totalApplications: number;
+  typeDistribution: Array<{
+    type: string;
+    count: number;
+    percentage: number;
+  }>;
+  approvalRates: Array<{
+    type: string;
+    approved: number;
+    total: number;
+    rate: number;
+  }>;
+}
+
+export interface TimelineReportData {
+  averageProcessingTime: number;
+  statusTransitionTimes: Array<{
+    status: string;
+    averageDays: number;
+  }>;
+  applicationsOverTime: Array<{
+    date: string;
+    count: number;
+  }>;
+}
+
+export interface FinancialReportData {
+  averageDownPayment: number;
+  averageTermLength: number;
+  averageMonthlyPayment: number;
+  averageRates: Array<{
+    type: string;
+    rate: number;
+  }>;
+}
