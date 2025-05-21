@@ -1,8 +1,8 @@
 
 import React, { useState } from 'react';
-import { ChevronUp, ChevronDown, User, ArrowRight, Pencil, BarChart2 } from 'lucide-react';
+import { ChevronUp, ChevronDown, User, ArrowRight, Pencil, BarChart2, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { DealStructureOffer } from '@/types/application';
+import { DealStructureOffer, FinancialSummary } from '@/types/application';
 import { Card, CardContent } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Separator } from '@/components/ui/separator';
@@ -16,6 +16,7 @@ import EditOfferDialog from './EditOfferDialog';
 import { generateStandardParams } from './utils/offerUtils';
 import { useParams } from 'react-router-dom';
 import { useSearchParams } from 'react-router-dom';
+import FinancialSummaryView from '../FinancialSummaryView';
 
 interface LenderOfferCardProps {
   offer: DealStructureOffer;
@@ -25,6 +26,7 @@ interface LenderOfferCardProps {
   onPresentToCustomer?: (lenderName: string) => void;
   showFinancialDetailButton?: boolean;
   onViewFinancialDetail?: (lenderName: string) => void;
+  financialSummary?: FinancialSummary;
 }
 
 const LenderOfferCard: React.FC<LenderOfferCardProps> = ({ 
@@ -34,10 +36,13 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
   onSelectOffer, 
   onPresentToCustomer,
   showFinancialDetailButton = false,
-  onViewFinancialDetail
+  onViewFinancialDetail,
+  financialSummary
 }) => {
   const [isCardExpanded, setIsCardExpanded] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [showFinancialSummary, setShowFinancialSummary] = useState(false);
+  const [selectedSection, setSelectedSection] = useState<'requested' | 'approved' | 'customer'>('approved');
   const { toast } = useToast();
   const { id: applicationId } = useParams<{ id: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -71,16 +76,13 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
     });
   };
 
-  const handleViewFinancialDetail = () => {
-    if (onViewFinancialDetail) {
-      onViewFinancialDetail(offer.lenderName);
-    } else {
-      // Fallback behavior - update URL params to show financial detail and select this lender
-      const newParams = new URLSearchParams(searchParams);
-      newParams.set('view', 'financial-detail');
-      newParams.set('lender', offer.lenderName);
-      setSearchParams(newParams);
-    }
+  const handleViewFinancialDetail = (section: 'requested' | 'approved' | 'customer' = 'approved') => {
+    setSelectedSection(section);
+    setShowFinancialSummary(true);
+  };
+
+  const handleBackToDealStructure = () => {
+    setShowFinancialSummary(false);
   };
 
   const handleEditSubmit = (data: {
@@ -115,6 +117,16 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
         mileageAllowance: offer.customer.find(item => item.name === 'mileageAllowance')?.value || '',
         downPayment: offer.customer.find(item => item.name === 'ccrDownPayment')?.value || '',
       };
+
+  // Get lender-specific financial summary if available
+  const lenderFinancialSummary = financialSummary?.lenderSummaries?.[offer.lenderName];
+  
+  // Create a financial summary object for this specific lender if we have data
+  const lenderSpecificSummary = lenderFinancialSummary ? {
+    ...financialSummary,
+    selectedLender: offer.lenderName,
+    selectedTab: selectedSection
+  } : undefined;
 
   return (
     <Card className={`shadow-sm transition-all ${isSelected ? 'border-green-500 border-2' : ''}`}>
@@ -184,17 +196,39 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
           )}
           
           <CollapsibleContent>
-            <ExpandedView 
-              requested={standardizedRequested}
-              approved={standardizedApproved}
-              customer={standardizedCustomer}
-              stipulations={offer.stipulations}
-              contractStatus={offer.contractStatus}
-              applicationType={applicationType}
-              lenderName={offer.lenderName}
-              showFinancialDetailButton={showFinancialDetailButton}
-              onViewFinancialDetail={handleViewFinancialDetail}
-            />
+            {showFinancialSummary && lenderSpecificSummary ? (
+              <div>
+                <div className="mb-6">
+                  <Button 
+                    variant="outline" 
+                    onClick={handleBackToDealStructure}
+                    className="flex items-center"
+                  >
+                    <ArrowLeft className="h-4 w-4 mr-1" />
+                    Back to Deal Structure
+                  </Button>
+                </div>
+                <FinancialSummaryView 
+                  financialSummary={lenderSpecificSummary}
+                  showBackButton={false}
+                />
+              </div>
+            ) : (
+              <ExpandedView 
+                requested={standardizedRequested}
+                approved={standardizedApproved}
+                customer={standardizedCustomer}
+                stipulations={offer.stipulations}
+                contractStatus={offer.contractStatus}
+                applicationType={applicationType}
+                lenderName={offer.lenderName}
+                showFinancialDetailButton={showFinancialDetailButton && financialSummary !== undefined}
+                onViewFinancialDetail={() => handleViewFinancialDetail('approved')}
+                onViewRequestedFinancial={() => handleViewFinancialDetail('requested')}
+                onViewApprovedFinancial={() => handleViewFinancialDetail('approved')}
+                onViewCustomerFinancial={() => handleViewFinancialDetail('customer')}
+              />
+            )}
           </CollapsibleContent>
         </Collapsible>
       </CardContent>

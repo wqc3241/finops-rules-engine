@@ -50,6 +50,7 @@ const CombinedFinancialView: React.FC<CombinedFinancialViewProps> = ({
           applicationType={applicationType}
           showFinancialDetailButton={true}
           onViewFinancialDetail={() => setShowFinancialDetail(true)}
+          financialSummary={financialSummary} // Pass financial summary to DealStructureContainer
         />
       )}
     </Card>

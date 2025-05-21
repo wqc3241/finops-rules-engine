@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { DealStructureOffer } from '@/types/application';
+import { DealStructureOffer, FinancialSummary } from '@/types/application';
 import LeaseDealStructureSection from './LeaseDealStructureSection';
 import LoanDealStructureSection from './LoanDealStructureSection';
 
@@ -9,13 +9,15 @@ interface DealStructureContainerProps {
   applicationType?: 'Lease' | 'Loan';
   showFinancialDetailButton?: boolean;
   onViewFinancialDetail?: (lenderName: string) => void;
+  financialSummary?: FinancialSummary; // Add this prop to pass financial summary data
 }
 
 const DealStructureContainer: React.FC<DealStructureContainerProps> = ({ 
   dealStructure, 
   applicationType = 'Lease',
   showFinancialDetailButton = false,
-  onViewFinancialDetail
+  onViewFinancialDetail,
+  financialSummary
 }) => {
   // Set application type for each offer if not already set
   const offersWithType = dealStructure.map(offer => ({
@@ -33,6 +35,7 @@ const DealStructureContainer: React.FC<DealStructureContainerProps> = ({
         dealStructure={loanOffers} 
         showFinancialDetailButton={showFinancialDetailButton}
         onViewFinancialDetail={onViewFinancialDetail}
+        financialSummary={financialSummary}
       />
     );
   }
@@ -42,6 +45,7 @@ const DealStructureContainer: React.FC<DealStructureContainerProps> = ({
       dealStructure={leaseOffers}
       showFinancialDetailButton={showFinancialDetailButton}
       onViewFinancialDetail={onViewFinancialDetail}
+      financialSummary={financialSummary}
     />
   );
 };

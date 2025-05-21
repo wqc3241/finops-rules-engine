@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { ChevronUp, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { DealStructureOffer } from '@/types/application';
+import { DealStructureOffer, FinancialSummary } from '@/types/application';
 import { Separator } from '@/components/ui/separator';
 import LenderOfferCard from './LenderOfferCard';
 import { useSearchParams, useParams } from 'react-router-dom';
@@ -14,12 +14,14 @@ interface LoanDealStructureSectionProps {
   dealStructure: DealStructureOffer[];
   showFinancialDetailButton?: boolean;
   onViewFinancialDetail?: (lenderName: string) => void;
+  financialSummary?: FinancialSummary;
 }
 
 const LoanDealStructureSection: React.FC<LoanDealStructureSectionProps> = ({ 
   dealStructure,
   showFinancialDetailButton = false,
-  onViewFinancialDetail
+  onViewFinancialDetail,
+  financialSummary
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [selectedOfferLender, setSelectedOfferLender] = useState<string | null>(null);
@@ -103,8 +105,9 @@ const LoanDealStructureSection: React.FC<LoanDealStructureSectionProps> = ({
               onSelectOffer={handleSelectOffer}
               onPresentToCustomer={handlePresentToCustomer}
               showFinancialDetailButton={showFinancialDetailButton}
-              onViewFinancialDetail={handleViewFinancialDetail ? 
+              onViewFinancialDetail={onViewFinancialDetail ? 
                 () => handleViewFinancialDetail(offer.lenderName) : undefined}
+              financialSummary={financialSummary}
             />
           ))}
         </div>

@@ -16,6 +16,9 @@ interface ExpandedViewProps {
   lenderName?: string;
   showFinancialDetailButton?: boolean;
   onViewFinancialDetail?: () => void;
+  onViewRequestedFinancial?: () => void;
+  onViewApprovedFinancial?: () => void;
+  onViewCustomerFinancial?: () => void;
 }
 
 const ExpandedView: React.FC<ExpandedViewProps> = ({ 
@@ -27,13 +30,29 @@ const ExpandedView: React.FC<ExpandedViewProps> = ({
   applicationType = 'Lease',
   lenderName,
   showFinancialDetailButton = false,
-  onViewFinancialDetail
+  onViewFinancialDetail,
+  onViewRequestedFinancial,
+  onViewApprovedFinancial,
+  onViewCustomerFinancial
 }) => {
   return (
     <>
       <div className="grid grid-cols-3 gap-6 mb-6">
         <div>
-          <h4 className="text-md font-medium mb-4">Requested</h4>
+          <div className="flex justify-between items-center mb-4">
+            <h4 className="text-md font-medium">Requested</h4>
+            {showFinancialDetailButton && onViewRequestedFinancial && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={onViewRequestedFinancial}
+                className="flex items-center"
+              >
+                <BarChart2 className="h-3 w-3 mr-1" />
+                View Details
+              </Button>
+            )}
+          </div>
           <OfferParameters 
             items={requested} 
             applicationType={applicationType} 
@@ -42,7 +61,20 @@ const ExpandedView: React.FC<ExpandedViewProps> = ({
           />
         </div>
         <div>
-          <h4 className="text-md font-medium mb-4">Approved</h4>
+          <div className="flex justify-between items-center mb-4">
+            <h4 className="text-md font-medium">Approved</h4>
+            {showFinancialDetailButton && onViewApprovedFinancial && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={onViewApprovedFinancial}
+                className="flex items-center"
+              >
+                <BarChart2 className="h-3 w-3 mr-1" />
+                View Details
+              </Button>
+            )}
+          </div>
           <OfferParameters 
             items={approved} 
             applicationType={applicationType} 
@@ -51,7 +83,20 @@ const ExpandedView: React.FC<ExpandedViewProps> = ({
           />
         </div>
         <div>
-          <h4 className="text-md font-medium mb-4">Customer</h4>
+          <div className="flex justify-between items-center mb-4">
+            <h4 className="text-md font-medium">Customer</h4>
+            {showFinancialDetailButton && onViewCustomerFinancial && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={onViewCustomerFinancial}
+                className="flex items-center"
+              >
+                <BarChart2 className="h-3 w-3 mr-1" />
+                View Details
+              </Button>
+            )}
+          </div>
           <OfferParameters 
             items={customer} 
             isCustomer={true} 
@@ -91,7 +136,7 @@ const ExpandedView: React.FC<ExpandedViewProps> = ({
             className="flex items-center"
           >
             <BarChart2 className="h-4 w-4 mr-2" />
-            View Financial Summary
+            View Full Financial Summary
           </Button>
         </div>
       )}
