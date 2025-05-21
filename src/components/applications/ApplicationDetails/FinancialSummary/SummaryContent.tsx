@@ -14,6 +14,10 @@ const SummaryContent: React.FC<SummaryContentProps> = ({
   activeTab,
   data
 }) => {
+  if (!data) {
+    return <div className="p-4 text-center text-gray-500">No financial data available</div>;
+  }
+
   return isLoanType ? (
     <LoanFinancialSummaryView 
       activeTab={activeTab} 

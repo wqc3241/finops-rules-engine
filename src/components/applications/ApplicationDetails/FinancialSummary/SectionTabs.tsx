@@ -9,8 +9,12 @@ interface SectionTabsProps {
 }
 
 const SectionTabs: React.FC<SectionTabsProps> = ({ tabs, activeTab, onTabChange }) => {
+  if (!tabs || tabs.length === 0) {
+    return null;
+  }
+  
   return (
-    <div className="flex mb-2">
+    <div className="flex mb-2 mt-2">
       {tabs.map((tab, index) => (
         <Button 
           key={index} 
