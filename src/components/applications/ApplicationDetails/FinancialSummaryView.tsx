@@ -1,15 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { ChevronUp, ChevronDown, Check, ArrowLeft } from 'lucide-react';
 import { FinancialSummary } from '@/types/application';
-import { Button } from '@/components/ui/button';
-import LoanFinancialSummaryView from './LoanFinancialSummaryView';
-import LeaseFinancialSummaryView from './LeaseFinancialSummaryView';
 import { useSearchParams } from 'react-router-dom';
-import TabComponent, { TabItem } from '@/components/dashboard/TabComponent';
-import { cn } from '@/lib/utils';
 import { usePresentedLender } from '@/utils/dealFinanceNavigation';
+import SummaryHeader from './FinancialSummary/SummaryHeader';
+import LenderTabs from './FinancialSummary/LenderTabs';
+import SectionTabs from './FinancialSummary/SectionTabs';
+import SummaryContent from './FinancialSummary/SummaryContent';
 
 interface FinancialSummaryViewProps {
   financialSummary: FinancialSummary;
@@ -124,96 +122,41 @@ const FinancialSummaryView: React.FC<FinancialSummaryViewProps> = ({
   };
 
   const { data, isLoanType: currentTypeIsLoan } = getFinancialData();
-  
-  // Create lender tabs if multiple lenders exist
-  const createLenderTabItems = (): TabItem[] => {
-    if (!hasMultipleLenders || !financialSummary.lenderSummaries) return [];
-    
-    return Object.keys(financialSummary.lenderSummaries).map(lenderName => {
-      const lenderSummary = financialSummary.lenderSummaries![lenderName];
-      const isPresented = lenderName === presentedLender;
-      const isPresentedToCustomer = lenderSummary.selectedForCustomer === true || isPresented;
-      
-      return {
-        value: lenderName,
-        label: (
-          <div className="flex items-center gap-1">
-            <span>{lenderName}</span>
-            {isPresentedToCustomer && <Check className="h-4 w-4 text-green-600" />}
-          </div>
-        ),
-        content: <></>, // Content is rendered outside of TabContent
-        isPresentedToCustomer: isPresentedToCustomer
-      };
-    });
-  };
 
   return (
     <Card className="h-fit">
       <CardContent className="p-3">
-        <div className="flex justify-between items-center mb-2">
-          <div className="flex items-center">
-            {showBackButton && onBackClick && (
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={onBackClick} 
-                className="mr-2"
-              >
-                <ArrowLeft className="h-4 w-4 mr-1" />
-                Back to Deal Structure
-              </Button>
-            )}
-            <h3 className="text-base font-medium">
-              Financial Summary {currentTypeIsLoan ? '(Loan)' : '(Lease)'} 
-            </h3>
-          </div>
-          <div className="flex items-center cursor-pointer" onClick={toggleExpanded}>
-            {expanded ? <ChevronUp className="h-4 w-4 text-gray-400" /> : <ChevronDown className="h-4 w-4 text-gray-400" />}
-          </div>
-        </div>
+        <SummaryHeader
+          expanded={expanded}
+          toggleExpanded={toggleExpanded}
+          showBackButton={showBackButton}
+          onBackClick={onBackClick}
+          summaryType={currentTypeIsLoan ? 'Loan' : 'Lease'}
+        />
         
         {expanded && (
           <>
             {/* Lender Selection Tabs */}
-            {hasMultipleLenders && (
-              <div className="mb-4">
-                <TabComponent 
-                  defaultValue={selectedLenderName || Object.keys(financialSummary.lenderSummaries!)[0]} 
-                  items={createLenderTabItems()}
-                  onValueChange={handleLenderChange}
-                />
-              </div>
-            )}
+            <LenderTabs
+              lenderSummaries={financialSummary.lenderSummaries}
+              selectedLenderName={selectedLenderName}
+              presentedLender={presentedLender}
+              onLenderChange={handleLenderChange}
+            />
             
             {/* Section Tabs */}
-            <div className="flex mb-2">
-              {tabs.map((tab, index) => (
-                <Button 
-                  key={index} 
-                  variant={tab === activeTab ? "default" : "outline"}
-                  size="sm"
-                  className="mr-1 text-xs h-7 px-2"
-                  onClick={() => handleTabChange(tab)}
-                >
-                  {tab}
-                </Button>
-              ))}
-            </div>
+            <SectionTabs
+              tabs={tabs}
+              activeTab={activeTab}
+              onTabChange={handleTabChange}
+            />
             
-            {currentTypeIsLoan ? (
-              // Loan Financial Summary
-              <LoanFinancialSummaryView 
-                activeTab={activeTab} 
-                tabData={data as any} 
-              />
-            ) : (
-              // Lease Financial Summary
-              <LeaseFinancialSummaryView 
-                activeTab={activeTab} 
-                tabData={data as any} 
-              />
-            )}
+            {/* Financial Summary Content */}
+            <SummaryContent
+              isLoanType={currentTypeIsLoan}
+              activeTab={activeTab}
+              data={data}
+            />
           </>
         )}
       </CardContent>
