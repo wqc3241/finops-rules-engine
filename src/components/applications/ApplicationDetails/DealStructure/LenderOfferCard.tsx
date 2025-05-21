@@ -1,22 +1,12 @@
 
 import React, { useState } from 'react';
-import { ChevronUp, ChevronDown, User, ArrowRight, Pencil, BarChart2, ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { DealStructureOffer, FinancialSummary } from '@/types/application';
 import { Card, CardContent } from '@/components/ui/card';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Separator } from '@/components/ui/separator';
-import { Dialog } from '@/components/ui/dialog';
+import { DealStructureOffer, FinancialSummary } from '@/types/application';
 import { useToast } from '@/hooks/use-toast';
-import StatusBadge from './StatusBadge';
-import CollapsedView from './CollapsedView';
-import LoanCollapsedView from './LoanCollapsedView';
-import ExpandedView from './ExpandedView';
-import EditOfferDialog from './EditOfferDialog';
-import { generateStandardParams } from './utils/offerUtils';
 import { useParams } from 'react-router-dom';
 import { useSearchParams } from 'react-router-dom';
-import FinancialSummaryView from '../FinancialSummaryView';
+import CardHeader from './CardHeader';
+import CollapsibleCardContent from './CollapsibleCardContent';
 
 interface LenderOfferCardProps {
   offer: DealStructureOffer;
@@ -49,7 +39,6 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
 
   // If the parent is expanded, we force the card to be expanded too
   const cardIsExpanded = isExpanded || isCardExpanded;
-  const applicationType = offer.applicationType || 'Lease';
   
   const handlePresentToCustomer = () => {
     onSelectOffer(offer.lenderName);
@@ -100,147 +89,36 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
     });
   };
 
-  // Prepare the standardized parameters for each section
-  const standardizedRequested = generateStandardParams(offer.requested, applicationType);
-  const standardizedApproved = generateStandardParams(offer.approved, applicationType);
-  const standardizedCustomer = generateStandardParams(offer.customer, applicationType);
-
-  // Default form values for edit dialog
-  const editFormDefaults = applicationType === 'Loan' 
-    ? {
-        termLength: offer.customer.find(item => item.name === 'termLength')?.value || '',
-        downPayment: offer.customer.find(item => item.name === 'downPayment')?.value || '',
-        apr: offer.customer.find(item => item.name === 'apr')?.value || '',
-      }
-    : {
-        termLength: offer.customer.find(item => item.name === 'termLength')?.value || '',
-        mileageAllowance: offer.customer.find(item => item.name === 'mileageAllowance')?.value || '',
-        downPayment: offer.customer.find(item => item.name === 'ccrDownPayment')?.value || '',
-      };
-
-  // Get lender-specific financial summary if available
-  const lenderFinancialSummary = financialSummary?.lenderSummaries?.[offer.lenderName];
-  
-  // Create a financial summary object for this specific lender if we have data
-  const lenderSpecificSummary = lenderFinancialSummary ? {
-    ...financialSummary,
-    selectedLender: offer.lenderName,
-    selectedTab: selectedSection
-  } : undefined;
-
   return (
     <Card className={`shadow-sm transition-all ${isSelected ? 'border-green-500 border-2' : ''}`}>
       <CardContent className="p-6">
-        <Collapsible open={cardIsExpanded} onOpenChange={setIsCardExpanded}>
-          <div className="flex justify-between items-center mb-6">
-            <div className="flex items-center">
-              <h4 className="text-xl font-bold">{offer.lenderName}</h4>
-              <StatusBadge status={offer.status} />
-            </div>
-            <div className="flex space-x-2 items-center">
-              <Button 
-                variant="outline" 
-                onClick={handlePresentToCustomer}
-                className={`flex items-center ${isSelected ? 'bg-green-50' : ''}`}
-              >
-                <User className="h-4 w-4 mr-1" />
-                Present to Customer
-              </Button>
-              
-              <Button 
-                variant="outline" 
-                onClick={handleSendToDT}
-                disabled={!isSelected}
-                className={`flex items-center ${!isSelected ? 'opacity-50' : ''}`}
-              >
-                <ArrowRight className="h-4 w-4 mr-1" />
-                Send Deal To DT
-              </Button>
-              
-              <Button 
-                variant="outline" 
-                onClick={() => setIsEditDialogOpen(true)}
-                className="flex items-center"
-              >
-                <Pencil className="h-4 w-4 mr-1" />
-                Edit
-              </Button>
-              
-              <CollapsibleTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  {cardIsExpanded ? 
-                    <ChevronUp className="h-5 w-5 text-gray-400" /> : 
-                    <ChevronDown className="h-5 w-5 text-gray-400" />
-                  }
-                </Button>
-              </CollapsibleTrigger>
-            </div>
-          </div>
-
-          <Separator className="mb-6" />
-
-          {!cardIsExpanded && (
-            applicationType === 'Loan' ? (
-              <LoanCollapsedView 
-                termLength={offer.collapsedView.termLength}
-                monthlyPayments={offer.collapsedView.monthlyPayments}
-                downPayment={offer.collapsedView.downPayment || "N/A"}
-              />
-            ) : (
-              <CollapsedView 
-                termLength={offer.collapsedView.termLength}
-                monthlyPayments={offer.collapsedView.monthlyPayments}
-                dueAtSigning={offer.collapsedView.dueAtSigning || "N/A"}
-              />
-            )
-          )}
-          
-          <CollapsibleContent>
-            {showFinancialSummary && lenderSpecificSummary ? (
-              <div>
-                <div className="mb-6">
-                  <Button 
-                    variant="outline" 
-                    onClick={handleBackToDealStructure}
-                    className="flex items-center"
-                  >
-                    <ArrowLeft className="h-4 w-4 mr-1" />
-                    Back to Deal Structure
-                  </Button>
-                </div>
-                <FinancialSummaryView 
-                  financialSummary={lenderSpecificSummary}
-                  showBackButton={false}
-                />
-              </div>
-            ) : (
-              <ExpandedView 
-                requested={standardizedRequested}
-                approved={standardizedApproved}
-                customer={standardizedCustomer}
-                stipulations={offer.stipulations}
-                contractStatus={offer.contractStatus}
-                applicationType={applicationType}
-                lenderName={offer.lenderName}
-                showFinancialDetailButton={showFinancialDetailButton && financialSummary !== undefined}
-                onViewFinancialDetail={() => handleViewFinancialDetail('approved')}
-                onViewRequestedFinancial={() => handleViewFinancialDetail('requested')}
-                onViewApprovedFinancial={() => handleViewFinancialDetail('approved')}
-                onViewCustomerFinancial={() => handleViewFinancialDetail('customer')}
-              />
-            )}
-          </CollapsibleContent>
-        </Collapsible>
-      </CardContent>
-
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <EditOfferDialog 
-          defaultValues={editFormDefaults}
-          onSubmit={handleEditSubmit}
-          onCancel={() => setIsEditDialogOpen(false)}
-          applicationType={applicationType}
+        <CardHeader 
+          lenderName={offer.lenderName}
+          status={offer.status}
+          isExpanded={cardIsExpanded}
+          isSelected={isSelected}
+          onToggleExpand={() => setIsCardExpanded(!isCardExpanded)}
+          onPresentToCustomer={handlePresentToCustomer}
+          onSendToDT={handleSendToDT}
+          onEditOffer={() => setIsEditDialogOpen(true)}
         />
-      </Dialog>
+
+        <CollapsibleCardContent 
+          offer={offer}
+          isCardExpanded={cardIsExpanded}
+          isSelected={isSelected}
+          showFinancialSummary={showFinancialSummary}
+          selectedSection={selectedSection}
+          isEditDialogOpen={isEditDialogOpen}
+          financialSummary={financialSummary}
+          showFinancialDetailButton={showFinancialDetailButton}
+          onToggleExpand={setIsCardExpanded}
+          onBackToDealStructure={handleBackToDealStructure}
+          onViewFinancialDetail={handleViewFinancialDetail}
+          onEditDialogOpenChange={setIsEditDialogOpen}
+          onEditSubmit={handleEditSubmit}
+        />
+      </CardContent>
     </Card>
   );
 };
