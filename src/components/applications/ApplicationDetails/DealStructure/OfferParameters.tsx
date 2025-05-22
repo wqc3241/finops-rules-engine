@@ -3,6 +3,7 @@ import React from 'react';
 import { DealStructureItem } from '@/types/application';
 import { useFinancialNavigation } from '@/utils/dealFinanceNavigation';
 import { useParams } from 'react-router-dom';
+import { generateStandardParams } from './utils/offerUtils';
 
 interface OfferParametersProps {
   items: DealStructureItem[];
@@ -44,10 +45,13 @@ const OfferParameters: React.FC<OfferParametersProps> = ({
   // Check if this lender is the one presented to customer
   const isPresented = presentedLender === lenderName;
   
+  // Generate standardized parameters that will always show all required fields
+  const standardParams = generateStandardParams(items, applicationType);
+  
   return (
     <>
       <div className="grid grid-cols-2 gap-2 text-sm">
-        {items.map((item, index) => (
+        {standardParams.map((item, index) => (
           <div key={index} className="flex flex-col mb-2">
             <span className="text-gray-500">{item.label}</span>
             <span className="font-medium">{item.value}</span>

@@ -7,6 +7,7 @@ import { BarChart2 } from 'lucide-react';
 import RequestedDealStructure from './RequestedDealStructure';
 import ApprovedDealStructure from './ApprovedDealStructure';
 import CustomerDealStructure from './CustomerDealStructure';
+import { Separator } from '@/components/ui/separator';
 
 interface ExpandedViewProps {
   requested: DealStructureItem[];
@@ -48,6 +49,8 @@ const ExpandedView: React.FC<ExpandedViewProps> = ({
           showFinancialDetailButton={showFinancialDetailButton}
         />
         
+        <Separator orientation="vertical" className="mx-auto h-full" />
+        
         <ApprovedDealStructure 
           items={approved}
           applicationType={applicationType}
@@ -55,6 +58,8 @@ const ExpandedView: React.FC<ExpandedViewProps> = ({
           onViewFinancialSummary={onViewApprovedFinancial}
           showFinancialDetailButton={showFinancialDetailButton}
         />
+        
+        <Separator orientation="vertical" className="mx-auto h-full" />
         
         <CustomerDealStructure 
           items={customer}
