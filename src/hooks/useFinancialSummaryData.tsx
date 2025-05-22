@@ -6,6 +6,7 @@ import { usePresentedLender } from '@/utils/dealFinanceNavigation';
 
 interface UseFinancialSummaryDataProps {
   financialSummary: FinancialSummary;
+  initialSection?: 'requested' | 'approved' | 'customer';
 }
 
 interface FinancialData {
@@ -13,7 +14,10 @@ interface FinancialData {
   isLoanType: boolean;
 }
 
-export function useFinancialSummaryData({ financialSummary }: UseFinancialSummaryDataProps) {
+export function useFinancialSummaryData({ 
+  financialSummary, 
+  initialSection 
+}: UseFinancialSummaryDataProps) {
   const [searchParams, setSearchParams] = useSearchParams();
   const lenderFromUrl = searchParams.get('lender');
   const sectionFromUrl = searchParams.get('section') as 'requested' | 'approved' | 'customer' | null;
@@ -40,25 +44,38 @@ export function useFinancialSummaryData({ financialSummary }: UseFinancialSummar
         ? financialSummary.loan?.tabs || ['Requested', 'Approved', 'Customer']
         : financialSummary.lfs.tabs);
   
-  // Set initial active tab based on URL or default
-  const [activeTab, setActiveTab] = useState<string>(
-    sectionFromUrl 
-      ? sectionFromUrl.charAt(0).toUpperCase() + sectionFromUrl.slice(1) 
-      : (selectedLender?.activeTab || 
-        (isLoanType 
-          ? financialSummary.loan?.activeTab || 'Approved' 
-          : financialSummary.lfs.activeTab))
-  );
-
-  // Update active tab when URL changes
-  useEffect(() => {
+  // Determine the initial active tab prioritizing:
+  // 1. initialSection passed from parent
+  // 2. section from URL
+  // 3. saved active tab in the financial summary
+  // 4. default to 'Approved'
+  const getInitialActiveTab = () => {
+    if (initialSection) {
+      return initialSection.charAt(0).toUpperCase() + initialSection.slice(1);
+    }
+    
     if (sectionFromUrl) {
       const capitalizedSection = sectionFromUrl.charAt(0).toUpperCase() + sectionFromUrl.slice(1);
       if (tabs.includes(capitalizedSection)) {
-        setActiveTab(capitalizedSection);
+        return capitalizedSection;
       }
     }
-  }, [sectionFromUrl, tabs]);
+    
+    return selectedLender?.activeTab || 
+      (isLoanType 
+        ? financialSummary.loan?.activeTab || 'Approved' 
+        : financialSummary.lfs.activeTab);
+  };
+  
+  const [activeTab, setActiveTab] = useState<string>(getInitialActiveTab());
+
+  // Update active tab when URL or initialSection changes
+  useEffect(() => {
+    const newActiveTab = getInitialActiveTab();
+    if (newActiveTab !== activeTab) {
+      setActiveTab(newActiveTab);
+    }
+  }, [sectionFromUrl, tabs, initialSection]);
   
   // Update selected lender when URL changes
   useEffect(() => {

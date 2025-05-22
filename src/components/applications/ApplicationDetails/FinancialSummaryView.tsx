@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { FinancialSummary } from '@/types/application';
 import { useFinancialSummaryData } from '@/hooks/useFinancialSummaryData';
@@ -12,12 +12,14 @@ interface FinancialSummaryViewProps {
   financialSummary: FinancialSummary;
   showBackButton?: boolean;
   onBackClick?: () => void;
+  initialSection?: 'requested' | 'approved' | 'customer';
 }
 
 const FinancialSummaryView: React.FC<FinancialSummaryViewProps> = ({ 
   financialSummary,
   showBackButton = false,
-  onBackClick
+  onBackClick,
+  initialSection
 }) => {
   const [expanded, setExpanded] = useState(true);
   
@@ -32,7 +34,10 @@ const FinancialSummaryView: React.FC<FinancialSummaryViewProps> = ({
     data,
     currentTypeIsLoan,
     hasMultipleLenders
-  } = useFinancialSummaryData({ financialSummary });
+  } = useFinancialSummaryData({ 
+    financialSummary,
+    initialSection
+  });
 
   const toggleExpanded = () => {
     setExpanded(!expanded);
@@ -73,6 +78,7 @@ const FinancialSummaryView: React.FC<FinancialSummaryViewProps> = ({
               isLoanType={currentTypeIsLoan}
               activeTab={activeTab}
               data={data}
+              section={initialSection}
             />
           </>
         )}

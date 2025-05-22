@@ -15,7 +15,7 @@ interface LenderOfferCardProps {
   onSelectOffer: (offerLender: string) => void;
   onPresentToCustomer?: (lenderName: string) => void;
   showFinancialDetailButton?: boolean;
-  onViewFinancialDetail?: (lenderName: string) => void;
+  onViewFinancialDetail?: (lenderName: string, section: 'requested' | 'approved' | 'customer') => void;
   financialSummary?: FinancialSummary;
 }
 
@@ -65,9 +65,14 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
     });
   };
 
-  const handleViewFinancialDetail = (section: 'requested' | 'approved' | 'customer' = 'approved') => {
+  const handleViewFinancialDetail = (section: 'requested' | 'approved' | 'customer') => {
     setSelectedSection(section);
     setShowFinancialSummary(true);
+    
+    // Call parent handler if provided
+    if (onViewFinancialDetail) {
+      onViewFinancialDetail(offer.lenderName, section);
+    }
   };
 
   const handleBackToDealStructure = () => {

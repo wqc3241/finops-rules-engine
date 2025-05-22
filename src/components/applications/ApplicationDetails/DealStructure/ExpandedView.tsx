@@ -15,7 +15,6 @@ interface ExpandedViewProps {
   applicationType?: 'Lease' | 'Loan';
   lenderName?: string;
   showFinancialDetailButton?: boolean;
-  onViewFinancialDetail?: () => void;
   onViewRequestedFinancial?: () => void;
   onViewApprovedFinancial?: () => void;
   onViewCustomerFinancial?: () => void;
@@ -30,7 +29,6 @@ const ExpandedView: React.FC<ExpandedViewProps> = ({
   applicationType = 'Lease',
   lenderName,
   showFinancialDetailButton = false,
-  onViewFinancialDetail,
   onViewRequestedFinancial,
   onViewApprovedFinancial,
   onViewCustomerFinancial
@@ -114,19 +112,6 @@ const ExpandedView: React.FC<ExpandedViewProps> = ({
           <span className="px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">
             {contractStatus}
           </span>
-        </div>
-      )}
-      
-      {showFinancialDetailButton && onViewFinancialDetail && (
-        <div className="mt-6 flex justify-end">
-          <Button 
-            variant="outline" 
-            onClick={onViewFinancialDetail}
-            className="flex items-center"
-          >
-            <BarChart2 className="h-4 w-4 mr-1" />
-            View Complete Financial Summary
-          </Button>
         </div>
       )}
     </>

@@ -42,14 +42,16 @@ export const usePresentedLender = () => {
 // Hook for navigating to financial summary
 export const useFinancialNavigation = () => {
   const navigate = useNavigate();
+  const { id: applicationId } = useParams<{ id: string }>();
   const { presentedLender, markLenderAsPresented } = usePresentedLender();
 
   const navigateToFinancialSummary = (
-    applicationId: string, 
     lenderName: string, 
-    section: 'requested' | 'approved' | 'customer',
+    section: 'requested' | 'approved' | 'customer' = 'approved',
     markAsPresented: boolean = false
   ) => {
+    if (!applicationId) return;
+    
     if (markAsPresented) {
       markLenderAsPresented(lenderName);
     }
