@@ -17,7 +17,7 @@ interface TabContentProps {
 }
 
 const TabContent: React.FC<TabContentProps> = ({ 
-  tab = 'order-details', 
+  tab = 'details', 
   applicationFullDetails,
   notes
 }) => {
@@ -40,15 +40,6 @@ const TabContent: React.FC<TabContentProps> = ({
   };
   
   switch (tab) {
-    case 'details':
-      return (
-        <ApplicationData
-          applicantInfo={applicationFullDetails.applicantInfo}
-          coApplicantInfo={applicationFullDetails.coApplicantInfo}
-          vehicleData={applicationFullDetails.vehicleData}
-          appDtReferences={applicationFullDetails.appDtReferences}
-        />
-      );
     case 'financial-summary':
       return (
         <CombinedFinancialView 
@@ -57,6 +48,8 @@ const TabContent: React.FC<TabContentProps> = ({
           applicationType={applicationFullDetails.details.type}
         />
       );
+    case 'order-details':
+      return <OrderDetailsView orderDetails={applicationFullDetails.orderDetails} />;
     case 'risk-compliance':
       return (
         <RiskComplianceView
@@ -70,9 +63,16 @@ const TabContent: React.FC<TabContentProps> = ({
       return <ApplicationHistoryView history={applicationFullDetails.history} />;
     case 'notes':
       return <NotesView notes={notes} />;
-    case 'order-details':
+    case 'details':
     default:
-      return <OrderDetailsView orderDetails={applicationFullDetails.orderDetails} />;
+      return (
+        <ApplicationData
+          applicantInfo={applicationFullDetails.applicantInfo}
+          coApplicantInfo={applicationFullDetails.coApplicantInfo}
+          vehicleData={applicationFullDetails.vehicleData}
+          appDtReferences={applicationFullDetails.appDtReferences}
+        />
+      );
   }
 };
 
