@@ -18,6 +18,7 @@ const SummaryContent: React.FC<SummaryContentProps> = ({
     return <div className="p-4 text-center text-gray-500">No financial data available</div>;
   }
 
+  // Use the correct view based on whether this is a loan or lease type
   return isLoanType ? (
     <LoanFinancialSummaryView 
       activeTab={activeTab} 

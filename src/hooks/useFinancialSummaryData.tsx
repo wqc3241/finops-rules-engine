@@ -16,7 +16,8 @@ export function useFinancialSummaryData({ financialSummary, initialSection }: Us
   const lenderFromUrl = getCurrentLender();
   const sectionFromUrl = getCurrentSection();
   
-  const isLoanType = financialSummary.type === 'Loan';
+  // Default to the application's main type
+  const defaultIsLoanType = financialSummary.type === 'Loan';
   
   // Check if we have lender summaries to display
   const hasMultipleLenders = financialSummary.lenderSummaries && Object.keys(financialSummary.lenderSummaries).length > 0;
@@ -33,7 +34,7 @@ export function useFinancialSummaryData({ financialSummary, initialSection }: Us
   // Get tabs based on the selection
   const tabs = selectedLender
     ? selectedLender.tabs || ['Requested', 'Approved', 'Customer']
-    : (isLoanType 
+    : (defaultIsLoanType 
         ? financialSummary.loan?.tabs || ['Requested', 'Approved', 'Customer']
         : financialSummary.lfs.tabs);
   
@@ -42,7 +43,7 @@ export function useFinancialSummaryData({ financialSummary, initialSection }: Us
     (sectionFromUrl 
       ? sectionFromUrl.charAt(0).toUpperCase() + sectionFromUrl.slice(1) as 'Requested' | 'Approved' | 'Customer'
       : (selectedLender?.activeTab || 
-        (isLoanType 
+        (defaultIsLoanType 
           ? financialSummary.loan?.activeTab || 'Approved' 
           : financialSummary.lfs.activeTab)));
           
@@ -89,23 +90,27 @@ export function useFinancialSummaryData({ financialSummary, initialSection }: Us
 
   // Get current financial data based on selected lender and tab
   const getCurrentFinancialData = () => {
+    // Determine the type for the current view
+    let currentIsLoanType = defaultIsLoanType;
+    
     if (selectedLenderName && financialSummary.lenderSummaries?.[selectedLenderName]) {
-      // Use selected lender's data
+      // Use selected lender's type
       const lender = financialSummary.lenderSummaries[selectedLenderName];
-      const lenderType = lender.type;
+      currentIsLoanType = lender.type === 'Loan';
+      
       const tabLower = activeTab.toLowerCase() as 'requested' | 'approved' | 'customer';
       return {
         data: lender[tabLower],
-        isLoanType: lenderType === 'Loan'
+        isLoanType: currentIsLoanType
       };
     } else {
       // Use default financial summary data
       const tabLower = activeTab.toLowerCase() as 'requested' | 'approved' | 'customer';
       return {
-        data: isLoanType 
+        data: currentIsLoanType 
           ? financialSummary.loan?.[tabLower] || {} 
           : financialSummary.lfs[tabLower],
-        isLoanType: isLoanType
+        isLoanType: currentIsLoanType
       };
     }
   };
