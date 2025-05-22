@@ -1,11 +1,11 @@
 
 import React from 'react';
-import { FinancialSummaryTabData } from '@/types/application';
+import { LeaseFinancialSummaryTabData } from '@/types/application';
 import { DataField } from './OrderDetails/DataField';
 
 interface LeaseFinancialSummaryViewProps {
   activeTab: string;
-  tabData: FinancialSummaryTabData;
+  tabData: LeaseFinancialSummaryTabData;
 }
 
 const LeaseFinancialSummaryView: React.FC<LeaseFinancialSummaryViewProps> = ({ activeTab, tabData }) => {

@@ -36,7 +36,7 @@ export interface LoanFinancialSummaryTabData {
   transactionVersion: string;
 }
 
-export interface FinancialSummaryTabData {
+export interface LeaseFinancialSummaryTabData {
   basePrice: string;
   destFee: string;
   msrp: string;
@@ -88,9 +88,9 @@ export interface FinancialSummary {
   lfs: {
     tabs: string[];
     activeTab: string;
-    requested: FinancialSummaryTabData;
-    approved: FinancialSummaryTabData;
-    customer: FinancialSummaryTabData;
+    requested: LeaseFinancialSummaryTabData;
+    approved: LeaseFinancialSummaryTabData;
+    customer: LeaseFinancialSummaryTabData;
   };
   type: 'Lease' | 'Loan';
   loan?: {
@@ -106,9 +106,9 @@ export interface FinancialSummary {
     tabs: string[];
     activeTab?: string;
     selectedForCustomer?: boolean; // New property to track if this lender has been presented to customer
-    requested: FinancialSummaryTabData | LoanFinancialSummaryTabData;
-    approved: FinancialSummaryTabData | LoanFinancialSummaryTabData;
-    customer: FinancialSummaryTabData | LoanFinancialSummaryTabData;
+    requested: LeaseFinancialSummaryTabData | LoanFinancialSummaryTabData;
+    approved: LeaseFinancialSummaryTabData | LoanFinancialSummaryTabData;
+    customer: LeaseFinancialSummaryTabData | LoanFinancialSummaryTabData;
   }>;
   selectedLender?: string;
   selectedTab?: string;

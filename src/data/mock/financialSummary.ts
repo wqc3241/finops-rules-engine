@@ -1,11 +1,11 @@
 
-import { FinancialSummaryTabData } from '../../types/application';
+import { LeaseFinancialSummaryTabData } from '../../types/application';
 
 // Financial Summary data
 export const financialSummaryData: {
-  requested: FinancialSummaryTabData;
-  approved: FinancialSummaryTabData;
-  customer: FinancialSummaryTabData;
+  requested: LeaseFinancialSummaryTabData;
+  approved: LeaseFinancialSummaryTabData;
+  customer: LeaseFinancialSummaryTabData;
 } = {
   requested: {
     basePrice: '128,450',
