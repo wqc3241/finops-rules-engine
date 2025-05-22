@@ -40,18 +40,22 @@ const ApplicationData: React.FC<ApplicationDataProps> = ({
               <DataField label="Email Address" value={applicantInfo.emailAddress} />
               <DataField label="Contact Number" value={applicantInfo.contactNumber} />
               <DataField label="DOB" value={applicantInfo.dob} />
+              
+              <h5 className="text-sm font-medium mt-4 mb-2">Housing Details</h5>
               <DataField label="Residence Type" value={applicantInfo.residenceType} />
               <DataField label="Housing Payment Amount (Monthly)" value={applicantInfo.housingPaymentAmount} />
               <DataField label="Address: House # & Street" value={applicantInfo.address} />
               <DataField label="City" value={applicantInfo.city} />
               <DataField label="State" value={applicantInfo.state} />
               <DataField label="Zip Code" value={applicantInfo.zipCode} />
+              
+              <h5 className="text-sm font-medium mt-4 mb-2">Employment Details</h5>
               <DataField label="Employment Type" value={applicantInfo.employmentType} />
               <DataField label="Employer Name" value={applicantInfo.employerName} />
               <DataField label="Job Title" value={applicantInfo.jobTitle} />
-              <DataField label="Income Amount (Monthly)" value={applicantInfo.incomeAmount} />
+              <DataField label="Annual Income" value={applicantInfo.incomeAmount} />
               <DataField label="Other Source of Income" value={applicantInfo.otherSourceOfIncome} />
-              <DataField label="Other Income Amount (Monthly)" value={applicantInfo.otherIncomeAmount} />
+              <DataField label="Other Income Amount (Annual)" value={applicantInfo.otherIncomeAmount} />
             </div>
           </section>
 
@@ -66,18 +70,22 @@ const ApplicationData: React.FC<ApplicationDataProps> = ({
                 <DataField label="Email Address" value={coApplicantInfo.emailAddress} />
                 <DataField label="Contact Number" value={coApplicantInfo.contactNumber} />
                 <DataField label="DOB" value={coApplicantInfo.dob} />
+                
+                <h5 className="text-sm font-medium mt-4 mb-2">Housing Details</h5>
                 <DataField label="Residence Type" value={coApplicantInfo.residenceType} />
                 <DataField label="Housing Payment Amount (Monthly)" value={coApplicantInfo.housingPaymentAmount} />
                 <DataField label="Address: House # & Street" value={coApplicantInfo.address} />
                 <DataField label="City" value={coApplicantInfo.city} />
                 <DataField label="State" value={coApplicantInfo.state} />
                 <DataField label="Zip Code" value={coApplicantInfo.zipCode} />
+                
+                <h5 className="text-sm font-medium mt-4 mb-2">Employment Details</h5>
                 <DataField label="Employment Type" value={coApplicantInfo.employmentType} />
                 <DataField label="Employer Name" value={coApplicantInfo.employerName} />
                 <DataField label="Job Title" value={coApplicantInfo.jobTitle} />
-                <DataField label="Income Amount (Monthly)" value={coApplicantInfo.incomeAmount} />
+                <DataField label="Annual Income" value={coApplicantInfo.incomeAmount} />
                 <DataField label="Other Source of Income" value={coApplicantInfo.otherSourceOfIncome} />
-                <DataField label="Other Income Amount (Monthly)" value={coApplicantInfo.otherIncomeAmount} />
+                <DataField label="Other Income Amount (Annual)" value={coApplicantInfo.otherIncomeAmount} />
               </div>
             </section>
           )}
