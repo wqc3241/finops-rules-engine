@@ -19,6 +19,7 @@ interface Rule {
   maxPTI: number | null;
   minDTI: number;
   maxDTI: number;
+  employmentType: string;
 }
 
 interface RulesTableProps {
@@ -48,7 +49,8 @@ const initialRulesWithoutUUID = [
     minPTI: 10,
     maxPTI: 20,
     minDTI: 50,
-    maxDTI: 60
+    maxDTI: 60,
+    employmentType: "Payroll"
   },
   {
     id: "P002",
@@ -62,7 +64,8 @@ const initialRulesWithoutUUID = [
     minPTI: null,
     maxPTI: null,
     minDTI: 50,
-    maxDTI: 60
+    maxDTI: 60,
+    employmentType: "Payroll"
   },
   {
     id: "P003",
@@ -76,7 +79,8 @@ const initialRulesWithoutUUID = [
     minPTI: null,
     maxPTI: null,
     minDTI: 0,
-    maxDTI: 0
+    maxDTI: 0,
+    employmentType: "Payroll"
   }
 ];
 
@@ -136,8 +140,9 @@ const RulesTable = ({ onEdit, onCopy, onRemove }: RulesTableProps) => {
             <TableHead>Max Age</TableHead>
             <TableHead>Min PTI</TableHead>
             <TableHead>Max PTI</TableHead>
-            <TableHead className="highlight">Min DTI</TableHead>
-            <TableHead className="highlight">Max DTI</TableHead>
+            <TableHead>Min DTI</TableHead>
+            <TableHead>Max DTI</TableHead>
+            <TableHead>Employment Type</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -162,8 +167,9 @@ const RulesTable = ({ onEdit, onCopy, onRemove }: RulesTableProps) => {
               <TableCell>{rule.maxAge || ''}</TableCell>
               <TableCell>{formatPercent(rule.minPTI)}</TableCell>
               <TableCell>{formatPercent(rule.maxPTI)}</TableCell>
-              <TableCell className="highlight">{formatPercent(rule.minDTI)}</TableCell>
-              <TableCell className="highlight">{formatPercent(rule.maxDTI)}</TableCell>
+              <TableCell>{formatPercent(rule.minDTI)}</TableCell>
+              <TableCell>{formatPercent(rule.maxDTI)}</TableCell>
+              <TableCell>{rule.employmentType}</TableCell>
               <TableCell className="text-right space-x-2">
                 <Button 
                   variant="ghost" 
