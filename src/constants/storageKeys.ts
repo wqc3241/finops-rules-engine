@@ -1,13 +1,11 @@
 
-// Storage keys for application data
+// Application data storage keys
 export const APPLICATIONS_STORAGE_KEY = 'lucidApplicationsData';
 export const APPLICATIONS_UPDATE_KEY = 'lucidApplicationsLastUpdate';
 
-// Storage keys for filter preferences
-export const SORT_OPTION_KEY = 'applicationSortOption';
-export const SORT_DIRECTION_KEY = 'applicationSortDirection';
-export const STATUS_FILTERS_KEY = 'applicationStatusFilters';
-export const TYPE_FILTERS_KEY = 'applicationTypeFilters';
-
-// Storage key for financial summary preferences
-export const FINANCIAL_SUMMARY_TAB_KEY = 'financialSummaryActiveTab';
+// Filter and sort preference keys
+export const SORT_OPTION_KEY = 'lucidSortOption';
+export const SORT_DIRECTION_KEY = 'lucidSortDirection';
+export const STATUS_FILTERS_KEY = 'lucidStatusFilters';
+export const TYPE_FILTERS_KEY = 'lucidTypeFilters';
+export const STATE_FILTERS_KEY = 'lucidStateFilters';

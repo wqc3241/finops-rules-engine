@@ -120,7 +120,7 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({ application }) => {
                 </h3>
                 <ChevronRight className="text-gray-400" />
               </div>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-4 gap-4">
                 <div>
                   <p className="text-sm text-gray-500 mb-1">Name</p>
                   <p className="text-gray-800">{application.name}</p>
@@ -128,6 +128,10 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({ application }) => {
                 <div>
                   <p className="text-sm text-gray-500 mb-1">Type</p>
                   <p className="text-gray-800">{application.type}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">State</p>
+                  <p className="text-gray-800">{application.state || 'N/A'}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500 mb-1">Status</p>

@@ -1,44 +1,25 @@
 
-// Basic application types
+// Base application type
 export interface Application {
   id: string;
   orderNumber: string;
   name: string;
+  status: string;
   type: string;
-  status: string;
-  notes: string; // Keeping this for backward compatibility
-  notesArray?: Note[]; // Adding array of notes
   date: string;
+  notes?: string;
+  notesArray?: Array<{
+    content: string;
+    date: string;
+    time: string;
+    user: string;
+  }>;
+  state?: string;
 }
 
-export interface ApplicationDetails {
-  orderNumber: string;
-  model: string;
-  edition: string;
-  orderedBy: string;
-  status: string;
-  type: string; // Making type required to match Lease or Loan
+export interface Note {
+  content: string;
+  date: string;
+  time: string;
+  user: string;
 }
-
-export interface ApplicationFullDetails {
-  details: ApplicationDetails;
-  applicantInfo: ApplicantInfo;
-  coApplicantInfo?: ApplicantInfo;
-  vehicleData: VehicleData;
-  appDtReferences: AppDTReferences;
-  orderDetails: OrderDetail;
-  history: HistoryItem[];
-  notes: Note[];
-  financialSummary: FinancialSummary;
-  dealStructure: DealStructureOffer[];
-  riskComplianceData?: RiskComplianceData; // Added optional risk compliance data
-}
-
-// Importing all types needed for the ApplicationFullDetails interface
-import { ApplicantInfo } from './applicant';
-import { VehicleData, AppDTReferences } from './vehicle';
-import { OrderDetail } from './order';
-import { HistoryItem, Note } from './history';
-import { FinancialSummary } from './financial';
-import { DealStructureOffer } from './deal';
-import { RiskComplianceData } from './report';

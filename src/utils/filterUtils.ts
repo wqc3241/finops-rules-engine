@@ -14,6 +14,12 @@ export const extractUniqueTypes = (applications: Application[]): string[] => {
   return types.sort();
 };
 
+// Extract unique states from applications
+export const extractUniqueStates = (applications: Application[]): string[] => {
+  const states = Array.from(new Set(applications.map(app => app.state).filter(Boolean)));
+  return states.sort();
+};
+
 // Toggle status filter
 export const createToggleStatusFilter = (
   setStatusFilters: React.Dispatch<React.SetStateAction<string[]>>
@@ -54,14 +60,36 @@ export const createToggleTypeFilter = (
   };
 };
 
+// Toggle state filter
+export const createToggleStateFilter = (
+  setStateFilters: React.Dispatch<React.SetStateAction<string[]>>
+) => {
+  return (state: string) => {
+    setStateFilters(prev => {
+      const newFilters = prev.includes(state)
+        ? prev.filter(s => s !== state)
+        : [...prev, state];
+      
+      // Show toast only when adding a filter
+      if (!prev.includes(state)) {
+        toast.success(`Filtered by state: ${state}`);
+      }
+      
+      return newFilters;
+    });
+  };
+};
+
 // Clear all filters
 export const createClearFilters = (
   setStatusFilters: React.Dispatch<React.SetStateAction<string[]>>,
-  setTypeFilters: React.Dispatch<React.SetStateAction<string[]>>
+  setTypeFilters: React.Dispatch<React.SetStateAction<string[]>>,
+  setStateFilters: React.Dispatch<React.SetStateAction<string[]>>
 ) => {
   return () => {
     setStatusFilters([]);
     setTypeFilters([]);
+    setStateFilters([]);
     toast.success('All filters cleared');
   };
 };

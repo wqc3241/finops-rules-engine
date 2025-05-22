@@ -5,7 +5,8 @@ import {
   SORT_OPTION_KEY,
   SORT_DIRECTION_KEY,
   STATUS_FILTERS_KEY,
-  TYPE_FILTERS_KEY
+  TYPE_FILTERS_KEY,
+  STATE_FILTERS_KEY
 } from '@/constants/storageKeys';
 
 // Get saved applications from localStorage
@@ -53,6 +54,12 @@ export const getSavedTypeFilters = (): string[] => {
   return saved ? JSON.parse(saved) : [];
 };
 
+// Get saved state filters from localStorage
+export const getSavedStateFilters = (): string[] => {
+  const saved = localStorage.getItem(STATE_FILTERS_KEY);
+  return saved ? JSON.parse(saved) : [];
+};
+
 // Save filter/sort preferences to localStorage
 export const saveSortOptionToStorage = (sortOption: string): void => {
   localStorage.setItem(SORT_OPTION_KEY, sortOption);
@@ -68,4 +75,8 @@ export const saveStatusFiltersToStorage = (statusFilters: string[]): void => {
 
 export const saveTypeFiltersToStorage = (typeFilters: string[]): void => {
   localStorage.setItem(TYPE_FILTERS_KEY, JSON.stringify(typeFilters));
+};
+
+export const saveStateFiltersToStorage = (stateFilters: string[]): void => {
+  localStorage.setItem(STATE_FILTERS_KEY, JSON.stringify(stateFilters));
 };

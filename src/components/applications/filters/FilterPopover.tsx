@@ -6,27 +6,34 @@ import { Badge } from '@/components/ui/badge';
 import { SlidersHorizontal, X } from 'lucide-react';
 import StatusFilters from './StatusFilters';
 import TypeFilters from './TypeFilters';
+import StateFilters from './StateFilters';
 
 interface FilterPopoverProps {
   uniqueStatuses: string[];
   uniqueTypes: string[];
+  uniqueStates: string[];
   statusFilters: string[];
   typeFilters: string[];
+  stateFilters: string[];
   toggleStatusFilter: (status: string) => void;
   toggleTypeFilter: (type: string) => void;
+  toggleStateFilter: (state: string) => void;
   clearFilters: () => void;
 }
 
 const FilterPopover: React.FC<FilterPopoverProps> = ({
   uniqueStatuses,
   uniqueTypes,
+  uniqueStates,
   statusFilters,
   typeFilters,
+  stateFilters,
   toggleStatusFilter,
   toggleTypeFilter,
+  toggleStateFilter,
   clearFilters
 }) => {
-  const activeFiltersCount = statusFilters.length + typeFilters.length;
+  const activeFiltersCount = statusFilters.length + typeFilters.length + stateFilters.length;
   
   return (
     <Popover>
@@ -76,6 +83,13 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
             uniqueTypes={uniqueTypes}
             typeFilters={typeFilters}
             toggleTypeFilter={toggleTypeFilter}
+          />
+
+          {/* State filters */}
+          <StateFilters 
+            uniqueStates={uniqueStates}
+            stateFilters={stateFilters}
+            toggleStateFilter={toggleStateFilter}
           />
         </div>
       </PopoverContent>

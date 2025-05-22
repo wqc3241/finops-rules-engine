@@ -15,11 +15,14 @@ const ApplicationList: React.FC = () => {
     setSortDirection,
     statusFilters,
     typeFilters,
+    stateFilters,
     uniqueStatuses,
     uniqueTypes,
+    uniqueStates,
     filteredApplications,
     toggleStatusFilter,
     toggleTypeFilter,
+    toggleStateFilter,
     clearFilters,
     toggleSortDirection,
   } = useApplicationFiltering(initialApplications);
@@ -37,10 +40,13 @@ const ApplicationList: React.FC = () => {
         <FilterPopover 
           uniqueStatuses={uniqueStatuses}
           uniqueTypes={uniqueTypes}
+          uniqueStates={uniqueStates}
           statusFilters={statusFilters}
           typeFilters={typeFilters}
+          stateFilters={stateFilters}
           toggleStatusFilter={toggleStatusFilter}
           toggleTypeFilter={toggleTypeFilter}
+          toggleStateFilter={toggleStateFilter}
           clearFilters={clearFilters}
         />
       </div>

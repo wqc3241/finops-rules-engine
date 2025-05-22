@@ -8,10 +8,12 @@ import {
   getSavedSortDirection, 
   getSavedStatusFilters, 
   getSavedTypeFilters,
+  getSavedStateFilters,
   saveSortOptionToStorage,
   saveSortDirectionToStorage,
   saveStatusFiltersToStorage,
   saveTypeFiltersToStorage,
+  saveStateFiltersToStorage,
   getSavedApplications,
   saveApplicationsToStorage
 } from '@/utils/localStorageUtils';
@@ -22,8 +24,10 @@ import {
 import {
   extractUniqueStatuses,
   extractUniqueTypes,
+  extractUniqueStates,
   createToggleStatusFilter,
   createToggleTypeFilter,
+  createToggleStateFilter,
   createClearFilters
 } from '@/utils/filterUtils';
 
@@ -39,6 +43,7 @@ export const useApplicationFiltering = (initialApplications: Application[]) => {
   const [applications, setApplications] = useState<Application[]>(getInitialApplications());
   const [statusFilters, setStatusFilters] = useState<string[]>(getSavedStatusFilters());
   const [typeFilters, setTypeFilters] = useState<string[]>(getSavedTypeFilters());
+  const [stateFilters, setStateFilters] = useState<string[]>(getSavedStateFilters());
   
   // Save applications to localStorage whenever they change
   useEffect(() => {
@@ -63,12 +68,33 @@ export const useApplicationFiltering = (initialApplications: Application[]) => {
     saveTypeFiltersToStorage(typeFilters);
   }, [typeFilters]);
   
+  useEffect(() => {
+    saveStateFiltersToStorage(stateFilters);
+  }, [stateFilters]);
+  
   // Initialize application data if localStorage is empty
   useEffect(() => {
     if (applications.length === 0 && initialApplications.length > 0) {
-      const appsWithNotesArray = initializeApplicationsWithNotes(initialApplications);
-      setApplications(appsWithNotesArray);
-      saveApplicationsToStorage(appsWithNotesArray);
+      // Process applications to add state from orderDetails
+      const appsWithNotesAndState = initializeApplicationsWithNotes(initialApplications).map(app => {
+        // Here we would ideally fetch state from orderDetails if available
+        // For demonstration, we'll add some mock states
+        const stateMap: {[key: string]: string} = {
+          "1": "California",
+          "2": "New York",
+          "3": "Texas",
+          "4": "Florida",
+          "5": "Illinois"
+        };
+        
+        return {
+          ...app,
+          state: stateMap[app.id] || "Unknown"
+        };
+      });
+      
+      setApplications(appsWithNotesAndState);
+      saveApplicationsToStorage(appsWithNotesAndState);
     }
   }, [applications.length, initialApplications]);
   
@@ -98,9 +124,10 @@ export const useApplicationFiltering = (initialApplications: Application[]) => {
     return setupGlobalNoteUpdateFunction(setApplications);
   }, []);
   
-  // Extract unique status and type values for filter options
+  // Extract unique status, type, and state values for filter options
   const uniqueStatuses = useMemo(() => extractUniqueStatuses(applications), [applications]);
   const uniqueTypes = useMemo(() => extractUniqueTypes(applications), [applications]);
+  const uniqueStates = useMemo(() => extractUniqueStates(applications), [applications]);
   
   // Calculate filtered applications
   const filteredApplications = useMemo(() => {
@@ -116,14 +143,20 @@ export const useApplicationFiltering = (initialApplications: Application[]) => {
       filtered = filtered.filter(app => typeFilters.includes(app.type));
     }
     
+    // Apply state filter if any state is selected
+    if (stateFilters.length > 0) {
+      filtered = filtered.filter(app => app.state && stateFilters.includes(app.state));
+    }
+    
     // Apply sorting
     return sortByProperty(filtered, sortOption as keyof Application, sortDirection);
-  }, [applications, statusFilters, typeFilters, sortOption, sortDirection]);
+  }, [applications, statusFilters, typeFilters, stateFilters, sortOption, sortDirection]);
   
   // Create filter toggle functions
   const toggleStatusFilter = createToggleStatusFilter(setStatusFilters);
   const toggleTypeFilter = createToggleTypeFilter(setTypeFilters);
-  const clearFilters = createClearFilters(setStatusFilters, setTypeFilters);
+  const toggleStateFilter = createToggleStateFilter(setStateFilters);
+  const clearFilters = createClearFilters(setStatusFilters, setTypeFilters, setStateFilters);
   
   // Toggle sort direction
   const toggleSortDirection = () => {
@@ -139,11 +172,14 @@ export const useApplicationFiltering = (initialApplications: Application[]) => {
     setSortDirection,
     statusFilters,
     typeFilters,
+    stateFilters,
     uniqueStatuses,
     uniqueTypes,
+    uniqueStates,
     filteredApplications,
     toggleStatusFilter,
     toggleTypeFilter,
+    toggleStateFilter,
     clearFilters,
     toggleSortDirection,
   };
