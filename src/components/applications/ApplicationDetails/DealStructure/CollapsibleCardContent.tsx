@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Separator } from '@/components/ui/separator';
@@ -9,7 +8,6 @@ import ExpandedView from './ExpandedView';
 import FinancialSummarySection from './FinancialSummarySection';
 import { Dialog } from '@/components/ui/dialog';
 import EditOfferDialog from './EditOfferDialog';
-
 interface CollapsibleCardContentProps {
   offer: DealStructureOffer;
   isCardExpanded: boolean;
@@ -28,7 +26,6 @@ interface CollapsibleCardContentProps {
   onEditDialogOpenChange: (open: boolean) => void;
   onEditSubmit: (data: any) => void;
 }
-
 const CollapsibleCardContent: React.FC<CollapsibleCardContentProps> = ({
   offer,
   isCardExpanded,
@@ -50,76 +47,29 @@ const CollapsibleCardContent: React.FC<CollapsibleCardContentProps> = ({
   const applicationType = offer.applicationType || 'Lease';
 
   // Default form values for edit dialog
-  const editFormDefaults = applicationType === 'Loan' 
-    ? {
-        termLength: offer.customer.find(item => item.name === 'termLength')?.value || '',
-        downPayment: offer.customer.find(item => item.name === 'downPayment')?.value || '',
-        apr: offer.customer.find(item => item.name === 'apr')?.value || '',
-      }
-    : {
-        termLength: offer.customer.find(item => item.name === 'termLength')?.value || '',
-        mileageAllowance: offer.customer.find(item => item.name === 'mileageAllowance')?.value || '',
-        downPayment: offer.customer.find(item => item.name === 'ccrDownPayment')?.value || '',
-      };
-
-  return (
-    <>
+  const editFormDefaults = applicationType === 'Loan' ? {
+    termLength: offer.customer.find(item => item.name === 'termLength')?.value || '',
+    downPayment: offer.customer.find(item => item.name === 'downPayment')?.value || '',
+    apr: offer.customer.find(item => item.name === 'apr')?.value || ''
+  } : {
+    termLength: offer.customer.find(item => item.name === 'termLength')?.value || '',
+    mileageAllowance: offer.customer.find(item => item.name === 'mileageAllowance')?.value || '',
+    downPayment: offer.customer.find(item => item.name === 'ccrDownPayment')?.value || ''
+  };
+  return <>
       <Collapsible open={isCardExpanded} onOpenChange={onToggleExpand}>
-        <Separator className="mb-6" />
+        <Separator className="mb-1" />
 
-        {!isCardExpanded && (
-          applicationType === 'Loan' ? (
-            <LoanCollapsedView 
-              termLength={offer.collapsedView.termLength}
-              monthlyPayments={offer.collapsedView.monthlyPayments}
-              downPayment={offer.collapsedView.downPayment || "N/A"}
-            />
-          ) : (
-            <CollapsedView 
-              termLength={offer.collapsedView.termLength}
-              monthlyPayments={offer.collapsedView.monthlyPayments}
-              dueAtSigning={offer.collapsedView.dueAtSigning || "N/A"}
-            />
-          )
-        )}
+        {!isCardExpanded && (applicationType === 'Loan' ? <LoanCollapsedView termLength={offer.collapsedView.termLength} monthlyPayments={offer.collapsedView.monthlyPayments} downPayment={offer.collapsedView.downPayment || "N/A"} /> : <CollapsedView termLength={offer.collapsedView.termLength} monthlyPayments={offer.collapsedView.monthlyPayments} dueAtSigning={offer.collapsedView.dueAtSigning || "N/A"} />)}
         
         <CollapsibleContent>
-          {showFinancialSummary ? (
-            <FinancialSummarySection 
-              lenderName={offer.lenderName}
-              section={selectedSection}
-              financialSummary={financialSummary}
-              onBackToDealStructure={onBackToDealStructure}
-            />
-          ) : (
-            <ExpandedView 
-              requested={offer.requested}
-              approved={offer.approved}
-              customer={offer.customer}
-              stipulations={offer.stipulations}
-              contractStatus={offer.contractStatus}
-              applicationType={applicationType}
-              lenderName={offer.lenderName}
-              showFinancialDetailButton={showFinancialDetailButton && financialSummary !== undefined}
-              onViewFinancialDetail={() => onViewFinancialDetail('approved')}
-              onViewRequestedFinancial={onViewRequestedFinancial ? () => onViewRequestedFinancial() : undefined}
-              onViewApprovedFinancial={onViewApprovedFinancial ? () => onViewApprovedFinancial() : undefined}
-              onViewCustomerFinancial={onViewCustomerFinancial ? () => onViewCustomerFinancial() : undefined}
-            />
-          )}
+          {showFinancialSummary ? <FinancialSummarySection lenderName={offer.lenderName} section={selectedSection} financialSummary={financialSummary} onBackToDealStructure={onBackToDealStructure} /> : <ExpandedView requested={offer.requested} approved={offer.approved} customer={offer.customer} stipulations={offer.stipulations} contractStatus={offer.contractStatus} applicationType={applicationType} lenderName={offer.lenderName} showFinancialDetailButton={showFinancialDetailButton && financialSummary !== undefined} onViewFinancialDetail={() => onViewFinancialDetail('approved')} onViewRequestedFinancial={onViewRequestedFinancial ? () => onViewRequestedFinancial() : undefined} onViewApprovedFinancial={onViewApprovedFinancial ? () => onViewApprovedFinancial() : undefined} onViewCustomerFinancial={onViewCustomerFinancial ? () => onViewCustomerFinancial() : undefined} />}
         </CollapsibleContent>
       </Collapsible>
 
       <Dialog open={isEditDialogOpen} onOpenChange={onEditDialogOpenChange}>
-        <EditOfferDialog 
-          defaultValues={editFormDefaults}
-          onSubmit={onEditSubmit}
-          onCancel={() => onEditDialogOpenChange(false)}
-          applicationType={applicationType}
-        />
+        <EditOfferDialog defaultValues={editFormDefaults} onSubmit={onEditSubmit} onCancel={() => onEditDialogOpenChange(false)} applicationType={applicationType} />
       </Dialog>
-    </>
-  );
+    </>;
 };
-
 export default CollapsibleCardContent;
