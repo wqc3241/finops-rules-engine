@@ -4,6 +4,10 @@ import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import ApplicationList from "@/components/applications/ApplicationList";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import SortPopover from "@/components/applications/filters/SortPopover";
+import FilterPopover from "@/components/applications/filters/FilterPopover";
+import { applications as initialApplications } from '@/data/mockApplications';
+import { useApplicationFiltering } from "@/hooks/useApplicationFiltering";
 
 // Storage keys for applications data
 const APPLICATIONS_STORAGE_KEY = 'lucidApplicationsData';
@@ -13,6 +17,25 @@ const Applications = () => {
   const [sidebarOpen, setSidebarOpen] = React.useState(true);
   const [activeItem, setActiveItem] = React.useState('Applications');
   const [refreshTrigger, setRefreshTrigger] = React.useState(0);
+  
+  const {
+    sortOption,
+    setSortOption,
+    sortDirection,
+    setSortDirection,
+    statusFilters,
+    typeFilters,
+    stateFilters,
+    uniqueStatuses,
+    uniqueTypes,
+    uniqueStates,
+    filteredApplications,
+    toggleStatusFilter,
+    toggleTypeFilter,
+    toggleStateFilter,
+    clearFilters,
+    toggleSortDirection,
+  } = useApplicationFiltering(initialApplications);
   
   // Only refresh when the component mounts to ensure state values are updated
   // without clearing existing application data
@@ -103,7 +126,30 @@ const Applications = () => {
         <main className="flex-1 overflow-auto p-4">
           <div className="container mx-auto px-4 py-6">
             <div className="bg-white rounded-lg shadow-sm p-6">
-              <h1 className="text-2xl font-semibold mb-6">Applications</h1>
+              <div className="flex justify-between items-center mb-6">
+                <h1 className="text-2xl font-semibold">Applications</h1>
+                <div className="flex gap-4">
+                  <SortPopover 
+                    sortOption={sortOption}
+                    sortDirection={sortDirection}
+                    setSortOption={setSortOption}
+                    setSortDirection={setSortDirection}
+                    toggleSortDirection={toggleSortDirection}
+                  />
+                  <FilterPopover 
+                    uniqueStatuses={uniqueStatuses}
+                    uniqueTypes={uniqueTypes}
+                    uniqueStates={uniqueStates}
+                    statusFilters={statusFilters}
+                    typeFilters={typeFilters}
+                    stateFilters={stateFilters}
+                    toggleStatusFilter={toggleStatusFilter}
+                    toggleTypeFilter={toggleTypeFilter}
+                    toggleStateFilter={toggleStateFilter}
+                    clearFilters={clearFilters}
+                  />
+                </div>
+              </div>
               <TooltipProvider>
                 <ApplicationList key={refreshTrigger} />
               </TooltipProvider>

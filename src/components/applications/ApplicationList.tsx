@@ -29,28 +29,6 @@ const ApplicationList: React.FC = () => {
 
   return (
     <div>
-      <div className="flex justify-end mb-6 gap-4">
-        <SortPopover 
-          sortOption={sortOption}
-          sortDirection={sortDirection}
-          setSortOption={setSortOption}
-          setSortDirection={setSortDirection}
-          toggleSortDirection={toggleSortDirection}
-        />
-        <FilterPopover 
-          uniqueStatuses={uniqueStatuses}
-          uniqueTypes={uniqueTypes}
-          uniqueStates={uniqueStates}
-          statusFilters={statusFilters}
-          typeFilters={typeFilters}
-          stateFilters={stateFilters}
-          toggleStatusFilter={toggleStatusFilter}
-          toggleTypeFilter={toggleTypeFilter}
-          toggleStateFilter={toggleStateFilter}
-          clearFilters={clearFilters}
-        />
-      </div>
-
       {filteredApplications.length > 0 ? (
         <>
           {filteredApplications.map((application) => (
