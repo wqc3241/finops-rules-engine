@@ -1,3 +1,4 @@
+
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { Application } from '@/types/application';
 import { sortByProperty } from '@/utils/sortFilterUtils';
@@ -29,7 +30,7 @@ import {
   createToggleStateFilter,
   createClearFilters
 } from '@/utils/filterUtils';
-import { getMockApplicationDetailsById } from '@/data/mockApplications';
+import { getMockApplicationDetailsById, orderDetails } from '@/data/mockApplications';
 
 export const useApplicationFiltering = (initialApplications: Application[]) => {
   // Get initial applications from localStorage or use initial data
@@ -72,38 +73,63 @@ export const useApplicationFiltering = (initialApplications: Application[]) => {
     saveStateFiltersToStorage(stateFilters);
   }, [stateFilters]);
   
+  // Function to populate state data for applications
+  const populateApplicationStates = useCallback((apps: Application[]): Application[] => {
+    return apps.map(app => {
+      // Skip if app already has a state value
+      if (app.state && app.state !== 'N/A') return app;
+      
+      // Get application details to extract state from registration data
+      try {
+        const appDetails = getMockApplicationDetailsById(app.id);
+        if (appDetails && appDetails.orderDetails && appDetails.orderDetails.registrationData) {
+          // Find the registration state from the registration data array
+          const registrationState = appDetails.orderDetails.registrationData.find(
+            item => item.label === 'Registration State/Province'
+          );
+          
+          if (registrationState && registrationState.value) {
+            return {
+              ...app,
+              state: registrationState.value
+            };
+          }
+        }
+      } catch (error) {
+        console.error(`Error getting state data for application ${app.id}:`, error);
+      }
+      
+      return app;
+    });
+  }, []);
+  
   // Initialize application data if localStorage is empty
   useEffect(() => {
     if (applications.length === 0 && initialApplications.length > 0) {
-      // Process applications to add state from orderDetails
-      const appsWithNotesAndState = initializeApplicationsWithNotes(initialApplications).map(app => {
-        // Get application details to extract state from registration data
-        try {
-          const appDetails = getMockApplicationDetailsById(app.id);
-          if (appDetails && appDetails.orderDetails && appDetails.orderDetails.registrationData) {
-            // Find the registration state from the registration data array
-            const registrationState = appDetails.orderDetails.registrationData.find(
-              item => item.label === 'Registration State/Province'
-            );
-            
-            if (registrationState && registrationState.value) {
-              return {
-                ...app,
-                state: registrationState.value
-              };
-            }
-          }
-        } catch (error) {
-          console.error("Error getting application details:", error);
-        }
-        
-        return app;
-      });
+      // Process applications to add notes and state from orderDetails
+      const appsWithNotesAndState = populateApplicationStates(
+        initializeApplicationsWithNotes(initialApplications)
+      );
       
       setApplications(appsWithNotesAndState);
       saveApplicationsToStorage(appsWithNotesAndState);
     }
-  }, [applications.length, initialApplications]);
+  }, [applications.length, initialApplications, populateApplicationStates]);
+  
+  // Ensure all applications have state values
+  useEffect(() => {
+    if (applications.length > 0) {
+      // Check if any applications are missing state values
+      const needsStateUpdate = applications.some(app => !app.state || app.state === 'N/A');
+      
+      if (needsStateUpdate) {
+        console.log("Populating missing state data for applications");
+        const updatedApps = populateApplicationStates(applications);
+        setApplications(updatedApps);
+        saveApplicationsToStorage(updatedApps);
+      }
+    }
+  }, [applications, populateApplicationStates]);
   
   // Listen for external changes to localStorage
   useEffect(() => {
@@ -112,7 +138,9 @@ export const useApplicationFiltering = (initialApplications: Application[]) => {
         try {
           const updatedApps = event.newValue ? JSON.parse(event.newValue) : [];
           if (updatedApps.length > 0) {
-            setApplications(updatedApps);
+            // Ensure state data is populated when loading from storage
+            const appsWithState = populateApplicationStates(updatedApps);
+            setApplications(appsWithState);
           }
         } catch (error) {
           console.error("Error handling storage change:", error);
@@ -124,7 +152,7 @@ export const useApplicationFiltering = (initialApplications: Application[]) => {
     return () => {
       window.removeEventListener('storage', handleStorageChange);
     };
-  }, []);
+  }, [populateApplicationStates]);
   
   // Set up global note update function
   useEffect(() => {

@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import ApplicationList from "@/components/applications/ApplicationList";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { toast } from "sonner";
 
 // Storage keys for applications data
 const APPLICATIONS_STORAGE_KEY = 'lucidApplicationsData';
@@ -13,6 +14,15 @@ const Applications = () => {
   const [sidebarOpen, setSidebarOpen] = React.useState(true);
   const [activeItem, setActiveItem] = React.useState('Applications');
   const [refreshTrigger, setRefreshTrigger] = React.useState(0);
+  
+  // Force a refresh when the component mounts to ensure state values are updated
+  useEffect(() => {
+    // Create a small delay to avoid immediate refresh
+    const timer = setTimeout(() => {
+      setRefreshTrigger(prev => prev + 1);
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
   
   // Track localStorage changes to refresh the application list
   useEffect(() => {
