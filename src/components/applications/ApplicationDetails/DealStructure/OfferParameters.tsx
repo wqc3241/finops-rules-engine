@@ -25,21 +25,15 @@ const OfferParameters: React.FC<OfferParametersProps> = ({
   onViewFinancialSummary,
   markAsPresented = false
 }) => {
-  const {
-    id: applicationId
-  } = useParams<{
-    id: string;
-  }>();
-  const {
-    navigateToFinancialSummary,
-    presentedLender
-  } = useFinancialNavigation();
+  const { id: applicationId } = useParams<{ id: string }>();
+  const { navigateToFinancialSummary, presentedLender } = useFinancialNavigation();
   
   const handleViewFinancialSummary = () => {
     if (onViewFinancialSummary) {
       onViewFinancialSummary();
     } else if (lenderName && section && applicationId) {
-      navigateToFinancialSummary(applicationId, lenderName, section, markAsPresented);
+      // Fix the parameter count error by ensuring correct arguments are passed
+      navigateToFinancialSummary(lenderName, section, markAsPresented);
     }
   };
 
