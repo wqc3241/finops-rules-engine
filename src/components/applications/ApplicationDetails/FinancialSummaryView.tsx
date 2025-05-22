@@ -4,7 +4,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { FinancialSummary } from '@/types/application';
 import { useFinancialSummaryData } from '@/hooks/useFinancialSummaryData';
 import SummaryHeader from './FinancialSummary/SummaryHeader';
-import LenderTabs from './FinancialSummary/LenderTabs';
 import SectionTabs from './FinancialSummary/SectionTabs';
 import SummaryContent from './FinancialSummary/SummaryContent';
 
@@ -26,7 +25,6 @@ const FinancialSummaryView: React.FC<FinancialSummaryViewProps> = ({
     activeTab,
     handleTabChange,
     selectedLenderName,
-    handleLenderChange,
     lenderSummaries,
     presentedLender,
     data,
@@ -51,16 +49,6 @@ const FinancialSummaryView: React.FC<FinancialSummaryViewProps> = ({
         
         {expanded && (
           <>
-            {/* Lender Selection Tabs - only show if there are multiple lenders */}
-            {hasMultipleLenders && (
-              <LenderTabs
-                lenderSummaries={lenderSummaries}
-                selectedLenderName={selectedLenderName}
-                presentedLender={presentedLender}
-                onLenderChange={handleLenderChange}
-              />
-            )}
-            
             {/* Section Tabs */}
             <SectionTabs
               tabs={tabs}

@@ -27,16 +27,13 @@ const TabComponent = ({
       <div className="border-b border-gray-200">
         <TabsList className="bg-transparent h-auto p-0 w-full flex overflow-x-auto">
           {items.map(item => {
-            // Check if this tab is for a lender that's been presented to customer
-            const isSelectedLender = item.isSelected || item.isPresentedToCustomer;
-            
             return (
               <TabsTrigger 
                 key={item.value}
                 value={item.value}
                 className={cn(
                   "px-4 py-2 border-b-2 border-transparent transition-colors",
-                  isSelectedLender ? "font-medium text-primary" : "text-muted-foreground"
+                  "text-muted-foreground"
                 )}
               >
                 {item.label}
