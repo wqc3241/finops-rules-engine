@@ -40,34 +40,44 @@ const ExpandedView: React.FC<ExpandedViewProps> = ({
 }) => {
   return (
     <>
-      <div className="grid grid-cols-3 gap-6 mb-6">
-        <RequestedDealStructure 
-          items={requested}
-          applicationType={applicationType}
-          lenderName={lenderName}
-          onViewFinancialSummary={onViewRequestedFinancial}
-          showFinancialDetailButton={showFinancialDetailButton}
-        />
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-0 mb-6">
+        <div className="col-span-1 md:col-span-2">
+          <RequestedDealStructure 
+            items={requested}
+            applicationType={applicationType}
+            lenderName={lenderName}
+            onViewFinancialSummary={onViewRequestedFinancial}
+            showFinancialDetailButton={showFinancialDetailButton}
+          />
+        </div>
         
-        <Separator orientation="vertical" className="mx-auto h-full" />
+        <div className="flex justify-center items-center">
+          <Separator orientation="vertical" className="h-full" />
+        </div>
         
-        <ApprovedDealStructure 
-          items={approved}
-          applicationType={applicationType}
-          lenderName={lenderName}
-          onViewFinancialSummary={onViewApprovedFinancial}
-          showFinancialDetailButton={showFinancialDetailButton}
-        />
+        <div className="col-span-1 md:col-span-1">
+          <ApprovedDealStructure 
+            items={approved}
+            applicationType={applicationType}
+            lenderName={lenderName}
+            onViewFinancialSummary={onViewApprovedFinancial}
+            showFinancialDetailButton={showFinancialDetailButton}
+          />
+        </div>
         
-        <Separator orientation="vertical" className="mx-auto h-full" />
+        <div className="flex justify-center items-center">
+          <Separator orientation="vertical" className="h-full" />
+        </div>
         
-        <CustomerDealStructure 
-          items={customer}
-          applicationType={applicationType}
-          lenderName={lenderName}
-          onViewFinancialSummary={onViewCustomerFinancial}
-          showFinancialDetailButton={showFinancialDetailButton}
-        />
+        <div className="col-span-1 md:col-span-1">
+          <CustomerDealStructure 
+            items={customer}
+            applicationType={applicationType}
+            lenderName={lenderName}
+            onViewFinancialSummary={onViewCustomerFinancial}
+            showFinancialDetailButton={showFinancialDetailButton}
+          />
+        </div>
       </div>
 
       {stipulations.length > 0 && (
