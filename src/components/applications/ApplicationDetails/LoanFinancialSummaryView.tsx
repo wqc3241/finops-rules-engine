@@ -6,10 +6,9 @@ import { DataField } from './OrderDetails/DataField';
 interface LoanFinancialSummaryViewProps {
   activeTab: string;
   tabData: LoanFinancialSummaryTabData;
-  section?: 'requested' | 'approved' | 'customer'; // Added section parameter
 }
 
-const LoanFinancialSummaryView: React.FC<LoanFinancialSummaryViewProps> = ({ activeTab, tabData, section }) => {
+const LoanFinancialSummaryView: React.FC<LoanFinancialSummaryViewProps> = ({ activeTab, tabData }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {/* Left Column */}

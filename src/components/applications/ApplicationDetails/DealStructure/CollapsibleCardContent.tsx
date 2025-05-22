@@ -95,6 +95,7 @@ const CollapsibleCardContent: React.FC<CollapsibleCardContentProps> = ({
               applicationType={applicationType}
               lenderName={offer.lenderName}
               showFinancialDetailButton={showFinancialDetailButton && financialSummary !== undefined}
+              onViewFinancialDetail={() => onViewFinancialDetail('approved')}
               onViewRequestedFinancial={() => onViewFinancialDetail('requested')}
               onViewApprovedFinancial={() => onViewFinancialDetail('approved')}
               onViewCustomerFinancial={() => onViewFinancialDetail('customer')}

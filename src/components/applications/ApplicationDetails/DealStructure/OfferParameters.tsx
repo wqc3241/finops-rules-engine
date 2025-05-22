@@ -25,15 +25,21 @@ const OfferParameters: React.FC<OfferParametersProps> = ({
   onViewFinancialSummary,
   markAsPresented = false
 }) => {
-  const { id: applicationId } = useParams<{ id: string }>();
-  const { navigateToFinancialSummary, presentedLender } = useFinancialNavigation();
+  const {
+    id: applicationId
+  } = useParams<{
+    id: string;
+  }>();
+  const {
+    navigateToFinancialSummary,
+    presentedLender
+  } = useFinancialNavigation();
   
   const handleViewFinancialSummary = () => {
     if (onViewFinancialSummary) {
       onViewFinancialSummary();
     } else if (lenderName && section && applicationId) {
-      // Fix the parameter count error by ensuring correct arguments are passed
-      navigateToFinancialSummary(lenderName, section, markAsPresented);
+      navigateToFinancialSummary(applicationId, lenderName, section, markAsPresented);
     }
   };
 
@@ -51,7 +57,21 @@ const OfferParameters: React.FC<OfferParametersProps> = ({
         ))}
       </div>
       
-      {/* Removed the View Financial Summary button as it duplicates functionality */}
+      {lenderName && section && (
+        <div className="mt-4">
+          {onViewFinancialSummary && (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleViewFinancialSummary} 
+              className="flex items-center"
+            >
+              <BarChart2 className="h-3 w-3 mr-1" />
+              View Financial Summary
+            </Button>
+          )}
+        </div>
+      )}
     </>
   );
 };
