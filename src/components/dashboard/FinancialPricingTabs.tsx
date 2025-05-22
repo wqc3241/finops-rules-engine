@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import TabComponent, { TabItem } from "./TabComponent";
 import AdvertisedOfferSection from "./AdvertisedOfferSection";
@@ -8,6 +7,7 @@ import RulesSection from "./RulesSection";
 import PricingConfigRulesSection from "./PricingConfigRulesSection";
 import FinancialProductsSection from "./FinancialProductsSection";
 import FinancialProgramConfigSection from "./FinancialProgramConfigSection";
+import BulletinPricingSection from "./BulletinPricingSection";
 import { toast } from "sonner";
 
 interface FinancialPricingTabsProps {
@@ -27,12 +27,13 @@ const FinancialPricingTabs = ({
   onSelectionChange,
   selectedItems = []
 }: FinancialPricingTabsProps) => {
-  const [activeTab, setActiveTab] = useState("pricing-rules");
+  const [activeTab, setActiveTab] = useState("bulletin-pricing");
   const [showRulesModal, setShowRulesModal] = useState(false);
   const [showConfigRulesModal, setShowConfigRulesModal] = useState(false);
   const [showFinancialProductsModal, setShowFinancialProductsModal] = useState(false);
   const [showFinancialProgramConfigModal, setShowFinancialProgramConfigModal] = useState(false);
   const [showAdvertisedOffersModal, setShowAdvertisedOffersModal] = useState(false);
+  const [showBulletinPricingModal, setShowBulletinPricingModal] = useState(false);
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
@@ -61,12 +62,28 @@ const FinancialPricingTabs = ({
       case "pricing-types":
         setShowAddPricingTypeModal(true);
         break;
+      case "bulletin-pricing":
+        setShowBulletinPricingModal(true);
+        break;
       default:
         toast.info("Add functionality not implemented for this tab yet");
     }
   };
 
   const tabItems: TabItem[] = [
+    {
+      value: "bulletin-pricing",
+      label: "Bulletin Pricing",
+      content: (
+        <BulletinPricingSection 
+          title="Bulletin Pricing"
+          showAddModal={showBulletinPricingModal} 
+          setShowAddModal={setShowBulletinPricingModal} 
+          onSelectionChange={onSelectionChange}
+          selectedItems={selectedItems}
+        />
+      )
+    },
     {
       value: "pricing-rules",
       label: "Pricing Rules",
@@ -162,7 +179,7 @@ const FinancialPricingTabs = ({
 
   return (
     <TabComponent 
-      defaultValue="pricing-rules" 
+      defaultValue="bulletin-pricing" 
       items={tabItems} 
       onValueChange={handleTabChange}
     />
