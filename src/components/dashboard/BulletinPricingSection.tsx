@@ -19,6 +19,8 @@ const BulletinPricingSection = ({
   onSelectionChange,
   selectedItems
 }: BulletinPricingSectionProps) => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  
   const handleAddNew = () => {
     setShowAddModal(true);
   };
@@ -37,16 +39,23 @@ const BulletinPricingSection = ({
 
   return (
     <div>
-      <SectionHeader title={title} onAddNew={handleAddNew} />
-      <div className="mt-4">
-        <BulletinPricingTable 
-          onEdit={handleEdit} 
-          onCopy={handleCopy} 
-          onRemove={handleRemove} 
-          onSelectionChange={onSelectionChange}
-          selectedItems={selectedItems}
-        />
-      </div>
+      <SectionHeader 
+        title={title} 
+        isCollapsed={isCollapsed} 
+        setIsCollapsed={setIsCollapsed} 
+        onAddNew={handleAddNew} 
+      />
+      {!isCollapsed && (
+        <div className="mt-4">
+          <BulletinPricingTable 
+            onEdit={handleEdit} 
+            onCopy={handleCopy} 
+            onRemove={handleRemove} 
+            onSelectionChange={onSelectionChange}
+            selectedItems={selectedItems}
+          />
+        </div>
+      )}
     </div>
   );
 };
