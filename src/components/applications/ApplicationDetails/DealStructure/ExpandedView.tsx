@@ -44,7 +44,7 @@ const ExpandedView: React.FC<ExpandedViewProps> = ({
             {showFinancialDetailButton && onViewRequestedFinancial && (
               <Button variant="outline" size="sm" onClick={onViewRequestedFinancial} className="flex items-center">
                 <BarChart2 className="h-3 w-3 mr-1" />
-                View Details
+                View Financial Summary
               </Button>
             )}
           </div>
@@ -62,7 +62,7 @@ const ExpandedView: React.FC<ExpandedViewProps> = ({
             {showFinancialDetailButton && onViewApprovedFinancial && (
               <Button variant="outline" size="sm" onClick={onViewApprovedFinancial} className="flex items-center">
                 <BarChart2 className="h-3 w-3 mr-1" />
-                View Details
+                View Financial Summary
               </Button>
             )}
           </div>
@@ -80,7 +80,7 @@ const ExpandedView: React.FC<ExpandedViewProps> = ({
             {showFinancialDetailButton && onViewCustomerFinancial && (
               <Button variant="outline" size="sm" onClick={onViewCustomerFinancial} className="flex items-center">
                 <BarChart2 className="h-3 w-3 mr-1" />
-                View Details
+                View Financial Summary
               </Button>
             )}
           </div>
