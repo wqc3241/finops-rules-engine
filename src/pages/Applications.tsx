@@ -1,9 +1,9 @@
+
 import React, { useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import ApplicationList from "@/components/applications/ApplicationList";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { toast } from "sonner";
 
 // Storage keys for applications data
 const APPLICATIONS_STORAGE_KEY = 'lucidApplicationsData';
@@ -14,20 +14,8 @@ const Applications = () => {
   const [activeItem, setActiveItem] = React.useState('Applications');
   const [refreshTrigger, setRefreshTrigger] = React.useState(0);
   
-  // Clear existing application data in local storage when component mounts
-  // This ensures we reload fresh data with the updated state values
-  useEffect(() => {
-    // Clear stored data to force reload of applications with updated state values
-    localStorage.removeItem(APPLICATIONS_STORAGE_KEY);
-    localStorage.setItem(APPLICATIONS_UPDATE_KEY, new Date().toISOString());
-    
-    // Force a refresh of the application list
-    setRefreshTrigger(prev => prev + 1);
-    
-    toast.success("Registration data updated with new states");
-  }, []);
-  
-  // Force a refresh when the component mounts to ensure state values are updated
+  // Only refresh when the component mounts to ensure state values are updated
+  // without clearing existing application data
   useEffect(() => {
     // Create a small delay to avoid immediate refresh
     const timer = setTimeout(() => {
