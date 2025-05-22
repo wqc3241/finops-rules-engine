@@ -4,6 +4,7 @@ import { applicationDetails } from './mock/applicationDetails';
 import { notes, historyItems } from './mock/history';
 import { getMockApplicationDetailsById } from './mock/applicationDetails/index';
 import { dealStructureData } from './mock/dealStructure';
+import { orderDetails } from './mock/orderDetails';
 
 export { 
   applications, 
@@ -11,5 +12,6 @@ export {
   notes, 
   historyItems, 
   getMockApplicationDetailsById,
-  dealStructureData 
+  dealStructureData,
+  orderDetails
 };
