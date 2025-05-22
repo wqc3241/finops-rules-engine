@@ -28,9 +28,7 @@ const TabComponent = ({
         <TabsList className="bg-transparent h-auto p-0 w-full flex overflow-x-auto">
           {items.map(item => {
             // Check if this tab is for a lender that's been presented to customer
-            const isSelectedLender = item.isSelected || item.isPresentedToCustomer || 
-              (typeof item.label === 'object' && 'props' in item.label && 
-              item.label.props?.className?.includes('text-green-600'));
+            const isSelectedLender = item.isSelected || item.isPresentedToCustomer;
             
             return (
               <TabsTrigger 
