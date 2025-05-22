@@ -1,5 +1,6 @@
 import { ApplicationFullDetails } from '../../../types/application';
 import { baseApplicationDetails } from './baseApplicationDetails';
+import { orderDetails } from '../orderDetails';
 
 // Data for applications with Submitted status
 export const submittedApplications: Record<string, ApplicationFullDetails> = {
@@ -13,6 +14,17 @@ export const submittedApplications: Record<string, ApplicationFullDetails> = {
       orderedBy: 'Daniel Patel',
       status: 'Submitted',
       type: 'Loan'
+    },
+    orderDetails: {
+      ...orderDetails,
+      registrationData: [
+        ...orderDetails.registrationData.filter(item => item.label !== 'Registration State/Province' && 
+                                                 item.label !== 'Registration City' && 
+                                                 item.label !== 'Registration Zip/Postal Code'),
+        { label: 'Registration State/Province', value: 'New Jersey' },
+        { label: 'Registration City', value: 'Newark' },
+        { label: 'Registration Zip/Postal Code', value: '07101' }
+      ]
     },
     notes: [
       {
@@ -87,6 +99,17 @@ export const submittedApplications: Record<string, ApplicationFullDetails> = {
       orderedBy: 'Michael Torres',
       status: 'Submitted',
       type: 'Loan'
+    },
+    orderDetails: {
+      ...orderDetails,
+      registrationData: [
+        ...orderDetails.registrationData.filter(item => item.label !== 'Registration State/Province' && 
+                                                 item.label !== 'Registration City' && 
+                                                 item.label !== 'Registration Zip/Postal Code'),
+        { label: 'Registration State/Province', value: 'Nevada' },
+        { label: 'Registration City', value: 'Las Vegas' },
+        { label: 'Registration Zip/Postal Code', value: '89101' }
+      ]
     },
     notes: [
       {

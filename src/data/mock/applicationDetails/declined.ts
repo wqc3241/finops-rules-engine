@@ -1,6 +1,7 @@
 
 import { ApplicationFullDetails } from '../../../types/application';
 import { baseApplicationDetails } from './baseApplicationDetails';
+import { orderDetails } from '../orderDetails';
 
 // Data for applications with Declined status
 export const declinedApplications: Record<string, ApplicationFullDetails> = {
@@ -14,6 +15,17 @@ export const declinedApplications: Record<string, ApplicationFullDetails> = {
       orderedBy: 'Aisha Washington',
       status: 'Declined',
       type: 'Lease'
+    },
+    orderDetails: {
+      ...orderDetails,
+      registrationData: [
+        ...orderDetails.registrationData.filter(item => item.label !== 'Registration State/Province' && 
+                                                 item.label !== 'Registration City' && 
+                                                 item.label !== 'Registration Zip/Postal Code'),
+        { label: 'Registration State/Province', value: 'Georgia' },
+        { label: 'Registration City', value: 'Atlanta' },
+        { label: 'Registration Zip/Postal Code', value: '30301' }
+      ]
     },
     dealStructure: [
       {

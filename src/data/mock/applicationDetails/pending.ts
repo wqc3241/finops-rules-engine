@@ -1,5 +1,6 @@
 import { ApplicationFullDetails } from '../../../types/application';
 import { baseApplicationDetails } from './baseApplicationDetails';
+import { orderDetails } from '../orderDetails';
 
 // Data for applications with Pending status
 export const pendingApplications: Record<string, ApplicationFullDetails> = {
@@ -13,6 +14,17 @@ export const pendingApplications: Record<string, ApplicationFullDetails> = {
       orderedBy: 'Sarah Johnson',
       status: 'Pending',
       type: 'Lease'
+    },
+    orderDetails: {
+      ...orderDetails,
+      registrationData: [
+        ...orderDetails.registrationData.filter(item => item.label !== 'Registration State/Province' && 
+                                                 item.label !== 'Registration City' && 
+                                                 item.label !== 'Registration Zip/Postal Code'),
+        { label: 'Registration State/Province', value: 'Florida' },
+        { label: 'Registration City', value: 'Miami' },
+        { label: 'Registration Zip/Postal Code', value: '33101' }
+      ]
     },
     dealStructure: [
       {
@@ -54,6 +66,17 @@ export const pendingApplications: Record<string, ApplicationFullDetails> = {
       status: 'Pending',
       type: 'Loan'
     },
+    orderDetails: {
+      ...orderDetails,
+      registrationData: [
+        ...orderDetails.registrationData.filter(item => item.label !== 'Registration State/Province' && 
+                                                 item.label !== 'Registration City' && 
+                                                 item.label !== 'Registration Zip/Postal Code'),
+        { label: 'Registration State/Province', value: 'Washington' },
+        { label: 'Registration City', value: 'Seattle' },
+        { label: 'Registration Zip/Postal Code', value: '98101' }
+      ]
+    },
     dealStructure: [
       {
         lenderName: "Chase",
@@ -90,6 +113,17 @@ export const pendingApplications: Record<string, ApplicationFullDetails> = {
       orderedBy: 'Robert Kim',
       status: 'Pending',
       type: 'Loan'
+    },
+    orderDetails: {
+      ...orderDetails,
+      registrationData: [
+        ...orderDetails.registrationData.filter(item => item.label !== 'Registration State/Province' && 
+                                                 item.label !== 'Registration City' && 
+                                                 item.label !== 'Registration Zip/Postal Code'),
+        { label: 'Registration State/Province', value: 'Massachusetts' },
+        { label: 'Registration City', value: 'Boston' },
+        { label: 'Registration Zip/Postal Code', value: '02108' }
+      ]
     },
     dealStructure: [
       {

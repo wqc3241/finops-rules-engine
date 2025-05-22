@@ -1,6 +1,6 @@
-
 import { ApplicationFullDetails } from '../../../types/application';
 import { baseApplicationDetails } from './baseApplicationDetails';
+import { orderDetails } from '../orderDetails';
 
 // Data for applications with Conditionally Approved status
 export const conditionallyApprovedApplications: Record<string, ApplicationFullDetails> = {
@@ -14,6 +14,17 @@ export const conditionallyApprovedApplications: Record<string, ApplicationFullDe
       orderedBy: 'Carlos Rodriguez',
       status: 'Conditionally Approved',
       type: 'Lease'
+    },
+    orderDetails: {
+      ...orderDetails,
+      registrationData: [
+        ...orderDetails.registrationData.filter(item => item.label !== 'Registration State/Province' && 
+                                                 item.label !== 'Registration City' && 
+                                                 item.label !== 'Registration Zip/Postal Code'),
+        { label: 'Registration State/Province', value: 'Arizona' },
+        { label: 'Registration City', value: 'Phoenix' },
+        { label: 'Registration Zip/Postal Code', value: '85001' }
+      ]
     },
     dealStructure: [
       {
@@ -132,6 +143,17 @@ export const conditionallyApprovedApplications: Record<string, ApplicationFullDe
       orderedBy: 'Emily Johnson',
       status: 'Conditionally Approved',
       type: 'Lease'
+    },
+    orderDetails: {
+      ...orderDetails,
+      registrationData: [
+        ...orderDetails.registrationData.filter(item => item.label !== 'Registration State/Province' && 
+                                                 item.label !== 'Registration City' && 
+                                                 item.label !== 'Registration Zip/Postal Code'),
+        { label: 'Registration State/Province', value: 'Colorado' },
+        { label: 'Registration City', value: 'Denver' },
+        { label: 'Registration Zip/Postal Code', value: '80201' }
+      ]
     },
     dealStructure: [
       {

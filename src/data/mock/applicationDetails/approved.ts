@@ -1,5 +1,6 @@
 import { ApplicationFullDetails } from '../../../types/application';
 import { baseApplicationDetails } from './baseApplicationDetails';
+import { orderDetails } from '../orderDetails';
 
 // Data for applications with Approved status
 export const approvedApplications: Record<string, ApplicationFullDetails> = {
@@ -13,6 +14,17 @@ export const approvedApplications: Record<string, ApplicationFullDetails> = {
       orderedBy: 'Becca Yukelson',
       status: 'Approved',
       type: 'Lease'
+    },
+    orderDetails: {
+      ...orderDetails,
+      registrationData: [
+        ...orderDetails.registrationData.filter(item => item.label !== 'Registration State/Province' && 
+                                                 item.label !== 'Registration City' && 
+                                                 item.label !== 'Registration Zip/Postal Code'),
+        { label: 'Registration State/Province', value: 'New York' },
+        { label: 'Registration City', value: 'New York City' },
+        { label: 'Registration Zip/Postal Code', value: '10001' }
+      ]
     },
     dealStructure: [
       {
@@ -91,6 +103,17 @@ export const approvedApplications: Record<string, ApplicationFullDetails> = {
       orderedBy: 'Olivia Thompson',
       status: 'Approved',
       type: 'Lease'
+    },
+    orderDetails: {
+      ...orderDetails,
+      registrationData: [
+        ...orderDetails.registrationData.filter(item => item.label !== 'Registration State/Province' && 
+                                                 item.label !== 'Registration City' && 
+                                                 item.label !== 'Registration Zip/Postal Code'),
+        { label: 'Registration State/Province', value: 'Texas' },
+        { label: 'Registration City', value: 'Austin' },
+        { label: 'Registration Zip/Postal Code', value: '78701' }
+      ]
     },
     dealStructure: [
       {

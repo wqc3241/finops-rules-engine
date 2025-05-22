@@ -1,4 +1,3 @@
-
 import { ApplicationFullDetails } from '../../../types/application';
 import { baseApplicationDetails } from './baseApplicationDetails';
 import { orderDetails } from '../orderDetails';
@@ -15,6 +14,26 @@ export const bookedApplications: Record<string, ApplicationFullDetails> = {
       orderedBy: 'James Wilson',
       status: 'Booked',
       type: 'Loan'
+    },
+    orderDetails: {
+      ...orderDetails,
+      vehicleTradeIn: {
+        year: '2019',
+        make: 'Honda',
+        model: 'Accord',
+        trim: 'EX-L',
+        lienHolder: 'Honda Financial',
+        totalValue: '$22,000',
+        payoffAmount: '$8,500'
+      },
+      registrationData: [
+        ...orderDetails.registrationData.filter(item => item.label !== 'Registration State/Province' && 
+                                                 item.label !== 'Registration City' && 
+                                                 item.label !== 'Registration Zip/Postal Code'),
+        { label: 'Registration State/Province', value: 'Pennsylvania' },
+        { label: 'Registration City', value: 'Philadelphia' },
+        { label: 'Registration Zip/Postal Code', value: '19101' }
+      ]
     },
     dealStructure: [
       {
@@ -121,18 +140,6 @@ export const bookedApplications: Record<string, ApplicationFullDetails> = {
           downPayment: "$18,000.00"
         }
       }
-    ],
-    orderDetails: {
-      ...orderDetails,
-      vehicleTradeIn: {
-        year: '2019',
-        make: 'Honda',
-        model: 'Accord',
-        trim: 'EX-L',
-        lienHolder: 'Honda Financial',
-        totalValue: '$22,000',
-        payoffAmount: '$8,500'
-      }
-    }
+    ]
   }
 };

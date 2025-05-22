@@ -1,6 +1,7 @@
 
 import { ApplicationFullDetails } from '../../../types/application';
 import { baseApplicationDetails } from './baseApplicationDetails';
+import { orderDetails } from '../orderDetails';
 
 // Data for applications with Funded status
 export const fundedApplications: Record<string, ApplicationFullDetails> = {
@@ -14,6 +15,17 @@ export const fundedApplications: Record<string, ApplicationFullDetails> = {
       orderedBy: 'Sophia Martinez',
       status: 'Funded',
       type: 'Lease'
+    },
+    orderDetails: {
+      ...orderDetails,
+      registrationData: [
+        ...orderDetails.registrationData.filter(item => item.label !== 'Registration State/Province' && 
+                                                 item.label !== 'Registration City' && 
+                                                 item.label !== 'Registration Zip/Postal Code'),
+        { label: 'Registration State/Province', value: 'Illinois' }, // Original state
+        { label: 'Registration City', value: 'Chicago' },
+        { label: 'Registration Zip/Postal Code', value: '60601' }
+      ]
     },
     dealStructure: [
       {

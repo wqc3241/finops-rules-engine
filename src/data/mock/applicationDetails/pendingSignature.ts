@@ -1,4 +1,3 @@
-
 import { ApplicationFullDetails } from '../../../types/application';
 import { baseApplicationDetails } from './baseApplicationDetails';
 import { orderDetails } from '../orderDetails';
@@ -15,6 +14,26 @@ export const pendingSignatureApplications: Record<string, ApplicationFullDetails
       orderedBy: 'Emily Chang',
       status: 'Pending Signature',
       type: 'Loan'
+    },
+    orderDetails: {
+      ...orderDetails,
+      vehicleTradeIn: {
+        year: '2020',
+        make: 'Tesla',
+        model: 'Model Y',
+        trim: 'Long Range',
+        lienHolder: 'Wells Fargo',
+        totalValue: '$43,000',
+        payoffAmount: '$28,500'
+      },
+      registrationData: [
+        ...orderDetails.registrationData.filter(item => item.label !== 'Registration State/Province' && 
+                                                 item.label !== 'Registration City' && 
+                                                 item.label !== 'Registration Zip/Postal Code'),
+        { label: 'Registration State/Province', value: 'Oregon' },
+        { label: 'Registration City', value: 'Portland' },
+        { label: 'Registration Zip/Postal Code', value: '97201' }
+      ]
     },
     dealStructure: [
       {
@@ -118,18 +137,6 @@ export const pendingSignatureApplications: Record<string, ApplicationFullDetails
           dueAtSigning: "18000.00"
         }
       }
-    ],
-    orderDetails: {
-      ...orderDetails,
-      vehicleTradeIn: {
-        year: '2020',
-        make: 'Tesla',
-        model: 'Model Y',
-        trim: 'Long Range',
-        lienHolder: 'Wells Fargo',
-        totalValue: '$43,000',
-        payoffAmount: '$28,500'
-      }
-    }
+    ]
   }
 };

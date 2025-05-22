@@ -48,10 +48,10 @@ export const orderDetails: OrderDetail = {
     { label: 'Registration Type', value: 'Personal' },
     { label: 'Global Region', value: 'North America' },
     { label: 'Registration Country', value: 'United States' },
-    { label: 'Registration State/Province', value: 'Illinois' },
+    { label: 'Registration State/Province', value: 'California' }, // Changed from Illinois
     { label: 'Registration Street', value: '1000 Pine Tree Ln' },
-    { label: 'Registration City', value: 'Winnetka' },
-    { label: 'Registration Zip/Postal Code', value: '60093' },
+    { label: 'Registration City', value: 'San Francisco' }, // Changed from Winnetka
+    { label: 'Registration Zip/Postal Code', value: '94107' }, // Changed from 60093
     { label: 'Borough/Municipality', value: '' },
     { label: 'Buyer DOB', value: '8/20/1975' },
     { label: "Buyer's DL Expiration Date", value: '8/20/2026' },
