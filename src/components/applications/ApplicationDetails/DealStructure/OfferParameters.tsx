@@ -3,8 +3,6 @@ import React from 'react';
 import { DealStructureItem } from '@/types/application';
 import { useFinancialNavigation } from '@/utils/dealFinanceNavigation';
 import { useParams } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { BarChart2 } from 'lucide-react';
 
 interface OfferParametersProps {
   items: DealStructureItem[];
@@ -56,22 +54,6 @@ const OfferParameters: React.FC<OfferParametersProps> = ({
           </div>
         ))}
       </div>
-      
-      {lenderName && section && (
-        <div className="mt-4">
-          {onViewFinancialSummary && (
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleViewFinancialSummary} 
-              className="flex items-center"
-            >
-              <BarChart2 className="h-3 w-3 mr-1" />
-              View Financial Summary
-            </Button>
-          )}
-        </div>
-      )}
     </>
   );
 };
