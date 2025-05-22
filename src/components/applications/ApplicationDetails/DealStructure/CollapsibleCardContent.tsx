@@ -22,6 +22,9 @@ interface CollapsibleCardContentProps {
   onToggleExpand: (value: boolean) => void;
   onBackToDealStructure: () => void;
   onViewFinancialDetail: (section: 'requested' | 'approved' | 'customer') => void;
+  onViewRequestedFinancial?: () => void;
+  onViewApprovedFinancial?: () => void;
+  onViewCustomerFinancial?: () => void;
   onEditDialogOpenChange: (open: boolean) => void;
   onEditSubmit: (data: any) => void;
 }
@@ -38,6 +41,9 @@ const CollapsibleCardContent: React.FC<CollapsibleCardContentProps> = ({
   onToggleExpand,
   onBackToDealStructure,
   onViewFinancialDetail,
+  onViewRequestedFinancial,
+  onViewApprovedFinancial,
+  onViewCustomerFinancial,
   onEditDialogOpenChange,
   onEditSubmit
 }) => {
@@ -96,9 +102,9 @@ const CollapsibleCardContent: React.FC<CollapsibleCardContentProps> = ({
               lenderName={offer.lenderName}
               showFinancialDetailButton={showFinancialDetailButton && financialSummary !== undefined}
               onViewFinancialDetail={() => onViewFinancialDetail('approved')}
-              onViewRequestedFinancial={() => onViewFinancialDetail('requested')}
-              onViewApprovedFinancial={() => onViewFinancialDetail('approved')}
-              onViewCustomerFinancial={() => onViewFinancialDetail('customer')}
+              onViewRequestedFinancial={onViewRequestedFinancial ? () => onViewRequestedFinancial() : undefined}
+              onViewApprovedFinancial={onViewApprovedFinancial ? () => onViewApprovedFinancial() : undefined}
+              onViewCustomerFinancial={onViewCustomerFinancial ? () => onViewCustomerFinancial() : undefined}
             />
           )}
         </CollapsibleContent>
