@@ -6,6 +6,7 @@ import { usePresentedLender } from '@/utils/dealFinanceNavigation';
 
 interface UseFinancialSummaryDataProps {
   financialSummary: FinancialSummary;
+  initialSection?: 'Requested' | 'Approved' | 'Customer';
 }
 
 interface FinancialData {
@@ -13,7 +14,7 @@ interface FinancialData {
   isLoanType: boolean;
 }
 
-export function useFinancialSummaryData({ financialSummary }: UseFinancialSummaryDataProps) {
+export function useFinancialSummaryData({ financialSummary, initialSection }: UseFinancialSummaryDataProps) {
   const [searchParams, setSearchParams] = useSearchParams();
   const lenderFromUrl = searchParams.get('lender');
   const sectionFromUrl = searchParams.get('section') as 'requested' | 'approved' | 'customer' | null;
@@ -40,25 +41,28 @@ export function useFinancialSummaryData({ financialSummary }: UseFinancialSummar
         ? financialSummary.loan?.tabs || ['Requested', 'Approved', 'Customer']
         : financialSummary.lfs.tabs);
   
-  // Set initial active tab based on URL or default
-  const [activeTab, setActiveTab] = useState<string>(
-    sectionFromUrl 
+  // Set initial active tab based on initialSection, URL, or default
+  const initialTabName = initialSection || 
+    (sectionFromUrl 
       ? sectionFromUrl.charAt(0).toUpperCase() + sectionFromUrl.slice(1) 
       : (selectedLender?.activeTab || 
         (isLoanType 
           ? financialSummary.loan?.activeTab || 'Approved' 
-          : financialSummary.lfs.activeTab))
-  );
+          : financialSummary.lfs.activeTab)));
+          
+  const [activeTab, setActiveTab] = useState<string>(initialTabName);
 
-  // Update active tab when URL changes
+  // Update active tab when URL or initialSection changes
   useEffect(() => {
-    if (sectionFromUrl) {
+    if (initialSection && tabs.includes(initialSection)) {
+      setActiveTab(initialSection);
+    } else if (sectionFromUrl) {
       const capitalizedSection = sectionFromUrl.charAt(0).toUpperCase() + sectionFromUrl.slice(1);
       if (tabs.includes(capitalizedSection)) {
         setActiveTab(capitalizedSection);
       }
     }
-  }, [sectionFromUrl, tabs]);
+  }, [sectionFromUrl, initialSection, tabs]);
   
   // Update selected lender when URL changes
   useEffect(() => {

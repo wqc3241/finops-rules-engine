@@ -15,7 +15,10 @@ interface LenderOfferCardProps {
   onSelectOffer: (offerLender: string) => void;
   onPresentToCustomer?: (lenderName: string) => void;
   showFinancialDetailButton?: boolean;
-  onViewFinancialDetail?: (lenderName: string) => void;
+  onViewFinancialDetail?: () => void;
+  onViewRequestedFinancial?: () => void;
+  onViewApprovedFinancial?: () => void;
+  onViewCustomerFinancial?: () => void;
   financialSummary?: FinancialSummary;
 }
 
@@ -27,6 +30,9 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
   onPresentToCustomer,
   showFinancialDetailButton = false,
   onViewFinancialDetail,
+  onViewRequestedFinancial,
+  onViewApprovedFinancial,
+  onViewCustomerFinancial,
   financialSummary
 }) => {
   const [isCardExpanded, setIsCardExpanded] = useState(false);
@@ -68,6 +74,20 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
   const handleViewFinancialDetail = (section: 'requested' | 'approved' | 'customer' = 'approved') => {
     setSelectedSection(section);
     setShowFinancialSummary(true);
+    
+    switch (section) {
+      case 'requested':
+        if (onViewRequestedFinancial) onViewRequestedFinancial();
+        break;
+      case 'approved':
+        if (onViewApprovedFinancial) onViewApprovedFinancial();
+        break;
+      case 'customer':
+        if (onViewCustomerFinancial) onViewCustomerFinancial();
+        break;
+      default:
+        if (onViewFinancialDetail) onViewFinancialDetail();
+    }
   };
 
   const handleBackToDealStructure = () => {
@@ -114,7 +134,10 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
           showFinancialDetailButton={showFinancialDetailButton}
           onToggleExpand={setIsCardExpanded}
           onBackToDealStructure={handleBackToDealStructure}
-          onViewFinancialDetail={handleViewFinancialDetail}
+          onViewFinancialDetail={() => handleViewFinancialDetail()}
+          onViewRequestedFinancial={() => handleViewFinancialDetail('requested')}
+          onViewApprovedFinancial={() => handleViewFinancialDetail('approved')}
+          onViewCustomerFinancial={() => handleViewFinancialDetail('customer')}
           onEditDialogOpenChange={setIsEditDialogOpen}
           onEditSubmit={handleEditSubmit}
         />

@@ -9,7 +9,10 @@ interface DealStructureContainerProps {
   applicationType?: 'Lease' | 'Loan';
   showFinancialDetailButton?: boolean;
   onViewFinancialDetail?: (lenderName: string) => void;
-  financialSummary?: FinancialSummary; // Add this prop to pass financial summary data
+  onViewRequestedFinancial?: (lenderName: string) => void;
+  onViewApprovedFinancial?: (lenderName: string) => void;
+  onViewCustomerFinancial?: (lenderName: string) => void;
+  financialSummary?: FinancialSummary;
 }
 
 const DealStructureContainer: React.FC<DealStructureContainerProps> = ({ 
@@ -17,6 +20,9 @@ const DealStructureContainer: React.FC<DealStructureContainerProps> = ({
   applicationType = 'Lease',
   showFinancialDetailButton = false,
   onViewFinancialDetail,
+  onViewRequestedFinancial,
+  onViewApprovedFinancial,
+  onViewCustomerFinancial,
   financialSummary
 }) => {
   // Set application type for each offer if not already set
@@ -35,6 +41,9 @@ const DealStructureContainer: React.FC<DealStructureContainerProps> = ({
         dealStructure={loanOffers} 
         showFinancialDetailButton={showFinancialDetailButton}
         onViewFinancialDetail={onViewFinancialDetail}
+        onViewRequestedFinancial={onViewRequestedFinancial}
+        onViewApprovedFinancial={onViewApprovedFinancial}
+        onViewCustomerFinancial={onViewCustomerFinancial}
         financialSummary={financialSummary}
       />
     );
@@ -45,6 +54,9 @@ const DealStructureContainer: React.FC<DealStructureContainerProps> = ({
       dealStructure={leaseOffers}
       showFinancialDetailButton={showFinancialDetailButton}
       onViewFinancialDetail={onViewFinancialDetail}
+      onViewRequestedFinancial={onViewRequestedFinancial}
+      onViewApprovedFinancial={onViewApprovedFinancial}
+      onViewCustomerFinancial={onViewCustomerFinancial}
       financialSummary={financialSummary}
     />
   );

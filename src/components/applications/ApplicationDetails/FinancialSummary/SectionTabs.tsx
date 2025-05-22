@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface SectionTabsProps {
   tabs: string[];
@@ -14,19 +15,20 @@ const SectionTabs: React.FC<SectionTabsProps> = ({ tabs, activeTab, onTabChange 
   }
   
   return (
-    <div className="flex mb-2 mt-2">
-      {tabs.map((tab, index) => (
-        <Button 
-          key={index} 
-          variant={tab === activeTab ? "default" : "outline"}
-          size="sm"
-          className="mr-1 text-xs h-7 px-2"
-          onClick={() => onTabChange(tab)}
-        >
-          {tab}
-        </Button>
-      ))}
-    </div>
+    <Tabs value={activeTab} className="w-full">
+      <TabsList className="flex mb-4 mt-2">
+        {tabs.map((tab, index) => (
+          <TabsTrigger 
+            key={index}
+            value={tab}
+            onClick={() => onTabChange(tab)}
+            className="flex-1 text-xs h-8 px-3"
+          >
+            {tab}
+          </TabsTrigger>
+        ))}
+      </TabsList>
+    </Tabs>
   );
 };
 

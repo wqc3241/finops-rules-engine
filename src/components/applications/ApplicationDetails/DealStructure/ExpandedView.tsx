@@ -8,6 +8,7 @@ import RequestedDealStructure from './RequestedDealStructure';
 import ApprovedDealStructure from './ApprovedDealStructure';
 import CustomerDealStructure from './CustomerDealStructure';
 import { Separator } from '@/components/ui/separator';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 interface ExpandedViewProps {
   requested: DealStructureItem[];
@@ -38,6 +39,24 @@ const ExpandedView: React.FC<ExpandedViewProps> = ({
   onViewApprovedFinancial,
   onViewCustomerFinancial
 }) => {
+  const { id: applicationId } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  const handleViewFinancialDetail = () => {
+    if (onViewFinancialDetail) {
+      onViewFinancialDetail();
+    } else {
+      // Navigate to complete financial summary
+      const newParams = new URLSearchParams(searchParams);
+      newParams.set('view', 'financial-detail');
+      if (lenderName) {
+        newParams.set('lender', encodeURIComponent(lenderName));
+      }
+      navigate(`/applications/${applicationId}/financial-summary?${newParams.toString()}`);
+    }
+  };
+  
   return (
     <>
       <div className="flex flex-row items-start mb-6 space-x-0">
@@ -102,11 +121,11 @@ const ExpandedView: React.FC<ExpandedViewProps> = ({
         </div>
       )}
       
-      {showFinancialDetailButton && onViewFinancialDetail && (
+      {showFinancialDetailButton && (
         <div className="mt-6 flex justify-end">
           <Button 
             variant="outline" 
-            onClick={onViewFinancialDetail}
+            onClick={handleViewFinancialDetail}
             className="flex items-center"
           >
             <BarChart2 className="h-4 w-4 mr-1" />

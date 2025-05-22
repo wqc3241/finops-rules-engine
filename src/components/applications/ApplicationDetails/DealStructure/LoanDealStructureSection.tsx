@@ -14,6 +14,9 @@ interface LoanDealStructureSectionProps {
   dealStructure: DealStructureOffer[];
   showFinancialDetailButton?: boolean;
   onViewFinancialDetail?: (lenderName: string) => void;
+  onViewRequestedFinancial?: (lenderName: string) => void;
+  onViewApprovedFinancial?: (lenderName: string) => void;
+  onViewCustomerFinancial?: (lenderName: string) => void;
   financialSummary?: FinancialSummary;
 }
 
@@ -21,6 +24,9 @@ const LoanDealStructureSection: React.FC<LoanDealStructureSectionProps> = ({
   dealStructure,
   showFinancialDetailButton = false,
   onViewFinancialDetail,
+  onViewRequestedFinancial,
+  onViewApprovedFinancial,
+  onViewCustomerFinancial,
   financialSummary
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -65,8 +71,22 @@ const LoanDealStructureSection: React.FC<LoanDealStructureSectionProps> = ({
       // Update URL with view mode and lender
       const newParams = new URLSearchParams(searchParams);
       newParams.set('view', 'financial-detail');
-      newParams.set('lender', lenderName);
+      newParams.set('lender', encodeURIComponent(lenderName));
       setSearchParams(newParams);
+    }
+  };
+
+  const handleViewSection = (lenderName: string, section: 'requested' | 'approved' | 'customer') => {
+    switch (section) {
+      case 'requested':
+        if (onViewRequestedFinancial) onViewRequestedFinancial(lenderName);
+        break;
+      case 'approved':
+        if (onViewApprovedFinancial) onViewApprovedFinancial(lenderName);
+        break;
+      case 'customer':
+        if (onViewCustomerFinancial) onViewCustomerFinancial(lenderName);
+        break;
     }
   };
 
@@ -105,8 +125,10 @@ const LoanDealStructureSection: React.FC<LoanDealStructureSectionProps> = ({
               onSelectOffer={handleSelectOffer}
               onPresentToCustomer={handlePresentToCustomer}
               showFinancialDetailButton={showFinancialDetailButton}
-              onViewFinancialDetail={onViewFinancialDetail ? 
-                () => handleViewFinancialDetail(offer.lenderName) : undefined}
+              onViewFinancialDetail={() => handleViewFinancialDetail(offer.lenderName)}
+              onViewRequestedFinancial={() => handleViewSection(offer.lenderName, 'requested')}
+              onViewApprovedFinancial={() => handleViewSection(offer.lenderName, 'approved')}
+              onViewCustomerFinancial={() => handleViewSection(offer.lenderName, 'customer')}
               financialSummary={financialSummary}
             />
           ))}

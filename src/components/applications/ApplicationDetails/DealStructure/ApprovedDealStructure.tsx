@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { DealStructureItem } from '@/types/application';
 import OfferParameters from './OfferParameters';
 import { BarChart2 } from 'lucide-react';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 interface ApprovedDealStructureProps {
   items: DealStructureItem[];
@@ -20,12 +21,30 @@ const ApprovedDealStructure: React.FC<ApprovedDealStructureProps> = ({
   onViewFinancialSummary,
   showFinancialDetailButton = false
 }) => {
+  const { id: applicationId } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  
+  const handleViewFinancialSummary = () => {
+    if (onViewFinancialSummary) {
+      onViewFinancialSummary();
+    } else {
+      // Navigate to financial summary with approved tab active
+      const newParams = new URLSearchParams(searchParams);
+      newParams.set('section', 'approved');
+      if (lenderName) {
+        newParams.set('lender', encodeURIComponent(lenderName));
+      }
+      navigate(`/applications/${applicationId}/financial-summary?${newParams.toString()}`);
+    }
+  };
+  
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
         <h4 className="text-md font-medium">Approved</h4>
-        {showFinancialDetailButton && onViewFinancialSummary && (
-          <Button variant="outline" size="sm" onClick={onViewFinancialSummary} className="flex items-center">
+        {showFinancialDetailButton && (
+          <Button variant="outline" size="sm" onClick={handleViewFinancialSummary} className="flex items-center">
             <BarChart2 className="h-3 w-3 mr-1" />
             View Financial Summary
           </Button>
@@ -36,7 +55,7 @@ const ApprovedDealStructure: React.FC<ApprovedDealStructureProps> = ({
         applicationType={applicationType} 
         lenderName={lenderName} 
         section="approved"
-        onViewFinancialSummary={onViewFinancialSummary}
+        onViewFinancialSummary={handleViewFinancialSummary}
       />
     </div>
   );
