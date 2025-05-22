@@ -40,8 +40,8 @@ const ExpandedView: React.FC<ExpandedViewProps> = ({
 }) => {
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-0 mb-6">
-        <div className="col-span-1 md:col-span-2">
+      <div className="flex flex-row items-start mb-6 space-x-0">
+        <div className="flex-1">
           <RequestedDealStructure 
             items={requested}
             applicationType={applicationType}
@@ -51,11 +51,11 @@ const ExpandedView: React.FC<ExpandedViewProps> = ({
           />
         </div>
         
-        <div className="flex justify-center items-center">
+        <div className="flex items-center self-stretch px-2">
           <Separator orientation="vertical" className="h-full" />
         </div>
         
-        <div className="col-span-1 md:col-span-1">
+        <div className="flex-1">
           <ApprovedDealStructure 
             items={approved}
             applicationType={applicationType}
@@ -65,11 +65,11 @@ const ExpandedView: React.FC<ExpandedViewProps> = ({
           />
         </div>
         
-        <div className="flex justify-center items-center">
+        <div className="flex items-center self-stretch px-2">
           <Separator orientation="vertical" className="h-full" />
         </div>
         
-        <div className="col-span-1 md:col-span-1">
+        <div className="flex-1">
           <CustomerDealStructure 
             items={customer}
             applicationType={applicationType}
