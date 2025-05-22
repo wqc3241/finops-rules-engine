@@ -86,7 +86,7 @@ const mockFinancialProductsData = [
   {
     id: "KSABA",
     productType: "Balloon",
-    productSubtype: "Annual",
+    productSubtype: "Annual 50-50",
     geoCode: "ME-KSA",
     category: "Personal",
     isActive: true
