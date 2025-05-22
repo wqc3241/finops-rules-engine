@@ -8,7 +8,7 @@ export * from './vehicle';
 // Export order types
 export * from './order';
 // Export history types (excluding Note to avoid conflict)
-export { HistoryItem } from './history';
+export type { HistoryItem } from './history';
 // Export deal types
 export * from './deal';
 // Export financial types
