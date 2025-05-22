@@ -3,8 +3,10 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { DealStructureItem, DealStructureStipulation } from '@/types/application';
 import StipulationsTable from './StipulationsTable';
-import OfferParameters from './OfferParameters';
 import { BarChart2 } from 'lucide-react';
+import RequestedDealStructure from './RequestedDealStructure';
+import ApprovedDealStructure from './ApprovedDealStructure';
+import CustomerDealStructure from './CustomerDealStructure';
 
 interface ExpandedViewProps {
   requested: DealStructureItem[];
@@ -38,61 +40,29 @@ const ExpandedView: React.FC<ExpandedViewProps> = ({
   return (
     <>
       <div className="grid grid-cols-3 gap-6 mb-6">
-        <div>
-          <div className="flex justify-between items-center mb-4">
-            <h4 className="text-md font-medium">Requested</h4>
-            {showFinancialDetailButton && onViewRequestedFinancial && (
-              <Button variant="outline" size="sm" onClick={onViewRequestedFinancial} className="flex items-center">
-                <BarChart2 className="h-3 w-3 mr-1" />
-                View Financial Summary
-              </Button>
-            )}
-          </div>
-          <OfferParameters 
-            items={requested} 
-            applicationType={applicationType} 
-            lenderName={lenderName} 
-            section="requested" 
-            onViewFinancialSummary={onViewRequestedFinancial}
-          />
-        </div>
-        <div>
-          <div className="flex justify-between items-center mb-4">
-            <h4 className="text-md font-medium">Approved</h4>
-            {showFinancialDetailButton && onViewApprovedFinancial && (
-              <Button variant="outline" size="sm" onClick={onViewApprovedFinancial} className="flex items-center">
-                <BarChart2 className="h-3 w-3 mr-1" />
-                View Financial Summary
-              </Button>
-            )}
-          </div>
-          <OfferParameters 
-            items={approved} 
-            applicationType={applicationType} 
-            lenderName={lenderName} 
-            section="approved"
-            onViewFinancialSummary={onViewApprovedFinancial}
-          />
-        </div>
-        <div>
-          <div className="flex justify-between items-center mb-4">
-            <h4 className="text-md font-medium">Customer</h4>
-            {showFinancialDetailButton && onViewCustomerFinancial && (
-              <Button variant="outline" size="sm" onClick={onViewCustomerFinancial} className="flex items-center">
-                <BarChart2 className="h-3 w-3 mr-1" />
-                View Financial Summary
-              </Button>
-            )}
-          </div>
-          <OfferParameters 
-            items={customer} 
-            isCustomer={true} 
-            applicationType={applicationType} 
-            lenderName={lenderName} 
-            section="customer"
-            onViewFinancialSummary={onViewCustomerFinancial}
-          />
-        </div>
+        <RequestedDealStructure 
+          items={requested}
+          applicationType={applicationType}
+          lenderName={lenderName}
+          onViewFinancialSummary={onViewRequestedFinancial}
+          showFinancialDetailButton={showFinancialDetailButton}
+        />
+        
+        <ApprovedDealStructure 
+          items={approved}
+          applicationType={applicationType}
+          lenderName={lenderName}
+          onViewFinancialSummary={onViewApprovedFinancial}
+          showFinancialDetailButton={showFinancialDetailButton}
+        />
+        
+        <CustomerDealStructure 
+          items={customer}
+          applicationType={applicationType}
+          lenderName={lenderName}
+          onViewFinancialSummary={onViewCustomerFinancial}
+          showFinancialDetailButton={showFinancialDetailButton}
+        />
       </div>
 
       {stipulations.length > 0 && (
