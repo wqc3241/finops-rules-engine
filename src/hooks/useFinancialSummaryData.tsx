@@ -99,6 +99,8 @@ export function useFinancialSummaryData({ financialSummary, initialSection }: Us
       currentIsLoanType = lender.type === 'Loan';
       
       const tabLower = activeTab.toLowerCase() as 'requested' | 'approved' | 'customer';
+      
+      // Make sure we're getting the right data format based on lender type
       return {
         data: lender[tabLower],
         isLoanType: currentIsLoanType
@@ -106,12 +108,19 @@ export function useFinancialSummaryData({ financialSummary, initialSection }: Us
     } else {
       // Use default financial summary data
       const tabLower = activeTab.toLowerCase() as 'requested' | 'approved' | 'customer';
-      return {
-        data: currentIsLoanType 
-          ? financialSummary.loan?.[tabLower] || {} 
-          : financialSummary.lfs[tabLower],
-        isLoanType: currentIsLoanType
-      };
+      
+      // Make sure we're getting the right data format based on application type
+      if (currentIsLoanType && financialSummary.loan) {
+        return {
+          data: financialSummary.loan[tabLower] || {},
+          isLoanType: true
+        };
+      } else {
+        return {
+          data: financialSummary.lfs[tabLower],
+          isLoanType: false
+        };
+      }
     }
   };
 
