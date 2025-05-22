@@ -1,4 +1,3 @@
-
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { Application } from '@/types/application';
 import { sortByProperty } from '@/utils/sortFilterUtils';
@@ -30,7 +29,7 @@ import {
   createToggleStateFilter,
   createClearFilters
 } from '@/utils/filterUtils';
-import { getMockApplicationDetailsById } from '@/data/mock/applicationDetails';
+import { getMockApplicationDetailsById } from '@/data/mockApplications';
 
 export const useApplicationFiltering = (initialApplications: Application[]) => {
   // Get initial applications from localStorage or use initial data

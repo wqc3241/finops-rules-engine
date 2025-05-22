@@ -1,11 +1,19 @@
 
 // Export all types to maintain backward compatibility with existing imports
 export * from './base';
+// Export applicant types
 export * from './applicant';
+// Export vehicle types
 export * from './vehicle';
+// Export order types
 export * from './order';
-export * from './history';
+// Export history types (excluding Note to avoid conflict)
+export { HistoryItem } from './history';
+// Export deal types
 export * from './deal';
+// Export financial types
 export * from './financial';
-export * from './report'; // Add the export for report types
-export * from './details'; // Add the export for application details types
+// Export report types
+export * from './report';
+// Export application details types
+export * from './details';
