@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Copy, Edit, Trash2 } from "lucide-react";
@@ -6,6 +7,7 @@ import { Button } from "@/components/ui/button";
 
 interface Rule {
   id: string;
+  uuid: string;
   priority: number;
   minCreditScore: number;
   maxCreditScore: number;
@@ -25,7 +27,15 @@ interface RulesTableProps {
   onRemove: (id: string) => void;
 }
 
-const initialRules: Rule[] = [
+// Function to generate a UUID
+const generateUUID = () => {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+};
+
+const initialRulesWithoutUUID = [
   {
     id: "P001",
     priority: 1,
@@ -70,6 +80,11 @@ const initialRules: Rule[] = [
   }
 ];
 
+const initialRules: Rule[] = initialRulesWithoutUUID.map(rule => ({
+  ...rule,
+  uuid: generateUUID()
+}));
+
 const formatCurrency = (value: number) => {
   if (value === 0) return '';
   return `$${value.toLocaleString()}`;
@@ -110,6 +125,7 @@ const RulesTable = ({ onEdit, onCopy, onRemove }: RulesTableProps) => {
                 aria-label="Select all"
               />
             </TableHead>
+            <TableHead>UUID</TableHead>
             <TableHead>Profile ID</TableHead>
             <TableHead>Priority</TableHead>
             <TableHead>Min Credit Score</TableHead>
@@ -135,6 +151,7 @@ const RulesTable = ({ onEdit, onCopy, onRemove }: RulesTableProps) => {
                   aria-label={`Select rule ${rule.id}`}
                 />
               </TableCell>
+              <TableCell>{rule.uuid}</TableCell>
               <TableCell>{rule.id}</TableCell>
               <TableCell>{rule.priority}</TableCell>
               <TableCell>{rule.minCreditScore || ''}</TableCell>
