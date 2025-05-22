@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -77,7 +76,7 @@ const initialFinancialProgramConfigs: FinancialProgramConfig[] = [
     programCode: "AIBAIPUNL04251",
     cloneFrom: null,
     priority: 1,
-    financialProductId: "KSABA",
+    financialProductId: "KSABA5050",
     productType: "50/50",
     vehicleStyleId: "KSA25A1",
     financingVehicleCondition: "New",
@@ -92,7 +91,7 @@ const initialFinancialProgramConfigs: FinancialProgramConfig[] = [
     programCode: "JBAIPUNL04251",
     cloneFrom: null,
     priority: 1,
-    financialProductId: "KSABA",
+    financialProductId: "KSABA5050",
     productType: "40/60",
     vehicleStyleId: "KSA25A1",
     financingVehicleCondition: "New",
@@ -161,7 +160,6 @@ const FinancialProgramConfigTable = () => {
             <TableHead>Clone from</TableHead>
             <TableHead>Priority</TableHead>
             <TableHead>Financial Product ID</TableHead>
-            <TableHead>Product Type</TableHead>
             <TableHead>Vehicle Style ID</TableHead>
             <TableHead>Vehicle Condition</TableHead>
             <TableHead>Start Date</TableHead>
@@ -187,7 +185,6 @@ const FinancialProgramConfigTable = () => {
               <TableCell>{program.cloneFrom || "-"}</TableCell>
               <TableCell>{program.priority}</TableCell>
               <TableCell>{program.financialProductId}</TableCell>
-              <TableCell>{program.productType || "-"}</TableCell>
               <TableCell>{program.vehicleStyleId}</TableCell>
               <TableCell>{program.financingVehicleCondition}</TableCell>
               <TableCell>{program.programStartDate}</TableCell>
