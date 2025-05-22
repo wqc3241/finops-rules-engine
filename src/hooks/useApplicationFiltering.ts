@@ -30,6 +30,7 @@ import {
   createToggleStateFilter,
   createClearFilters
 } from '@/utils/filterUtils';
+import { getMockApplicationDetailsById } from '@/data/mock/applicationDetails';
 
 export const useApplicationFiltering = (initialApplications: Application[]) => {
   // Get initial applications from localStorage or use initial data
@@ -77,20 +78,27 @@ export const useApplicationFiltering = (initialApplications: Application[]) => {
     if (applications.length === 0 && initialApplications.length > 0) {
       // Process applications to add state from orderDetails
       const appsWithNotesAndState = initializeApplicationsWithNotes(initialApplications).map(app => {
-        // Here we would ideally fetch state from orderDetails if available
-        // For demonstration, we'll add some mock states
-        const stateMap: {[key: string]: string} = {
-          "1": "California",
-          "2": "New York",
-          "3": "Texas",
-          "4": "Florida",
-          "5": "Illinois"
-        };
+        // Get application details to extract state from registration data
+        try {
+          const appDetails = getMockApplicationDetailsById(app.id);
+          if (appDetails && appDetails.orderDetails && appDetails.orderDetails.registrationData) {
+            // Find the registration state from the registration data array
+            const registrationState = appDetails.orderDetails.registrationData.find(
+              item => item.label === 'Registration State/Province'
+            );
+            
+            if (registrationState && registrationState.value) {
+              return {
+                ...app,
+                state: registrationState.value
+              };
+            }
+          }
+        } catch (error) {
+          console.error("Error getting application details:", error);
+        }
         
-        return {
-          ...app,
-          state: stateMap[app.id] || "Unknown"
-        };
+        return app;
       });
       
       setApplications(appsWithNotesAndState);
