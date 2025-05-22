@@ -1,9 +1,10 @@
 
 import React from 'react';
 import { DealStructureItem } from '@/types/application';
-import { useFinancialNavigation } from '@/utils/dealFinanceNavigation';
+import { usePresentedLender } from '@/utils/dealFinanceNavigation';
 import { useParams } from 'react-router-dom';
 import { generateStandardParams } from './utils/offerUtils';
+import { useDealFinancialNavigation } from '@/hooks/useDealFinancialNavigation';
 
 interface OfferParametersProps {
   items: DealStructureItem[];
@@ -30,15 +31,15 @@ const OfferParameters: React.FC<OfferParametersProps> = ({
     id: string;
   }>();
   const {
-    navigateToFinancialSummary,
+    navigateToFinancialSection: navigateToFinancialSummary,
     presentedLender
-  } = useFinancialNavigation();
+  } = useDealFinancialNavigation();
   
   const handleViewFinancialSummary = () => {
     if (onViewFinancialSummary) {
       onViewFinancialSummary();
     } else if (lenderName && section && applicationId) {
-      navigateToFinancialSummary(applicationId, lenderName, section, markAsPresented);
+      navigateToFinancialSummary(lenderName, section, { markAsPresented });
     }
   };
 
