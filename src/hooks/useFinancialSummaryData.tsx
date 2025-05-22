@@ -2,23 +2,19 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { FinancialSummary } from '@/types/application';
-import { usePresentedLender } from '@/utils/dealFinanceNavigation';
+import { useDealFinancialNavigation } from './useDealFinancialNavigation';
 
 interface UseFinancialSummaryDataProps {
   financialSummary: FinancialSummary;
   initialSection?: 'Requested' | 'Approved' | 'Customer';
 }
 
-interface FinancialData {
-  data: any;
-  isLoanType: boolean;
-}
-
 export function useFinancialSummaryData({ financialSummary, initialSection }: UseFinancialSummaryDataProps) {
   const [searchParams, setSearchParams] = useSearchParams();
-  const lenderFromUrl = searchParams.get('lender');
-  const sectionFromUrl = searchParams.get('section') as 'requested' | 'approved' | 'customer' | null;
-  const { presentedLender } = usePresentedLender();
+  const { getCurrentLender, getCurrentSection, presentedLender } = useDealFinancialNavigation();
+  
+  const lenderFromUrl = getCurrentLender();
+  const sectionFromUrl = getCurrentSection();
   
   const isLoanType = financialSummary.type === 'Loan';
   
@@ -27,8 +23,8 @@ export function useFinancialSummaryData({ financialSummary, initialSection }: Us
   
   // Determine which tabs to show based on application type and selected lender
   const [selectedLenderName, setSelectedLenderName] = useState<string | null>(
-    lenderFromUrl ? decodeURIComponent(lenderFromUrl) : 
-    hasMultipleLenders ? Object.keys(financialSummary.lenderSummaries!)[0] : null
+    lenderFromUrl || 
+    (hasMultipleLenders ? Object.keys(financialSummary.lenderSummaries!)[0] : null)
   );
   
   // If lender summaries exist and a lender is specified in the URL, find that lender
@@ -44,7 +40,7 @@ export function useFinancialSummaryData({ financialSummary, initialSection }: Us
   // Set initial active tab based on initialSection, URL, or default
   const initialTabName = initialSection || 
     (sectionFromUrl 
-      ? sectionFromUrl.charAt(0).toUpperCase() + sectionFromUrl.slice(1) 
+      ? sectionFromUrl.charAt(0).toUpperCase() + sectionFromUrl.slice(1) as 'Requested' | 'Approved' | 'Customer'
       : (selectedLender?.activeTab || 
         (isLoanType 
           ? financialSummary.loan?.activeTab || 'Approved' 
@@ -57,7 +53,7 @@ export function useFinancialSummaryData({ financialSummary, initialSection }: Us
     if (initialSection && tabs.includes(initialSection)) {
       setActiveTab(initialSection);
     } else if (sectionFromUrl) {
-      const capitalizedSection = sectionFromUrl.charAt(0).toUpperCase() + sectionFromUrl.slice(1);
+      const capitalizedSection = sectionFromUrl.charAt(0).toUpperCase() + sectionFromUrl.slice(1) as 'Requested' | 'Approved' | 'Customer';
       if (tabs.includes(capitalizedSection)) {
         setActiveTab(capitalizedSection);
       }
@@ -67,7 +63,7 @@ export function useFinancialSummaryData({ financialSummary, initialSection }: Us
   // Update selected lender when URL changes
   useEffect(() => {
     if (lenderFromUrl) {
-      setSelectedLenderName(decodeURIComponent(lenderFromUrl));
+      setSelectedLenderName(lenderFromUrl);
     } else if (hasMultipleLenders) {
       // Default to first lender if none specified
       setSelectedLenderName(Object.keys(financialSummary.lenderSummaries!)[0]);
@@ -92,7 +88,7 @@ export function useFinancialSummaryData({ financialSummary, initialSection }: Us
   };
 
   // Get current financial data based on selected lender and tab
-  const getFinancialData = (): FinancialData => {
+  const getCurrentFinancialData = () => {
     if (selectedLenderName && financialSummary.lenderSummaries?.[selectedLenderName]) {
       // Use selected lender's data
       const lender = financialSummary.lenderSummaries[selectedLenderName];
@@ -114,7 +110,7 @@ export function useFinancialSummaryData({ financialSummary, initialSection }: Us
     }
   };
 
-  const { data, isLoanType: currentTypeIsLoan } = getFinancialData();
+  const { data, isLoanType: currentTypeIsLoan } = getCurrentFinancialData();
 
   return {
     tabs,

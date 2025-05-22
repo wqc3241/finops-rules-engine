@@ -8,7 +8,7 @@ import RequestedDealStructure from './RequestedDealStructure';
 import ApprovedDealStructure from './ApprovedDealStructure';
 import CustomerDealStructure from './CustomerDealStructure';
 import { Separator } from '@/components/ui/separator';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useDealFinancialNavigation } from '@/hooks/useDealFinancialNavigation';
 
 interface ExpandedViewProps {
   requested: DealStructureItem[];
@@ -39,21 +39,13 @@ const ExpandedView: React.FC<ExpandedViewProps> = ({
   onViewApprovedFinancial,
   onViewCustomerFinancial
 }) => {
-  const { id: applicationId } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const { navigateToFinancialSection } = useDealFinancialNavigation();
 
   const handleViewFinancialDetail = () => {
     if (onViewFinancialDetail) {
       onViewFinancialDetail();
-    } else {
-      // Navigate to complete financial summary
-      const newParams = new URLSearchParams(searchParams);
-      newParams.set('view', 'financial-detail');
-      if (lenderName) {
-        newParams.set('lender', encodeURIComponent(lenderName));
-      }
-      navigate(`/applications/${applicationId}/financial-summary?${newParams.toString()}`);
+    } else if (lenderName) {
+      navigateToFinancialSection(lenderName, 'approved');
     }
   };
   

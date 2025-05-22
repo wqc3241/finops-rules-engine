@@ -19,10 +19,6 @@ const DealStructureContainer: React.FC<DealStructureContainerProps> = ({
   dealStructure, 
   applicationType = 'Lease',
   showFinancialDetailButton = false,
-  onViewFinancialDetail,
-  onViewRequestedFinancial,
-  onViewApprovedFinancial,
-  onViewCustomerFinancial,
   financialSummary
 }) => {
   // Set application type for each offer if not already set
@@ -35,30 +31,24 @@ const DealStructureContainer: React.FC<DealStructureContainerProps> = ({
   const leaseOffers = offersWithType.filter(offer => offer.applicationType !== 'Loan');
   const loanOffers = offersWithType.filter(offer => offer.applicationType === 'Loan');
 
-  if (applicationType === 'Loan') {
-    return (
-      <LoanDealStructureSection 
-        dealStructure={loanOffers} 
-        showFinancialDetailButton={showFinancialDetailButton}
-        onViewFinancialDetail={onViewFinancialDetail}
-        onViewRequestedFinancial={onViewRequestedFinancial}
-        onViewApprovedFinancial={onViewApprovedFinancial}
-        onViewCustomerFinancial={onViewCustomerFinancial}
-        financialSummary={financialSummary}
-      />
-    );
-  }
-
   return (
-    <LeaseDealStructureSection 
-      dealStructure={leaseOffers}
-      showFinancialDetailButton={showFinancialDetailButton}
-      onViewFinancialDetail={onViewFinancialDetail}
-      onViewRequestedFinancial={onViewRequestedFinancial}
-      onViewApprovedFinancial={onViewApprovedFinancial}
-      onViewCustomerFinancial={onViewCustomerFinancial}
-      financialSummary={financialSummary}
-    />
+    <>
+      {loanOffers.length > 0 && (
+        <LoanDealStructureSection 
+          dealStructure={loanOffers} 
+          showFinancialDetailButton={showFinancialDetailButton}
+          financialSummary={financialSummary}
+        />
+      )}
+      
+      {leaseOffers.length > 0 && (
+        <LeaseDealStructureSection 
+          dealStructure={leaseOffers}
+          showFinancialDetailButton={showFinancialDetailButton}
+          financialSummary={financialSummary}
+        />
+      )}
+    </>
   );
 };
 

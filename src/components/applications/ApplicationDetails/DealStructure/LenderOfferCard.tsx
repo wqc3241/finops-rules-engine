@@ -3,10 +3,9 @@ import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { DealStructureOffer, FinancialSummary } from '@/types/application';
 import { useToast } from '@/hooks/use-toast';
-import { useParams } from 'react-router-dom';
-import { useSearchParams } from 'react-router-dom';
 import CardHeader from './CardHeader';
 import CollapsibleCardContent from './CollapsibleCardContent';
+import { useDealFinancialNavigation } from '@/hooks/useDealFinancialNavigation';
 
 interface LenderOfferCardProps {
   offer: DealStructureOffer;
@@ -40,8 +39,6 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
   const [showFinancialSummary, setShowFinancialSummary] = useState(false);
   const [selectedSection, setSelectedSection] = useState<'requested' | 'approved' | 'customer'>('approved');
   const { toast } = useToast();
-  const { id: applicationId } = useParams<{ id: string }>();
-  const [searchParams, setSearchParams] = useSearchParams();
 
   // If the parent is expanded, we force the card to be expanded too
   const cardIsExpanded = isExpanded || isCardExpanded;
@@ -134,7 +131,7 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
           showFinancialDetailButton={showFinancialDetailButton}
           onToggleExpand={setIsCardExpanded}
           onBackToDealStructure={handleBackToDealStructure}
-          onViewFinancialDetail={() => handleViewFinancialDetail()}
+          onViewFinancialDetail={handleViewFinancialDetail}
           onViewRequestedFinancial={() => handleViewFinancialDetail('requested')}
           onViewApprovedFinancial={() => handleViewFinancialDetail('approved')}
           onViewCustomerFinancial={() => handleViewFinancialDetail('customer')}

@@ -47,6 +47,7 @@ const FinancialSummarySection: React.FC<FinancialSummarySectionProps> = ({
       <FinancialSummaryView 
         financialSummary={lenderSpecificSummary}
         showBackButton={false}
+        initialSection={section.charAt(0).toUpperCase() + section.slice(1) as 'Requested' | 'Approved' | 'Customer'}
       />
     </div>
   );
