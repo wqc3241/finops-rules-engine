@@ -24,7 +24,7 @@ const TabComponent = ({
 }: TabComponentProps) => {
   return (
     <Tabs defaultValue={defaultValue} className="w-full" onValueChange={onValueChange}>
-      <div className="border-b border-gray-200">
+      <div className="border-b border-gray-200 mb-4">
         <TabsList className="bg-transparent h-auto p-0 w-full flex overflow-x-auto">
           {items.map(item => {
             return (
@@ -33,7 +33,8 @@ const TabComponent = ({
                 value={item.value}
                 className={cn(
                   "px-4 py-2 border-b-2 border-transparent transition-colors",
-                  "text-muted-foreground whitespace-nowrap"
+                  "text-muted-foreground whitespace-nowrap",
+                  "data-[state=active]:border-blue-600 data-[state=active]:text-blue-600"
                 )}
               >
                 {item.label}
@@ -44,7 +45,7 @@ const TabComponent = ({
       </div>
 
       {items.map(item => (
-        <TabsContent key={item.value} value={item.value}>
+        <TabsContent key={item.value} value={item.value} className="mt-0">
           {item.content}
         </TabsContent>
       ))}

@@ -38,7 +38,7 @@ const BulletinPricingSection = ({
   };
 
   return (
-    <div>
+    <div className="p-6 bg-white rounded-lg shadow-sm">
       <SectionHeader 
         title={title} 
         isCollapsed={isCollapsed} 

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import TabComponent, { TabItem } from "./TabComponent";
 import AdvertisedOfferSection from "./AdvertisedOfferSection";
@@ -178,11 +179,13 @@ const FinancialPricingTabs = ({
   ];
 
   return (
-    <TabComponent 
-      defaultValue="bulletin-pricing" 
-      items={tabItems} 
-      onValueChange={handleTabChange}
-    />
+    <div className="bg-gray-50 p-4">
+      <TabComponent 
+        defaultValue="bulletin-pricing" 
+        items={tabItems} 
+        onValueChange={handleTabChange}
+      />
+    </div>
   );
 };
 
