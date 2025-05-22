@@ -60,7 +60,7 @@ const DealStructureSection: React.FC<DealStructureSectionProps> = ({
   }
   return <Card className="mb-8">
       <CardContent className="p-6">
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex justify-between items-center mb-1">
           <h3 className="text-lg font-semibold">{title}</h3>
           <div className="flex items-center">
             <Button variant="ghost" size="icon" onClick={() => setIsExpanded(!isExpanded)}>
