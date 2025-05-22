@@ -51,21 +51,7 @@ const OfferParameters: React.FC<OfferParametersProps> = ({
         ))}
       </div>
       
-      {lenderName && section && (
-        <div className="mt-4">
-          {onViewFinancialSummary && (
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleViewFinancialSummary} 
-              className="flex items-center"
-            >
-              <BarChart2 className="h-3 w-3 mr-1" />
-              View Financial Summary
-            </Button>
-          )}
-        </div>
-      )}
+      {/* Removed the View Financial Summary button as it duplicates functionality */}
     </>
   );
 };
