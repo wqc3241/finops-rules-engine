@@ -6,9 +6,9 @@ import ApplicationDetailLayout from '@/components/applications/ApplicationDetail
 
 // Define the tabs configuration at the module level
 const tabs = [
+  { id: 'order-details', label: 'Order Details' },
   { id: 'details', label: 'Application Details' },
   { id: 'financial-summary', label: 'Financial Summary' },
-  { id: 'order-details', label: 'Order Details' },
   { id: 'risk-compliance', label: 'Risk & Compliance' },
   { id: 'history', label: 'Application History' },
   { id: 'notes', label: 'Notes' },

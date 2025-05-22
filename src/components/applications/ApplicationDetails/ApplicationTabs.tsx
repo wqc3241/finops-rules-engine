@@ -21,11 +21,11 @@ const ApplicationTabs: React.FC<ApplicationTabsProps> = ({ tabs, baseUrl }) => {
   // Find active tab based on current path
   const activeTab = tabs.find(tab => 
     currentPath === `${baseUrl}/${tab.id}` || 
-    (currentPath === baseUrl && tab.id === 'details')
-  )?.id || 'details';
+    (currentPath === baseUrl && tab.id === 'order-details')
+  )?.id || 'order-details';
 
   const handleTabChange = (tabId: string) => {
-    if (tabId === 'details') {
+    if (tabId === 'order-details') {
       navigate(baseUrl);
     } else {
       navigate(`${baseUrl}/${tabId}`);
