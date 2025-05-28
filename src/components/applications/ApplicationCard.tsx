@@ -102,68 +102,67 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({ application }) => {
 
   // Format the timestamp if it exists
   const formattedDate = application.date 
-    ? format(new Date(application.date), 'MMM d, yyyy h:mm a')
+    ? format(new Date(application.date), 'MMM d, yyyy')
     : 'No date';
 
   return (
     <div 
-      className="bg-white rounded-lg shadow-sm mb-4 cursor-pointer overflow-hidden hover:shadow-md transition-shadow"
+      className="bg-white rounded-md shadow-sm mb-2 cursor-pointer overflow-hidden hover:shadow-md transition-shadow"
       onClick={handleClick}
     >
       <div className="relative">
-        <div className="p-4 border-l-4 border-transparent hover:border-gray-300">
-          <div className="flex justify-between items-center">
-            <div className="flex-1">
-              <div className="flex justify-between items-center mb-2">
-                <h3 className="text-lg font-medium text-gray-900 flex items-center">
-                  {application.orderNumber}
-                </h3>
-                <ChevronRight className="text-gray-400" />
+        <div className="p-3 border-l-2 border-transparent hover:border-gray-300">
+          <div className="flex justify-between items-start mb-2">
+            <h3 className="text-sm font-medium text-gray-900 truncate pr-2">
+              {application.orderNumber}
+            </h3>
+            <ChevronRight className="text-gray-400 w-3 h-3 flex-shrink-0" />
+          </div>
+          
+          <div className="space-y-2">
+            <div>
+              <p className="text-xs text-gray-500">Name</p>
+              <p className="text-xs text-gray-800 truncate">{application.name}</p>
+            </div>
+            
+            <div className="flex justify-between">
+              <div className="flex-1 pr-2">
+                <p className="text-xs text-gray-500">Type</p>
+                <p className="text-xs text-gray-800">{application.type}</p>
               </div>
-              <div className="grid grid-cols-4 gap-4">
-                <div>
-                  <p className="text-sm text-gray-500 mb-1">Name</p>
-                  <p className="text-gray-800">{application.name}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500 mb-1">Type</p>
-                  <p className="text-gray-800">{application.type}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500 mb-1">State</p>
-                  <p className="text-gray-800">{application.state || 'N/A'}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500 mb-1">Status</p>
-                  <p className="flex items-center">
-                    <span className={`w-2 h-2 rounded-full ${statusColor} mr-2`}></span>
-                    <span className="text-gray-800">{application.status}</span>
-                  </p>
-                </div>
+              <div className="flex-1">
+                <p className="text-xs text-gray-500">State</p>
+                <p className="text-xs text-gray-800">{application.state || 'N/A'}</p>
               </div>
             </div>
-            <div className="flex-1 ml-8">
-              <div className="flex justify-between">
-                <div>
-                  <p className="text-sm text-gray-500 mb-1">Notes</p>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <p className="text-gray-600 text-sm line-clamp-2">{latestNoteContent}</p>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p className="max-w-xs">{latestNoteContent}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm text-gray-500 mb-1">Submitted</p>
-                  <p className="text-gray-600 text-sm">{formattedDate}</p>
-                </div>
-              </div>
+            
+            <div>
+              <p className="text-xs text-gray-500">Status</p>
+              <p className="flex items-center">
+                <span className={`w-1.5 h-1.5 rounded-full ${statusColor} mr-1`}></span>
+                <span className="text-xs text-gray-800">{application.status}</span>
+              </p>
+            </div>
+            
+            <div>
+              <p className="text-xs text-gray-500">Notes</p>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <p className="text-xs text-gray-600 line-clamp-2 leading-tight">{latestNoteContent}</p>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="max-w-xs text-xs">{latestNoteContent}</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+            
+            <div>
+              <p className="text-xs text-gray-500">Submitted</p>
+              <p className="text-xs text-gray-600">{formattedDate}</p>
             </div>
           </div>
         </div>
-        <div className={`absolute right-0 top-0 h-full w-1 ${statusColor}`}></div>
+        <div className={`absolute right-0 top-0 h-full w-0.5 ${statusColor}`}></div>
       </div>
     </div>
   );
