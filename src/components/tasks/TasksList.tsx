@@ -66,13 +66,14 @@ const TasksList: React.FC<TasksListProps> = ({ type, showMyTasksOnly = false, cu
   const getFilteredTasks = () => {
     let tasks = mockTasks[type];
     
-    if (showMyTasksOnly && (type === "assigned" || type === "completed")) {
-      tasks = tasks.filter(task => task.owner === currentUser);
-    }
-    
-    // For unassigned tasks, if "My Tasks Only" is enabled, show empty list
-    if (showMyTasksOnly && type === "unassigned") {
-      tasks = [];
+    if (showMyTasksOnly) {
+      if (type === "assigned" || type === "completed") {
+        // Only filter by owner for assigned and completed tasks since they have the owner property
+        tasks = tasks.filter(task => (task as any).owner === currentUser);
+      } else if (type === "unassigned") {
+        // For unassigned tasks, if "My Tasks Only" is enabled, show empty list
+        tasks = [];
+      }
     }
     
     return tasks;
@@ -119,10 +120,10 @@ const TasksList: React.FC<TasksListProps> = ({ type, showMyTasksOnly = false, cu
                   </TableCell>
                   <TableCell>{new Date(task.deliveryDate).toLocaleDateString()}</TableCell>
                   {(type === "assigned" || type === "completed") && (
-                    <TableCell>{task.owner}</TableCell>
+                    <TableCell>{(task as any).owner}</TableCell>
                   )}
                   {type === "completed" && (
-                    <TableCell>{task.closedTime}</TableCell>
+                    <TableCell>{(task as any).closedTime}</TableCell>
                   )}
                 </TableRow>
               ))}
