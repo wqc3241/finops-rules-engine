@@ -4,14 +4,30 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Truck } from "lucide-react";
 
-const UpcomingDeliveries = () => {
-  const deliveries = [
+interface UpcomingDeliveriesProps {
+  showMyTasksOnly?: boolean;
+  currentUser?: string;
+}
+
+const UpcomingDeliveries: React.FC<UpcomingDeliveriesProps> = ({ showMyTasksOnly = false, currentUser = "" }) => {
+  // Mock data - in a real app this would be filtered based on the user
+  const getAllDeliveries = () => [
     { date: "2024-01-15", count: 8, status: "today" },
     { date: "2024-01-16", count: 12, status: "tomorrow" },
     { date: "2024-01-17", count: 6, status: "upcoming" },
     { date: "2024-01-18", count: 9, status: "upcoming" },
     { date: "2024-01-19", count: 4, status: "upcoming" },
   ];
+
+  const getMyDeliveries = () => [
+    { date: "2024-01-15", count: 3, status: "today" },
+    { date: "2024-01-16", count: 4, status: "tomorrow" },
+    { date: "2024-01-17", count: 2, status: "upcoming" },
+    { date: "2024-01-18", count: 3, status: "upcoming" },
+    { date: "2024-01-19", count: 1, status: "upcoming" },
+  ];
+
+  const deliveries = showMyTasksOnly ? getMyDeliveries() : getAllDeliveries();
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -26,7 +42,7 @@ const UpcomingDeliveries = () => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Truck className="h-5 w-5" />
-          Upcoming Deliveries by Date
+          {showMyTasksOnly ? "My Upcoming Deliveries by Date" : "Upcoming Deliveries by Date"}
         </CardTitle>
       </CardHeader>
       <CardContent>

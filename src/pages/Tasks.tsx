@@ -4,6 +4,8 @@ import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import TasksSummary from "@/components/tasks/TasksSummary";
 import TasksList from "@/components/tasks/TasksList";
 import UpcomingDeliveries from "@/components/tasks/UpcomingDeliveries";
@@ -11,6 +13,10 @@ import UpcomingDeliveries from "@/components/tasks/UpcomingDeliveries";
 const Tasks = () => {
   const [sidebarOpen, setSidebarOpen] = React.useState(true);
   const [activeItem, setActiveItem] = React.useState('Tasks');
+  const [showMyTasksOnly, setShowMyTasksOnly] = useState(false);
+
+  // Mock current user - in a real app this would come from auth context
+  const currentUser = "John Smith";
 
   return (
     <div className="h-screen flex flex-col bg-gray-50">
@@ -24,7 +30,19 @@ const Tasks = () => {
         <main className="flex-1 overflow-auto p-2">
           <div className="container mx-auto px-2 py-3">
             <div className="bg-white rounded-lg shadow-sm p-3">
-              <h1 className="text-xl font-semibold mb-4">Tasks Management</h1>
+              <div className="flex justify-between items-center mb-4">
+                <h1 className="text-xl font-semibold">Tasks Management</h1>
+                <div className="flex items-center space-x-2">
+                  <Label htmlFor="my-tasks-switch" className="text-sm">
+                    My Tasks Only
+                  </Label>
+                  <Switch
+                    id="my-tasks-switch"
+                    checked={showMyTasksOnly}
+                    onCheckedChange={setShowMyTasksOnly}
+                  />
+                </div>
+              </div>
               
               <Tabs defaultValue="overview" className="w-full">
                 <TabsList className="mb-4">
@@ -35,20 +53,20 @@ const Tasks = () => {
                 </TabsList>
 
                 <TabsContent value="overview" className="space-y-4">
-                  <TasksSummary />
-                  <UpcomingDeliveries />
+                  <TasksSummary showMyTasksOnly={showMyTasksOnly} currentUser={currentUser} />
+                  <UpcomingDeliveries showMyTasksOnly={showMyTasksOnly} currentUser={currentUser} />
                 </TabsContent>
 
                 <TabsContent value="unassigned">
-                  <TasksList type="unassigned" />
+                  <TasksList type="unassigned" showMyTasksOnly={showMyTasksOnly} currentUser={currentUser} />
                 </TabsContent>
 
                 <TabsContent value="assigned">
-                  <TasksList type="assigned" />
+                  <TasksList type="assigned" showMyTasksOnly={showMyTasksOnly} currentUser={currentUser} />
                 </TabsContent>
 
                 <TabsContent value="completed">
-                  <TasksList type="completed" />
+                  <TasksList type="completed" showMyTasksOnly={showMyTasksOnly} currentUser={currentUser} />
                 </TabsContent>
               </Tabs>
             </div>
