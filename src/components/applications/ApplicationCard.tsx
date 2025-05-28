@@ -107,57 +107,57 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({ application }) => {
 
   return (
     <div 
-      className="bg-white rounded-lg shadow-sm mb-4 cursor-pointer overflow-hidden hover:shadow-md transition-shadow"
+      className="bg-white rounded-lg shadow-sm mb-2 cursor-pointer overflow-hidden hover:shadow-md transition-shadow"
       onClick={handleClick}
     >
       <div className="relative">
-        <div className="p-4 border-l-4 border-transparent hover:border-gray-300">
+        <div className="p-2 border-l-4 border-transparent hover:border-gray-300">
           <div className="flex justify-between items-center">
             <div className="flex-1">
-              <div className="flex justify-between items-center mb-2">
-                <h3 className="text-lg font-medium text-gray-900 flex items-center">
+              <div className="flex justify-between items-center mb-1">
+                <h3 className="text-sm font-medium text-gray-900 flex items-center">
                   {application.orderNumber}
                 </h3>
-                <ChevronRight className="text-gray-400" />
+                <ChevronRight className="text-gray-400 w-3 h-3" />
               </div>
-              <div className="grid grid-cols-4 gap-4">
+              <div className="grid grid-cols-4 gap-2">
                 <div>
-                  <p className="text-sm text-gray-500 mb-1">Name</p>
-                  <p className="text-gray-800">{application.name}</p>
+                  <p className="text-xs text-gray-500 mb-0.5">Name</p>
+                  <p className="text-gray-800 text-xs font-medium truncate">{application.name}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 mb-1">Type</p>
-                  <p className="text-gray-800">{application.type}</p>
+                  <p className="text-xs text-gray-500 mb-0.5">Type</p>
+                  <p className="text-gray-800 text-xs">{application.type}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 mb-1">State</p>
-                  <p className="text-gray-800">{application.state || 'N/A'}</p>
+                  <p className="text-xs text-gray-500 mb-0.5">State</p>
+                  <p className="text-gray-800 text-xs">{application.state || 'N/A'}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 mb-1">Status</p>
+                  <p className="text-xs text-gray-500 mb-0.5">Status</p>
                   <p className="flex items-center">
-                    <span className={`w-2 h-2 rounded-full ${statusColor} mr-2`}></span>
-                    <span className="text-gray-800">{application.status}</span>
+                    <span className={`w-1.5 h-1.5 rounded-full ${statusColor} mr-1`}></span>
+                    <span className="text-gray-800 text-xs truncate">{application.status}</span>
                   </p>
                 </div>
               </div>
             </div>
-            <div className="flex-1 ml-8">
+            <div className="flex-1 ml-4">
               <div className="flex justify-between">
-                <div>
-                  <p className="text-sm text-gray-500 mb-1">Notes</p>
+                <div className="flex-1 mr-2">
+                  <p className="text-xs text-gray-500 mb-0.5">Notes</p>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <p className="text-gray-600 text-sm line-clamp-2">{latestNoteContent}</p>
+                      <p className="text-gray-600 text-xs line-clamp-2 leading-tight">{latestNoteContent}</p>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p className="max-w-xs">{latestNoteContent}</p>
+                      <p className="max-w-xs text-xs">{latestNoteContent}</p>
                     </TooltipContent>
                   </Tooltip>
                 </div>
-                <div className="text-right">
-                  <p className="text-sm text-gray-500 mb-1">Submitted</p>
-                  <p className="text-gray-600 text-sm">{formattedDate}</p>
+                <div className="text-right flex-shrink-0">
+                  <p className="text-xs text-gray-500 mb-0.5">Submitted</p>
+                  <p className="text-gray-600 text-xs">{formattedDate}</p>
                 </div>
               </div>
             </div>
