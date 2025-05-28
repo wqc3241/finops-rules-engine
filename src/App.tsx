@@ -14,6 +14,7 @@ import Tasks from "./pages/Tasks";
 import FinancialPricingPage from "./pages/FinancialPricingPage";
 import LFSSetupPage from "./pages/LFSSetupPage";
 import FeeTaxPage from "./pages/FeeTaxPage";
+import AIAgentButton from "./components/ai-agent/AIAgentButton";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,7 @@ const App = () => (
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+        <AIAgentButton />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
