@@ -22,18 +22,19 @@ export const useGlobalSearch = (query: string) => {
 
     // Search Applications
     applications.forEach(app => {
-      const matchesVin = app.vinNumber?.toLowerCase().includes(searchTerm);
-      const matchesCustomer = `${app.applicantFirstName} ${app.applicantLastName}`.toLowerCase().includes(searchTerm);
-      const matchesVehicle = `${app.vehicleMake} ${app.vehicleModel}`.toLowerCase().includes(searchTerm);
+      const matchesName = app.name?.toLowerCase().includes(searchTerm);
+      const matchesOrderNumber = app.orderNumber?.toLowerCase().includes(searchTerm);
       const matchesId = app.id.toLowerCase().includes(searchTerm);
+      const matchesType = app.type?.toLowerCase().includes(searchTerm);
+      const matchesStatus = app.status?.toLowerCase().includes(searchTerm);
 
-      if (matchesVin || matchesCustomer || matchesVehicle || matchesId) {
+      if (matchesName || matchesOrderNumber || matchesId || matchesType || matchesStatus) {
         results.push({
           id: app.id,
-          title: `${app.vehicleMake} ${app.vehicleModel} ${app.vehicleYear}`,
-          subtitle: `${app.applicantFirstName} ${app.applicantLastName} • VIN: ${app.vinNumber}`,
+          title: `${app.orderNumber} - ${app.name}`,
+          subtitle: `Status: ${app.status} • Type: ${app.type}`,
           category: 'Applications',
-          type: app.applicationType,
+          type: app.type,
           url: `/applications/${app.id}`
         });
       }
