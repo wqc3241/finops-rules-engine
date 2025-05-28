@@ -48,7 +48,7 @@ const KanbanView: React.FC<KanbanViewProps> = ({ applications }) => {
   return (
     <div className="flex gap-2 overflow-x-auto pb-2">
       {statusesWithApps.map((status) => (
-        <div key={status} className="flex-shrink-0 w-80">
+        <div key={status} className="flex-shrink-0 w-64">
           <div className="bg-gray-50 rounded-lg p-2">
             <div className="flex items-center justify-between mb-2">
               <h3 className="font-medium text-sm">{status}</h3>
@@ -58,7 +58,7 @@ const KanbanView: React.FC<KanbanViewProps> = ({ applications }) => {
             </div>
             <div className="space-y-2">
               {applicationsByStatus[status].map((application) => (
-                <ApplicationCard key={application.id} application={application} />
+                <ApplicationCard key={application.id} application={application} isKanbanView={true} />
               ))}
             </div>
           </div>

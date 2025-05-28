@@ -12,9 +12,10 @@ import {
 
 interface ApplicationCardProps {
   application: Application;
+  isKanbanView?: boolean;
 }
 
-const ApplicationCard: React.FC<ApplicationCardProps> = ({ application }) => {
+const ApplicationCard: React.FC<ApplicationCardProps> = ({ application, isKanbanView = false }) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
@@ -105,6 +106,45 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({ application }) => {
     ? format(new Date(application.date), 'MMM d, yyyy h:mm a')
     : 'No date';
 
+  // Format date without time for Kanban view
+  const formattedDateOnly = application.date 
+    ? format(new Date(application.date), 'MMM d, yyyy')
+    : 'No date';
+
+  if (isKanbanView) {
+    return (
+      <div 
+        className="bg-white rounded-lg shadow-sm mb-2 cursor-pointer overflow-hidden hover:shadow-md transition-shadow"
+        onClick={handleClick}
+      >
+        <div className="relative">
+          <div className="p-3 border-l-4 border-transparent hover:border-gray-300">
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="text-sm font-medium text-gray-900">{application.orderNumber}</h3>
+              <ChevronRight className="text-gray-400 w-3 h-3" />
+            </div>
+            <div className="space-y-2">
+              <div>
+                <p className="text-xs text-gray-500 mb-0.5">Name</p>
+                <p className="text-gray-800 text-xs font-medium">{application.name}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 mb-0.5">Type</p>
+                <p className="text-gray-800 text-xs">{application.type}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 mb-0.5">Submitted</p>
+                <p className="text-gray-600 text-xs">{formattedDateOnly}</p>
+              </div>
+            </div>
+          </div>
+          <div className={`absolute right-0 top-0 h-full w-1 ${statusColor}`}></div>
+        </div>
+      </div>
+    );
+  }
+
+  // Original list view layout
   return (
     <div 
       className="bg-white rounded-lg shadow-sm mb-2 cursor-pointer overflow-hidden hover:shadow-md transition-shadow"
