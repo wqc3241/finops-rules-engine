@@ -3,6 +3,8 @@ import React, { useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import ApplicationList from "@/components/applications/ApplicationList";
+import KanbanView from "@/components/applications/KanbanView";
+import ViewSelector, { ViewType } from "@/components/applications/ViewSelector";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import SortPopover from "@/components/applications/filters/SortPopover";
 import FilterPopover from "@/components/applications/filters/FilterPopover";
@@ -17,6 +19,7 @@ const Applications = () => {
   const [sidebarOpen, setSidebarOpen] = React.useState(true);
   const [activeItem, setActiveItem] = React.useState('Applications');
   const [refreshTrigger, setRefreshTrigger] = React.useState(0);
+  const [currentView, setCurrentView] = React.useState<ViewType>('list');
   
   const {
     sortOption,
@@ -128,7 +131,11 @@ const Applications = () => {
             <div className="bg-white rounded-lg shadow-sm p-6">
               <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-semibold">Applications</h1>
-                <div className="flex gap-4">
+                <div className="flex gap-4 items-center">
+                  <ViewSelector 
+                    currentView={currentView}
+                    onViewChange={setCurrentView}
+                  />
                   <SortPopover 
                     sortOption={sortOption}
                     sortDirection={sortDirection}
@@ -151,7 +158,11 @@ const Applications = () => {
                 </div>
               </div>
               <TooltipProvider>
-                <ApplicationList key={refreshTrigger} />
+                {currentView === 'list' ? (
+                  <ApplicationList key={refreshTrigger} />
+                ) : (
+                  <KanbanView applications={filteredApplications} />
+                )}
               </TooltipProvider>
             </div>
           </div>
