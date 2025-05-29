@@ -15,6 +15,7 @@ export interface Application {
     user: string;
   }>;
   state?: string;
+  country?: string; // Add country property to Application type
 }
 
 export interface Note {
