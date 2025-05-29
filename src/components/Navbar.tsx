@@ -6,6 +6,7 @@ import { useState, useRef, useEffect } from "react";
 import { useGlobalSearch } from "@/hooks/useGlobalSearch";
 import SearchResults from "@/components/search/SearchResults";
 import ProfileMenu from "@/components/profile/ProfileMenu";
+import CountrySelector from "@/components/CountrySelector";
 
 interface NavbarProps {
   sidebarOpen: boolean;
@@ -110,8 +111,8 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }: NavbarProps) => {
             </button>
           </div>
           <div className="border-l border-gray-200 h-8 mx-4"></div>
-          <div className="flex items-center">
-            <span className="mr-2 text-sm text-gray-700">EN</span>
+          <div className="flex items-center gap-4">
+            <CountrySelector />
             <ProfileMenu />
           </div>
         </div>
