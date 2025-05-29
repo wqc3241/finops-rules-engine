@@ -1,11 +1,9 @@
-
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState, useRef, useEffect } from "react";
 import { useGlobalSearch } from "@/hooks/useGlobalSearch";
 import SearchResults from "@/components/search/SearchResults";
-import ProfileMenu from "@/components/profile/ProfileMenu";
 
 interface NavbarProps {
   sidebarOpen: boolean;
@@ -112,7 +110,9 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }: NavbarProps) => {
           <div className="border-l border-gray-200 h-8 mx-4"></div>
           <div className="flex items-center">
             <span className="mr-2 text-sm text-gray-700">EN</span>
-            <ProfileMenu />
+            <div className="h-8 w-8 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center text-gray-700 font-semibold">
+              JS
+            </div>
           </div>
         </div>
       </div>
