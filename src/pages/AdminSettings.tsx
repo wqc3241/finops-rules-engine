@@ -8,6 +8,7 @@ import UserManagement from '@/components/admin/UserManagement';
 import { useState } from 'react';
 import { User } from '@/types/user';
 import { useToast } from '@/hooks/use-toast';
+import { Settings, Users, Shield } from 'lucide-react';
 
 const AdminSettings = () => {
   const { user, isAdmin } = useAuth();
@@ -57,12 +58,58 @@ const AdminSettings = () => {
           activeItem={activeItem}
           setActiveItem={setActiveItem}
         />
-        <main className="flex-1 p-6">
-          <UserManagement
-            onEditUser={handleEditUser}
-            onDeleteUser={handleDeleteUser}
-            onCreateUser={handleCreateUser}
-          />
+        <main className={`flex-1 p-6 transition-all duration-300 ${sidebarOpen ? 'ml-0' : 'ml-0'}`}>
+          <div className="max-w-7xl mx-auto">
+            <div className="mb-8">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-blue-100 rounded-lg">
+                  <Settings className="h-6 w-6 text-blue-600" />
+                </div>
+                <div>
+                  <h1 className="text-3xl font-bold text-gray-900">Admin Settings</h1>
+                  <p className="text-gray-600">Manage users, permissions, and system configuration</p>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+                  <div className="flex items-center gap-3">
+                    <Users className="h-8 w-8 text-blue-600" />
+                    <div>
+                      <p className="text-sm text-gray-600">Total Users</p>
+                      <p className="text-2xl font-bold text-gray-900">12</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+                  <div className="flex items-center gap-3">
+                    <Shield className="h-8 w-8 text-green-600" />
+                    <div>
+                      <p className="text-sm text-gray-600">Active Admins</p>
+                      <p className="text-2xl font-bold text-gray-900">3</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+                  <div className="flex items-center gap-3">
+                    <Settings className="h-8 w-8 text-orange-600" />
+                    <div>
+                      <p className="text-sm text-gray-600">Permission Groups</p>
+                      <p className="text-2xl font-bold text-gray-900">6</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <UserManagement
+              onEditUser={handleEditUser}
+              onDeleteUser={handleDeleteUser}
+              onCreateUser={handleCreateUser}
+            />
+          </div>
         </main>
       </div>
     </div>
