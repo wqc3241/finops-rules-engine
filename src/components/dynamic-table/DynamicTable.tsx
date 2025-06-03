@@ -181,12 +181,7 @@ const DynamicTable = ({
               </TableHead>
               {schema.columns.map((column, index) => (
                 <TableHead key={column.id} className={`${getHeaderClassName(column)} relative`}>
-                  <div className="flex items-center space-x-2">
-                    <span>{column.name}</span>
-                    <Badge variant="outline" className="text-xs">
-                      {column.inputType}
-                    </Badge>
-                  </div>
+                  <span>{column.name}</span>
                   {/* Column divider with hover effect */}
                   {allowColumnManagement && index < schema.columns.length - 1 && (
                     <div
