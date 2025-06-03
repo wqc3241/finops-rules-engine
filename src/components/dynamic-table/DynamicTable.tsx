@@ -1,0 +1,272 @@
+
+import { useState } from "react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Settings, Edit, Copy, Trash2 } from "lucide-react";
+import { DynamicTableProps, TableData, ColumnDefinition } from "@/types/dynamicTable";
+import { toast } from "sonner";
+import ColumnManagementModal from "./ColumnManagementModal";
+
+const DynamicTable = ({ 
+  schema, 
+  data, 
+  onDataChange, 
+  onSchemaChange, 
+  onSelectionChange,
+  selectedItems = [],
+  allowColumnManagement = true
+}: DynamicTableProps) => {
+  const [showColumnManagement, setShowColumnManagement] = useState(false);
+  const [editingCell, setEditingCell] = useState<{rowId: string, columnKey: string} | null>(null);
+  const [editValue, setEditValue] = useState<any>("");
+
+  const handleSelectAll = () => {
+    const allIds = data.map(row => row.id);
+    if (selectedItems.length === allIds.length) {
+      onSelectionChange?.([]);
+    } else {
+      onSelectionChange?.(allIds);
+    }
+  };
+
+  const handleSelectRow = (id: string) => {
+    const updatedSelection = selectedItems.includes(id)
+      ? selectedItems.filter(item => item !== id)
+      : [...selectedItems, id];
+    onSelectionChange?.(updatedSelection);
+  };
+
+  const handleCellEdit = (rowId: string, columnKey: string, currentValue: any) => {
+    setEditingCell({ rowId, columnKey });
+    setEditValue(currentValue);
+  };
+
+  const handleSaveEdit = () => {
+    if (!editingCell) return;
+    
+    const updatedData = data.map(row => {
+      if (row.id === editingCell.rowId) {
+        return { ...row, [editingCell.columnKey]: editValue };
+      }
+      return row;
+    });
+    
+    onDataChange(updatedData);
+    setEditingCell(null);
+    setEditValue("");
+    toast.success("Cell updated successfully");
+  };
+
+  const handleCancelEdit = () => {
+    setEditingCell(null);
+    setEditValue("");
+  };
+
+  const handleAddColumn = (column: ColumnDefinition) => {
+    const updatedSchema = {
+      ...schema,
+      columns: [...schema.columns, column]
+    };
+    onSchemaChange(updatedSchema);
+  };
+
+  const handleRemoveColumn = (columnId: string) => {
+    const updatedSchema = {
+      ...schema,
+      columns: schema.columns.filter(col => col.id !== columnId)
+    };
+    onSchemaChange(updatedSchema);
+  };
+
+  const handleUpdateColumn = (columnId: string, updates: Partial<ColumnDefinition>) => {
+    const updatedSchema = {
+      ...schema,
+      columns: schema.columns.map(col => 
+        col.id === columnId ? { ...col, ...updates } : col
+      )
+    };
+    onSchemaChange(updatedSchema);
+  };
+
+  const handleCopyRow = (rowId: string) => {
+    const rowToCopy = data.find(row => row.id === rowId);
+    if (rowToCopy) {
+      const newId = `${rowId}_copy_${Date.now()}`;
+      const newRow = { ...rowToCopy, id: newId };
+      onDataChange([...data, newRow]);
+      toast.success("Row copied successfully");
+    }
+  };
+
+  const handleDeleteRow = (rowId: string) => {
+    const updatedData = data.filter(row => row.id !== rowId);
+    onDataChange(updatedData);
+    onSelectionChange?.(selectedItems.filter(id => id !== rowId));
+    toast.success("Row deleted successfully");
+  };
+
+  const renderCellContent = (row: TableData, column: ColumnDefinition) => {
+    const isEditing = editingCell?.rowId === row.id && editingCell?.columnKey === column.key;
+    const value = row[column.key];
+
+    if (isEditing && column.editable) {
+      if (column.type === 'boolean') {
+        return (
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              checked={editValue}
+              onCheckedChange={setEditValue}
+            />
+            <div className="space-x-2">
+              <Button size="sm" onClick={handleSaveEdit}>Save</Button>
+              <Button size="sm" variant="outline" onClick={handleCancelEdit}>Cancel</Button>
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <div className="flex items-center space-x-2">
+          <Input
+            value={editValue}
+            onChange={(e) => setEditValue(column.type === 'number' ? Number(e.target.value) : e.target.value)}
+            type={column.type === 'number' ? 'number' : 'text'}
+            className="w-32"
+          />
+          <div className="space-x-2">
+            <Button size="sm" onClick={handleSaveEdit}>Save</Button>
+            <Button size="sm" variant="outline" onClick={handleCancelEdit}>Cancel</Button>
+          </div>
+        </div>
+      );
+    }
+
+    if (column.type === 'boolean') {
+      return (
+        <Badge className={value ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
+          {value ? 'Yes' : 'No'}
+        </Badge>
+      );
+    }
+
+    if (column.type === 'number' && typeof value === 'number') {
+      return value.toLocaleString();
+    }
+
+    return value || '';
+  };
+
+  const getHeaderClassName = (column: ColumnDefinition) => {
+    return column.inputType === 'Input' 
+      ? 'bg-blue-50 text-blue-900' 
+      : 'bg-gray-50 text-gray-700';
+  };
+
+  return (
+    <div className="space-y-4">
+      {allowColumnManagement && (
+        <div className="flex justify-end">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowColumnManagement(true)}
+          >
+            <Settings className="h-4 w-4 mr-2" />
+            Manage Columns
+          </Button>
+        </div>
+      )}
+
+      <div className="overflow-x-auto border rounded-md">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-10">
+                <Checkbox
+                  checked={selectedItems.length === data.length && data.length > 0}
+                  onCheckedChange={handleSelectAll}
+                />
+              </TableHead>
+              {schema.columns.map((column) => (
+                <TableHead key={column.id} className={getHeaderClassName(column)}>
+                  <div className="flex items-center space-x-2">
+                    <span>{column.name}</span>
+                    <Badge variant="outline" className="text-xs">
+                      {column.inputType}
+                    </Badge>
+                  </div>
+                </TableHead>
+              ))}
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {data.map((row) => (
+              <TableRow key={row.id} className="hover:bg-gray-50">
+                <TableCell>
+                  <Checkbox
+                    checked={selectedItems.includes(row.id)}
+                    onCheckedChange={() => handleSelectRow(row.id)}
+                  />
+                </TableCell>
+                {schema.columns.map((column) => (
+                  <TableCell
+                    key={column.id}
+                    className={`${column.editable ? 'cursor-pointer hover:bg-blue-50' : ''}`}
+                    onClick={() => {
+                      if (column.editable && !editingCell) {
+                        handleCellEdit(row.id, column.key, row[column.key]);
+                      }
+                    }}
+                  >
+                    {renderCellContent(row, column)}
+                  </TableCell>
+                ))}
+                <TableCell className="text-right">
+                  <div className="flex justify-end space-x-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => toast.info("Edit functionality integrated in cell editing")}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleCopyRow(row.id)}
+                    >
+                      <Copy className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDeleteRow(row.id)}
+                      className="text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+
+      <ColumnManagementModal
+        open={showColumnManagement}
+        onOpenChange={setShowColumnManagement}
+        columns={schema.columns}
+        onAddColumn={handleAddColumn}
+        onRemoveColumn={handleRemoveColumn}
+        onUpdateColumn={handleUpdateColumn}
+      />
+    </div>
+  );
+};
+
+export default DynamicTable;

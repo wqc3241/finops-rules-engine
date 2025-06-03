@@ -1,14 +1,7 @@
 
 import { useState } from "react";
 import TabComponent, { TabItem } from "./TabComponent";
-import AdvertisedOfferSection from "./AdvertisedOfferSection";
-import PricingRulesSection from "./PricingRulesSection";
-import PricingTypeSection from "./PricingTypeSection";
-import RulesSection from "./RulesSection";
-import PricingConfigRulesSection from "./PricingConfigRulesSection";
-import FinancialProductsSection from "./FinancialProductsSection";
-import FinancialProgramConfigSection from "./FinancialProgramConfigSection";
-import BulletinPricingSection from "./BulletinPricingSection";
+import DynamicFinancialSection from "./DynamicFinancialSection";
 import { toast } from "sonner";
 
 interface FinancialPricingTabsProps {
@@ -29,46 +22,9 @@ const FinancialPricingTabs = ({
   selectedItems = []
 }: FinancialPricingTabsProps) => {
   const [activeTab, setActiveTab] = useState("bulletin-pricing");
-  const [showRulesModal, setShowRulesModal] = useState(false);
-  const [showConfigRulesModal, setShowConfigRulesModal] = useState(false);
-  const [showFinancialProductsModal, setShowFinancialProductsModal] = useState(false);
-  const [showFinancialProgramConfigModal, setShowFinancialProgramConfigModal] = useState(false);
-  const [showAdvertisedOffersModal, setShowAdvertisedOffersModal] = useState(false);
-  const [showBulletinPricingModal, setShowBulletinPricingModal] = useState(false);
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
-  };
-
-  const handleAddNewRecord = () => {
-    switch (activeTab) {
-      case "rules":
-        setShowRulesModal(true);
-        break;
-      case "pricing-config-rules":
-        setShowConfigRulesModal(true);
-        break;
-      case "financial-products":
-        setShowFinancialProductsModal(true);
-        break;
-      case "financial-program-config":
-        setShowFinancialProgramConfigModal(true);
-        break;
-      case "advertised-offers":
-        setShowAdvertisedOffersModal(true);
-        break;
-      case "pricing-rules":
-        setShowAddPricingModal(true);
-        break;
-      case "pricing-types":
-        setShowAddPricingTypeModal(true);
-        break;
-      case "bulletin-pricing":
-        setShowBulletinPricingModal(true);
-        break;
-      default:
-        toast.info("Add functionality not implemented for this tab yet");
-    }
   };
 
   const tabItems: TabItem[] = [
@@ -76,10 +32,9 @@ const FinancialPricingTabs = ({
       value: "bulletin-pricing",
       label: "Bulletin Pricing",
       content: (
-        <BulletinPricingSection 
+        <DynamicFinancialSection 
+          schemaId="bulletin-pricing"
           title="Bulletin Pricing"
-          showAddModal={showBulletinPricingModal} 
-          setShowAddModal={setShowBulletinPricingModal} 
           onSelectionChange={onSelectionChange}
           selectedItems={selectedItems}
         />
@@ -89,10 +44,9 @@ const FinancialPricingTabs = ({
       value: "pricing-rules",
       label: "Pricing Rules",
       content: (
-        <PricingRulesSection 
+        <DynamicFinancialSection 
+          schemaId="pricing-rules"
           title="Pricing Rules"
-          showAddModal={showAddPricingModal} 
-          setShowAddModal={setShowAddPricingModal} 
           onSelectionChange={onSelectionChange}
           selectedItems={selectedItems}
         />
@@ -102,10 +56,9 @@ const FinancialPricingTabs = ({
       value: "pricing-types",
       label: "Pricing Types",
       content: (
-        <PricingTypeSection 
+        <DynamicFinancialSection 
+          schemaId="pricing-types"
           title="Pricing Types"
-          showAddModal={showAddPricingTypeModal} 
-          setShowAddModal={setShowAddPricingTypeModal}
           onSelectionChange={onSelectionChange}
           selectedItems={selectedItems}
         />
@@ -115,10 +68,9 @@ const FinancialPricingTabs = ({
       value: "rules",
       label: "Credit Profile",
       content: (
-        <RulesSection 
-          title="Credit Profile" 
-          showAddModal={showRulesModal}
-          setShowAddModal={setShowRulesModal}
+        <DynamicFinancialSection 
+          schemaId="credit-profile"
+          title="Credit Profile"
           onSelectionChange={onSelectionChange}
           selectedItems={selectedItems}
         />
@@ -128,10 +80,9 @@ const FinancialPricingTabs = ({
       value: "pricing-config-rules",
       label: "Pricing Config",
       content: (
-        <PricingConfigRulesSection 
+        <DynamicFinancialSection 
+          schemaId="pricing-config"
           title="Pricing Config"
-          showAddModal={showConfigRulesModal}
-          setShowAddModal={setShowConfigRulesModal}
           onSelectionChange={onSelectionChange}
           selectedItems={selectedItems}
         />
@@ -141,10 +92,9 @@ const FinancialPricingTabs = ({
       value: "financial-products",
       label: "Financial Products",
       content: (
-        <FinancialProductsSection 
+        <DynamicFinancialSection 
+          schemaId="financial-products"
           title="Financial Products"
-          showAddModal={showFinancialProductsModal}
-          setShowAddModal={setShowFinancialProductsModal}
           onSelectionChange={onSelectionChange}
           selectedItems={selectedItems}
         />
@@ -154,10 +104,9 @@ const FinancialPricingTabs = ({
       value: "financial-program-config",
       label: "Financial Program Config",
       content: (
-        <FinancialProgramConfigSection 
+        <DynamicFinancialSection 
+          schemaId="financial-program-config"
           title="Financial Program Config"
-          showAddModal={showFinancialProgramConfigModal}
-          setShowAddModal={setShowFinancialProgramConfigModal}
           onSelectionChange={onSelectionChange}
           selectedItems={selectedItems}
         />
@@ -167,10 +116,9 @@ const FinancialPricingTabs = ({
       value: "advertised-offers",
       label: "Advertised Offers",
       content: (
-        <AdvertisedOfferSection 
+        <DynamicFinancialSection 
+          schemaId="advertised-offers"
           title="Advertised Offers"
-          showAddModal={showAdvertisedOffersModal}
-          setShowAddModal={setShowAdvertisedOffersModal}
           onSelectionChange={onSelectionChange}
           selectedItems={selectedItems}
         />
