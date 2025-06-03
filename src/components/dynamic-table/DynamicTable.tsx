@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -27,15 +26,6 @@ const DynamicTable = ({
   const [editValue, setEditValue] = useState<any>("");
   const [hoveredDivider, setHoveredDivider] = useState<number | null>(null);
   const [hoveredDeleteButton, setHoveredDeleteButton] = useState<string | null>(null);
-
-  const handleSelectAll = () => {
-    const allIds = data.map(row => row.id);
-    if (selectedItems.length === allIds.length) {
-      onSelectionChange?.([]);
-    } else {
-      onSelectionChange?.(allIds);
-    }
-  };
 
   const handleSelectRow = (id: string) => {
     const updatedSelection = selectedItems.includes(id)
@@ -192,10 +182,7 @@ const DynamicTable = ({
           <TableHeader>
             <TableRow>
               <TableHead className="w-10">
-                <Checkbox
-                  checked={selectedItems.length === data.length && data.length > 0}
-                  onCheckedChange={handleSelectAll}
-                />
+                {/* Removed select all checkbox */}
               </TableHead>
               {schema.columns.map((column, index) => (
                 <TableHead key={column.id} className={`${getHeaderClassName(column)} relative`}>
