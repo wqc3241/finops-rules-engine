@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -21,6 +22,7 @@ const DynamicTable = ({
 }: DynamicTableProps) => {
   const [showColumnManagement, setShowColumnManagement] = useState(false);
   const [showAddColumn, setShowAddColumn] = useState(false);
+  const [insertPosition, setInsertPosition] = useState<number>(0);
   const [editingCell, setEditingCell] = useState<{rowId: string, columnKey: string} | null>(null);
   const [editValue, setEditValue] = useState<any>("");
   const [hoveredDivider, setHoveredDivider] = useState<number | null>(null);
@@ -69,9 +71,12 @@ const DynamicTable = ({
   };
 
   const handleAddColumn = (column: ColumnDefinition) => {
+    const updatedColumns = [...schema.columns];
+    updatedColumns.splice(insertPosition + 1, 0, column);
+    
     const updatedSchema = {
       ...schema,
-      columns: [...schema.columns, column]
+      columns: updatedColumns
     };
     onSchemaChange(updatedSchema);
   };
@@ -116,6 +121,11 @@ const DynamicTable = ({
     onDataChange(updatedData);
     onSelectionChange?.(selectedItems.filter(id => id !== rowId));
     toast.success("Row deleted successfully");
+  };
+
+  const handleDividerClick = (index: number) => {
+    setInsertPosition(index);
+    setShowAddColumn(true);
   };
 
   const renderCellContent = (row: TableData, column: ColumnDefinition) => {
@@ -215,7 +225,7 @@ const DynamicTable = ({
                       className="absolute top-0 right-0 w-2 h-full cursor-pointer group z-10"
                       onMouseEnter={() => setHoveredDivider(index)}
                       onMouseLeave={() => setHoveredDivider(null)}
-                      onClick={() => setShowAddColumn(true)}
+                      onClick={() => handleDividerClick(index)}
                     >
                       <div className="w-px h-full bg-gray-200 group-hover:bg-blue-300 transition-colors" />
                       {hoveredDivider === index && (
