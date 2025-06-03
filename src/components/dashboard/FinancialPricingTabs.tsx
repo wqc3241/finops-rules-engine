@@ -11,6 +11,7 @@ interface FinancialPricingTabsProps {
   setShowAddPricingTypeModal: (show: boolean) => void;
   onSelectionChange?: (items: string[]) => void;
   selectedItems?: string[];
+  onSetBatchDeleteCallback?: (callback: () => void) => void;
 }
 
 const FinancialPricingTabs = ({
@@ -19,7 +20,8 @@ const FinancialPricingTabs = ({
   showAddPricingTypeModal,
   setShowAddPricingTypeModal,
   onSelectionChange,
-  selectedItems = []
+  selectedItems = [],
+  onSetBatchDeleteCallback
 }: FinancialPricingTabsProps) => {
   const [activeTab, setActiveTab] = useState("bulletin-pricing");
 
@@ -37,6 +39,7 @@ const FinancialPricingTabs = ({
           title="Bulletin Pricing"
           onSelectionChange={onSelectionChange}
           selectedItems={selectedItems}
+          onSetBatchDeleteCallback={onSetBatchDeleteCallback}
         />
       )
     },
@@ -49,6 +52,7 @@ const FinancialPricingTabs = ({
           title="Pricing Rules"
           onSelectionChange={onSelectionChange}
           selectedItems={selectedItems}
+          onSetBatchDeleteCallback={onSetBatchDeleteCallback}
         />
       )
     },
@@ -61,6 +65,7 @@ const FinancialPricingTabs = ({
           title="Pricing Types"
           onSelectionChange={onSelectionChange}
           selectedItems={selectedItems}
+          onSetBatchDeleteCallback={onSetBatchDeleteCallback}
         />
       )
     },
@@ -73,6 +78,7 @@ const FinancialPricingTabs = ({
           title="Credit Profile"
           onSelectionChange={onSelectionChange}
           selectedItems={selectedItems}
+          onSetBatchDeleteCallback={onSetBatchDeleteCallback}
         />
       )
     },
@@ -85,6 +91,7 @@ const FinancialPricingTabs = ({
           title="Pricing Config"
           onSelectionChange={onSelectionChange}
           selectedItems={selectedItems}
+          onSetBatchDeleteCallback={onSetBatchDeleteCallback}
         />
       )
     },
@@ -97,6 +104,7 @@ const FinancialPricingTabs = ({
           title="Financial Products"
           onSelectionChange={onSelectionChange}
           selectedItems={selectedItems}
+          onSetBatchDeleteCallback={onSetBatchDeleteCallback}
         />
       )
     },
@@ -109,6 +117,7 @@ const FinancialPricingTabs = ({
           title="Financial Program Config"
           onSelectionChange={onSelectionChange}
           selectedItems={selectedItems}
+          onSetBatchDeleteCallback={onSetBatchDeleteCallback}
         />
       )
     },
@@ -121,6 +130,7 @@ const FinancialPricingTabs = ({
           title="Advertised Offers"
           onSelectionChange={onSelectionChange}
           selectedItems={selectedItems}
+          onSetBatchDeleteCallback={onSetBatchDeleteCallback}
         />
       )
     }

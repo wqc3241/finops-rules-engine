@@ -5,6 +5,7 @@ import DashboardTabs from "./DashboardTabs";
 import FeeTaxTabs from "./FeeTaxTabs";
 import { useState } from "react";
 import { BatchOperations } from "./BatchOperations";
+import { toast } from "sonner";
 
 interface TabsSectionProps {
   activeSection: string;
@@ -23,6 +24,7 @@ const TabsSection = ({
 }: TabsSectionProps) => {
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [showBatchOperations, setShowBatchOperations] = useState(false);
+  const [batchDeleteCallback, setBatchDeleteCallback] = useState<(() => void) | null>(null);
   
   const handleSelectionChange = (items: string[]) => {
     setSelectedItems(items);
@@ -35,9 +37,16 @@ const TabsSection = ({
   };
 
   const handleBatchDelete = () => {
-    console.log(`Deleting ${selectedItems.length} items`);
+    if (batchDeleteCallback) {
+      batchDeleteCallback();
+      toast.success(`${selectedItems.length} items deleted successfully`);
+    }
     setSelectedItems([]);
     setShowBatchOperations(false);
+  };
+
+  const handleSetBatchDeleteCallback = (callback: () => void) => {
+    setBatchDeleteCallback(() => callback);
   };
 
   // Use the appropriate tabs component based on activeSection
@@ -76,6 +85,7 @@ const TabsSection = ({
             setShowAddPricingTypeModal={setShowAddPricingTypeModal}
             onSelectionChange={handleSelectionChange}
             selectedItems={selectedItems}
+            onSetBatchDeleteCallback={handleSetBatchDeleteCallback}
           />
         </div>
       );

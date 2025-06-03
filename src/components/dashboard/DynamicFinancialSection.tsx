@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import DynamicTable from "@/components/dynamic-table/DynamicTable";
@@ -12,13 +11,15 @@ interface DynamicFinancialSectionProps {
   title: string;
   onSelectionChange?: (items: string[]) => void;
   selectedItems?: string[];
+  onSetBatchDeleteCallback?: (callback: () => void) => void;
 }
 
 const DynamicFinancialSection = ({ 
   schemaId,
   title,
   onSelectionChange,
-  selectedItems = []
+  selectedItems = [],
+  onSetBatchDeleteCallback
 }: DynamicFinancialSectionProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [data, setData] = useState<TableData[]>([]);
@@ -45,6 +46,18 @@ const DynamicFinancialSection = ({
   useEffect(() => {
     localStorage.setItem(`dynamicTableData_${schemaId}`, JSON.stringify(data));
   }, [data, schemaId]);
+
+  // Set up batch delete callback
+  useEffect(() => {
+    if (onSetBatchDeleteCallback) {
+      const batchDeleteFunction = () => {
+        const updatedData = data.filter(row => !selectedItems.includes(row.id));
+        setData(updatedData);
+        onSelectionChange?.([]);
+      };
+      onSetBatchDeleteCallback(batchDeleteFunction);
+    }
+  }, [data, selectedItems, onSetBatchDeleteCallback, onSelectionChange]);
 
   const getInitialData = (schemaId: string): TableData[] => {
     switch (schemaId) {
