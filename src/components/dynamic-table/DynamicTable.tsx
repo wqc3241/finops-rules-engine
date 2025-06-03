@@ -24,6 +24,7 @@ const DynamicTable = ({
   const [editingCell, setEditingCell] = useState<{rowId: string, columnKey: string} | null>(null);
   const [editValue, setEditValue] = useState<any>("");
   const [hoveredDivider, setHoveredDivider] = useState<number | null>(null);
+  const [hoveredDeleteButton, setHoveredDeleteButton] = useState<string | null>(null);
 
   const handleSelectAll = () => {
     const allIds = data.map(row => row.id);
@@ -76,11 +77,18 @@ const DynamicTable = ({
   };
 
   const handleRemoveColumn = (columnId: string) => {
+    const column = schema.columns.find(col => col.id === columnId);
+    if (column?.key === 'id') {
+      toast.error("Cannot delete ID column");
+      return;
+    }
+    
     const updatedSchema = {
       ...schema,
       columns: schema.columns.filter(col => col.id !== columnId)
     };
     onSchemaChange(updatedSchema);
+    toast.success("Column removed successfully");
   };
 
   const handleUpdateColumn = (columnId: string, updates: Partial<ColumnDefinition>) => {
@@ -182,6 +190,25 @@ const DynamicTable = ({
               {schema.columns.map((column, index) => (
                 <TableHead key={column.id} className={`${getHeaderClassName(column)} relative`}>
                   <span>{column.name}</span>
+                  
+                  {/* Delete button at top edge */}
+                  {allowColumnManagement && column.key !== 'id' && (
+                    <div
+                      className="absolute top-0 left-0 right-0 h-2 cursor-pointer group z-20"
+                      onMouseEnter={() => setHoveredDeleteButton(column.id)}
+                      onMouseLeave={() => setHoveredDeleteButton(null)}
+                    >
+                      {hoveredDeleteButton === column.id && (
+                        <div 
+                          className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600 transition-colors shadow-lg"
+                          onClick={() => handleRemoveColumn(column.id)}
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  
                   {/* Column divider with hover effect */}
                   {allowColumnManagement && index < schema.columns.length - 1 && (
                     <div
