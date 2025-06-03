@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -181,19 +180,17 @@ const DynamicTable = ({
                 />
               </TableHead>
               {schema.columns.map((column, index) => (
-                <div key={column.id} className="relative inline-block">
-                  <TableHead className={getHeaderClassName(column)}>
-                    <div className="flex items-center space-x-2">
-                      <span>{column.name}</span>
-                      <Badge variant="outline" className="text-xs">
-                        {column.inputType}
-                      </Badge>
-                    </div>
-                  </TableHead>
+                <TableHead key={column.id} className={`${getHeaderClassName(column)} relative`}>
+                  <div className="flex items-center space-x-2">
+                    <span>{column.name}</span>
+                    <Badge variant="outline" className="text-xs">
+                      {column.inputType}
+                    </Badge>
+                  </div>
                   {/* Column divider with hover effect */}
                   {allowColumnManagement && index < schema.columns.length - 1 && (
                     <div
-                      className="absolute top-0 right-0 w-2 h-full cursor-pointer group"
+                      className="absolute top-0 right-0 w-2 h-full cursor-pointer group z-10"
                       onMouseEnter={() => setHoveredDivider(index)}
                       onMouseLeave={() => setHoveredDivider(null)}
                       onClick={() => setShowAddColumn(true)}
@@ -206,7 +203,7 @@ const DynamicTable = ({
                       )}
                     </div>
                   )}
-                </div>
+                </TableHead>
               ))}
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
