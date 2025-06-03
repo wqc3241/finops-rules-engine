@@ -5,10 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Settings, Edit, Copy, Trash2 } from "lucide-react";
+import { Edit, Copy, Trash2, Plus } from "lucide-react";
 import { DynamicTableProps, TableData, ColumnDefinition } from "@/types/dynamicTable";
 import { toast } from "sonner";
 import ColumnManagementModal from "./ColumnManagementModal";
+import AddColumnModal from "./AddColumnModal";
 
 const DynamicTable = ({ 
   schema, 
@@ -20,8 +21,10 @@ const DynamicTable = ({
   allowColumnManagement = true
 }: DynamicTableProps) => {
   const [showColumnManagement, setShowColumnManagement] = useState(false);
+  const [showAddColumn, setShowAddColumn] = useState(false);
   const [editingCell, setEditingCell] = useState<{rowId: string, columnKey: string} | null>(null);
   const [editValue, setEditValue] = useState<any>("");
+  const [hoveredDivider, setHoveredDivider] = useState<number | null>(null);
 
   const handleSelectAll = () => {
     const allIds = data.map(row => row.id);
@@ -167,19 +170,6 @@ const DynamicTable = ({
 
   return (
     <div className="space-y-4">
-      {allowColumnManagement && (
-        <div className="flex justify-end">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowColumnManagement(true)}
-          >
-            <Settings className="h-4 w-4 mr-2" />
-            Manage Columns
-          </Button>
-        </div>
-      )}
-
       <div className="overflow-x-auto border rounded-md">
         <Table>
           <TableHeader>
@@ -190,15 +180,33 @@ const DynamicTable = ({
                   onCheckedChange={handleSelectAll}
                 />
               </TableHead>
-              {schema.columns.map((column) => (
-                <TableHead key={column.id} className={getHeaderClassName(column)}>
-                  <div className="flex items-center space-x-2">
-                    <span>{column.name}</span>
-                    <Badge variant="outline" className="text-xs">
-                      {column.inputType}
-                    </Badge>
-                  </div>
-                </TableHead>
+              {schema.columns.map((column, index) => (
+                <div key={column.id} className="relative inline-block">
+                  <TableHead className={getHeaderClassName(column)}>
+                    <div className="flex items-center space-x-2">
+                      <span>{column.name}</span>
+                      <Badge variant="outline" className="text-xs">
+                        {column.inputType}
+                      </Badge>
+                    </div>
+                  </TableHead>
+                  {/* Column divider with hover effect */}
+                  {allowColumnManagement && index < schema.columns.length - 1 && (
+                    <div
+                      className="absolute top-0 right-0 w-2 h-full cursor-pointer group"
+                      onMouseEnter={() => setHoveredDivider(index)}
+                      onMouseLeave={() => setHoveredDivider(null)}
+                      onClick={() => setShowAddColumn(true)}
+                    >
+                      <div className="w-px h-full bg-gray-200 group-hover:bg-blue-300 transition-colors" />
+                      {hoveredDivider === index && (
+                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-blue-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-blue-600 transition-colors">
+                          <Plus className="w-3 h-3" />
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
               ))}
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
@@ -264,6 +272,13 @@ const DynamicTable = ({
         onAddColumn={handleAddColumn}
         onRemoveColumn={handleRemoveColumn}
         onUpdateColumn={handleUpdateColumn}
+      />
+
+      <AddColumnModal
+        open={showAddColumn}
+        onOpenChange={setShowAddColumn}
+        onAddColumn={handleAddColumn}
+        existingColumns={schema.columns}
       />
     </div>
   );
