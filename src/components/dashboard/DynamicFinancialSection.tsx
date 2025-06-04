@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import DynamicTable from "@/components/dynamic-table/DynamicTable";
@@ -27,41 +28,8 @@ const DynamicFinancialSection = ({
 
   const schema = getSchema(schemaId);
 
-  // Load initial data based on schema
-  useEffect(() => {
-    const savedData = localStorage.getItem(`dynamicTableData_${schemaId}`);
-    if (savedData) {
-      try {
-        setData(JSON.parse(savedData));
-      } catch (error) {
-        console.error('Failed to parse saved data:', error);
-        setData(getInitialData(schemaId));
-      }
-    } else {
-      setData(getInitialData(schemaId));
-    }
-  }, [schemaId]);
-
-  // Save data to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem(`dynamicTableData_${schemaId}`, JSON.stringify(data));
-  }, [data, schemaId]);
-
-  // Create batch delete function with useCallback to prevent recreation
-  const batchDeleteFunction = useCallback(() => {
-    const updatedData = data.filter(row => !selectedItems.includes(row.id));
-    setData(updatedData);
-    onSelectionChange?.([]);
-  }, [data, selectedItems, onSelectionChange]);
-
-  // Set up batch delete callback only once when the component mounts
-  useEffect(() => {
-    if (onSetBatchDeleteCallback) {
-      onSetBatchDeleteCallback(batchDeleteFunction);
-    }
-  }, [onSetBatchDeleteCallback]);
-
   const getInitialData = (schemaId: string): TableData[] => {
+    console.log('Getting initial data for schema:', schemaId);
     switch (schemaId) {
       case 'bulletin-pricing':
         return [
@@ -292,9 +260,54 @@ const DynamicFinancialSection = ({
           }
         ];
       default:
+        console.log('No mock data found for schema:', schemaId);
         return [];
     }
   };
+
+  // Load initial data based on schema
+  useEffect(() => {
+    console.log('Loading data for schema:', schemaId);
+    const savedData = localStorage.getItem(`dynamicTableData_${schemaId}`);
+    if (savedData) {
+      try {
+        const parsedData = JSON.parse(savedData);
+        console.log('Loaded saved data:', parsedData);
+        setData(parsedData);
+      } catch (error) {
+        console.error('Failed to parse saved data:', error);
+        const initialData = getInitialData(schemaId);
+        console.log('Using initial data:', initialData);
+        setData(initialData);
+      }
+    } else {
+      const initialData = getInitialData(schemaId);
+      console.log('No saved data, using initial data:', initialData);
+      setData(initialData);
+    }
+  }, [schemaId]);
+
+  // Save data to localStorage whenever it changes
+  useEffect(() => {
+    if (data.length > 0) {
+      console.log('Saving data to localStorage:', data);
+      localStorage.setItem(`dynamicTableData_${schemaId}`, JSON.stringify(data));
+    }
+  }, [data, schemaId]);
+
+  // Create batch delete function with useCallback to prevent recreation
+  const batchDeleteFunction = useCallback(() => {
+    const updatedData = data.filter(row => !selectedItems.includes(row.id));
+    setData(updatedData);
+    onSelectionChange?.([]);
+  }, [data, selectedItems, onSelectionChange]);
+
+  // Set up batch delete callback only once when the component mounts
+  useEffect(() => {
+    if (onSetBatchDeleteCallback) {
+      onSetBatchDeleteCallback(batchDeleteFunction);
+    }
+  }, [onSetBatchDeleteCallback]);
 
   const handleAddNew = () => {
     if (!schema) {
@@ -336,6 +349,8 @@ const DynamicFinancialSection = ({
       </div>
     );
   }
+
+  console.log('Rendering component with data:', data, 'schema:', schema);
 
   return (
     <div className="p-6 bg-white rounded-lg shadow-sm">
