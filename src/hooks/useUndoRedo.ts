@@ -33,16 +33,18 @@ export const useUndoRedo = (initialData: TableData[], initialSchema: DynamicTabl
 
   const undo = useCallback(() => {
     if (currentIndex > 0) {
-      setCurrentIndex(prev => prev - 1);
-      return history[currentIndex - 1];
+      const newIndex = currentIndex - 1;
+      setCurrentIndex(newIndex);
+      return history[newIndex];
     }
     return null;
   }, [currentIndex, history]);
 
   const redo = useCallback(() => {
     if (currentIndex < history.length - 1) {
-      setCurrentIndex(prev => prev + 1);
-      return history[currentIndex + 1];
+      const newIndex = currentIndex + 1;
+      setCurrentIndex(newIndex);
+      return history[newIndex];
     }
     return null;
   }, [currentIndex, history]);

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import SectionHeader from "./SectionHeader";
 import DynamicFinancialSectionContent from "./DynamicFinancialSectionContent";
@@ -36,14 +35,14 @@ const DynamicFinancialSection = ({
 
   const handleDataChange = (newData: any) => {
     if (schema) {
-      saveState(newData, schema, 'data_change');
+      saveState(data, schema, 'data_change');
     }
     setData(newData);
   };
 
   const handleSchemaChange = (newSchema: any) => {
     if (schema) {
-      saveState(data, newSchema, 'schema_change');
+      saveState(data, schema, 'schema_change');
     }
     updateSchema(schemaId, newSchema);
   };
@@ -51,6 +50,7 @@ const DynamicFinancialSection = ({
   const handleUndo = () => {
     const previousState = undo();
     if (previousState) {
+      console.log('Undoing to state:', previousState);
       setData(previousState.data);
       updateSchema(schemaId, previousState.schema);
       toast.success("Action undone");
@@ -60,6 +60,7 @@ const DynamicFinancialSection = ({
   const handleRedo = () => {
     const nextState = redo();
     if (nextState) {
+      console.log('Redoing to state:', nextState);
       setData(nextState.data);
       updateSchema(schemaId, nextState.schema);
       toast.success("Action redone");
