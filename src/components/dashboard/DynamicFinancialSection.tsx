@@ -54,12 +54,12 @@ const DynamicFinancialSection = ({
     onSelectionChange?.([]);
   }, [data, selectedItems, onSelectionChange]);
 
-  // Set up batch delete callback with proper dependencies
+  // Set up batch delete callback only once when the component mounts
   useEffect(() => {
     if (onSetBatchDeleteCallback) {
       onSetBatchDeleteCallback(batchDeleteFunction);
     }
-  }, [onSetBatchDeleteCallback, batchDeleteFunction]);
+  }, [onSetBatchDeleteCallback]);
 
   const getInitialData = (schemaId: string): TableData[] => {
     switch (schemaId) {
