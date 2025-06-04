@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import DynamicTable from "@/components/dynamic-table/DynamicTable";
 import SectionHeader from "./SectionHeader";
@@ -48,17 +47,19 @@ const DynamicFinancialSection = ({
     localStorage.setItem(`dynamicTableData_${schemaId}`, JSON.stringify(data));
   }, [data, schemaId]);
 
-  // Set up batch delete callback
+  // Create batch delete function with useCallback to prevent recreation
+  const batchDeleteFunction = useCallback(() => {
+    const updatedData = data.filter(row => !selectedItems.includes(row.id));
+    setData(updatedData);
+    onSelectionChange?.([]);
+  }, [data, selectedItems, onSelectionChange]);
+
+  // Set up batch delete callback with proper dependencies
   useEffect(() => {
     if (onSetBatchDeleteCallback) {
-      const batchDeleteFunction = () => {
-        const updatedData = data.filter(row => !selectedItems.includes(row.id));
-        setData(updatedData);
-        onSelectionChange?.([]);
-      };
       onSetBatchDeleteCallback(batchDeleteFunction);
     }
-  }, [data, selectedItems, onSetBatchDeleteCallback, onSelectionChange]);
+  }, [onSetBatchDeleteCallback, batchDeleteFunction]);
 
   const getInitialData = (schemaId: string): TableData[] => {
     switch (schemaId) {
