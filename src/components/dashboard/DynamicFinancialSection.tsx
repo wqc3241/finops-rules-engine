@@ -1,8 +1,9 @@
+
 import { useState } from "react";
 import SectionHeader from "./SectionHeader";
 import DynamicFinancialSectionContent from "./DynamicFinancialSectionContent";
 import { useDynamicTableSchemas } from "@/hooks/useDynamicTableSchemas";
-import { useDynamicFinancialData } from "@/hooks/useDynamicFinancialData";
+import { useDynamicDataStore } from "@/hooks/useDynamicDataStore";
 import { useUndoRedo } from "@/hooks/useUndoRedo";
 import { toast } from "sonner";
 
@@ -23,21 +24,28 @@ const DynamicFinancialSection = ({
 }: DynamicFinancialSectionProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const { getSchema, updateSchema } = useDynamicTableSchemas();
-  const { data, setData, handleAddNew } = useDynamicFinancialData({
-    schemaId,
-    selectedItems,
-    onSelectionChange,
-    onSetBatchDeleteCallback
-  });
+  const { getData, setData } = useDynamicDataStore();
 
   const schema = getSchema(schemaId);
-  const { saveState, undo, redo, canUndo, canRedo } = useUndoRedo(data, schema || { id: '', name: '', columns: [] });
+  const data = getData(schemaId);
+
+  // State restoration callback for undo/redo
+  const handleStateRestore = (restoredData: any, restoredSchema: any) => {
+    setData(schemaId, restoredData);
+    updateSchema(schemaId, restoredSchema);
+  };
+
+  const { saveState, undo, redo, canUndo, canRedo } = useUndoRedo(
+    data, 
+    schema || { id: '', name: '', columns: [] },
+    handleStateRestore
+  );
 
   const handleDataChange = (newData: any) => {
     if (schema) {
       saveState(data, schema, 'data_change');
     }
-    setData(newData);
+    setData(schemaId, newData);
   };
 
   const handleSchemaChange = (newSchema: any) => {
@@ -51,8 +59,6 @@ const DynamicFinancialSection = ({
     const previousState = undo();
     if (previousState) {
       console.log('Undoing to state:', previousState);
-      setData(previousState.data);
-      updateSchema(schemaId, previousState.schema);
       toast.success("Action undone");
     }
   };
@@ -61,8 +67,6 @@ const DynamicFinancialSection = ({
     const nextState = redo();
     if (nextState) {
       console.log('Redoing to state:', nextState);
-      setData(nextState.data);
-      updateSchema(schemaId, nextState.schema);
       toast.success("Action redone");
     }
   };
@@ -70,9 +74,45 @@ const DynamicFinancialSection = ({
   const handleAddNewRecord = () => {
     if (schema) {
       saveState(data, schema, 'add_record');
+      
+      const newRow: any = {
+        id: `new_${Date.now()}`,
+      };
+
+      // Initialize with default values based on column types
+      schema.columns.forEach((column: any) => {
+        if (column.key !== 'id') {
+          switch (column.type) {
+            case 'string':
+              newRow[column.key] = '';
+              break;
+            case 'boolean':
+              newRow[column.key] = false;
+              break;
+            case 'number':
+              newRow[column.key] = 0;
+              break;
+          }
+        }
+      });
+
+      setData(schemaId, [...data, newRow]);
+      toast.success("New record added");
     }
-    handleAddNew(schema);
   };
+
+  // Set up batch delete callback
+  if (onSetBatchDeleteCallback) {
+    const batchDeleteFunction = () => {
+      if (schema) {
+        saveState(data, schema, 'batch_delete');
+      }
+      const updatedData = data.filter(row => !selectedItems.includes(row.id));
+      setData(schemaId, updatedData);
+      onSelectionChange?.([]);
+    };
+    onSetBatchDeleteCallback(batchDeleteFunction);
+  }
 
   if (!schema) {
     return (
