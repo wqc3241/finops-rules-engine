@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from "react";
 import { TableData } from "@/types/dynamicTable";
 import { getInitialData } from "@/utils/mockDataUtils";
@@ -60,7 +61,7 @@ export const useDynamicFinancialData = ({
     if (onSetBatchDeleteCallback) {
       onSetBatchDeleteCallback(batchDeleteFunction);
     }
-  }, [onSetBatchDeleteCallback, batchDeleteFunction]);
+  }, [onSetBatchDeleteCallback]);
 
   const handleAddNew = (schema: any) => {
     if (!schema) {

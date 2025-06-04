@@ -9,18 +9,9 @@ interface UndoRedoState {
   action: string;
 }
 
-export const useUndoRedo = (
-  initialData: TableData[], 
-  initialSchema: DynamicTableSchema,
-  onStateRestore: (data: TableData[], schema: DynamicTableSchema) => void
-) => {
+export const useUndoRedo = (initialData: TableData[], initialSchema: DynamicTableSchema) => {
   const [history, setHistory] = useState<UndoRedoState[]>([
-    { 
-      data: JSON.parse(JSON.stringify(initialData)), 
-      schema: JSON.parse(JSON.stringify(initialSchema)), 
-      timestamp: Date.now(), 
-      action: 'initial' 
-    }
+    { data: initialData, schema: initialSchema, timestamp: Date.now(), action: 'initial' }
   ]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -43,24 +34,20 @@ export const useUndoRedo = (
   const undo = useCallback(() => {
     if (currentIndex > 0) {
       const newIndex = currentIndex - 1;
-      const previousState = history[newIndex];
       setCurrentIndex(newIndex);
-      onStateRestore(previousState.data, previousState.schema);
-      return previousState;
+      return history[newIndex];
     }
     return null;
-  }, [currentIndex, history, onStateRestore]);
+  }, [currentIndex, history]);
 
   const redo = useCallback(() => {
     if (currentIndex < history.length - 1) {
       const newIndex = currentIndex + 1;
-      const nextState = history[newIndex];
       setCurrentIndex(newIndex);
-      onStateRestore(nextState.data, nextState.schema);
-      return nextState;
+      return history[newIndex];
     }
     return null;
-  }, [currentIndex, history, onStateRestore]);
+  }, [currentIndex, history]);
 
   const canUndo = currentIndex > 0;
   const canRedo = currentIndex < history.length - 1;
