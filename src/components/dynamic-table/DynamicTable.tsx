@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -185,19 +186,19 @@ const DynamicTable = ({
                 {/* Removed select all checkbox */}
               </TableHead>
               {schema.columns.map((column, index) => (
-                <TableHead key={column.id} className={`${getHeaderClassName(column)} relative`}>
+                <TableHead key={column.id} className={`${getHeaderClassName(column)} relative overflow-visible`}>
                   <span>{column.name}</span>
                   
-                  {/* Delete button at top edge */}
+                  {/* Delete button at top edge with better positioning */}
                   {allowColumnManagement && column.key !== 'id' && (
                     <div
-                      className="absolute top-0 left-0 right-0 h-2 cursor-pointer group z-20"
+                      className="absolute -top-2 left-0 right-0 h-6 cursor-pointer group z-30"
                       onMouseEnter={() => setHoveredDeleteButton(column.id)}
                       onMouseLeave={() => setHoveredDeleteButton(null)}
                     >
                       {hoveredDeleteButton === column.id && (
                         <div 
-                          className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600 transition-colors shadow-lg"
+                          className="absolute top-0 left-1/2 transform -translate-x-1/2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600 transition-colors shadow-lg z-40"
                           onClick={() => handleRemoveColumn(column.id)}
                         >
                           <Trash2 className="w-3 h-3" />
