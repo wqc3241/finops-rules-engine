@@ -51,6 +51,85 @@ const DEFAULT_SCHEMAS: Record<string, DynamicTableSchema> = {
       { id: 'category', name: 'Category', key: 'category', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
       { id: 'isActive', name: 'Status', key: 'isActive', type: 'boolean', inputType: 'Input', isRequired: false, sortable: true, editable: true }
     ]
+  },
+  'pricing-rules': {
+    id: 'pricing-rules',
+    name: 'Pricing Rules',
+    columns: [
+      { id: 'id', name: 'ID', key: 'id', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false },
+      { id: 'financialProgram', name: 'Financial Program', key: 'financialProgram', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'pricingConfig', name: 'Pricing Config', key: 'pricingConfig', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'pricingType', name: 'Pricing Type', key: 'pricingType', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'advertised', name: 'Advertised', key: 'advertised', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'pricingValue', name: 'Pricing Value', key: 'pricingValue', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'lenderList', name: 'Lender List', key: 'lenderList', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'geoCode', name: 'Geo Code', key: 'geoCode', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true }
+    ]
+  },
+  'credit-profile': {
+    id: 'credit-profile',
+    name: 'Credit Profile',
+    columns: [
+      { id: 'id', name: 'ID', key: 'id', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false },
+      { id: 'uuid', name: 'UUID', key: 'uuid', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false },
+      { id: 'priority', name: 'Priority', key: 'priority', type: 'number', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'minCreditScore', name: 'Min Credit Score', key: 'minCreditScore', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'maxCreditScore', name: 'Max Credit Score', key: 'maxCreditScore', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'minIncome', name: 'Min Income', key: 'minIncome', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'maxIncome', name: 'Max Income', key: 'maxIncome', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'minAge', name: 'Min Age', key: 'minAge', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'maxAge', name: 'Max Age', key: 'maxAge', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'minPTI', name: 'Min PTI', key: 'minPTI', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'maxPTI', name: 'Max PTI', key: 'maxPTI', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'minDTI', name: 'Min DTI', key: 'minDTI', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'maxDTI', name: 'Max DTI', key: 'maxDTI', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'employmentType', name: 'Employment Type', key: 'employmentType', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true }
+    ]
+  },
+  'pricing-config': {
+    id: 'pricing-config',
+    name: 'Pricing Config',
+    columns: [
+      { id: 'id', name: 'ID', key: 'id', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false },
+      { id: 'creditProfile', name: 'Credit Profile', key: 'creditProfile', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'minLTV', name: 'Min LTV', key: 'minLTV', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'maxLTV', name: 'Max LTV', key: 'maxLTV', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'minTerm', name: 'Min Term', key: 'minTerm', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'maxTerm', name: 'Max Term', key: 'maxTerm', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'minLeaseMileage', name: 'Min Lease Mileage', key: 'minLeaseMileage', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'maxLeaseMileage', name: 'Max Lease Mileage', key: 'maxLeaseMileage', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'priority', name: 'Priority', key: 'priority', type: 'number', inputType: 'Input', isRequired: true, sortable: true, editable: true }
+    ]
+  },
+  'financial-program-config': {
+    id: 'financial-program-config',
+    name: 'Financial Program Config',
+    columns: [
+      { id: 'id', name: 'ID', key: 'id', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false },
+      { id: 'programCode', name: 'Program Code', key: 'programCode', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'cloneFrom', name: 'Clone From', key: 'cloneFrom', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'priority', name: 'Priority', key: 'priority', type: 'number', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'financialProductId', name: 'Financial Product ID', key: 'financialProductId', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'productType', name: 'Product Type', key: 'productType', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'vehicleStyleId', name: 'Vehicle Style ID', key: 'vehicleStyleId', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'financingVehicleCondition', name: 'Financing Vehicle Condition', key: 'financingVehicleCondition', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'programStartDate', name: 'Program Start Date', key: 'programStartDate', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'programEndDate', name: 'Program End Date', key: 'programEndDate', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'isActive', name: 'Active', key: 'isActive', type: 'boolean', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'orderTypes', name: 'Order Types', key: 'orderTypes', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'version', name: 'Version', key: 'version', type: 'number', inputType: 'Input', isRequired: true, sortable: true, editable: true }
+    ]
+  },
+  'advertised-offers': {
+    id: 'advertised-offers',
+    name: 'Advertised Offers',
+    columns: [
+      { id: 'id', name: 'ID', key: 'id', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false },
+      { id: 'bulletinPricing', name: 'Bulletin Pricing', key: 'bulletinPricing', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'disclosure', name: 'Disclosure', key: 'disclosure', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'loanAmountPer10k', name: 'Loan Amount Per 10K', key: 'loanAmountPer10k', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'totalCostOfCredit', name: 'Total Cost of Credit', key: 'totalCostOfCredit', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true }
+    ]
   }
 };
 
