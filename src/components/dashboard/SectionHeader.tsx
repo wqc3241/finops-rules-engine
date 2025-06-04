@@ -1,11 +1,17 @@
 
 import { ReactNode } from "react";
+import { Button } from "@/components/ui/button";
+import { Undo, Redo } from "lucide-react";
 
 interface SectionHeaderProps {
   title: string;
   isCollapsed?: boolean;
   setIsCollapsed?: (collapsed: boolean) => void;
   onAddNew?: () => void;
+  onUndo?: () => void;
+  onRedo?: () => void;
+  canUndo?: boolean;
+  canRedo?: boolean;
   children?: ReactNode;
 }
 
@@ -14,6 +20,10 @@ const SectionHeader = ({
   isCollapsed, 
   setIsCollapsed, 
   onAddNew,
+  onUndo,
+  onRedo,
+  canUndo = false,
+  canRedo = false,
   children 
 }: SectionHeaderProps) => {
   return (
@@ -37,7 +47,29 @@ const SectionHeader = ({
           </button>
         )}
       </div>
-      <div className="flex space-x-2">
+      <div className="flex items-center space-x-2">
+        {onUndo && onRedo && (
+          <>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onUndo}
+              disabled={!canUndo}
+              className="h-8 w-8 p-0"
+            >
+              <Undo className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onRedo}
+              disabled={!canRedo}
+              className="h-8 w-8 p-0"
+            >
+              <Redo className="h-4 w-4" />
+            </Button>
+          </>
+        )}
         {onAddNew && (
           <button
             onClick={onAddNew}

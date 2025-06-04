@@ -4,6 +4,8 @@ import SectionHeader from "./SectionHeader";
 import DynamicFinancialSectionContent from "./DynamicFinancialSectionContent";
 import { useDynamicTableSchemas } from "@/hooks/useDynamicTableSchemas";
 import { useDynamicFinancialData } from "@/hooks/useDynamicFinancialData";
+import { useUndoRedo } from "@/hooks/useUndoRedo";
+import { toast } from "sonner";
 
 interface DynamicFinancialSectionProps {
   schemaId: string;
@@ -30,8 +32,44 @@ const DynamicFinancialSection = ({
   });
 
   const schema = getSchema(schemaId);
+  const { saveState, undo, redo, canUndo, canRedo } = useUndoRedo(data, schema || { id: '', name: '', columns: [] });
+
+  const handleDataChange = (newData: any) => {
+    if (schema) {
+      saveState(newData, schema, 'data_change');
+    }
+    setData(newData);
+  };
+
+  const handleSchemaChange = (newSchema: any) => {
+    if (schema) {
+      saveState(data, newSchema, 'schema_change');
+    }
+    updateSchema(schemaId, newSchema);
+  };
+
+  const handleUndo = () => {
+    const previousState = undo();
+    if (previousState) {
+      setData(previousState.data);
+      updateSchema(schemaId, previousState.schema);
+      toast.success("Action undone");
+    }
+  };
+
+  const handleRedo = () => {
+    const nextState = redo();
+    if (nextState) {
+      setData(nextState.data);
+      updateSchema(schemaId, nextState.schema);
+      toast.success("Action redone");
+    }
+  };
 
   const handleAddNewRecord = () => {
+    if (schema) {
+      saveState(data, schema, 'add_record');
+    }
     handleAddNew(schema);
   };
 
@@ -52,13 +90,17 @@ const DynamicFinancialSection = ({
         isCollapsed={isCollapsed} 
         setIsCollapsed={setIsCollapsed} 
         onAddNew={handleAddNewRecord}
+        onUndo={handleUndo}
+        onRedo={handleRedo}
+        canUndo={canUndo}
+        canRedo={canRedo}
       />
       {!isCollapsed && (
         <DynamicFinancialSectionContent
           schema={schema}
           data={data}
-          onDataChange={setData}
-          onSchemaChange={(updatedSchema) => updateSchema(schemaId, updatedSchema)}
+          onDataChange={handleDataChange}
+          onSchemaChange={handleSchemaChange}
           onSelectionChange={onSelectionChange}
           selectedItems={selectedItems}
         />
