@@ -6,6 +6,7 @@ import { DealStructureOffer, FinancialSummary } from '@/types/application';
 import { Separator } from '@/components/ui/separator';
 import LenderOfferCard from './LenderOfferCard';
 import { useDealFinancialNavigation } from '@/hooks/useDealFinancialNavigation';
+
 interface DealStructureSectionProps {
   dealStructure: DealStructureOffer[];
   title: string;
@@ -13,6 +14,7 @@ interface DealStructureSectionProps {
   showFinancialDetailButton?: boolean;
   financialSummary?: FinancialSummary;
 }
+
 const DealStructureSection: React.FC<DealStructureSectionProps> = ({
   dealStructure,
   title,
@@ -58,7 +60,8 @@ const DealStructureSection: React.FC<DealStructureSectionProps> = ({
   if (dealStructure.length === 0) {
     return null;
   }
-  return <Card className="mb-8">
+  return (
+    <Card className="mb-8">
       <CardContent className="p-6">
         <div className="flex justify-between items-center mb-1">
           <h3 className="text-lg font-semibold">{title}</h3>
@@ -72,12 +75,29 @@ const DealStructureSection: React.FC<DealStructureSectionProps> = ({
         <Separator className="mb-1" />
         
         <div className="space-y-6">
-          {dealStructure.map((offer, index) => <LenderOfferCard key={index} offer={{
-          ...offer,
-          applicationType: applicationType
-        }} isExpanded={isExpanded} isSelected={selectedOfferLender === offer.lenderName} onSelectOffer={handleSelectOffer} onPresentToCustomer={handlePresentToCustomer} showFinancialDetailButton={showFinancialDetailButton} onViewFinancialDetail={() => handleViewFinancialDetail(offer.lenderName)} onViewRequestedFinancial={() => handleViewSection(offer.lenderName, 'requested')} onViewApprovedFinancial={() => handleViewSection(offer.lenderName, 'approved')} onViewCustomerFinancial={() => handleViewSection(offer.lenderName, 'customer')} financialSummary={financialSummary} />)}
+          {dealStructure.map((offer, index) => (
+            <LenderOfferCard 
+              key={index} 
+              offer={{
+                ...offer,
+                applicationType: applicationType
+              }} 
+              isExpanded={isExpanded} 
+              isSelected={selectedOfferLender === offer.lenderName} 
+              onSelectOffer={handleSelectOffer} 
+              onPresentToCustomer={handlePresentToCustomer} 
+              showFinancialDetailButton={showFinancialDetailButton} 
+              onViewFinancialDetail={() => handleViewFinancialDetail(offer.lenderName)} 
+              onViewRequestedFinancial={() => handleViewSection(offer.lenderName, 'requested')} 
+              onViewApprovedFinancial={() => handleViewSection(offer.lenderName, 'approved')} 
+              onViewCustomerFinancial={() => handleViewSection(offer.lenderName, 'customer')} 
+              financialSummary={financialSummary} 
+            />
+          ))}
         </div>
       </CardContent>
-    </Card>;
+    </Card>
+  );
 };
+
 export default DealStructureSection;
