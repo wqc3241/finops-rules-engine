@@ -46,6 +46,22 @@ const ApplicationDetail = () => {
     }
   }, [searchParams, tab, id, navigate]);
 
+  // Handle tab clicks for the combined view sections
+  const handleTabNavigation = (tabId: string) => {
+    // If clicking on details, financial-summary, or order-details, 
+    // navigate to details tab but pass the section for scrolling
+    if (['details', 'financial-summary', 'order-details'].includes(tabId)) {
+      if (tabId === 'details') {
+        navigate(`/applications/${id}`);
+      } else {
+        navigate(`/applications/${id}/${tabId}`);
+      }
+    } else {
+      // For other tabs, navigate normally
+      navigate(`/applications/${id}/${tabId}`);
+    }
+  };
+
   return (
     <ApplicationDetailLayout
       sidebarOpen={sidebarOpen}
@@ -58,6 +74,7 @@ const ApplicationDetail = () => {
       applicationDetails={currentApplicationDetails}
       applicationFullDetails={currentApplicationFullDetails}
       notes={currentNotes}
+      onTabNavigation={handleTabNavigation}
     />
   );
 };

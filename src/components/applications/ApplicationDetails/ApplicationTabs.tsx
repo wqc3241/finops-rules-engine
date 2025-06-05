@@ -11,9 +11,14 @@ interface Tab {
 interface ApplicationTabsProps {
   tabs: Tab[];
   baseUrl: string;
+  onTabClick?: (tabId: string) => void;
 }
 
-const ApplicationTabs: React.FC<ApplicationTabsProps> = ({ tabs, baseUrl }) => {
+const ApplicationTabs: React.FC<ApplicationTabsProps> = ({ 
+  tabs, 
+  baseUrl, 
+  onTabClick 
+}) => {
   const navigate = useNavigate();
   const location = useLocation();
   const currentPath = location.pathname;
@@ -25,10 +30,15 @@ const ApplicationTabs: React.FC<ApplicationTabsProps> = ({ tabs, baseUrl }) => {
   )?.id || 'details';
 
   const handleTabChange = (tabId: string) => {
-    if (tabId === 'details') {
-      navigate(baseUrl);
+    if (onTabClick) {
+      onTabClick(tabId);
     } else {
-      navigate(`${baseUrl}/${tabId}`);
+      // Default navigation behavior
+      if (tabId === 'details') {
+        navigate(baseUrl);
+      } else {
+        navigate(`${baseUrl}/${tabId}`);
+      }
     }
   };
 
@@ -40,7 +50,9 @@ const ApplicationTabs: React.FC<ApplicationTabsProps> = ({ tabs, baseUrl }) => {
             key={tab.id}
             className={cn(
               'py-4 px-6 text-center border-b-2 font-medium text-sm',
-              activeTab === tab.id
+              activeTab === tab.id || 
+              ((['details', 'financial-summary', 'order-details'].includes(tab.id)) && 
+               (['details', 'financial-summary', 'order-details'].includes(activeTab)))
                 ? 'border-gray-900 text-gray-900'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             )}

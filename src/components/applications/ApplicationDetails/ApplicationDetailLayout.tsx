@@ -18,6 +18,7 @@ interface ApplicationDetailLayoutProps {
   applicationDetails: ApplicationDetails;
   applicationFullDetails: any;
   notes: Note[];
+  onTabNavigation?: (tabId: string) => void;
 }
 
 const ApplicationDetailLayout: React.FC<ApplicationDetailLayoutProps> = ({
@@ -30,7 +31,8 @@ const ApplicationDetailLayout: React.FC<ApplicationDetailLayoutProps> = ({
   applicationId,
   applicationDetails,
   applicationFullDetails,
-  notes
+  notes,
+  onTabNavigation
 }) => {
   return (
     <div className="h-screen flex flex-col bg-gray-50">
@@ -44,7 +46,11 @@ const ApplicationDetailLayout: React.FC<ApplicationDetailLayoutProps> = ({
         <main className="flex-1 overflow-auto p-4">
           <div className="container mx-auto px-4 py-6">
             <ApplicationHeader details={applicationDetails} />
-            <ApplicationTabs tabs={tabs} baseUrl={`/applications/${applicationId}`} />
+            <ApplicationTabs 
+              tabs={tabs} 
+              baseUrl={`/applications/${applicationId}`}
+              onTabClick={onTabNavigation}
+            />
             <TabContent 
               tab={currentTab} 
               applicationFullDetails={applicationFullDetails}
