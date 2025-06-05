@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { ChevronUp } from 'lucide-react';
@@ -22,11 +21,8 @@ const ApplicationData: React.FC<ApplicationDataProps> = ({
     <Card className="mb-8">
       <CardContent className="p-6">
         <div className="flex justify-between items-center mb-6">
-          <h3 className="text-lg font-semibold">Application Data</h3>
-          <div className="flex items-center">
-            <Button variant="outline">Edit</Button>
-            <ChevronUp className="ml-4 h-5 w-5 text-gray-400" />
-          </div>
+          <Button variant="outline">Edit</Button>
+          <ChevronUp className="ml-4 h-5 w-5 text-gray-400" />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
