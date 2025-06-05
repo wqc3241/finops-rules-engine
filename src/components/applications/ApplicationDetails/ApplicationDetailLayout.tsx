@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import ApplicationHeader from '@/components/applications/ApplicationDetails/ApplicationHeader';
@@ -34,6 +34,12 @@ const ApplicationDetailLayout: React.FC<ApplicationDetailLayoutProps> = ({
   notes,
   onTabNavigation
 }) => {
+  const [activeSection, setActiveSection] = useState<string>(currentTab || 'details');
+
+  const handleActiveSectionChange = (section: string) => {
+    setActiveSection(section);
+  };
+
   return (
     <div className="h-screen flex flex-col bg-gray-50">
       <Navbar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
@@ -43,18 +49,20 @@ const ApplicationDetailLayout: React.FC<ApplicationDetailLayoutProps> = ({
           activeItem={activeItem}
           setActiveItem={setActiveItem}
         />
-        <main className="flex-1 overflow-auto p-4">
+        <main className="flex-1 overflow-auto">
           <div className="container mx-auto px-4 py-6">
             <ApplicationHeader details={applicationDetails} />
             <ApplicationTabs 
               tabs={tabs} 
               baseUrl={`/applications/${applicationId}`}
               onTabClick={onTabNavigation}
+              activeSection={activeSection}
             />
             <TabContent 
               tab={currentTab} 
               applicationFullDetails={applicationFullDetails}
               notes={notes}
+              onActiveSectionChange={handleActiveSectionChange}
             />
           </div>
         </main>

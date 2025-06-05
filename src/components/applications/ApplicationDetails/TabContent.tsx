@@ -11,12 +11,14 @@ interface TabContentProps {
   tab?: string;
   applicationFullDetails: any;
   notes: Note[];
+  onActiveSectionChange?: (section: string) => void;
 }
 
 const TabContent: React.FC<TabContentProps> = ({ 
   tab = 'details', 
   applicationFullDetails,
-  notes
+  notes,
+  onActiveSectionChange
 }) => {
   switch (tab) {
     case 'risk-compliance':
@@ -41,6 +43,7 @@ const TabContent: React.FC<TabContentProps> = ({
           applicationFullDetails={applicationFullDetails}
           notes={notes}
           activeSection={tab}
+          onActiveSectionChange={onActiveSectionChange}
         />
       );
   }

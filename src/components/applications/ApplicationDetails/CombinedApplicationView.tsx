@@ -1,5 +1,5 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -12,12 +12,14 @@ interface CombinedApplicationViewProps {
   applicationFullDetails: ApplicationFullDetails;
   notes: Note[];
   activeSection?: string;
+  onActiveSectionChange?: (section: string) => void;
 }
 
 const CombinedApplicationView: React.FC<CombinedApplicationViewProps> = ({
   applicationFullDetails,
   notes,
-  activeSection
+  activeSection,
+  onActiveSectionChange
 }) => {
   const [expandedSections, setExpandedSections] = useState({
     details: true,
@@ -30,7 +32,7 @@ const CombinedApplicationView: React.FC<CombinedApplicationViewProps> = ({
   const orderRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to section when activeSection changes
-  React.useEffect(() => {
+  useEffect(() => {
     if (activeSection) {
       const refs = {
         details: detailsRef,
@@ -47,6 +49,37 @@ const CombinedApplicationView: React.FC<CombinedApplicationViewProps> = ({
       }
     }
   }, [activeSection]);
+
+  // Scroll detection for active section highlighting
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!onActiveSectionChange) return;
+
+      const sections = [
+        { id: 'details', ref: detailsRef },
+        { id: 'financial-summary', ref: financialRef },
+        { id: 'order-details', ref: orderRef }
+      ];
+
+      const scrollPosition = window.scrollY + 200; // Offset for sticky headers
+
+      for (let i = sections.length - 1; i >= 0; i--) {
+        const section = sections[i];
+        if (section.ref.current) {
+          const rect = section.ref.current.getBoundingClientRect();
+          const offsetTop = window.scrollY + rect.top;
+          
+          if (scrollPosition >= offsetTop) {
+            onActiveSectionChange(section.id);
+            break;
+          }
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [onActiveSectionChange]);
 
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections(prev => ({
