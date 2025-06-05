@@ -19,7 +19,7 @@ interface CollapsibleCardContentProps {
   isEditDialogOpen: boolean;
   financialSummary?: FinancialSummary;
   showFinancialDetailButton?: boolean;
-  onToggleExpand: (value?: boolean) => void;
+  onToggleExpand: () => void;
   onBackToDealStructure: () => void;
   onViewFinancialDetail: (section: 'requested' | 'approved' | 'customer') => void;
   onViewRequestedFinancial?: () => void;
@@ -73,7 +73,7 @@ const CollapsibleCardContent: React.FC<CollapsibleCardContentProps> = ({
 
   return (
     <div onClick={handleClick} className="cursor-pointer">
-      <Collapsible open={isCardExpanded} onOpenChange={onToggleExpand}>
+      <Collapsible open={isCardExpanded}>
         <Separator className="mb-1" />
 
         {!isCardExpanded && (applicationType === 'Loan' ? (
