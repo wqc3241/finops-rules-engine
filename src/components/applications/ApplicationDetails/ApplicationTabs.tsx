@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -45,7 +44,7 @@ const ApplicationTabs: React.FC<ApplicationTabsProps> = ({
   };
 
   return (
-    <div className="sticky top-32 z-10 bg-gray-50 border-b border-gray-200 mb-6">
+    <div className="sticky top-16 z-10 bg-gray-50 border-b border-gray-200 mb-6">
       <nav className="flex -mb-px">
         {tabs.map(tab => (
           <button
