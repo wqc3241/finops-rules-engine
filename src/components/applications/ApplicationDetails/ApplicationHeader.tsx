@@ -37,7 +37,7 @@ const ApplicationHeader: React.FC<ApplicationHeaderProps> = ({ details }) => {
   const statusColor = getStatusColor(details.status);
 
   return (
-    <div className="sticky top-0 bg-white z-30 border-b border-gray-200 pb-4 mb-4">
+    <div className="border-b border-gray-200 pb-4 mb-4">
       <div className="flex items-center mb-1">
         <Link to="/applications" className="flex items-center text-gray-600 hover:text-gray-800">
           <ChevronLeft className="h-5 w-5" />

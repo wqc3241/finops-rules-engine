@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
@@ -12,14 +12,12 @@ interface ApplicationTabsProps {
   tabs: Tab[];
   baseUrl: string;
   onTabClick?: (tabId: string) => void;
-  activeScrollSection?: string;
 }
 
 const ApplicationTabs: React.FC<ApplicationTabsProps> = ({ 
   tabs, 
   baseUrl, 
-  onTabClick,
-  activeScrollSection 
+  onTabClick 
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -44,32 +42,20 @@ const ApplicationTabs: React.FC<ApplicationTabsProps> = ({
     }
   };
 
-  const getTabClassName = (tabId: string) => {
-    const isActiveTab = activeTab === tabId || 
-      (['details', 'financial-summary', 'order-details'].includes(tabId) && 
-       ['details', 'financial-summary', 'order-details'].includes(activeTab));
-    
-    // For combined view tabs, use scroll-based highlighting
-    const isCombinedViewTab = ['details', 'financial-summary', 'order-details'].includes(tabId);
-    const isScrollActive = isCombinedViewTab && activeScrollSection === tabId;
-    
-    const isActive = isActiveTab || isScrollActive;
-    
-    return cn(
-      'py-4 px-6 text-center border-b-2 font-medium text-sm transition-colors',
-      isActive
-        ? 'border-gray-900 text-gray-900'
-        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-    );
-  };
-
   return (
-    <div className="sticky top-0 bg-white z-20 border-b border-gray-200 mb-6">
+    <div className="border-b border-gray-200 mb-6">
       <nav className="flex -mb-px">
         {tabs.map(tab => (
           <button
             key={tab.id}
-            className={getTabClassName(tab.id)}
+            className={cn(
+              'py-4 px-6 text-center border-b-2 font-medium text-sm',
+              activeTab === tab.id || 
+              ((['details', 'financial-summary', 'order-details'].includes(tab.id)) && 
+               (['details', 'financial-summary', 'order-details'].includes(activeTab)))
+                ? 'border-gray-900 text-gray-900'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            )}
             onClick={() => handleTabChange(tab.id)}
           >
             {tab.label}

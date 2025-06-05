@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import ApplicationHistoryView from '@/components/applications/ApplicationDetails/ApplicationHistoryView';
 import NotesView from '@/components/applications/ApplicationDetails/NotesView';
 import RiskComplianceView from '@/components/applications/ApplicationDetails/RiskComplianceView';
@@ -11,14 +11,12 @@ interface TabContentProps {
   tab?: string;
   applicationFullDetails: any;
   notes: Note[];
-  onScrollSectionChange?: (section: string) => void;
 }
 
 const TabContent: React.FC<TabContentProps> = ({ 
   tab = 'details', 
   applicationFullDetails,
-  notes,
-  onScrollSectionChange
+  notes
 }) => {
   switch (tab) {
     case 'risk-compliance':
@@ -43,7 +41,6 @@ const TabContent: React.FC<TabContentProps> = ({
           applicationFullDetails={applicationFullDetails}
           notes={notes}
           activeSection={tab}
-          onSectionChange={onScrollSectionChange}
         />
       );
   }
