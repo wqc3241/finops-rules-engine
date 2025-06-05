@@ -2,24 +2,21 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { ChevronUp } from 'lucide-react';
 import { ApplicantInfo, VehicleData, AppDTReferences } from '@/types/application';
-
 interface ApplicationDataProps {
   applicantInfo: ApplicantInfo;
   coApplicantInfo?: ApplicantInfo;
   vehicleData: VehicleData;
   appDtReferences: AppDTReferences;
 }
-
 const ApplicationData: React.FC<ApplicationDataProps> = ({
   applicantInfo,
   coApplicantInfo,
   vehicleData,
-  appDtReferences,
+  appDtReferences
 }) => {
-  return (
-    <Card className="mb-8">
+  return <Card className="mb-8">
       <CardContent className="p-6">
-        <ChevronUp className="ml-auto h-5 w-5 text-gray-400" />
+        
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
           <section>
@@ -51,8 +48,7 @@ const ApplicationData: React.FC<ApplicationDataProps> = ({
             </div>
           </section>
 
-          {coApplicantInfo && (
-            <section>
+          {coApplicantInfo && <section>
               <h4 className="text-md font-medium mb-4">Co-Applicant</h4>
               <div className="grid grid-cols-1 gap-y-3">
                 <DataField label="Relationship" value={coApplicantInfo.relationship} />
@@ -79,8 +75,7 @@ const ApplicationData: React.FC<ApplicationDataProps> = ({
                 <DataField label="Other Source of Income" value={coApplicantInfo.otherSourceOfIncome} />
                 <DataField label="Other Income Amount (Annual)" value={coApplicantInfo.otherIncomeAmount} />
               </div>
-            </section>
-          )}
+            </section>}
 
           <section className="mt-6">
             <h4 className="text-md font-medium mb-4">Vehicle Data</h4>
@@ -106,15 +101,16 @@ const ApplicationData: React.FC<ApplicationDataProps> = ({
           </section>
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>;
 };
-
-const DataField: React.FC<{ label: string; value: string }> = ({ label, value }) => (
-  <div className="flex">
+const DataField: React.FC<{
+  label: string;
+  value: string;
+}> = ({
+  label,
+  value
+}) => <div className="flex">
     <span className="text-sm text-gray-600 min-w-[200px]">{label}</span>
     <span className="text-sm font-medium">{value}</span>
-  </div>
-);
-
+  </div>;
 export default ApplicationData;
