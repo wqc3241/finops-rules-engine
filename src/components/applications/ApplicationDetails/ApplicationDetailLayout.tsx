@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import ApplicationHeader from '@/components/applications/ApplicationDetails/ApplicationHeader';
@@ -34,6 +34,8 @@ const ApplicationDetailLayout: React.FC<ApplicationDetailLayoutProps> = ({
   notes,
   onTabNavigation
 }) => {
+  const [activeScrollSection, setActiveScrollSection] = useState<string>('details');
+
   return (
     <div className="h-screen flex flex-col bg-gray-50">
       <Navbar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
@@ -50,11 +52,13 @@ const ApplicationDetailLayout: React.FC<ApplicationDetailLayoutProps> = ({
               tabs={tabs} 
               baseUrl={`/applications/${applicationId}`}
               onTabClick={onTabNavigation}
+              activeScrollSection={activeScrollSection}
             />
             <TabContent 
               tab={currentTab} 
               applicationFullDetails={applicationFullDetails}
               notes={notes}
+              onScrollSectionChange={setActiveScrollSection}
             />
           </div>
         </main>
