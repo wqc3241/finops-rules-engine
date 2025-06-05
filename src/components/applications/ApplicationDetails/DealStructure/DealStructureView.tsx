@@ -31,10 +31,13 @@ const DealStructureView: React.FC<DealStructureViewProps> = ({
       <div className="flex justify-between items-center mb-4">
         <h4 className="text-md font-medium">{title}</h4>
         {showFinancialDetailButton && (
-          <Button variant="outline" size="sm" onClick={onViewFinancialSummary} className="flex items-center">
+          <button 
+            onClick={onViewFinancialSummary} 
+            className="text-blue-600 hover:text-blue-800 underline text-sm font-medium flex items-center transition-colors"
+          >
             <BarChart2 className="h-3 w-3 mr-1" />
             View Financial Summary
-          </Button>
+          </button>
         )}
       </div>
       <OfferParameters 
