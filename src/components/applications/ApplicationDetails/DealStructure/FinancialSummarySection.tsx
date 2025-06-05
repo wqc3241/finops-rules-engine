@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import FinancialSummaryView from '../FinancialSummaryView';
 import { FinancialSummary } from '@/types/application';
 
@@ -35,14 +34,13 @@ const FinancialSummarySection: React.FC<FinancialSummarySectionProps> = ({
   return (
     <div>
       <div className="mb-6">
-        <Button 
-          variant="outline" 
+        <button 
           onClick={onBackToDealStructure}
-          className="flex items-center"
+          className="text-blue-600 hover:text-blue-800 underline text-sm font-medium flex items-center transition-colors"
         >
           <ArrowLeft className="h-4 w-4 mr-1" />
           Back to Deal Structure
-        </Button>
+        </button>
       </div>
       <FinancialSummaryView 
         financialSummary={lenderSpecificSummary}
