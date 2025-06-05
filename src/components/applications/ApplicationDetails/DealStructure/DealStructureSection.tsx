@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { ChevronUp, ChevronDown, Expand, Minimize } from 'lucide-react';
+import { ChevronUp, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DealStructureOffer, FinancialSummary } from '@/types/application';
 import { Separator } from '@/components/ui/separator';
@@ -14,6 +14,8 @@ interface DealStructureSectionProps {
   applicationType: 'Lease' | 'Loan';
   showFinancialDetailButton?: boolean;
   financialSummary?: FinancialSummary;
+  allCardsExpanded?: boolean;
+  onAllCardsExpandedChange?: (expanded: boolean) => void;
 }
 
 const DealStructureSection: React.FC<DealStructureSectionProps> = ({
@@ -21,11 +23,12 @@ const DealStructureSection: React.FC<DealStructureSectionProps> = ({
   title,
   applicationType,
   showFinancialDetailButton = false,
-  financialSummary
+  financialSummary,
+  allCardsExpanded = false,
+  onAllCardsExpandedChange
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [selectedOfferLender, setSelectedOfferLender] = useState<string | null>(null);
-  const [allCardsExpanded, setAllCardsExpanded] = useState(false);
   const [individualCardStates, setIndividualCardStates] = useState<Record<string, boolean>>({});
   
   const {
@@ -34,6 +37,15 @@ const DealStructureSection: React.FC<DealStructureSectionProps> = ({
     presentedLender,
     markLenderAsPresented
   } = useDealFinancialNavigation();
+
+  // Update individual card states when allCardsExpanded changes
+  useEffect(() => {
+    const newIndividualStates: Record<string, boolean> = {};
+    dealStructure.forEach(offer => {
+      newIndividualStates[offer.lenderName] = allCardsExpanded;
+    });
+    setIndividualCardStates(newIndividualStates);
+  }, [allCardsExpanded, dealStructure]);
 
   // Check if there's a lender in URL to pre-select it
   useEffect(() => {
@@ -66,18 +78,6 @@ const DealStructureSection: React.FC<DealStructureSectionProps> = ({
     navigateToFinancialSection(lenderName, section);
   };
 
-  const handleExpandAllCards = () => {
-    const newState = !allCardsExpanded;
-    setAllCardsExpanded(newState);
-    
-    // Update individual card states
-    const newIndividualStates: Record<string, boolean> = {};
-    dealStructure.forEach(offer => {
-      newIndividualStates[offer.lenderName] = newState;
-    });
-    setIndividualCardStates(newIndividualStates);
-  };
-
   const handleIndividualCardToggle = (lenderName: string, newState: boolean) => {
     setIndividualCardStates(prev => ({
       ...prev,
@@ -89,10 +89,12 @@ const DealStructureSection: React.FC<DealStructureSectionProps> = ({
     const allExpanded = dealStructure.every(offer => updatedStates[offer.lenderName] === true);
     const allCollapsed = dealStructure.every(offer => updatedStates[offer.lenderName] === false);
     
-    if (allExpanded) {
-      setAllCardsExpanded(true);
-    } else if (allCollapsed) {
-      setAllCardsExpanded(false);
+    if (onAllCardsExpandedChange) {
+      if (allExpanded) {
+        onAllCardsExpandedChange(true);
+      } else if (allCollapsed) {
+        onAllCardsExpandedChange(false);
+      }
     }
   };
 
@@ -105,29 +107,9 @@ const DealStructureSection: React.FC<DealStructureSectionProps> = ({
       <CardContent className="p-6">
         <div className="flex justify-between items-center mb-1">
           <h3 className="text-lg font-semibold">{title}</h3>
-          <div className="flex items-center gap-2">
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={handleExpandAllCards}
-              className="flex items-center gap-1"
-            >
-              {allCardsExpanded ? (
-                <>
-                  <Minimize className="h-4 w-4" />
-                  Collapse All
-                </>
-              ) : (
-                <>
-                  <Expand className="h-4 w-4" />
-                  Expand All
-                </>
-              )}
-            </Button>
-            <Button variant="ghost" size="icon" onClick={() => setIsExpanded(!isExpanded)}>
-              {isExpanded ? <ChevronUp className="h-5 w-5 text-gray-400" /> : <ChevronDown className="h-5 w-5 text-gray-400" />}
-            </Button>
-          </div>
+          <Button variant="ghost" size="icon" onClick={() => setIsExpanded(!isExpanded)}>
+            {isExpanded ? <ChevronUp className="h-5 w-5 text-gray-400" /> : <ChevronDown className="h-5 w-5 text-gray-400" />}
+          </Button>
         </div>
         
         <Separator className="mb-1" />

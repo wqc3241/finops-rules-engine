@@ -1,7 +1,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, Expand, Minimize } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ApplicationData from './ApplicationData';
 import CombinedFinancialView from './CombinedFinancialView';
@@ -27,9 +27,18 @@ const CombinedApplicationView: React.FC<CombinedApplicationViewProps> = ({
     order: true
   });
 
+  const [allExpanded, setAllExpanded] = useState(true);
+  const [allCardsExpanded, setAllCardsExpanded] = useState(false);
+
   const detailsRef = useRef<HTMLDivElement>(null);
   const financialRef = useRef<HTMLDivElement>(null);
   const orderRef = useRef<HTMLDivElement>(null);
+
+  // Update allExpanded state when individual sections change
+  useEffect(() => {
+    const allSectionsExpanded = expandedSections.details && expandedSections.financial && expandedSections.order;
+    setAllExpanded(allSectionsExpanded);
+  }, [expandedSections]);
 
   // Auto-scroll to section when activeSection changes
   useEffect(() => {
@@ -99,6 +108,17 @@ const CombinedApplicationView: React.FC<CombinedApplicationViewProps> = ({
     toggleSection(section);
   };
 
+  const handleExpandAll = () => {
+    const newState = !allExpanded;
+    setAllExpanded(newState);
+    setAllCardsExpanded(newState);
+    setExpandedSections({
+      details: newState,
+      financial: newState,
+      order: newState
+    });
+  };
+
   const getFinancialSummaryWithPresentedLender = () => {
     const financialSummary = { ...applicationFullDetails.financialSummary };
     
@@ -117,6 +137,28 @@ const CombinedApplicationView: React.FC<CombinedApplicationViewProps> = ({
 
   return (
     <div className="space-y-6">
+      {/* Global Expand All Button */}
+      <div className="flex justify-end mb-4">
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={handleExpandAll}
+          className="flex items-center gap-1"
+        >
+          {allExpanded ? (
+            <>
+              <Minimize className="h-4 w-4" />
+              Collapse All
+            </>
+          ) : (
+            <>
+              <Expand className="h-4 w-4" />
+              Expand All
+            </>
+          )}
+        </Button>
+      </div>
+
       {/* Application Details Section */}
       <div ref={detailsRef} id="details-section">
         <Collapsible open={expandedSections.details}>
@@ -172,6 +214,8 @@ const CombinedApplicationView: React.FC<CombinedApplicationViewProps> = ({
                   financialSummary={getFinancialSummaryWithPresentedLender()}
                   dealStructure={applicationFullDetails.dealStructure}
                   applicationType={applicationType}
+                  allCardsExpanded={allCardsExpanded}
+                  onAllCardsExpandedChange={setAllCardsExpanded}
                 />
               </div>
             </CollapsibleContent>
