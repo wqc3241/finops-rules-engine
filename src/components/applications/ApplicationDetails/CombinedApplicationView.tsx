@@ -88,6 +88,17 @@ const CombinedApplicationView: React.FC<CombinedApplicationViewProps> = ({
     }));
   };
 
+  const handleSectionClick = (section: keyof typeof expandedSections) => (e: React.MouseEvent) => {
+    // Prevent toggle when clicking on buttons or interactive elements
+    const target = e.target as HTMLElement;
+    if (target.closest('button') || target.closest('a') || target.closest('[role="button"]') || target.closest('input') || target.closest('select')) {
+      return;
+    }
+    
+    // Toggle the section expansion
+    toggleSection(section);
+  };
+
   const getFinancialSummaryWithPresentedLender = () => {
     const financialSummary = { ...applicationFullDetails.financialSummary };
     
@@ -108,11 +119,8 @@ const CombinedApplicationView: React.FC<CombinedApplicationViewProps> = ({
     <div className="space-y-6">
       {/* Application Details Section */}
       <div ref={detailsRef} id="details-section">
-        <Collapsible 
-          open={expandedSections.details} 
-          onOpenChange={() => toggleSection('details')}
-        >
-          <div className="bg-white border border-gray-200 rounded-lg">
+        <Collapsible open={expandedSections.details}>
+          <div className="bg-white border border-gray-200 rounded-lg cursor-pointer" onClick={handleSectionClick('details')}>
             <div className="flex items-center justify-between p-4">
               <h2 className="text-lg font-semibold">Application Details</h2>
               <div className="flex items-center gap-2">
@@ -144,11 +152,8 @@ const CombinedApplicationView: React.FC<CombinedApplicationViewProps> = ({
 
       {/* Financial Summary Section */}
       <div ref={financialRef} id="financial-section">
-        <Collapsible 
-          open={expandedSections.financial} 
-          onOpenChange={() => toggleSection('financial')}
-        >
-          <div className="bg-white border border-gray-200 rounded-lg">
+        <Collapsible open={expandedSections.financial}>
+          <div className="bg-white border border-gray-200 rounded-lg cursor-pointer" onClick={handleSectionClick('financial')}>
             <div className="flex items-center justify-between p-4">
               <h2 className="text-lg font-semibold">Financial Summary</h2>
               <CollapsibleTrigger asChild>
@@ -176,11 +181,8 @@ const CombinedApplicationView: React.FC<CombinedApplicationViewProps> = ({
 
       {/* Order Details Section */}
       <div ref={orderRef} id="order-section">
-        <Collapsible 
-          open={expandedSections.order} 
-          onOpenChange={() => toggleSection('order')}
-        >
-          <div className="bg-white border border-gray-200 rounded-lg">
+        <Collapsible open={expandedSections.order}>
+          <div className="bg-white border border-gray-200 rounded-lg cursor-pointer" onClick={handleSectionClick('order')}>
             <div className="flex items-center justify-between p-4">
               <h2 className="text-lg font-semibold">Order Details</h2>
               <CollapsibleTrigger asChild>
