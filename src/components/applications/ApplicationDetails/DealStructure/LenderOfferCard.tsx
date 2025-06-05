@@ -11,6 +11,7 @@ interface LenderOfferCardProps {
   offer: DealStructureOffer;
   isExpanded: boolean;
   isSelected: boolean;
+  isCardExpanded?: boolean;
   onSelectOffer: (offerLender: string) => void;
   onPresentToCustomer?: (lenderName: string) => void;
   showFinancialDetailButton?: boolean;
@@ -18,6 +19,7 @@ interface LenderOfferCardProps {
   onViewRequestedFinancial?: () => void;
   onViewApprovedFinancial?: () => void;
   onViewCustomerFinancial?: () => void;
+  onCardToggle?: (newState: boolean) => void;
   financialSummary?: FinancialSummary;
 }
 
@@ -25,6 +27,7 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
   offer, 
   isExpanded, 
   isSelected, 
+  isCardExpanded = false,
   onSelectOffer, 
   onPresentToCustomer,
   showFinancialDetailButton = false,
@@ -32,9 +35,9 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
   onViewRequestedFinancial,
   onViewApprovedFinancial,
   onViewCustomerFinancial,
+  onCardToggle,
   financialSummary
 }) => {
-  const [isCardExpanded, setIsCardExpanded] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [showFinancialSummary, setShowFinancialSummary] = useState(false);
   const [selectedSection, setSelectedSection] = useState<'requested' | 'approved' | 'customer'>('approved');
@@ -66,6 +69,23 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
       description: `${offer.lenderName} deal has been sent to DT successfully.`,
       duration: 3000
     });
+  };
+
+  const handleToggleExpand = () => {
+    const newState = !isCardExpanded;
+    if (onCardToggle) {
+      onCardToggle(newState);
+    }
+  };
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Prevent toggle when clicking on buttons or interactive elements
+    const target = e.target as HTMLElement;
+    if (target.closest('button') || target.closest('a') || target.closest('[role="button"]')) {
+      return;
+    }
+    
+    handleToggleExpand();
   };
 
   const handleViewFinancialDetail = (section: 'requested' | 'approved' | 'customer' = 'approved') => {
@@ -107,14 +127,17 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
   };
 
   return (
-    <Card className={`shadow-sm transition-all ${isSelected ? 'border-green-500 border-2' : ''}`}>
+    <Card 
+      className={`shadow-sm transition-all cursor-pointer ${isSelected ? 'border-green-500 border-2' : ''}`}
+      onClick={handleCardClick}
+    >
       <CardContent className="p-6">
         <CardHeader 
           lenderName={offer.lenderName}
           status={offer.status}
           isExpanded={cardIsExpanded}
           isSelected={isSelected}
-          onToggleExpand={() => setIsCardExpanded(!isCardExpanded)}
+          onToggleExpand={handleToggleExpand}
           onPresentToCustomer={handlePresentToCustomer}
           onSendToDT={handleSendToDT}
           onEditOffer={() => setIsEditDialogOpen(true)}
@@ -129,7 +152,7 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
           isEditDialogOpen={isEditDialogOpen}
           financialSummary={financialSummary}
           showFinancialDetailButton={showFinancialDetailButton}
-          onToggleExpand={setIsCardExpanded}
+          onToggleExpand={onCardToggle || (() => {})}
           onBackToDealStructure={handleBackToDealStructure}
           onViewFinancialDetail={handleViewFinancialDetail}
           onViewRequestedFinancial={() => handleViewFinancialDetail('requested')}
