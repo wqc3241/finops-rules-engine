@@ -65,6 +65,11 @@ const CombinedApplicationView: React.FC<CombinedApplicationViewProps> = ({
     return financialSummary;
   };
 
+  // Ensure applicationType is properly typed as 'Lease' | 'Loan'
+  const applicationType = (applicationFullDetails.details.type === 'Lease' || applicationFullDetails.details.type === 'Loan') 
+    ? applicationFullDetails.details.type as 'Lease' | 'Loan'
+    : 'Loan'; // fallback to 'Loan' if type is not recognized
+
   return (
     <div className="space-y-6">
       {/* Application Details Section */}
@@ -110,7 +115,7 @@ const CombinedApplicationView: React.FC<CombinedApplicationViewProps> = ({
             <CombinedFinancialView 
               financialSummary={getFinancialSummaryWithPresentedLender()}
               dealStructure={applicationFullDetails.dealStructure}
-              applicationType={applicationFullDetails.details.type}
+              applicationType={applicationType}
             />
           </CollapsibleContent>
         </Collapsible>
