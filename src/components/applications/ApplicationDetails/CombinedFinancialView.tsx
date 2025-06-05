@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import FinancialSummaryView from './FinancialSummaryView';
 import DealStructureContainer from './DealStructure/DealStructureContainer';
 import { FinancialSummary, DealStructureOffer } from '@/types/application';
-import { Card } from '@/components/ui/card';
 import { useDealFinancialNavigation } from '@/hooks/useDealFinancialNavigation';
 
 interface CombinedFinancialViewProps {
@@ -62,7 +61,7 @@ const CombinedFinancialView: React.FC<CombinedFinancialViewProps> = ({
   }
 
   return (
-    <Card className="mb-6">
+    <>
       {showFinancialDetail ? (
         <FinancialSummaryView 
           financialSummary={financialSummary} 
@@ -82,7 +81,7 @@ const CombinedFinancialView: React.FC<CombinedFinancialViewProps> = ({
           onViewCustomerFinancial={handleViewCustomerFinancial}
         />
       )}
-    </Card>
+    </>
   );
 };
 
