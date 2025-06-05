@@ -19,7 +19,7 @@ interface CollapsibleCardContentProps {
   isEditDialogOpen: boolean;
   financialSummary?: FinancialSummary;
   showFinancialDetailButton?: boolean;
-  onToggleExpand: (value: boolean) => void;
+  onToggleExpand: (value?: boolean) => void;
   onBackToDealStructure: () => void;
   onViewFinancialDetail: (section: 'requested' | 'approved' | 'customer') => void;
   onViewRequestedFinancial?: () => void;
@@ -60,13 +60,19 @@ const CollapsibleCardContent: React.FC<CollapsibleCardContentProps> = ({
     downPayment: offer.customer.find(item => item.name === 'ccrDownPayment')?.value || ''
   };
 
-  const handleCollapsibleClick = (e: React.MouseEvent) => {
-    // Prevent event bubbling to parent card
-    e.stopPropagation();
+  const handleClick = (e: React.MouseEvent) => {
+    // Prevent toggle when clicking on buttons or interactive elements
+    const target = e.target as HTMLElement;
+    if (target.closest('button') || target.closest('a') || target.closest('[role="button"]') || target.closest('input') || target.closest('select')) {
+      return;
+    }
+    
+    // Toggle the card expansion
+    onToggleExpand();
   };
 
   return (
-    <div onClick={handleCollapsibleClick}>
+    <div onClick={handleClick} className="cursor-pointer">
       <Collapsible open={isCardExpanded} onOpenChange={onToggleExpand}>
         <Separator className="mb-1" />
 
