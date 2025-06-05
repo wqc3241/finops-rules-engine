@@ -2,6 +2,7 @@
 import React, { useState, useRef } from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ChevronDown, ChevronUp } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import ApplicationData from './ApplicationData';
 import CombinedFinancialView from './CombinedFinancialView';
 import OrderDetailsView from './OrderDetailsView';
@@ -81,15 +82,18 @@ const CombinedApplicationView: React.FC<CombinedApplicationViewProps> = ({
           <div className="bg-white border border-gray-200 rounded-lg">
             <div className="flex items-center justify-between p-4">
               <h2 className="text-lg font-semibold">Application Details</h2>
-              <CollapsibleTrigger asChild>
-                <button className="text-gray-400 hover:text-gray-600">
-                  {expandedSections.details ? (
-                    <ChevronUp className="h-5 w-5" />
-                  ) : (
-                    <ChevronDown className="h-5 w-5" />
-                  )}
-                </button>
-              </CollapsibleTrigger>
+              <div className="flex items-center gap-2">
+                <Button variant="outline">Edit</Button>
+                <CollapsibleTrigger asChild>
+                  <button className="text-gray-400 hover:text-gray-600">
+                    {expandedSections.details ? (
+                      <ChevronUp className="h-5 w-5" />
+                    ) : (
+                      <ChevronDown className="h-5 w-5" />
+                    )}
+                  </button>
+                </CollapsibleTrigger>
+              </div>
             </div>
             <CollapsibleContent>
               <div className="px-4 pb-4">
