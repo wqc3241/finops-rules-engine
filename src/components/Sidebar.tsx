@@ -79,7 +79,7 @@ const Sidebar = ({ open, activeItem, setActiveItem }: SidebarProps) => {
       path: '/tasks'
     },
     {
-      title: 'LFS Setup',
+      title: 'Financing Config',
       icon: <Settings className="h-5 w-5" />,
       path: '/lfs-setup'
     },

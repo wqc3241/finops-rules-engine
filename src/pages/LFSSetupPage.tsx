@@ -7,12 +7,12 @@ import Dashboard from "@/components/Dashboard";
 const LFSSetupPage = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   
-  // Setting directly to "LFS Setup" instead of "Business Reference Data"
-  const [activeItem, setActiveItem] = useState('LFS Setup');
+  // Setting directly to "Financing Config" instead of "LFS Setup"
+  const [activeItem, setActiveItem] = useState('Financing Config');
 
   // Make sure useEffect sets the same value
   useEffect(() => {
-    setActiveItem('LFS Setup');
+    setActiveItem('Financing Config');
   }, []);
 
   return (

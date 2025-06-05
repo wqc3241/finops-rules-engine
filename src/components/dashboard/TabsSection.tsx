@@ -51,7 +51,7 @@ const TabsSection = ({
 
   // Use the appropriate tabs component based on activeSection
   switch(activeSection) {
-    case "LFS Setup": 
+    case "Financing Config": 
       return (
         <div className="relative">
           {showBatchOperations && (
