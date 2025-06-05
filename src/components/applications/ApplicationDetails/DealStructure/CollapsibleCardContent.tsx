@@ -61,6 +61,9 @@ const CollapsibleCardContent: React.FC<CollapsibleCardContentProps> = ({
   };
 
   const handleClick = (e: React.MouseEvent) => {
+    // Stop event from bubbling up to parent sections
+    e.stopPropagation();
+    
     // Prevent toggle when clicking on buttons or interactive elements
     const target = e.target as HTMLElement;
     if (target.closest('button') || target.closest('a') || target.closest('[role="button"]') || target.closest('input') || target.closest('select')) {
