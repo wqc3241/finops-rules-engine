@@ -78,22 +78,30 @@ const CombinedApplicationView: React.FC<CombinedApplicationViewProps> = ({
           open={expandedSections.details} 
           onOpenChange={() => toggleSection('details')}
         >
-          <CollapsibleTrigger className="flex items-center justify-between w-full p-4 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-            <h2 className="text-lg font-semibold">Application Details</h2>
-            {expandedSections.details ? (
-              <ChevronUp className="h-5 w-5 text-gray-500" />
-            ) : (
-              <ChevronDown className="h-5 w-5 text-gray-500" />
-            )}
-          </CollapsibleTrigger>
-          <CollapsibleContent className="mt-2">
-            <ApplicationData
-              applicantInfo={applicationFullDetails.applicantInfo}
-              coApplicantInfo={applicationFullDetails.coApplicantInfo}
-              vehicleData={applicationFullDetails.vehicleData}
-              appDtReferences={applicationFullDetails.appDtReferences}
-            />
-          </CollapsibleContent>
+          <div className="bg-white border border-gray-200 rounded-lg">
+            <div className="flex items-center justify-between p-4">
+              <h2 className="text-lg font-semibold">Application Details</h2>
+              <CollapsibleTrigger asChild>
+                <button className="text-gray-400 hover:text-gray-600">
+                  {expandedSections.details ? (
+                    <ChevronUp className="h-5 w-5" />
+                  ) : (
+                    <ChevronDown className="h-5 w-5" />
+                  )}
+                </button>
+              </CollapsibleTrigger>
+            </div>
+            <CollapsibleContent>
+              <div className="px-4 pb-4">
+                <ApplicationData
+                  applicantInfo={applicationFullDetails.applicantInfo}
+                  coApplicantInfo={applicationFullDetails.coApplicantInfo}
+                  vehicleData={applicationFullDetails.vehicleData}
+                  appDtReferences={applicationFullDetails.appDtReferences}
+                />
+              </div>
+            </CollapsibleContent>
+          </div>
         </Collapsible>
       </div>
 
@@ -103,21 +111,29 @@ const CombinedApplicationView: React.FC<CombinedApplicationViewProps> = ({
           open={expandedSections.financial} 
           onOpenChange={() => toggleSection('financial')}
         >
-          <CollapsibleTrigger className="flex items-center justify-between w-full p-4 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-            <h2 className="text-lg font-semibold">Financial Summary</h2>
-            {expandedSections.financial ? (
-              <ChevronUp className="h-5 w-5 text-gray-500" />
-            ) : (
-              <ChevronDown className="h-5 w-5 text-gray-500" />
-            )}
-          </CollapsibleTrigger>
-          <CollapsibleContent className="mt-2">
-            <CombinedFinancialView 
-              financialSummary={getFinancialSummaryWithPresentedLender()}
-              dealStructure={applicationFullDetails.dealStructure}
-              applicationType={applicationType}
-            />
-          </CollapsibleContent>
+          <div className="bg-white border border-gray-200 rounded-lg">
+            <div className="flex items-center justify-between p-4">
+              <h2 className="text-lg font-semibold">Financial Summary</h2>
+              <CollapsibleTrigger asChild>
+                <button className="text-gray-400 hover:text-gray-600">
+                  {expandedSections.financial ? (
+                    <ChevronUp className="h-5 w-5" />
+                  ) : (
+                    <ChevronDown className="h-5 w-5" />
+                  )}
+                </button>
+              </CollapsibleTrigger>
+            </div>
+            <CollapsibleContent>
+              <div className="px-4 pb-4">
+                <CombinedFinancialView 
+                  financialSummary={getFinancialSummaryWithPresentedLender()}
+                  dealStructure={applicationFullDetails.dealStructure}
+                  applicationType={applicationType}
+                />
+              </div>
+            </CollapsibleContent>
+          </div>
         </Collapsible>
       </div>
 
@@ -127,17 +143,25 @@ const CombinedApplicationView: React.FC<CombinedApplicationViewProps> = ({
           open={expandedSections.order} 
           onOpenChange={() => toggleSection('order')}
         >
-          <CollapsibleTrigger className="flex items-center justify-between w-full p-4 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-            <h2 className="text-lg font-semibold">Order Details</h2>
-            {expandedSections.order ? (
-              <ChevronUp className="h-5 w-5 text-gray-500" />
-            ) : (
-              <ChevronDown className="h-5 w-5 text-gray-500" />
-            )}
-          </CollapsibleTrigger>
-          <CollapsibleContent className="mt-2">
-            <OrderDetailsView orderDetails={applicationFullDetails.orderDetails} />
-          </CollapsibleContent>
+          <div className="bg-white border border-gray-200 rounded-lg">
+            <div className="flex items-center justify-between p-4">
+              <h2 className="text-lg font-semibold">Order Details</h2>
+              <CollapsibleTrigger asChild>
+                <button className="text-gray-400 hover:text-gray-600">
+                  {expandedSections.order ? (
+                    <ChevronUp className="h-5 w-5" />
+                  ) : (
+                    <ChevronDown className="h-5 w-5" />
+                  )}
+                </button>
+              </CollapsibleTrigger>
+            </div>
+            <CollapsibleContent>
+              <div className="px-4 pb-4">
+                <OrderDetailsView orderDetails={applicationFullDetails.orderDetails} />
+              </div>
+            </CollapsibleContent>
+          </div>
         </Collapsible>
       </div>
     </div>
