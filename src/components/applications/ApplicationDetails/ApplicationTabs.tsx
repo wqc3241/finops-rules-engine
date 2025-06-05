@@ -45,7 +45,7 @@ const ApplicationTabs: React.FC<ApplicationTabsProps> = ({
   };
 
   return (
-    <div className="sticky top-16 z-10 bg-white border-b border-gray-200 mb-6">
+    <div className="sticky top-32 z-10 bg-gray-50 border-b border-gray-200 mb-6">
       <nav className="flex -mb-px">
         {tabs.map(tab => (
           <button
