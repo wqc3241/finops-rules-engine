@@ -1,52 +1,25 @@
 
 import { ApplicationFullDetails, DealStructureOffer } from '@/types/application';
-import { FundingKPIs } from '@/types/application/funding';
+import { FundingDateTimes } from '@/types/application/funding';
 
-export const extractFundingKPIs = (applicationData: ApplicationFullDetails): FundingKPIs => {
-  // Find the contracted/selected lender (first approved offer for now)
-  const contractedOffer = applicationData.dealStructure?.find(offer => 
-    offer.contractStatus === 'Contracted' || offer.approved?.length > 0
-  );
-
-  // Extract total deal value from order details
-  const totalDealValue = parseFloat(
-    applicationData.orderDetails?.sale?.amountFinanced?.replace(/[$,]/g, '') || '0'
-  );
-
-  // Extract down payment from contracted offer
-  const downPaymentAmount = contractedOffer?.customer?.find(item => 
-    item.name === 'downPayment' || item.name === 'ccrDownPayment'
-  )?.value ? parseFloat(contractedOffer.customer.find(item => 
-    item.name === 'downPayment' || item.name === 'ccrDownPayment'
-  )!.value.replace(/[$,]/g, '')) : 0;
-
-  // Extract monthly payment from contracted offer
-  const monthlyPayment = contractedOffer?.collapsedView?.monthlyPayments ? 
-    parseFloat(contractedOffer.collapsedView.monthlyPayments.replace(/[$,]/g, '')) : 0;
-
-  // Calculate LTV ratio
-  const vehicleValue = parseFloat(
-    applicationData.vehicleData?.msrp?.replace(/[$,]/g, '') || '0'
-  );
-  const ltvRatio = vehicleValue > 0 ? (totalDealValue / vehicleValue) * 100 : 0;
-
-  // Calculate expected funding date (application date + estimated processing time)
-  const applicationDate = new Date(applicationData.appDtReferences?.applicationDate || Date.now());
-  const expectedFundingDate = new Date(applicationDate);
-  expectedFundingDate.setDate(expectedFundingDate.getDate() + 14); // 14 days from application
-
-  const today = new Date();
-  const daysToFunding = Math.ceil(
-    (expectedFundingDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
-  );
-
+export const extractFundingDateTimes = (applicationData: ApplicationFullDetails): FundingDateTimes => {
+  // Extract datetime values from application data
+  const applicationDate = applicationData.appDtReferences?.applicationDate;
+  
   return {
-    totalDealValue,
-    downPaymentAmount,
-    monthlyPayment,
-    ltvRatio: Math.round(ltvRatio * 100) / 100,
-    expectedFundingDate: expectedFundingDate.toLocaleDateString(),
-    daysToFunding: Math.max(0, daysToFunding)
+    initiatedDateTime: applicationDate || null,
+    originalFundingSubmissionDateTime: null, // Would come from funding submission records
+    latestFundingSubmissionDateTime: null,
+    originalContractPendingDocsDateTime: null, // Would come from contract status changes
+    latestContractPendingDocsDateTime: null,
+    originalContractReturnedDateTime: null,
+    latestContractReturnedDateTime: null,
+    contractPartiallySignedDateTime: null, // Would come from signature tracking
+    contractSignedDateTime: null,
+    bookedDateTime: null, // Would come from booking records
+    originalAppSubmittedDateTime: applicationDate || null,
+    latestAppSubmittedDateTime: applicationDate || null,
+    currentDecisionDateTime: null // Would come from latest decision record
   };
 };
 
@@ -68,6 +41,18 @@ export const formatCurrency = (amount: number): string => {
 
 export const formatPercentage = (value: number): string => {
   return `${value.toFixed(2)}%`;
+};
+
+export const formatDateTime = (dateTime: string | null): string => {
+  if (!dateTime) return 'Not Set';
+  return new Date(dateTime).toLocaleString('en-US', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  });
 };
 
 export const calculateVariance = (expected: number | null, actual: number | null): number | null => {

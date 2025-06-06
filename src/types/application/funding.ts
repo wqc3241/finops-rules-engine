@@ -27,13 +27,20 @@ export interface CaseStatus {
   autoClosedAt: string | null;
 }
 
-export interface FundingKPIs {
-  totalDealValue: number;
-  downPaymentAmount: number;
-  monthlyPayment: number;
-  ltvRatio: number;
-  expectedFundingDate: string;
-  daysToFunding: number;
+export interface FundingDateTimes {
+  initiatedDateTime: string | null;
+  originalFundingSubmissionDateTime: string | null;
+  latestFundingSubmissionDateTime: string | null;
+  originalContractPendingDocsDateTime: string | null;
+  latestContractPendingDocsDateTime: string | null;
+  originalContractReturnedDateTime: string | null;
+  latestContractReturnedDateTime: string | null;
+  contractPartiallySignedDateTime: string | null;
+  contractSignedDateTime: string | null;
+  bookedDateTime: string | null;
+  originalAppSubmittedDateTime: string | null;
+  latestAppSubmittedDateTime: string | null;
+  currentDecisionDateTime: string | null;
 }
 
 export interface FundingData {
@@ -41,7 +48,7 @@ export interface FundingData {
   variance: VarianceData;
   documents: DocumentStatus;
   caseManagement: CaseStatus;
-  kpis: FundingKPIs;
+  dateTimes: FundingDateTimes;
 }
 
 // Picklist options

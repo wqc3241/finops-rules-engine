@@ -18,10 +18,11 @@ import {
   LenderHeldReason 
 } from '@/types/application/funding';
 import { 
-  extractFundingKPIs, 
+  extractFundingDateTimes, 
   getContractedLender, 
   formatCurrency, 
   formatPercentage,
+  formatDateTime,
   calculateVariance 
 } from '@/utils/fundingDataUtils';
 
@@ -54,7 +55,7 @@ const FundingView: React.FC<FundingViewProps> = ({ applicationFullDetails }) => 
       autoOpenedAt: null,
       autoClosedAt: null
     },
-    kpis: extractFundingKPIs(applicationFullDetails)
+    dateTimes: extractFundingDateTimes(applicationFullDetails)
   });
 
   // Calculate variance whenever expected or actual amounts change
@@ -142,36 +143,64 @@ const FundingView: React.FC<FundingViewProps> = ({ applicationFullDetails }) => 
 
   return (
     <div className="space-y-6">
-      {/* KPI Section */}
+      {/* DateTime Tracking Section */}
       <Card>
         <CardHeader>
-          <CardTitle>Funding / BO KPIs</CardTitle>
+          <CardTitle>Funding Timeline</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-primary">{formatCurrency(fundingData.kpis.totalDealValue)}</div>
-              <div className="text-sm text-muted-foreground">Total Deal Value</div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div>
+              <Label className="text-sm font-medium">Initiated DateTime</Label>
+              <div className="text-sm text-muted-foreground">{formatDateTime(fundingData.dateTimes.initiatedDateTime)}</div>
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-primary">{formatCurrency(fundingData.kpis.downPaymentAmount)}</div>
-              <div className="text-sm text-muted-foreground">Down Payment</div>
+            <div>
+              <Label className="text-sm font-medium">Original Funding Submission DateTime</Label>
+              <div className="text-sm text-muted-foreground">{formatDateTime(fundingData.dateTimes.originalFundingSubmissionDateTime)}</div>
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-primary">{formatCurrency(fundingData.kpis.monthlyPayment)}</div>
-              <div className="text-sm text-muted-foreground">Monthly Payment</div>
+            <div>
+              <Label className="text-sm font-medium">Latest Funding Submission DateTime</Label>
+              <div className="text-sm text-muted-foreground">{formatDateTime(fundingData.dateTimes.latestFundingSubmissionDateTime)}</div>
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-primary">{formatPercentage(fundingData.kpis.ltvRatio)}</div>
-              <div className="text-sm text-muted-foreground">LTV Ratio</div>
+            <div>
+              <Label className="text-sm font-medium">Original Contract Pending Docs DateTime</Label>
+              <div className="text-sm text-muted-foreground">{formatDateTime(fundingData.dateTimes.originalContractPendingDocsDateTime)}</div>
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-primary">{fundingData.kpis.expectedFundingDate}</div>
-              <div className="text-sm text-muted-foreground">Expected Funding</div>
+            <div>
+              <Label className="text-sm font-medium">Latest Contract Pending Docs DateTime</Label>
+              <div className="text-sm text-muted-foreground">{formatDateTime(fundingData.dateTimes.latestContractPendingDocsDateTime)}</div>
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-primary">{fundingData.kpis.daysToFunding}</div>
-              <div className="text-sm text-muted-foreground">Days to Funding</div>
+            <div>
+              <Label className="text-sm font-medium">Original Contract Returned DateTime</Label>
+              <div className="text-sm text-muted-foreground">{formatDateTime(fundingData.dateTimes.originalContractReturnedDateTime)}</div>
+            </div>
+            <div>
+              <Label className="text-sm font-medium">Latest Contract Returned DateTime</Label>
+              <div className="text-sm text-muted-foreground">{formatDateTime(fundingData.dateTimes.latestContractReturnedDateTime)}</div>
+            </div>
+            <div>
+              <Label className="text-sm font-medium">Contract Partially Signed DateTime</Label>
+              <div className="text-sm text-muted-foreground">{formatDateTime(fundingData.dateTimes.contractPartiallySignedDateTime)}</div>
+            </div>
+            <div>
+              <Label className="text-sm font-medium">Contract Signed DateTime</Label>
+              <div className="text-sm text-muted-foreground">{formatDateTime(fundingData.dateTimes.contractSignedDateTime)}</div>
+            </div>
+            <div>
+              <Label className="text-sm font-medium">Booked DateTime</Label>
+              <div className="text-sm text-muted-foreground">{formatDateTime(fundingData.dateTimes.bookedDateTime)}</div>
+            </div>
+            <div>
+              <Label className="text-sm font-medium">Original App Submitted DateTime</Label>
+              <div className="text-sm text-muted-foreground">{formatDateTime(fundingData.dateTimes.originalAppSubmittedDateTime)}</div>
+            </div>
+            <div>
+              <Label className="text-sm font-medium">Latest App Submitted DateTime</Label>
+              <div className="text-sm text-muted-foreground">{formatDateTime(fundingData.dateTimes.latestAppSubmittedDateTime)}</div>
+            </div>
+            <div>
+              <Label className="text-sm font-medium">Current Decision DateTime</Label>
+              <div className="text-sm text-muted-foreground">{formatDateTime(fundingData.dateTimes.currentDecisionDateTime)}</div>
             </div>
           </div>
         </CardContent>
