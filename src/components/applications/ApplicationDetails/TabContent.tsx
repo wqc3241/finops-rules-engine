@@ -3,6 +3,7 @@ import React from 'react';
 import ApplicationHistoryView from '@/components/applications/ApplicationDetails/ApplicationHistoryView';
 import NotesView from '@/components/applications/ApplicationDetails/NotesView';
 import RiskComplianceView from '@/components/applications/ApplicationDetails/RiskComplianceView';
+import FundingView from '@/components/applications/ApplicationDetails/FundingView';
 import CombinedApplicationView from './CombinedApplicationView';
 import { Note } from '@/types/application';
 import { mockRiskComplianceData } from '@/data/mock/riskCompliance';
@@ -21,6 +22,8 @@ const TabContent: React.FC<TabContentProps> = ({
   onActiveSectionChange
 }) => {
   switch (tab) {
+    case 'funding':
+      return <FundingView applicationFullDetails={applicationFullDetails} />;
     case 'risk-compliance':
       return (
         <RiskComplianceView

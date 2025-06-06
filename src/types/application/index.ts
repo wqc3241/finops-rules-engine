@@ -17,3 +17,5 @@ export * from './financial';
 export * from './report';
 // Export application details types
 export * from './details';
+// Export funding types
+export * from './funding';
