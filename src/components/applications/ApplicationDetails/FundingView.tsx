@@ -130,7 +130,7 @@ const FundingView: React.FC<FundingViewProps> = ({ applicationFullDetails }) => 
         </CardContent>
       </Card>
 
-      {/* Full Customer Financial Summary Section */}
+      {/* Customer Financial Summary Section */}
       <Card>
         <CardHeader>
           <CardTitle>Complete Customer Financial Summary</CardTitle>
