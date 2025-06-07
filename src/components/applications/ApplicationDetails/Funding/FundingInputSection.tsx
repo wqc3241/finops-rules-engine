@@ -33,8 +33,57 @@ const FundingInputSection: React.FC<FundingInputSectionProps> = ({
         <CardTitle className="text-lg">Funding Input & Variance Tracking</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4 pt-2">
-        {/* Funding Input Section */}
+        {/* Variance Tracking Section */}
         <div className="space-y-3">
+          <h3 className="text-sm font-medium text-muted-foreground">Variance Tracking</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="space-y-1">
+              <Label htmlFor="expectedFunding" className="text-xs">Expected Funding Amount</Label>
+              <Input
+                id="expectedFunding"
+                type="number"
+                placeholder="Enter expected amount"
+                value={variance.expectedFundingAmount || ''}
+                onChange={(e) => onUpdateVariance('expectedFundingAmount', e.target.value ? parseFloat(e.target.value) : null)}
+                className="h-8"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="actualFunding" className="text-xs">Actual Funding Amount</Label>
+              <Input
+                id="actualFunding"
+                type="number"
+                placeholder="Enter actual amount"
+                value={variance.actualFundingAmount || ''}
+                onChange={(e) => onUpdateVariance('actualFundingAmount', e.target.value ? parseFloat(e.target.value) : null)}
+                className="h-8"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="variance" className="text-xs">Variance (Auto-calculated)</Label>
+              <Input
+                id="variance"
+                type="number"
+                value={variance.variance || ''}
+                readOnly
+                className="bg-muted h-8"
+              />
+            </div>
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="varianceNotes" className="text-xs">Variance Notes</Label>
+            <Textarea
+              id="varianceNotes"
+              placeholder="Enter variance notes"
+              value={variance.varianceNotes}
+              onChange={(e) => onUpdateVariance('varianceNotes', e.target.value)}
+              className="min-h-[60px]"
+            />
+          </div>
+        </div>
+
+        {/* Funding Input Section */}
+        <div className="space-y-3 border-t pt-4">
           <h3 className="text-sm font-medium text-muted-foreground">Funding Input</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div className="space-y-1">
@@ -90,55 +139,6 @@ const FundingInputSection: React.FC<FundingInputSectionProps> = ({
                 ))}
               </SelectContent>
             </Select>
-          </div>
-        </div>
-
-        {/* Variance Tracking Section */}
-        <div className="space-y-3 border-t pt-4">
-          <h3 className="text-sm font-medium text-muted-foreground">Variance Tracking</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <div className="space-y-1">
-              <Label htmlFor="expectedFunding" className="text-xs">Expected Funding Amount</Label>
-              <Input
-                id="expectedFunding"
-                type="number"
-                placeholder="Enter expected amount"
-                value={variance.expectedFundingAmount || ''}
-                onChange={(e) => onUpdateVariance('expectedFundingAmount', e.target.value ? parseFloat(e.target.value) : null)}
-                className="h-8"
-              />
-            </div>
-            <div className="space-y-1">
-              <Label htmlFor="actualFunding" className="text-xs">Actual Funding Amount</Label>
-              <Input
-                id="actualFunding"
-                type="number"
-                placeholder="Enter actual amount"
-                value={variance.actualFundingAmount || ''}
-                onChange={(e) => onUpdateVariance('actualFundingAmount', e.target.value ? parseFloat(e.target.value) : null)}
-                className="h-8"
-              />
-            </div>
-            <div className="space-y-1">
-              <Label htmlFor="variance" className="text-xs">Variance (Auto-calculated)</Label>
-              <Input
-                id="variance"
-                type="number"
-                value={variance.variance || ''}
-                readOnly
-                className="bg-muted h-8"
-              />
-            </div>
-          </div>
-          <div className="space-y-1">
-            <Label htmlFor="varianceNotes" className="text-xs">Variance Notes</Label>
-            <Textarea
-              id="varianceNotes"
-              placeholder="Enter variance notes"
-              value={variance.varianceNotes}
-              onChange={(e) => onUpdateVariance('varianceNotes', e.target.value)}
-              className="min-h-[60px]"
-            />
           </div>
         </div>
       </CardContent>
