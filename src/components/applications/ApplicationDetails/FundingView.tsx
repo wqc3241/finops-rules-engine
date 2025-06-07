@@ -112,37 +112,40 @@ const FundingView: React.FC<FundingViewProps> = ({ applicationFullDetails }) => 
   };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       <FundingTimeline dateTimes={fundingData.dateTimes} />
 
-      {/* Full Application Details Section */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-lg">Complete Application Details</CardTitle>
-        </CardHeader>
-        <CardContent className="pt-2">
-          <ApplicationData
-            applicantInfo={applicationFullDetails.applicantInfo}
-            coApplicantInfo={applicationFullDetails.coApplicantInfo}
-            vehicleData={applicationFullDetails.vehicleData}
-            appDtReferences={applicationFullDetails.appDtReferences}
-          />
-        </CardContent>
-      </Card>
-
-      {/* Customer Financial Summary Section */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-lg">Complete Customer Financial Summary</CardTitle>
-        </CardHeader>
-        <CardContent className="pt-2">
-          {applicationFullDetails.financialSummary && (
-            <CustomerFinancialSummaryView 
-              financialSummary={applicationFullDetails.financialSummary}
+      {/* Side by side layout for Complete Application Details and Customer Financial Summary */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
+        {/* Complete Application Details Section */}
+        <Card>
+          <CardHeader className="pb-1">
+            <CardTitle className="text-base">Complete Application Details</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-1">
+            <ApplicationData
+              applicantInfo={applicationFullDetails.applicantInfo}
+              coApplicantInfo={applicationFullDetails.coApplicantInfo}
+              vehicleData={applicationFullDetails.vehicleData}
+              appDtReferences={applicationFullDetails.appDtReferences}
             />
-          )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+
+        {/* Customer Financial Summary Section */}
+        <Card>
+          <CardHeader className="pb-1">
+            <CardTitle className="text-base">Complete Customer Financial Summary</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-1">
+            {applicationFullDetails.financialSummary && (
+              <CustomerFinancialSummaryView 
+                financialSummary={applicationFullDetails.financialSummary}
+              />
+            )}
+          </CardContent>
+        </Card>
+      </div>
 
       <FundingInputSection 
         inputs={fundingData.inputs}
