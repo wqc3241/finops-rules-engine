@@ -59,13 +59,22 @@ export const SHORT_FUNDING_REASONS = [
 ] as const;
 
 export const LENDER_HELD_REASONS = [
-  'Pending Income Verification',
-  'Pending Insurance Documentation',
-  'Pending Trade-in Title',
-  'Credit Re-verification Required',
-  'Stipulation Outstanding',
-  'Contract Correction Needed',
-  'Other'
+  'Bona-fide Error',
+  'Vehicle Pricing Error',
+  'Capitalized Cost Reduction',
+  'Incorrect Applicant Information',
+  'Incorrect Taxes/Fees',
+  'Missing Taxes/Fees',
+  'Trade-in Error',
+  '2nd payment',
+  'Buydown Approval',
+  'Commerical Address',
+  'Invalid Signature',
+  'Missing POI',
+  'Missing PoR',
+  'Missing PRC/Non-Resident Documents',
+  'Payment Due Date',
+  'Rounding Error'
 ] as const;
 
 export type ShortFundingReason = typeof SHORT_FUNDING_REASONS[number];
