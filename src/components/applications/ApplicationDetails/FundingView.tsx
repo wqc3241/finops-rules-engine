@@ -1,32 +1,22 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
-import { FileText, Upload, CheckCircle, Clock, AlertCircle } from 'lucide-react';
 import { ApplicationFullDetails } from '@/types/application';
 import { 
   FundingData, 
-  SHORT_FUNDING_REASONS, 
-  LENDER_HELD_REASONS,
   ShortFundingReason,
   LenderHeldReason 
 } from '@/types/application/funding';
 import { 
   extractFundingDateTimes, 
-  getContractedLender, 
-  formatCurrency, 
-  formatPercentage,
-  formatDateTime,
   calculateVariance 
 } from '@/utils/fundingDataUtils';
 import ApplicationData from './ApplicationData';
 import FinancialSummaryView from './FinancialSummaryView';
+import FundingTimeline from './Funding/FundingTimeline';
+import FundingInputSection from './Funding/FundingInputSection';
+import VarianceTrackingSection from './Funding/VarianceTrackingSection';
+import DocumentSubmissionSection from './Funding/DocumentSubmissionSection';
 
 interface FundingViewProps {
   applicationFullDetails: ApplicationFullDetails;
@@ -71,8 +61,6 @@ const FundingView: React.FC<FundingViewProps> = ({ applicationFullDetails }) => 
       variance: { ...prev.variance, variance }
     }));
   }, [fundingData.variance.expectedFundingAmount, fundingData.variance.actualFundingAmount]);
-
-  const contractedLender = getContractedLender(applicationFullDetails.dealStructure || []);
 
   const updateInputs = (field: keyof FundingData['inputs'], value: string | number | null) => {
     setFundingData(prev => ({
@@ -123,90 +111,9 @@ const FundingView: React.FC<FundingViewProps> = ({ applicationFullDetails }) => 
     }));
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'pending': return <Clock className="h-4 w-4" />;
-      case 'generated': 
-      case 'submitted': return <Upload className="h-4 w-4" />;
-      case 'approved': return <CheckCircle className="h-4 w-4" />;
-      default: return <AlertCircle className="h-4 w-4" />;
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'pending': return 'secondary';
-      case 'generated': return 'default';
-      case 'submitted': return 'default';
-      case 'approved': return 'default';
-      default: return 'destructive';
-    }
-  };
-
   return (
     <div className="space-y-6">
-      {/* DateTime Tracking Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Funding Timeline</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div>
-              <Label className="text-sm font-medium">Initiated DateTime</Label>
-              <div className="text-sm text-muted-foreground">{formatDateTime(fundingData.dateTimes.initiatedDateTime)}</div>
-            </div>
-            <div>
-              <Label className="text-sm font-medium">Original Funding Submission DateTime</Label>
-              <div className="text-sm text-muted-foreground">{formatDateTime(fundingData.dateTimes.originalFundingSubmissionDateTime)}</div>
-            </div>
-            <div>
-              <Label className="text-sm font-medium">Latest Funding Submission DateTime</Label>
-              <div className="text-sm text-muted-foreground">{formatDateTime(fundingData.dateTimes.latestFundingSubmissionDateTime)}</div>
-            </div>
-            <div>
-              <Label className="text-sm font-medium">Original Contract Pending Docs DateTime</Label>
-              <div className="text-sm text-muted-foreground">{formatDateTime(fundingData.dateTimes.originalContractPendingDocsDateTime)}</div>
-            </div>
-            <div>
-              <Label className="text-sm font-medium">Latest Contract Pending Docs DateTime</Label>
-              <div className="text-sm text-muted-foreground">{formatDateTime(fundingData.dateTimes.latestContractPendingDocsDateTime)}</div>
-            </div>
-            <div>
-              <Label className="text-sm font-medium">Original Contract Returned DateTime</Label>
-              <div className="text-sm text-muted-foreground">{formatDateTime(fundingData.dateTimes.originalContractReturnedDateTime)}</div>
-            </div>
-            <div>
-              <Label className="text-sm font-medium">Latest Contract Returned DateTime</Label>
-              <div className="text-sm text-muted-foreground">{formatDateTime(fundingData.dateTimes.latestContractReturnedDateTime)}</div>
-            </div>
-            <div>
-              <Label className="text-sm font-medium">Contract Partially Signed DateTime</Label>
-              <div className="text-sm text-muted-foreground">{formatDateTime(fundingData.dateTimes.contractPartiallySignedDateTime)}</div>
-            </div>
-            <div>
-              <Label className="text-sm font-medium">Contract Signed DateTime</Label>
-              <div className="text-sm text-muted-foreground">{formatDateTime(fundingData.dateTimes.contractSignedDateTime)}</div>
-            </div>
-            <div>
-              <Label className="text-sm font-medium">Booked DateTime</Label>
-              <div className="text-sm text-muted-foreground">{formatDateTime(fundingData.dateTimes.bookedDateTime)}</div>
-            </div>
-            <div>
-              <Label className="text-sm font-medium">Original App Submitted DateTime</Label>
-              <div className="text-sm text-muted-foreground">{formatDateTime(fundingData.dateTimes.originalAppSubmittedDateTime)}</div>
-            </div>
-            <div>
-              <Label className="text-sm font-medium">Latest App Submitted DateTime</Label>
-              <div className="text-sm text-muted-foreground">{formatDateTime(fundingData.dateTimes.latestAppSubmittedDateTime)}</div>
-            </div>
-            <div>
-              <Label className="text-sm font-medium">Current Decision DateTime</Label>
-              <div className="text-sm text-muted-foreground">{formatDateTime(fundingData.dateTimes.currentDecisionDateTime)}</div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <FundingTimeline dateTimes={fundingData.dateTimes} />
 
       {/* Full Application Details Section */}
       <Card>
@@ -238,177 +145,21 @@ const FundingView: React.FC<FundingViewProps> = ({ applicationFullDetails }) => 
         </CardContent>
       </Card>
 
-      {/* Funding Input Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Funding Input Section</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="estShortFunding">Est. Short Funding Amount</Label>
-              <Input
-                id="estShortFunding"
-                type="number"
-                placeholder="Enter amount"
-                value={fundingData.inputs.estShortFundingAmount || ''}
-                onChange={(e) => updateInputs('estShortFundingAmount', e.target.value ? parseFloat(e.target.value) : null)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="shortFundingReason">Short Funding Reason</Label>
-              <Select
-                value={fundingData.inputs.shortFundingReason}
-                onValueChange={(value) => updateInputs('shortFundingReason', value as ShortFundingReason)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select reason" />
-                </SelectTrigger>
-                <SelectContent>
-                  {SHORT_FUNDING_REASONS.map((reason) => (
-                    <SelectItem key={reason} value={reason}>{reason}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="shortFundNotes">Short Fund Notes</Label>
-            <Textarea
-              id="shortFundNotes"
-              placeholder="Enter notes"
-              value={fundingData.inputs.shortFundNotes}
-              onChange={(e) => updateInputs('shortFundNotes', e.target.value)}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="lenderHeldReason">Lender Held Offering Reason</Label>
-            <Select
-              value={fundingData.inputs.lenderHeldOfferingReason}
-              onValueChange={(value) => updateInputs('lenderHeldOfferingReason', value as LenderHeldReason)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select reason" />
-              </SelectTrigger>
-              <SelectContent>
-                {LENDER_HELD_REASONS.map((reason) => (
-                  <SelectItem key={reason} value={reason}>{reason}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
+      <FundingInputSection 
+        inputs={fundingData.inputs}
+        onUpdateInputs={updateInputs}
+      />
 
-      {/* Variance Tracking Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Variance Tracking</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="expectedFunding">Expected Funding Amount</Label>
-              <Input
-                id="expectedFunding"
-                type="number"
-                placeholder="Enter expected amount"
-                value={fundingData.variance.expectedFundingAmount || ''}
-                onChange={(e) => updateVariance('expectedFundingAmount', e.target.value ? parseFloat(e.target.value) : null)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="actualFunding">Actual Funding Amount</Label>
-              <Input
-                id="actualFunding"
-                type="number"
-                placeholder="Enter actual amount"
-                value={fundingData.variance.actualFundingAmount || ''}
-                onChange={(e) => updateVariance('actualFundingAmount', e.target.value ? parseFloat(e.target.value) : null)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="variance">Variance (Auto-calculated)</Label>
-              <Input
-                id="variance"
-                type="number"
-                value={fundingData.variance.variance || ''}
-                readOnly
-                className="bg-muted"
-              />
-            </div>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="varianceNotes">Variance Notes</Label>
-            <Textarea
-              id="varianceNotes"
-              placeholder="Enter variance notes"
-              value={fundingData.variance.varianceNotes}
-              onChange={(e) => updateVariance('varianceNotes', e.target.value)}
-            />
-          </div>
-        </CardContent>
-      </Card>
+      <VarianceTrackingSection 
+        variance={fundingData.variance}
+        onUpdateVariance={updateVariance}
+      />
 
-      {/* Document Generation & CTA Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Document Generation & Submission</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="flex items-center justify-between p-3 border rounded">
-              <div className="flex items-center gap-2">
-                <FileText className="h-4 w-4" />
-                <span>DR0026 Form</span>
-              </div>
-              <Badge variant={getStatusColor(fundingData.documents.dr0026Form)}>
-                {getStatusIcon(fundingData.documents.dr0026Form)}
-                {fundingData.documents.dr0026Form}
-              </Badge>
-            </div>
-            <div className="flex items-center justify-between p-3 border rounded">
-              <div className="flex items-center gap-2">
-                <FileText className="h-4 w-4" />
-                <span>ST556 Form</span>
-              </div>
-              <Badge variant={getStatusColor(fundingData.documents.st556Form)}>
-                {getStatusIcon(fundingData.documents.st556Form)}
-                {fundingData.documents.st556Form}
-              </Badge>
-            </div>
-            <div className="flex items-center justify-between p-3 border rounded">
-              <div className="flex items-center gap-2">
-                <FileText className="h-4 w-4" />
-                <span>Letter of Guarantee</span>
-              </div>
-              <Badge variant={getStatusColor(fundingData.documents.letterOfGuarantee)}>
-                {getStatusIcon(fundingData.documents.letterOfGuarantee)}
-                {fundingData.documents.letterOfGuarantee}
-              </Badge>
-            </div>
-          </div>
-          
-          <Separator />
-          
-          <div className="flex flex-col sm:flex-row gap-4">
-            <Button onClick={handleSubmitForFunding} className="flex-1">
-              <Upload className="h-4 w-4 mr-2" />
-              Submit for Funding
-            </Button>
-            {fundingData.caseManagement.currentCaseId && (
-              <div className="flex items-center gap-2 text-sm">
-                <Badge variant="outline">
-                  Case: {fundingData.caseManagement.currentCaseId}
-                </Badge>
-                <Badge variant={fundingData.caseManagement.status === 'ready-for-funding' ? 'default' : 'secondary'}>
-                  {fundingData.caseManagement.status.replace('-', ' ')}
-                </Badge>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+      <DocumentSubmissionSection 
+        documents={fundingData.documents}
+        caseManagement={fundingData.caseManagement}
+        onSubmitForFunding={handleSubmitForFunding}
+      />
     </div>
   );
 };
