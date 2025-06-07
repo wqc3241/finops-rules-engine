@@ -9,9 +9,9 @@ interface VehicleDataSectionProps {
 
 const VehicleDataSection: React.FC<VehicleDataSectionProps> = ({ vehicleData }) => {
   return (
-    <section className="mt-6">
-      <h4 className="text-md font-medium mb-4">Vehicle Data</h4>
-      <div className="grid grid-cols-1 gap-y-3">
+    <section className="mt-3">
+      <h4 className="text-sm font-medium mb-2">Vehicle Data</h4>
+      <div className="grid grid-cols-1 gap-y-1">
         <DataField label="VIN" value={vehicleData.vin} />
         <DataField label="Trim" value={vehicleData.trim} />
         <DataField label="Year" value={vehicleData.year} />

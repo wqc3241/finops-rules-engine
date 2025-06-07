@@ -11,8 +11,8 @@ interface ApplicantSectionProps {
 const ApplicantSection: React.FC<ApplicantSectionProps> = ({ applicantInfo, title }) => {
   return (
     <section>
-      <h4 className="text-md font-medium mb-4">{title}</h4>
-      <div className="grid grid-cols-1 gap-y-3">
+      <h4 className="text-sm font-medium mb-2">{title}</h4>
+      <div className="grid grid-cols-1 gap-y-1">
         <DataField label="Relationship" value={applicantInfo.relationship} />
         <DataField label="First Name" value={applicantInfo.firstName} />
         <DataField label="Middle Name" value={applicantInfo.middleName} />
@@ -21,7 +21,7 @@ const ApplicantSection: React.FC<ApplicantSectionProps> = ({ applicantInfo, titl
         <DataField label="Contact Number" value={applicantInfo.contactNumber} />
         <DataField label="DOB" value={applicantInfo.dob} />
         
-        <h5 className="text-sm font-medium mt-4 mb-2">Housing Details</h5>
+        <h5 className="text-xs font-medium mt-2 mb-1">Housing Details</h5>
         <DataField label="Residence Type" value={applicantInfo.residenceType} />
         <DataField label="Housing Payment Amount (Monthly)" value={applicantInfo.housingPaymentAmount} />
         <DataField label="Address: House # & Street" value={applicantInfo.address} />
@@ -29,7 +29,7 @@ const ApplicantSection: React.FC<ApplicantSectionProps> = ({ applicantInfo, titl
         <DataField label="State" value={applicantInfo.state} />
         <DataField label="Zip Code" value={applicantInfo.zipCode} />
         
-        <h5 className="text-sm font-medium mt-4 mb-2">Employment Details</h5>
+        <h5 className="text-xs font-medium mt-2 mb-1">Employment Details</h5>
         <DataField label="Employment Type" value={applicantInfo.employmentType} />
         <DataField label="Employer Name" value={applicantInfo.employerName} />
         <DataField label="Job Title" value={applicantInfo.jobTitle} />
