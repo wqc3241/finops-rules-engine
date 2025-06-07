@@ -21,28 +21,29 @@ interface FundingInputSectionProps {
 const FundingInputSection: React.FC<FundingInputSectionProps> = ({ inputs, onUpdateInputs }) => {
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Funding Input Section</CardTitle>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-lg">Funding Input Section</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="estShortFunding">Est. Short Funding Amount</Label>
+      <CardContent className="space-y-3 pt-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="space-y-1">
+            <Label htmlFor="estShortFunding" className="text-xs">Est. Short Funding Amount</Label>
             <Input
               id="estShortFunding"
               type="number"
               placeholder="Enter amount"
               value={inputs.estShortFundingAmount || ''}
               onChange={(e) => onUpdateInputs('estShortFundingAmount', e.target.value ? parseFloat(e.target.value) : null)}
+              className="h-8"
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="shortFundingReason">Short Funding Reason</Label>
+          <div className="space-y-1">
+            <Label htmlFor="shortFundingReason" className="text-xs">Short Funding Reason</Label>
             <Select
               value={inputs.shortFundingReason}
               onValueChange={(value) => onUpdateInputs('shortFundingReason', value as ShortFundingReason)}
             >
-              <SelectTrigger>
+              <SelectTrigger className="h-8">
                 <SelectValue placeholder="Select reason" />
               </SelectTrigger>
               <SelectContent>
@@ -53,22 +54,23 @@ const FundingInputSection: React.FC<FundingInputSectionProps> = ({ inputs, onUpd
             </Select>
           </div>
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="shortFundNotes">Short Fund Notes</Label>
+        <div className="space-y-1">
+          <Label htmlFor="shortFundNotes" className="text-xs">Short Fund Notes</Label>
           <Textarea
             id="shortFundNotes"
             placeholder="Enter notes"
             value={inputs.shortFundNotes}
             onChange={(e) => onUpdateInputs('shortFundNotes', e.target.value)}
+            className="min-h-[60px]"
           />
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="lenderHeldReason">Lender Held Offering Reason</Label>
+        <div className="space-y-1">
+          <Label htmlFor="lenderHeldReason" className="text-xs">Lender Held Offering Reason</Label>
           <Select
             value={inputs.lenderHeldOfferingReason}
             onValueChange={(value) => onUpdateInputs('lenderHeldOfferingReason', value as LenderHeldReason)}
           >
-            <SelectTrigger>
+            <SelectTrigger className="h-8">
               <SelectValue placeholder="Select reason" />
             </SelectTrigger>
             <SelectContent>

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ApplicationFullDetails } from '@/types/application';
@@ -111,15 +112,15 @@ const FundingView: React.FC<FundingViewProps> = ({ applicationFullDetails }) => 
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <FundingTimeline dateTimes={fundingData.dateTimes} />
 
       {/* Full Application Details Section */}
       <Card>
-        <CardHeader>
-          <CardTitle>Complete Application Details</CardTitle>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg">Complete Application Details</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-2">
           <ApplicationData
             applicantInfo={applicationFullDetails.applicantInfo}
             coApplicantInfo={applicationFullDetails.coApplicantInfo}
@@ -131,10 +132,10 @@ const FundingView: React.FC<FundingViewProps> = ({ applicationFullDetails }) => 
 
       {/* Customer Financial Summary Section */}
       <Card>
-        <CardHeader>
-          <CardTitle>Complete Customer Financial Summary</CardTitle>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg">Complete Customer Financial Summary</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-2">
           {applicationFullDetails.financialSummary && (
             <CustomerFinancialSummaryView 
               financialSummary={applicationFullDetails.financialSummary}

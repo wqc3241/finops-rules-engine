@@ -20,11 +20,11 @@ const DocumentSubmissionSection: React.FC<DocumentSubmissionSectionProps> = ({
 }) => {
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'pending': return <Clock className="h-4 w-4" />;
+      case 'pending': return <Clock className="h-3 w-3" />;
       case 'generated': 
-      case 'submitted': return <Upload className="h-4 w-4" />;
-      case 'approved': return <CheckCircle className="h-4 w-4" />;
-      default: return <AlertCircle className="h-4 w-4" />;
+      case 'submitted': return <Upload className="h-3 w-3" />;
+      case 'approved': return <CheckCircle className="h-3 w-3" />;
+      default: return <AlertCircle className="h-3 w-3" />;
     }
   };
 
@@ -40,37 +40,37 @@ const DocumentSubmissionSection: React.FC<DocumentSubmissionSectionProps> = ({
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Document Generation & Submission</CardTitle>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-lg">Document Generation & Submission</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="flex items-center justify-between p-3 border rounded">
+      <CardContent className="space-y-3 pt-2">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className="flex items-center justify-between p-2 border rounded">
             <div className="flex items-center gap-2">
-              <FileText className="h-4 w-4" />
-              <span>DR0026 Form</span>
+              <FileText className="h-3 w-3" />
+              <span className="text-xs">DR0026 Form</span>
             </div>
-            <Badge variant={getStatusColor(documents.dr0026Form)}>
+            <Badge variant={getStatusColor(documents.dr0026Form)} className="text-xs">
               {getStatusIcon(documents.dr0026Form)}
               {documents.dr0026Form}
             </Badge>
           </div>
-          <div className="flex items-center justify-between p-3 border rounded">
+          <div className="flex items-center justify-between p-2 border rounded">
             <div className="flex items-center gap-2">
-              <FileText className="h-4 w-4" />
-              <span>ST556 Form</span>
+              <FileText className="h-3 w-3" />
+              <span className="text-xs">ST556 Form</span>
             </div>
-            <Badge variant={getStatusColor(documents.st556Form)}>
+            <Badge variant={getStatusColor(documents.st556Form)} className="text-xs">
               {getStatusIcon(documents.st556Form)}
               {documents.st556Form}
             </Badge>
           </div>
-          <div className="flex items-center justify-between p-3 border rounded">
+          <div className="flex items-center justify-between p-2 border rounded">
             <div className="flex items-center gap-2">
-              <FileText className="h-4 w-4" />
-              <span>Letter of Guarantee</span>
+              <FileText className="h-3 w-3" />
+              <span className="text-xs">Letter of Guarantee</span>
             </div>
-            <Badge variant={getStatusColor(documents.letterOfGuarantee)}>
+            <Badge variant={getStatusColor(documents.letterOfGuarantee)} className="text-xs">
               {getStatusIcon(documents.letterOfGuarantee)}
               {documents.letterOfGuarantee}
             </Badge>
@@ -79,17 +79,17 @@ const DocumentSubmissionSection: React.FC<DocumentSubmissionSectionProps> = ({
         
         <Separator />
         
-        <div className="flex flex-col sm:flex-row gap-4">
-          <Button onClick={onSubmitForFunding} className="flex-1">
-            <Upload className="h-4 w-4 mr-2" />
+        <div className="flex flex-col sm:flex-row gap-3">
+          <Button onClick={onSubmitForFunding} className="flex-1 h-8 text-xs">
+            <Upload className="h-3 w-3 mr-1" />
             Submit for Funding
           </Button>
           {caseManagement.currentCaseId && (
-            <div className="flex items-center gap-2 text-sm">
-              <Badge variant="outline">
+            <div className="flex items-center gap-2 text-xs">
+              <Badge variant="outline" className="text-xs">
                 Case: {caseManagement.currentCaseId}
               </Badge>
-              <Badge variant={caseManagement.status === 'ready-for-funding' ? 'default' : 'secondary'}>
+              <Badge variant={caseManagement.status === 'ready-for-funding' ? 'default' : 'secondary'} className="text-xs">
                 {caseManagement.status.replace('-', ' ')}
               </Badge>
             </div>
