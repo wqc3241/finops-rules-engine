@@ -25,7 +25,7 @@ const ApplicationTabs: React.FC<ApplicationTabsProps> = ({
   const location = useLocation();
   const currentPath = location.pathname;
   
-  // Extract the tab from the URL path more accurately
+  // Extract the tab from the URL path
   const getActiveTabFromPath = () => {
     if (activeSection) {
       return activeSection;
@@ -36,17 +36,13 @@ const ApplicationTabs: React.FC<ApplicationTabsProps> = ({
       return 'details';
     }
     
-    // Extract the tab portion from the URL
-    const pathSegments = currentPath.split('/');
-    const baseSegments = baseUrl.split('/');
+    // Extract the last segment of the path as the tab
+    const pathParts = currentPath.split('/');
+    const lastSegment = pathParts[pathParts.length - 1];
     
-    // Find the tab segment (it should be the segment after the base URL)
-    if (pathSegments.length > baseSegments.length) {
-      const tabSegment = pathSegments[baseSegments.length];
-      return tabSegment || 'details';
-    }
-    
-    return 'details';
+    // Check if the last segment matches any of our tab IDs
+    const matchingTab = tabs.find(tab => tab.id === lastSegment);
+    return matchingTab ? lastSegment : 'details';
   };
 
   const activeTab = getActiveTabFromPath();
