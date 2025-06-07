@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { FinancialSummary } from '@/types/application';
+import { FinancialSummary, LoanFinancialSummaryTabData, LeaseFinancialSummaryTabData } from '@/types/application';
 import LoanFinancialSummaryView from '../LoanFinancialSummaryView';
 import LeaseFinancialSummaryView from '../LeaseFinancialSummaryView';
 
@@ -27,12 +27,12 @@ const CustomerFinancialSummaryView: React.FC<CustomerFinancialSummaryViewProps> 
   return isLoanType ? (
     <LoanFinancialSummaryView 
       activeTab="Customer" 
-      tabData={customerData} 
+      tabData={customerData as LoanFinancialSummaryTabData} 
     />
   ) : (
     <LeaseFinancialSummaryView 
       activeTab="Customer" 
-      tabData={customerData} 
+      tabData={customerData as LeaseFinancialSummaryTabData} 
     />
   );
 };
