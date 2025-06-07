@@ -1,3 +1,4 @@
+
 import { ApplicationFullDetails, FinancialSummary } from '../../../types/application';
 import { baseApplicationDetails } from './baseApplicationDetails';
 import { declinedApplications } from './declined';
@@ -20,6 +21,9 @@ const createLenderSummaries = (application: ApplicationFullDetails): void => {
   // This ensures we only have lenders from this specific application
   application.financialSummary.lenderSummaries = {};
   
+  // Get the application type to determine which data to use
+  const applicationType = application.details?.type || 'Lease';
+  
   // Filter lease and loan offers from dealStructure
   const leaseOffers = application.dealStructure.filter(offer => offer.applicationType !== 'Loan');
   const loanOffers = application.dealStructure.filter(offer => offer.applicationType === 'Loan');
@@ -38,18 +42,31 @@ const createLenderSummaries = (application: ApplicationFullDetails): void => {
     };
   });
   
-  // Process loan offers
+  // Process loan offers - use loan data for loan applications
   loanOffers.forEach(offer => {
-    // Create a new lender summary based on the loan financial data
-    application.financialSummary!.lenderSummaries![offer.lenderName] = {
-      type: 'Loan',
-      tabs: ['Requested', 'Approved', 'Customer'],
-      activeTab: 'Approved',
-      selectedForCustomer: false,
-      requested: { ...loanFinancialSummaryData.requested },
-      approved: { ...loanFinancialSummaryData.approved },
-      customer: { ...loanFinancialSummaryData.customer }
-    };
+    // For loan applications, use loan financial data
+    if (applicationType === 'Loan') {
+      application.financialSummary!.lenderSummaries![offer.lenderName] = {
+        type: 'Loan',
+        tabs: ['Requested', 'Approved', 'Customer'],
+        activeTab: 'Approved',
+        selectedForCustomer: false,
+        requested: { ...loanFinancialSummaryData.requested },
+        approved: { ...loanFinancialSummaryData.approved },
+        customer: { ...loanFinancialSummaryData.customer }
+      };
+    } else {
+      // For non-loan applications with loan offers, still use loan data
+      application.financialSummary!.lenderSummaries![offer.lenderName] = {
+        type: 'Loan',
+        tabs: ['Requested', 'Approved', 'Customer'],
+        activeTab: 'Approved',
+        selectedForCustomer: false,
+        requested: { ...loanFinancialSummaryData.requested },
+        approved: { ...loanFinancialSummaryData.approved },
+        customer: { ...loanFinancialSummaryData.customer }
+      };
+    }
   });
 };
 
@@ -94,7 +111,7 @@ export const getMockApplicationDetailsById = (id: string): ApplicationFullDetail
         delete foundApplication.financialSummary.loan;
       }
       
-      // Create lender-specific financial summaries
+      // Create lender-specific financial summaries with correct data types
       createLenderSummaries(foundApplication);
     }
     
