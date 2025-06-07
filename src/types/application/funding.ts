@@ -53,13 +53,9 @@ export interface FundingData {
 
 // Picklist options
 export const SHORT_FUNDING_REASONS = [
-  'Customer Credit Change',
-  'Vehicle Pricing Adjustment',
-  'Trade-in Value Variance',
-  'Additional Fees',
-  'Documentation Requirements',
-  'Lender Policy Change',
-  'Other'
+  'Taxes',
+  'Money Factor',
+  'APR'
 ] as const;
 
 export const LENDER_HELD_REASONS = [
