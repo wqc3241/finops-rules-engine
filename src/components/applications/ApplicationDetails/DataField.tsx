@@ -1,0 +1,16 @@
+
+import React from 'react';
+
+interface DataFieldProps {
+  label: string;
+  value: string;
+}
+
+const DataField: React.FC<DataFieldProps> = ({ label, value }) => (
+  <div className="flex">
+    <span className="text-sm text-gray-600 min-w-[200px]">{label}</span>
+    <span className="text-sm font-medium">{value}</span>
+  </div>
+);
+
+export default DataField;
