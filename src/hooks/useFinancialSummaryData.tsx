@@ -95,17 +95,18 @@ export function useFinancialSummaryData({ financialSummary, initialSection }: Us
 
   // Get current financial data based on selected lender and tab
   const getCurrentFinancialData = () => {
-    // Determine the type for the current view
+    // FIXED: Determine the type for the current view based on selected lender
     let currentIsLoanType = defaultIsLoanType;
     
     if (selectedLenderName && financialSummary.lenderSummaries?.[selectedLenderName]) {
-      // Use selected lender's type
+      // Use selected lender's type - this is the key fix
       const lender = financialSummary.lenderSummaries[selectedLenderName];
       currentIsLoanType = lender.type === 'Loan';
       
       const tabLower = activeTab.toLowerCase() as 'requested' | 'approved' | 'customer';
       
       console.log('getCurrentFinancialData - using lender data:', lender[tabLower]);
+      console.log('getCurrentFinancialData - lender type:', lender.type, 'currentIsLoanType:', currentIsLoanType);
       
       // Make sure we're getting the right data format based on lender type
       return {
