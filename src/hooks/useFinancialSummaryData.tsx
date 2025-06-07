@@ -16,6 +16,11 @@ export function useFinancialSummaryData({ financialSummary, initialSection }: Us
   const lenderFromUrl = getCurrentLender();
   const sectionFromUrl = getCurrentSection();
   
+  // Add debug logging
+  console.log('useFinancialSummaryData - input financialSummary:', financialSummary);
+  console.log('useFinancialSummaryData - lenderFromUrl:', lenderFromUrl);
+  console.log('useFinancialSummaryData - sectionFromUrl:', sectionFromUrl);
+  
   // Default to the application's main type
   const defaultIsLoanType = financialSummary.type === 'Loan';
   
@@ -36,7 +41,7 @@ export function useFinancialSummaryData({ financialSummary, initialSection }: Us
     ? selectedLender.tabs || ['Requested', 'Approved', 'Customer']
     : (defaultIsLoanType 
         ? financialSummary.loan?.tabs || ['Requested', 'Approved', 'Customer']
-        : financialSummary.lfs.tabs);
+        : financialSummary.lfs?.tabs || ['Requested', 'Approved', 'Customer']);
   
   // Set initial active tab based on initialSection, URL, or default
   const initialTabName = initialSection || 
@@ -45,7 +50,7 @@ export function useFinancialSummaryData({ financialSummary, initialSection }: Us
       : (selectedLender?.activeTab || 
         (defaultIsLoanType 
           ? financialSummary.loan?.activeTab || 'Approved' 
-          : financialSummary.lfs.activeTab)));
+          : financialSummary.lfs?.activeTab || 'Approved')));
           
   const [activeTab, setActiveTab] = useState<string>(initialTabName);
 
@@ -100,6 +105,8 @@ export function useFinancialSummaryData({ financialSummary, initialSection }: Us
       
       const tabLower = activeTab.toLowerCase() as 'requested' | 'approved' | 'customer';
       
+      console.log('getCurrentFinancialData - using lender data:', lender[tabLower]);
+      
       // Make sure we're getting the right data format based on lender type
       return {
         data: lender[tabLower],
@@ -111,20 +118,30 @@ export function useFinancialSummaryData({ financialSummary, initialSection }: Us
       
       // Make sure we're getting the right data format based on application type
       if (currentIsLoanType && financialSummary.loan) {
+        console.log('getCurrentFinancialData - using loan data:', financialSummary.loan[tabLower]);
         return {
           data: financialSummary.loan[tabLower] || {},
           isLoanType: true
         };
-      } else {
+      } else if (financialSummary.lfs) {
+        console.log('getCurrentFinancialData - using lease data:', financialSummary.lfs[tabLower]);
         return {
           data: financialSummary.lfs[tabLower],
           isLoanType: false
+        };
+      } else {
+        console.warn('getCurrentFinancialData - no data found');
+        return {
+          data: {},
+          isLoanType: currentIsLoanType
         };
       }
     }
   };
 
   const { data, isLoanType: currentTypeIsLoan } = getCurrentFinancialData();
+
+  console.log('useFinancialSummaryData - final data:', { data, currentTypeIsLoan });
 
   return {
     tabs,
