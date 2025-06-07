@@ -27,10 +27,6 @@ const ApplicationTabs: React.FC<ApplicationTabsProps> = ({
   
   // Extract the tab from the URL path
   const getActiveTabFromPath = () => {
-    if (activeSection) {
-      return activeSection;
-    }
-    
     // If we're at the base URL, default to 'details'
     if (currentPath === baseUrl) {
       return 'details';
@@ -45,7 +41,13 @@ const ApplicationTabs: React.FC<ApplicationTabsProps> = ({
     return matchingTab ? lastSegment : 'details';
   };
 
+  // Always use the URL to determine active tab, ignore activeSection prop for highlighting
   const activeTab = getActiveTabFromPath();
+
+  console.log('ApplicationTabs - currentPath:', currentPath);
+  console.log('ApplicationTabs - baseUrl:', baseUrl);
+  console.log('ApplicationTabs - activeTab from URL:', activeTab);
+  console.log('ApplicationTabs - activeSection prop:', activeSection);
 
   const handleTabChange = (tabId: string) => {
     if (onTabClick) {
