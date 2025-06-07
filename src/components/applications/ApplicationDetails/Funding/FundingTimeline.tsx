@@ -29,7 +29,7 @@ const FundingTimeline: React.FC<FundingTimelineProps> = ({ dateTimes }) => {
         <CardTitle className="text-lg">Funding Timeline</CardTitle>
       </CardHeader>
       <CardContent className="pt-2">
-        <div className="space-y-1">
+        <div className="space-y-0.5">
           <div className={getRowClassName('initiated')} onClick={() => handleRowClick('initiated')}>
             <Label className="text-xs font-medium">Initiated DateTime</Label>
             <div className="text-xs text-muted-foreground">{formatDateTime(dateTimes.initiatedDateTime)}</div>
