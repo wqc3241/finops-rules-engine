@@ -2,36 +2,41 @@
 import { useState } from "react";
 import TabComponent, { TabItem } from "./TabComponent";
 import { toast } from "sonner";
-import GeoTable from "./GeoTable";
-import LeaseConfigTable from "./LeaseConfigTable";
-import GatewayTable from "./GatewayTable";
-import VehicleConditionTable from "./VehicleConditionTable";
-import RoutingRuleTable from "./RoutingRuleTable";
-import StipulationTable from "./StipulationTable";
-import VehicleStyleDecodingTable from "./VehicleStyleDecodingTable";
+import DealerTable from "./DealerTable";
+import LenderTable from "./LenderTable";
+import VehicleOptionsTable from "./VehicleOptionsTable";
+import CountryTable from "./CountryTable";
+import StateTable from "./StateTable";
+import LocationTable from "./LocationTable";
 import LFSSetupTabContent from "./LFSSetupTabContent";
+import PricingTypeSection from "./PricingTypeSection";
 
-interface LFSSetupTabsProps {
+interface FinancingDataTableTabsProps {
   onSelectionChange?: (items: string[]) => void;
   selectedItems?: string[];
+  onSetBatchDeleteCallback?: (callback: () => void) => void;
 }
 
-const LFSSetupTabs = ({ onSelectionChange, selectedItems = [] }: LFSSetupTabsProps) => {
-  const [activeTab, setActiveTab] = useState("geo");
+const FinancingDataTableTabs = ({
+  onSelectionChange,
+  selectedItems = [],
+  onSetBatchDeleteCallback
+}: FinancingDataTableTabsProps) => {
+  const [activeTab, setActiveTab] = useState("pricing-types");
 
   const handleEditClick = (id: string) => {
-    console.log(`Edit rule ${id} clicked`);
-    toast.info(`Edit rule ${id} functionality to be implemented`);
+    console.log(`Edit item ${id} clicked`);
+    toast.info(`Edit item ${id} functionality to be implemented`);
   };
   
   const handleCopyClick = (id: string) => {
-    console.log(`Copy rule ${id} clicked`);
-    toast.success(`Rule ${id} has been copied`);
+    console.log(`Copy item ${id} clicked`);
+    toast.success(`Item ${id} has been copied`);
   };
   
   const handleRemoveClick = (id: string) => {
-    console.log(`Remove rule ${id} clicked`);
-    toast.success(`Rule ${id} has been removed`);
+    console.log(`Remove item ${id} clicked`);
+    toast.success(`Item ${id} has been removed`);
   };
 
   const handleAddRecord = (tabName: string) => {
@@ -55,14 +60,25 @@ const LFSSetupTabs = ({ onSelectionChange, selectedItems = [] }: LFSSetupTabsPro
 
   const tabItems: TabItem[] = [
     {
-      value: "geo",
-      label: "Geo",
+      value: "pricing-types",
+      label: "Pricing Types",
+      content: (
+        <PricingTypeSection 
+          title="Pricing Types"
+          onSelectionChange={handleSelectionChange}
+          selectedItems={selectedItems}
+        />
+      )
+    },
+    {
+      value: "dealer",
+      label: "Dealer",
       content: (
         <LFSSetupTabContent 
-          title="Geo Rules"
-          onAddRecord={() => handleAddRecord("Geo")}
+          title="Dealer Rules"
+          onAddRecord={() => handleAddRecord("Dealer")}
         >
-          <GeoTable 
+          <DealerTable 
             onEdit={handleEditClick}
             onCopy={handleCopyClick}
             onRemove={handleRemoveClick}
@@ -73,14 +89,14 @@ const LFSSetupTabs = ({ onSelectionChange, selectedItems = [] }: LFSSetupTabsPro
       )
     },
     {
-      value: "lease-config",
-      label: "Lease Config",
+      value: "lender",
+      label: "Lender",
       content: (
         <LFSSetupTabContent 
-          title="Lease Config Rules"
-          onAddRecord={() => handleAddRecord("Lease Config")}
+          title="Lender Rules"
+          onAddRecord={() => handleAddRecord("Lender")}
         >
-          <LeaseConfigTable 
+          <LenderTable 
             onEdit={handleEditClick}
             onCopy={handleCopyClick}
             onRemove={handleRemoveClick}
@@ -91,14 +107,14 @@ const LFSSetupTabs = ({ onSelectionChange, selectedItems = [] }: LFSSetupTabsPro
       )
     },
     {
-      value: "gateway",
-      label: "Gateway",
+      value: "vehicle-options",
+      label: "Vehicle Options",
       content: (
         <LFSSetupTabContent 
-          title="Gateway Rules"
-          onAddRecord={() => handleAddRecord("Gateway")}
+          title="Vehicle Options Rules"
+          onAddRecord={() => handleAddRecord("Vehicle Options")}
         >
-          <GatewayTable 
+          <VehicleOptionsTable 
             onEdit={handleEditClick}
             onCopy={handleCopyClick}
             onRemove={handleRemoveClick}
@@ -109,14 +125,14 @@ const LFSSetupTabs = ({ onSelectionChange, selectedItems = [] }: LFSSetupTabsPro
       )
     },
     {
-      value: "vehicle-condition",
-      label: "Vehicle Condition",
+      value: "country",
+      label: "Country",
       content: (
         <LFSSetupTabContent 
-          title="Vehicle Condition Rules"
-          onAddRecord={() => handleAddRecord("Vehicle Condition")}
+          title="Country Data"
+          onAddRecord={() => handleAddRecord("Country")}
         >
-          <VehicleConditionTable 
+          <CountryTable 
             onEdit={handleEditClick}
             onCopy={handleCopyClick}
             onRemove={handleRemoveClick}
@@ -127,14 +143,14 @@ const LFSSetupTabs = ({ onSelectionChange, selectedItems = [] }: LFSSetupTabsPro
       )
     },
     {
-      value: "routing-rule",
-      label: "Routing Rule",
+      value: "state",
+      label: "State",
       content: (
         <LFSSetupTabContent 
-          title="Routing Rules"
-          onAddRecord={() => handleAddRecord("Routing Rules")}
+          title="State Data"
+          onAddRecord={() => handleAddRecord("State")}
         >
-          <RoutingRuleTable 
+          <StateTable 
             onEdit={handleEditClick}
             onCopy={handleCopyClick}
             onRemove={handleRemoveClick}
@@ -145,32 +161,14 @@ const LFSSetupTabs = ({ onSelectionChange, selectedItems = [] }: LFSSetupTabsPro
       )
     },
     {
-      value: "stipulation",
-      label: "Stipulation",
+      value: "location",
+      label: "Location",
       content: (
         <LFSSetupTabContent 
-          title="Stipulation Rules"
-          onAddRecord={() => handleAddRecord("Stipulation")}
+          title="Location Data"
+          onAddRecord={() => handleAddRecord("Location")}
         >
-          <StipulationTable 
-            onEdit={handleEditClick}
-            onCopy={handleCopyClick}
-            onRemove={handleRemoveClick}
-            onSelectionChange={handleSelectionChange}
-            selectedItems={selectedItems}
-          />
-        </LFSSetupTabContent>
-      )
-    },
-    {
-      value: "vehicle-style-coding",
-      label: "Vehicle Style Coding",
-      content: (
-        <LFSSetupTabContent 
-          title="Vehicle Style Coding Rules"
-          onAddRecord={() => handleAddRecord("Vehicle Style Coding")}
-        >
-          <VehicleStyleDecodingTable 
+          <LocationTable 
             onEdit={handleEditClick}
             onCopy={handleCopyClick}
             onRemove={handleRemoveClick}
@@ -182,7 +180,15 @@ const LFSSetupTabs = ({ onSelectionChange, selectedItems = [] }: LFSSetupTabsPro
     }
   ];
 
-  return <TabComponent defaultValue="geo" items={tabItems} onValueChange={handleTabChange} />;
+  return (
+    <div className="bg-gray-50 p-4">
+      <TabComponent 
+        defaultValue="pricing-types" 
+        items={tabItems} 
+        onValueChange={handleTabChange}
+      />
+    </div>
+  );
 };
 
-export default LFSSetupTabs;
+export default FinancingDataTableTabs;

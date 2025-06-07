@@ -57,19 +57,6 @@ const FinancialPricingTabs = ({
       )
     },
     {
-      value: "pricing-types",
-      label: "Pricing Types",
-      content: (
-        <DynamicFinancialSection 
-          schemaId="pricing-types"
-          title="Pricing Types"
-          onSelectionChange={onSelectionChange}
-          selectedItems={selectedItems}
-          onSetBatchDeleteCallback={onSetBatchDeleteCallback}
-        />
-      )
-    },
-    {
       value: "rules",
       label: "Credit Profile",
       content: (

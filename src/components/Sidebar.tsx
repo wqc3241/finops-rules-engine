@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -62,6 +61,11 @@ const Sidebar = ({ open, activeItem, setActiveItem }: SidebarProps) => {
       title: 'Financial Pricing',
       icon: <DollarSign className="h-5 w-5" />,
       path: '/financial-pricing'
+    },
+    {
+      title: 'Financing Data Table',
+      icon: <Receipt className="h-5 w-5" />,
+      path: '/financing-data-table'
     },
     {
       title: 'Dashboard',

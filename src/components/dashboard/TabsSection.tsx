@@ -3,6 +3,7 @@ import LFSSetupTabs from "./LFSSetupTabs";
 import FinancialPricingTabs from "./FinancialPricingTabs";
 import DashboardTabs from "./DashboardTabs";
 import FeeTaxTabs from "./FeeTaxTabs";
+import FinancingDataTableTabs from "./FinancingDataTableTabs";
 import { useState } from "react";
 import { BatchOperations } from "./BatchOperations";
 import { toast } from "sonner";
@@ -83,6 +84,24 @@ const TabsSection = ({
             setShowAddPricingModal={setShowAddPricingModal}
             showAddPricingTypeModal={showAddPricingTypeModal}
             setShowAddPricingTypeModal={setShowAddPricingTypeModal}
+            onSelectionChange={handleSelectionChange}
+            selectedItems={selectedItems}
+            onSetBatchDeleteCallback={handleSetBatchDeleteCallback}
+          />
+        </div>
+      );
+
+    case "Financing Data Table":
+      return (
+        <div className="relative">
+          {showBatchOperations && (
+            <BatchOperations 
+              selectedItems={selectedItems}
+              onClearSelection={handleClearSelection}
+              onBatchDelete={handleBatchDelete}
+            />
+          )}
+          <FinancingDataTableTabs
             onSelectionChange={handleSelectionChange}
             selectedItems={selectedItems}
             onSetBatchDeleteCallback={handleSetBatchDeleteCallback}
