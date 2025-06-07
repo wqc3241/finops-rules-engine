@@ -1,4 +1,3 @@
-
 import React, { useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
@@ -159,7 +158,11 @@ const Applications = () => {
               </div>
               <TooltipProvider>
                 {currentView === 'list' ? (
-                  <ApplicationList key={refreshTrigger} />
+                  <ApplicationList 
+                    key={refreshTrigger} 
+                    applications={filteredApplications}
+                    clearFilters={clearFilters}
+                  />
                 ) : (
                   <KanbanView applications={filteredApplications} />
                 )}
