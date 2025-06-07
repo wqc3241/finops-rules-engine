@@ -15,7 +15,6 @@ import ApplicationData from './ApplicationData';
 import CustomerFinancialSummaryView from './Funding/CustomerFinancialSummaryView';
 import FundingTimeline from './Funding/FundingTimeline';
 import FundingInputSection from './Funding/FundingInputSection';
-import VarianceTrackingSection from './Funding/VarianceTrackingSection';
 import DocumentSubmissionSection from './Funding/DocumentSubmissionSection';
 
 interface FundingViewProps {
@@ -145,21 +144,19 @@ const FundingView: React.FC<FundingViewProps> = ({ applicationFullDetails }) => 
         </Card>
       </div>
 
-      {/* Side by side layout for Funding Timeline and Funding Input Section */}
+      {/* Side by side layout for Funding Timeline and Combined Funding Input Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
         <FundingTimeline dateTimes={fundingData.dateTimes} />
         <FundingInputSection 
           inputs={fundingData.inputs}
+          variance={fundingData.variance}
           onUpdateInputs={updateInputs}
+          onUpdateVariance={updateVariance}
         />
       </div>
 
-      {/* Side by side layout for Variance Tracking and Document Submission */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
-        <VarianceTrackingSection 
-          variance={fundingData.variance}
-          onUpdateVariance={updateVariance}
-        />
+      {/* Document Submission Section */}
+      <div className="grid grid-cols-1 gap-2">
         <DocumentSubmissionSection 
           documents={fundingData.documents}
           caseManagement={fundingData.caseManagement}
