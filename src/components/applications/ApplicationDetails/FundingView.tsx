@@ -25,6 +25,8 @@ import {
   formatDateTime,
   calculateVariance 
 } from '@/utils/fundingDataUtils';
+import ApplicationData from './ApplicationData';
+import FinancialSummaryView from './FinancialSummaryView';
 
 interface FundingViewProps {
   applicationFullDetails: ApplicationFullDetails;
@@ -206,86 +208,35 @@ const FundingView: React.FC<FundingViewProps> = ({ applicationFullDetails }) => 
         </CardContent>
       </Card>
 
-      {/* Display Information Sections */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Applicant & Co-Applicant Credit Data */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Credit Approved Data</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <h4 className="font-semibold">Primary Applicant</h4>
-              <p className="text-sm">Name: {applicationFullDetails.applicantInfo?.firstName} {applicationFullDetails.applicantInfo?.lastName}</p>
-              <p className="text-sm">Income: {applicationFullDetails.applicantInfo?.incomeAmount}</p>
-              <p className="text-sm">Employment: {applicationFullDetails.applicantInfo?.employmentType}</p>
-            </div>
-            {applicationFullDetails.coApplicantInfo && (
-              <>
-                <Separator />
-                <div>
-                  <h4 className="font-semibold">Co-Applicant</h4>
-                  <p className="text-sm">Name: {applicationFullDetails.coApplicantInfo.firstName} {applicationFullDetails.coApplicantInfo.lastName}</p>
-                  <p className="text-sm">Income: {applicationFullDetails.coApplicantInfo.incomeAmount}</p>
-                  <p className="text-sm">Employment: {applicationFullDetails.coApplicantInfo.employmentType}</p>
-                </div>
-              </>
-            )}
-          </CardContent>
-        </Card>
+      {/* Full Application Details Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Complete Application Details</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ApplicationData
+            applicantInfo={applicationFullDetails.applicantInfo}
+            coApplicantInfo={applicationFullDetails.coApplicantInfo}
+            vehicleData={applicationFullDetails.vehicleData}
+            appDtReferences={applicationFullDetails.appDtReferences}
+          />
+        </CardContent>
+      </Card>
 
-        {/* Vehicle Pricing Data */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Vehicle Pricing Data</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <h4 className="font-semibold">Purchase Vehicle</h4>
-              <p className="text-sm">Model: {applicationFullDetails.vehicleData?.model} {applicationFullDetails.vehicleData?.year}</p>
-              <p className="text-sm">MSRP: {applicationFullDetails.vehicleData?.msrp}</p>
-              <p className="text-sm">GCC Cash Price: {applicationFullDetails.vehicleData?.gccCashPrice}</p>
-              <p className="text-sm">Total Discounts: {applicationFullDetails.vehicleData?.totalDiscountAmount}</p>
-            </div>
-            {applicationFullDetails.orderDetails?.vehicleTradeIn && (
-              <>
-                <Separator />
-                <div>
-                  <h4 className="font-semibold">Trade-in Vehicle</h4>
-                  <p className="text-sm">Vehicle: {applicationFullDetails.orderDetails.vehicleTradeIn.year} {applicationFullDetails.orderDetails.vehicleTradeIn.make} {applicationFullDetails.orderDetails.vehicleTradeIn.model}</p>
-                  <p className="text-sm">Total Value: {applicationFullDetails.orderDetails.vehicleTradeIn.totalValue}</p>
-                  <p className="text-sm">Payoff Amount: {applicationFullDetails.orderDetails.vehicleTradeIn.payoffAmount}</p>
-                </div>
-              </>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Lender Deal Structure */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Contracted Deal Structure</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {contractedLender ? (
-              <div>
-                <h4 className="font-semibold">Lender: {contractedLender.lenderName}</h4>
-                <p className="text-sm">Status: {contractedLender.contractStatus}</p>
-                <p className="text-sm">Term: {contractedLender.collapsedView.termLength}</p>
-                <p className="text-sm">Monthly Payment: {contractedLender.collapsedView.monthlyPayments}</p>
-                {contractedLender.collapsedView.dueAtSigning && (
-                  <p className="text-sm">Due at Signing: {contractedLender.collapsedView.dueAtSigning}</p>
-                )}
-                {contractedLender.collapsedView.downPayment && (
-                  <p className="text-sm">Down Payment: {contractedLender.collapsedView.downPayment}</p>
-                )}
-              </div>
-            ) : (
-              <p className="text-sm text-muted-foreground">No contracted lender found</p>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+      {/* Full Customer Financial Summary Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Complete Customer Financial Summary</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {applicationFullDetails.financialSummary && (
+            <FinancialSummaryView 
+              financialSummary={applicationFullDetails.financialSummary}
+              initialSection="Customer"
+            />
+          )}
+        </CardContent>
+      </Card>
 
       {/* Funding Input Section */}
       <Card>
