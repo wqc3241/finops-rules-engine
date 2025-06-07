@@ -20,20 +20,24 @@ const CustomerFinancialSummaryView: React.FC<CustomerFinancialSummaryViewProps> 
     : financialSummary.lfs.customer;
 
   if (!customerData) {
-    return <div className="p-4 text-center text-muted-foreground">No customer financial data available</div>;
+    return <div className="p-2 text-center text-xs text-muted-foreground">No customer financial data available</div>;
   }
 
   // Use the appropriate view based on type, but only show Customer data
-  return isLoanType ? (
-    <LoanFinancialSummaryView 
-      activeTab="Customer" 
-      tabData={customerData as LoanFinancialSummaryTabData} 
-    />
-  ) : (
-    <LeaseFinancialSummaryView 
-      activeTab="Customer" 
-      tabData={customerData as LeaseFinancialSummaryTabData} 
-    />
+  return (
+    <div className="text-xs space-y-1">
+      {isLoanType ? (
+        <LoanFinancialSummaryView 
+          activeTab="Customer" 
+          tabData={customerData as LoanFinancialSummaryTabData} 
+        />
+      ) : (
+        <LeaseFinancialSummaryView 
+          activeTab="Customer" 
+          tabData={customerData as LeaseFinancialSummaryTabData} 
+        />
+      )}
+    </div>
   );
 };
 
