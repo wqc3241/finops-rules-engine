@@ -25,11 +25,31 @@ const ApplicationTabs: React.FC<ApplicationTabsProps> = ({
   const location = useLocation();
   const currentPath = location.pathname;
   
-  // Find active tab based on current path or active section
-  const activeTab = activeSection || tabs.find(tab => 
-    currentPath === `${baseUrl}/${tab.id}` || 
-    (currentPath === baseUrl && tab.id === 'details')
-  )?.id || 'details';
+  // Extract the tab from the URL path more accurately
+  const getActiveTabFromPath = () => {
+    if (activeSection) {
+      return activeSection;
+    }
+    
+    // If we're at the base URL, default to 'details'
+    if (currentPath === baseUrl) {
+      return 'details';
+    }
+    
+    // Extract the tab portion from the URL
+    const pathSegments = currentPath.split('/');
+    const baseSegments = baseUrl.split('/');
+    
+    // Find the tab segment (it should be the segment after the base URL)
+    if (pathSegments.length > baseSegments.length) {
+      const tabSegment = pathSegments[baseSegments.length];
+      return tabSegment || 'details';
+    }
+    
+    return 'details';
+  };
+
+  const activeTab = getActiveTabFromPath();
 
   const handleTabChange = (tabId: string) => {
     if (onTabClick) {
