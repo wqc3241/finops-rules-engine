@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ApplicationFullDetails } from '@/types/application';
@@ -12,7 +11,7 @@ import {
   calculateVariance 
 } from '@/utils/fundingDataUtils';
 import ApplicationData from './ApplicationData';
-import FinancialSummaryView from './FinancialSummaryView';
+import CustomerFinancialSummaryView from './Funding/CustomerFinancialSummaryView';
 import FundingTimeline from './Funding/FundingTimeline';
 import FundingInputSection from './Funding/FundingInputSection';
 import VarianceTrackingSection from './Funding/VarianceTrackingSection';
@@ -137,9 +136,8 @@ const FundingView: React.FC<FundingViewProps> = ({ applicationFullDetails }) => 
         </CardHeader>
         <CardContent>
           {applicationFullDetails.financialSummary && (
-            <FinancialSummaryView 
+            <CustomerFinancialSummaryView 
               financialSummary={applicationFullDetails.financialSummary}
-              initialSection="Customer"
             />
           )}
         </CardContent>
