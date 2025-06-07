@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ApplicationFullDetails } from '@/types/application';
@@ -112,8 +113,6 @@ const FundingView: React.FC<FundingViewProps> = ({ applicationFullDetails }) => 
 
   return (
     <div className="space-y-2">
-      <FundingTimeline dateTimes={fundingData.dateTimes} />
-
       {/* Side by side layout for Complete Application Details and Customer Financial Summary */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
         {/* Complete Application Details Section */}
@@ -146,21 +145,27 @@ const FundingView: React.FC<FundingViewProps> = ({ applicationFullDetails }) => 
         </Card>
       </div>
 
-      <FundingInputSection 
-        inputs={fundingData.inputs}
-        onUpdateInputs={updateInputs}
-      />
+      {/* Side by side layout for Funding Timeline and Funding Input Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
+        <FundingTimeline dateTimes={fundingData.dateTimes} />
+        <FundingInputSection 
+          inputs={fundingData.inputs}
+          onUpdateInputs={updateInputs}
+        />
+      </div>
 
-      <VarianceTrackingSection 
-        variance={fundingData.variance}
-        onUpdateVariance={updateVariance}
-      />
-
-      <DocumentSubmissionSection 
-        documents={fundingData.documents}
-        caseManagement={fundingData.caseManagement}
-        onSubmitForFunding={handleSubmitForFunding}
-      />
+      {/* Side by side layout for Variance Tracking and Document Submission */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
+        <VarianceTrackingSection 
+          variance={fundingData.variance}
+          onUpdateVariance={updateVariance}
+        />
+        <DocumentSubmissionSection 
+          documents={fundingData.documents}
+          caseManagement={fundingData.caseManagement}
+          onSubmitForFunding={handleSubmitForFunding}
+        />
+      </div>
     </div>
   );
 };
