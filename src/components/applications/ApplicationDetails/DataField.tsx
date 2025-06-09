@@ -7,7 +7,7 @@ interface DataFieldProps {
 }
 
 const DataField: React.FC<DataFieldProps> = ({ label, value }) => (
-  <div className="flex">
+  <div className="flex justify-between items-center">
     <span className="text-sm text-muted-foreground min-w-[140px]">{label}</span>
     <span className="text-sm font-medium">{value}</span>
   </div>
