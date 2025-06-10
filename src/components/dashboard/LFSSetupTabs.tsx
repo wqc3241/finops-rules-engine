@@ -4,7 +4,6 @@ import TabComponent, { TabItem } from "./TabComponent";
 import { toast } from "sonner";
 import GeoTable from "./GeoTable";
 import LeaseConfigTable from "./LeaseConfigTable";
-import GatewayTable from "./GatewayTable";
 import VehicleConditionTable from "./VehicleConditionTable";
 import RoutingRuleTable from "./RoutingRuleTable";
 import StipulationTable from "./StipulationTable";
@@ -81,24 +80,6 @@ const LFSSetupTabs = ({ onSelectionChange, selectedItems = [] }: LFSSetupTabsPro
           onAddRecord={() => handleAddRecord("Lease Config")}
         >
           <LeaseConfigTable 
-            onEdit={handleEditClick}
-            onCopy={handleCopyClick}
-            onRemove={handleRemoveClick}
-            onSelectionChange={handleSelectionChange}
-            selectedItems={selectedItems}
-          />
-        </LFSSetupTabContent>
-      )
-    },
-    {
-      value: "gateway",
-      label: "Gateway",
-      content: (
-        <LFSSetupTabContent 
-          title="Gateway Rules"
-          onAddRecord={() => handleAddRecord("Gateway")}
-        >
-          <GatewayTable 
             onEdit={handleEditClick}
             onCopy={handleCopyClick}
             onRemove={handleRemoveClick}

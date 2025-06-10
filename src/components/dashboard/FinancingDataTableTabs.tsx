@@ -8,6 +8,7 @@ import VehicleOptionsTable from "./VehicleOptionsTable";
 import CountryTable from "./CountryTable";
 import StateTable from "./StateTable";
 import LocationTable from "./LocationTable";
+import GatewayTable from "./GatewayTable";
 import LFSSetupTabContent from "./LFSSetupTabContent";
 import PricingTypeSection from "./PricingTypeSection";
 
@@ -68,6 +69,24 @@ const FinancingDataTableTabs = ({
           onSelectionChange={handleSelectionChange}
           selectedItems={selectedItems}
         />
+      )
+    },
+    {
+      value: "gateway",
+      label: "Gateway",
+      content: (
+        <LFSSetupTabContent 
+          title="Gateway Rules"
+          onAddRecord={() => handleAddRecord("Gateway")}
+        >
+          <GatewayTable 
+            onEdit={handleEditClick}
+            onCopy={handleCopyClick}
+            onRemove={handleRemoveClick}
+            onSelectionChange={handleSelectionChange}
+            selectedItems={selectedItems}
+          />
+        </LFSSetupTabContent>
       )
     },
     {
