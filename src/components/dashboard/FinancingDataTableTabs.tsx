@@ -1,10 +1,8 @@
-
 import { useState } from "react";
 import TabComponent, { TabItem } from "./TabComponent";
 import { toast } from "sonner";
 import DealerTable from "./DealerTable";
 import LenderTable from "./LenderTable";
-import VehicleOptionsTable from "./VehicleOptionsTable";
 import CountryTable from "./CountryTable";
 import StateTable from "./StateTable";
 import LocationTable from "./LocationTable";
@@ -116,24 +114,6 @@ const FinancingDataTableTabs = ({
           onAddRecord={() => handleAddRecord("Lender")}
         >
           <LenderTable 
-            onEdit={handleEditClick}
-            onCopy={handleCopyClick}
-            onRemove={handleRemoveClick}
-            onSelectionChange={handleSelectionChange}
-            selectedItems={selectedItems}
-          />
-        </LFSSetupTabContent>
-      )
-    },
-    {
-      value: "vehicle-options",
-      label: "Vehicle Options",
-      content: (
-        <LFSSetupTabContent 
-          title="Vehicle Options Rules"
-          onAddRecord={() => handleAddRecord("Vehicle Options")}
-        >
-          <VehicleOptionsTable 
             onEdit={handleEditClick}
             onCopy={handleCopyClick}
             onRemove={handleRemoveClick}

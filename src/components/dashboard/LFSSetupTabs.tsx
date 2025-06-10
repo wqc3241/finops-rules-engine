@@ -8,6 +8,7 @@ import VehicleConditionTable from "./VehicleConditionTable";
 import RoutingRuleTable from "./RoutingRuleTable";
 import StipulationTable from "./StipulationTable";
 import VehicleStyleDecodingTable from "./VehicleStyleDecodingTable";
+import VehicleOptionsTable from "./VehicleOptionsTable";
 import LFSSetupTabContent from "./LFSSetupTabContent";
 
 interface LFSSetupTabsProps {
@@ -98,6 +99,24 @@ const LFSSetupTabs = ({ onSelectionChange, selectedItems = [] }: LFSSetupTabsPro
           onAddRecord={() => handleAddRecord("Vehicle Condition")}
         >
           <VehicleConditionTable 
+            onEdit={handleEditClick}
+            onCopy={handleCopyClick}
+            onRemove={handleRemoveClick}
+            onSelectionChange={handleSelectionChange}
+            selectedItems={selectedItems}
+          />
+        </LFSSetupTabContent>
+      )
+    },
+    {
+      value: "vehicle-options",
+      label: "Vehicle Options",
+      content: (
+        <LFSSetupTabContent 
+          title="Vehicle Options Rules"
+          onAddRecord={() => handleAddRecord("Vehicle Options")}
+        >
+          <VehicleOptionsTable 
             onEdit={handleEditClick}
             onCopy={handleCopyClick}
             onRemove={handleRemoveClick}
