@@ -83,19 +83,6 @@ const FinancialPricingTabs = ({
       )
     },
     {
-      value: "financial-products",
-      label: "Financial Products",
-      content: (
-        <DynamicFinancialSection 
-          schemaId="financial-products"
-          title="Financial Products"
-          onSelectionChange={onSelectionChange}
-          selectedItems={selectedItems}
-          onSetBatchDeleteCallback={onSetBatchDeleteCallback}
-        />
-      )
-    },
-    {
       value: "financial-program-config",
       label: "Financial Program Config",
       content: (

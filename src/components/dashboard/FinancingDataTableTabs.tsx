@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import TabComponent, { TabItem } from "./TabComponent";
 import { toast } from "sonner";
@@ -9,6 +10,7 @@ import LocationTable from "./LocationTable";
 import GatewayTable from "./GatewayTable";
 import LFSSetupTabContent from "./LFSSetupTabContent";
 import PricingTypeSection from "./PricingTypeSection";
+import DynamicFinancialSection from "./DynamicFinancialSection";
 
 interface FinancingDataTableTabsProps {
   onSelectionChange?: (items: string[]) => void;
@@ -66,6 +68,19 @@ const FinancingDataTableTabs = ({
           title="Pricing Types"
           onSelectionChange={handleSelectionChange}
           selectedItems={selectedItems}
+        />
+      )
+    },
+    {
+      value: "financial-products",
+      label: "Financial Products",
+      content: (
+        <DynamicFinancialSection 
+          schemaId="financial-products"
+          title="Financial Products"
+          onSelectionChange={onSelectionChange}
+          selectedItems={selectedItems}
+          onSetBatchDeleteCallback={onSetBatchDeleteCallback}
         />
       )
     },
