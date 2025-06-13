@@ -23,26 +23,13 @@ const FinancialPricingTabs = ({
   selectedItems = [],
   onSetBatchDeleteCallback
 }: FinancialPricingTabsProps) => {
-  const [activeTab, setActiveTab] = useState("bulletin-pricing");
+  const [activeTab, setActiveTab] = useState("rules");
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
   };
 
   const tabItems: TabItem[] = [
-    {
-      value: "bulletin-pricing",
-      label: "Bulletin Pricing",
-      content: (
-        <DynamicFinancialSection 
-          schemaId="bulletin-pricing"
-          title="Bulletin Pricing"
-          onSelectionChange={onSelectionChange}
-          selectedItems={selectedItems}
-          onSetBatchDeleteCallback={onSetBatchDeleteCallback}
-        />
-      )
-    },
     {
       value: "rules",
       label: "Credit Profile",
@@ -83,6 +70,19 @@ const FinancialPricingTabs = ({
       )
     },
     {
+      value: "bulletin-pricing",
+      label: "Bulletin Pricing",
+      content: (
+        <DynamicFinancialSection 
+          schemaId="bulletin-pricing"
+          title="Bulletin Pricing"
+          onSelectionChange={onSelectionChange}
+          selectedItems={selectedItems}
+          onSetBatchDeleteCallback={onSetBatchDeleteCallback}
+        />
+      )
+    },
+    {
       value: "advertised-offers",
       label: "Advertised Offers",
       content: (
@@ -100,7 +100,7 @@ const FinancialPricingTabs = ({
   return (
     <div className="bg-gray-50 p-4">
       <TabComponent 
-        defaultValue="bulletin-pricing" 
+        defaultValue="rules" 
         items={tabItems} 
         onValueChange={handleTabChange}
       />
