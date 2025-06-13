@@ -31,6 +31,111 @@ export const getInitialData = (schemaId: string): TableData[] => {
           bulletinId: "BTKSA01",
           pricingValue: 0.0295,
           uploadDate: "2023-05-15"
+        },
+        // Adding pricing rules data to bulletin pricing
+        { 
+          id: "BT01", 
+          financialProgramCode: "AIPUNR07241", 
+          programId: "FPUS01",
+          pricingConfig: "", 
+          geoCode: "NA-US-CA",
+          lenderName: "CMB, BAC",
+          advertised: true,
+          pricingType: "SUBAPR", 
+          bulletinId: "BT01",
+          pricingValue: 2.99,
+          uploadDate: "2024-07-24"
+        },
+        { 
+          id: "BT02", 
+          financialProgramCode: "AIPUNR07241", 
+          programId: "FPUS02",
+          pricingConfig: "PR002", 
+          geoCode: "NA-US-CA",
+          lenderName: "CMB, BAC",
+          advertised: true,
+          pricingType: "SUBAPR", 
+          bulletinId: "BT02",
+          pricingValue: 7.49,
+          uploadDate: "2024-07-24"
+        },
+        { 
+          id: "BT03", 
+          financialProgramCode: "AIPUNL07241", 
+          programId: "FPUS03",
+          pricingConfig: "PR003", 
+          geoCode: "NA-US-CA",
+          lenderName: "LFS",
+          advertised: true,
+          pricingType: "ENHRV", 
+          bulletinId: "BT03",
+          pricingValue: 60.50,
+          uploadDate: "2024-07-24"
+        },
+        { 
+          id: "BT04", 
+          financialProgramCode: "AIPUNL07241", 
+          programId: "FPUS04",
+          pricingConfig: "PR003", 
+          geoCode: "NA-US-CA",
+          lenderName: "LFS",
+          advertised: true,
+          pricingType: "SUBMF", 
+          bulletinId: "BT04",
+          pricingValue: 60.50,
+          uploadDate: "2024-07-24"
+        },
+        { 
+          id: "BT05", 
+          financialProgramCode: "AIPUNR07241", 
+          programId: "FPUS05",
+          pricingConfig: "PR001", 
+          geoCode: "NA-US-CA",
+          lenderName: "CMB",
+          advertised: true,
+          pricingType: "MAXBDAPR", 
+          bulletinId: "BT05",
+          pricingValue: 2,
+          uploadDate: "2024-07-24"
+        },
+        { 
+          id: "BT06", 
+          financialProgramCode: "AIPUNR07241", 
+          programId: "FPUS06",
+          pricingConfig: "PR002", 
+          geoCode: "NA-US-CA",
+          lenderName: "CMB",
+          advertised: true,
+          pricingType: "MAXMUAPR", 
+          bulletinId: "BT06",
+          pricingValue: 3,
+          uploadDate: "2024-07-24"
+        },
+        { 
+          id: "BTKSA01-1", 
+          financialProgramCode: "SNBAIPUNL04251", 
+          programId: "FPKSA02",
+          pricingConfig: "KSAPR001", 
+          geoCode: "ME-KSA",
+          lenderName: "KSASNB",
+          advertised: false,
+          pricingType: "ADF", 
+          bulletinId: "BTKSA01",
+          pricingValue: 3500.00,
+          uploadDate: "2025-04-25"
+        },
+        { 
+          id: "BTKSA01-2", 
+          financialProgramCode: "SNBAIPUNL04251", 
+          programId: "FPKSA03",
+          pricingConfig: "KSAPR001", 
+          geoCode: "ME-KSA",
+          lenderName: "KSASNB",
+          advertised: false,
+          pricingType: "INR", 
+          bulletinId: "BTKSA01",
+          pricingValue: 2.0,
+          uploadDate: "2025-04-25"
         }
       ];
     case 'pricing-types':
@@ -57,17 +162,6 @@ export const getInitialData = (schemaId: string): TableData[] => {
           category: "Personal",
           isActive: true
         }
-      ];
-    case 'pricing-rules':
-      return [
-        { id: "BT01", financialProgram: "AIPUNR07241", pricingConfig: "", pricingType: "SUBAPR", advertised: "Yes", pricingValue: "2.99", lenderList: "CMB, BAC", geoCode: "NA-US-CA" },
-        { id: "BT02", financialProgram: "AIPUNR07241", pricingConfig: "PR002", pricingType: "SUBAPR", advertised: "Yes", pricingValue: "7.49", lenderList: "CMB, BAC", geoCode: "NA-US-CA" },
-        { id: "BT03", financialProgram: "AIPUNL07241", pricingConfig: "PR003", pricingType: "ENHRV", advertised: "Yes", pricingValue: "60.50%", lenderList: "LFS", geoCode: "NA-US-CA" },
-        { id: "BT04", financialProgram: "AIPUNL07241", pricingConfig: "PR003", pricingType: "SUBMF", advertised: "Yes", pricingValue: "60.50%", lenderList: "LFS", geoCode: "NA-US-CA" },
-        { id: "BT05", financialProgram: "AIPUNR07241", pricingConfig: "PR001", pricingType: "MAXBDAPR", advertised: "Yes", pricingValue: "2", lenderList: "CMB", geoCode: "NA-US-CA" },
-        { id: "BT06", financialProgram: "AIPUNR07241", pricingConfig: "PR002", pricingType: "MAXMUAPR", advertised: "Yes", pricingValue: "3", lenderList: "CMB", geoCode: "NA-US-CA" },
-        { id: "BTKSA01-1", financialProgram: "SNBAIPUNL04251", pricingConfig: "KSAPR001", pricingType: "ADF", advertised: "", pricingValue: "3500.00", lenderList: "KSASNB", geoCode: "ME-KSA" },
-        { id: "BTKSA01-2", financialProgram: "SNBAIPUNL04251", pricingConfig: "KSAPR001", pricingType: "INR", advertised: "", pricingValue: "2%", lenderList: "KSASNB", geoCode: "ME-KSA" }
       ];
     case 'credit-profile':
       return [

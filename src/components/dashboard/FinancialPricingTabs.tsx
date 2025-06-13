@@ -44,19 +44,6 @@ const FinancialPricingTabs = ({
       )
     },
     {
-      value: "pricing-rules",
-      label: "Pricing Rules",
-      content: (
-        <DynamicFinancialSection 
-          schemaId="pricing-rules"
-          title="Pricing Rules"
-          onSelectionChange={onSelectionChange}
-          selectedItems={selectedItems}
-          onSetBatchDeleteCallback={onSetBatchDeleteCallback}
-        />
-      )
-    },
-    {
       value: "rules",
       label: "Credit Profile",
       content: (
