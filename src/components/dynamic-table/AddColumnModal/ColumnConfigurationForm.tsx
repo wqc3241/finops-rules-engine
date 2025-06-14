@@ -58,54 +58,52 @@ const ColumnConfigurationForm = ({
         </div>
       )}
 
-      {/* Only show Data Type select if creating a new column */}
-      {(!isFromExisting || !selectedColumn) && (
-        <div className="grid gap-2">
-          <Label>Data Type</Label>
-          <Select 
-            value={formData.type} 
-            onValueChange={(value: "string" | "boolean" | "number") => 
-              onFormDataChange({ type: value })
-            }
-            disabled={isDisabled}
-          >
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="string">String</SelectItem>
-              <SelectItem value="boolean">Boolean</SelectItem>
-              <SelectItem value="number">Number</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      )}
-
-      {/* Hide Column Type if referencing an existing column and selectedColumn is set */}
-      {(!isFromExisting || !selectedColumn) && (
-        <div className="grid gap-2">
-          <Label>Column Type</Label>
-          <RadioGroup 
-            value={formData.inputType}
-            onValueChange={(value: "Input" | "Output") => 
-              onFormDataChange({ 
-                inputType: value,
-                editable: value === "Input" ? formData.editable : false
-              })
-            }
-            className="flex gap-4"
-            disabled={isDisabled}
-          >
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="Input" id="input-type" className="cursor-pointer" />
-              <Label htmlFor="input-type" className="cursor-pointer">Input</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="Output" id="output-type" className="cursor-pointer" />
-              <Label htmlFor="output-type" className="cursor-pointer">Output</Label>
-            </div>
-          </RadioGroup>
-        </div>
+      {/* Only show Data Type and Column Type if NOT referencing an existing column */}
+      {!isFromExisting && (
+        <>
+          <div className="grid gap-2">
+            <Label>Data Type</Label>
+            <Select 
+              value={formData.type} 
+              onValueChange={(value: "string" | "boolean" | "number") => 
+                onFormDataChange({ type: value })
+              }
+              disabled={isDisabled}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="string">String</SelectItem>
+                <SelectItem value="boolean">Boolean</SelectItem>
+                <SelectItem value="number">Number</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid gap-2">
+            <Label>Column Type</Label>
+            <RadioGroup 
+              value={formData.inputType}
+              onValueChange={(value: "Input" | "Output") => 
+                onFormDataChange({ 
+                  inputType: value,
+                  editable: value === "Input" ? formData.editable : false
+                })
+              }
+              className="flex gap-4"
+              disabled={isDisabled}
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="Input" id="input-type" className="cursor-pointer" />
+                <Label htmlFor="input-type" className="cursor-pointer">Input</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="Output" id="output-type" className="cursor-pointer" />
+                <Label htmlFor="output-type" className="cursor-pointer">Output</Label>
+              </div>
+            </RadioGroup>
+          </div>
+        </>
       )}
 
       <div className="flex items-center space-x-2">
