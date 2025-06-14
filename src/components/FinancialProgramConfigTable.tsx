@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -6,6 +7,10 @@ import { Pencil, Trash2, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
+import { useFinancialProducts } from "@/hooks/useFinancialProducts";
+import { useVehicleStyles } from "@/hooks/useVehicleStyles";
+import { useVehicleConditions } from "@/hooks/useVehicleConditions";
 
 interface FinancialProgramConfig {
   id: string;
@@ -109,6 +114,16 @@ const FinancialProgramConfigTable = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [programToDelete, setProgramToDelete] = useState<string | null>(null);
 
+  // For inline editing
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingField, setEditingField] = useState<string | null>(null);
+  const [editingValue, setEditingValue] = useState<string>("");
+
+  // Get available options from data sources
+  const financialProducts = useFinancialProducts();
+  const vehicleStyles = useVehicleStyles();
+  const vehicleConditions = useVehicleConditions();
+
   const toggleSelectAll = () => {
     if (selectedPrograms.length === programs.length) {
       setSelectedPrograms([]);
@@ -138,9 +153,11 @@ const FinancialProgramConfigTable = () => {
     setProgramToDelete(null);
   };
 
-  const handleEditClick = (id: string) => {
-    // This would open an edit modal in a real implementation
-    toast.info(`Editing program ${id} - functionality to be implemented`);
+  const handleEditClick = (id: string, field?: string, value?: string) => {
+    setEditingId(id);
+    setEditingField(field ?? null);
+    setEditingValue(value ?? "");
+    toast.info(`Editing program ${id}${field ? ` → ${field}` : ""} - inline edit`);
   };
 
   // Copy functionality
@@ -158,13 +175,11 @@ const FinancialProgramConfigTable = () => {
       let candidateId = prefix + incremented;
       let tries = 1;
       while (programs.some(p => p.id === candidateId)) {
-        // Try next number if already taken
         tries++;
         candidateId = prefix + String(Number(numericPart) + tries).padStart(numericPart.length, "0");
       }
       newId = candidateId;
     } else {
-      // Fallback: just append _COPY + timestamp if not matching pattern
       newId = original.id + "_COPY" + Date.now();
     }
 
@@ -177,6 +192,32 @@ const FinancialProgramConfigTable = () => {
 
     setPrograms(prev => [...prev, newProgram]);
     toast.success(`Duplicated: ${original.id} → ${newId}`);
+  };
+
+  const saveEdit = () => {
+    if (!editingId || !editingField) return;
+    setPrograms(prev =>
+      prev.map(program =>
+        program.id === editingId ? { ...program, [editingField]: editingValue } : program
+      )
+    );
+    setEditingId(null);
+    setEditingField(null);
+    setEditingValue("");
+    toast.success("Value updated!");
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditingField(null);
+    setEditingValue("");
+  };
+
+  // Helper: for Select dropdowns, reset editing state and value
+  const startDropdownEdit = (id: string, field: string, currentValue: string) => {
+    setEditingId(id);
+    setEditingField(field);
+    setEditingValue(currentValue);
   };
 
   return (
@@ -220,9 +261,113 @@ const FinancialProgramConfigTable = () => {
               <TableCell>{program.programCode}</TableCell>
               <TableCell>{program.cloneFrom || "-"}</TableCell>
               <TableCell>{program.priority}</TableCell>
-              <TableCell>{program.financialProductId}</TableCell>
-              <TableCell>{program.vehicleStyleId}</TableCell>
-              <TableCell>{program.financingVehicleCondition}</TableCell>
+              {/* Financial Product ID Dropdown */}
+              <TableCell>
+                {editingId === program.id && editingField === "financialProductId" ? (
+                  <Select
+                    defaultValue={program.financialProductId}
+                    onValueChange={(value) => {
+                      setEditingValue(value);
+                      setPrograms(prev =>
+                        prev.map(p =>
+                          p.id === program.id ? { ...p, financialProductId: value } : p
+                        )
+                      );
+                      cancelEdit();
+                      toast.success("Updated Financial Product ID");
+                    }}
+                    value={editingValue || program.financialProductId}
+                  >
+                    <SelectTrigger className="w-32">
+                      <SelectValue placeholder="Select" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {financialProducts.map(fp =>
+                        <SelectItem key={fp.id} value={fp.id}>{fp.id} - {fp.productType}</SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <span
+                    className="cursor-pointer"
+                    onClick={() => startDropdownEdit(program.id, "financialProductId", program.financialProductId)}
+                  >
+                    {program.financialProductId}
+                  </span>
+                )}
+              </TableCell>
+              {/* Vehicle Style ID Dropdown */}
+              <TableCell>
+                {editingId === program.id && editingField === "vehicleStyleId" ? (
+                  <Select
+                    defaultValue={program.vehicleStyleId}
+                    onValueChange={(value) => {
+                      setEditingValue(value);
+                      setPrograms(prev =>
+                        prev.map(p =>
+                          p.id === program.id ? { ...p, vehicleStyleId: value } : p
+                        )
+                      );
+                      cancelEdit();
+                      toast.success("Updated Vehicle Style ID");
+                    }}
+                    value={editingValue || program.vehicleStyleId}
+                  >
+                    <SelectTrigger className="w-32">
+                      <SelectValue placeholder="Select" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {vehicleStyles.map(vs =>
+                        <SelectItem key={vs.id} value={vs.id}>{vs.id} - {vs.trim}</SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <span
+                    className="cursor-pointer"
+                    onClick={() => startDropdownEdit(program.id, "vehicleStyleId", program.vehicleStyleId)}
+                  >
+                    {program.vehicleStyleId}
+                  </span>
+                )}
+              </TableCell>
+              {/* Financing Vehicle Condition Dropdown */}
+              <TableCell>
+                {editingId === program.id && editingField === "financingVehicleCondition" ? (
+                  <Select
+                    defaultValue={program.financingVehicleCondition}
+                    onValueChange={(value) => {
+                      setEditingValue(value);
+                      setPrograms(prev =>
+                        prev.map(p =>
+                          p.id === program.id ? { ...p, financingVehicleCondition: value } : p
+                        )
+                      );
+                      cancelEdit();
+                      toast.success("Updated Vehicle Condition");
+                    }}
+                    value={editingValue || program.financingVehicleCondition}
+                  >
+                    <SelectTrigger className="w-32">
+                      <SelectValue placeholder="Select" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Array.from(
+                        new Set(vehicleConditions.map(vc => vc.type))
+                      ).map(type => (
+                        <SelectItem key={type} value={type}>{type}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <span
+                    className="cursor-pointer"
+                    onClick={() => startDropdownEdit(program.id, "financingVehicleCondition", program.financingVehicleCondition)}
+                  >
+                    {program.financingVehicleCondition}
+                  </span>
+                )}
+              </TableCell>
               <TableCell>{program.programStartDate}</TableCell>
               <TableCell>{program.programEndDate}</TableCell>
               <TableCell>
@@ -285,3 +430,5 @@ const FinancialProgramConfigTable = () => {
 };
 
 export default FinancialProgramConfigTable;
+
+// NOTE: This file is now quite long (near or over 300 lines). Please consider refactoring into smaller focused components for future maintainability.
