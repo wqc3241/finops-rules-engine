@@ -161,10 +161,13 @@ const VehicleStyleDecodingTable = ({
   };
 
   const handleOptionCodeUpdate = (styleId: string, newOptionCode: string) => {
+    // Convert "none" back to empty string for storage
+    const actualOptionCode = newOptionCode === "none" ? "" : newOptionCode;
+    
     setData(current => 
       current.map(item => 
         item.id === styleId 
-          ? { ...item, optionCode: newOptionCode }
+          ? { ...item, optionCode: actualOptionCode }
           : item
       )
     );
@@ -244,7 +247,7 @@ const VehicleStyleDecodingTable = ({
                 <TableCell>
                   {editingOptionCode === row.id ? (
                     <Select
-                      value={row.optionCode}
+                      value={row.optionCode || "none"}
                       onValueChange={(value) => handleOptionCodeUpdate(row.id, value)}
                       onOpenChange={(open) => {
                         if (!open) setEditingOptionCode(null);
@@ -254,7 +257,7 @@ const VehicleStyleDecodingTable = ({
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="z-50 bg-white max-h-60">
-                        <SelectItem value="">
+                        <SelectItem value="none">
                           (No option code)
                         </SelectItem>
                         {vehicleOptions.map(option => (
