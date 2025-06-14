@@ -5,8 +5,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Copy, Edit, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+// Remove previous 'id' field description, use Bulletin ID (as id)
 interface BulletinPrice {
-  id: string; // this is now Bulletin ID
+  id: string; // This is now the "Bulletin ID"
   financialProgramCode: string;
   programId: string;
   pricingConfig: string;
@@ -26,6 +27,7 @@ interface BulletinPricingTableProps {
   selectedItems?: string[];
 }
 
+// Update sampleBulletinPrices to use Bulletin ID as id, only
 const sampleBulletinPrices: BulletinPrice[] = [
   {
     id: "BTKSA01",
