@@ -70,7 +70,6 @@ const DEFAULT_SCHEMAS: Record<string, DynamicTableSchema> = {
     name: 'Credit Profile',
     columns: [
       { id: 'id', name: 'ID', key: 'id', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false },
-      { id: 'uuid', name: 'UUID', key: 'uuid', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false },
       { id: 'priority', name: 'Priority', key: 'priority', type: 'number', inputType: 'Input', isRequired: true, sortable: true, editable: true },
       { id: 'minCreditScore', name: 'Min Credit Score', key: 'minCreditScore', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
       { id: 'maxCreditScore', name: 'Max Credit Score', key: 'maxCreditScore', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },

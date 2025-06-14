@@ -172,7 +172,6 @@ export const getInitialData = (schemaId: string): TableData[] => {
       return [
         {
           id: "P001",
-          uuid: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
           priority: 1,
           minCreditScore: 800,
           maxCreditScore: 999,
@@ -188,7 +187,6 @@ export const getInitialData = (schemaId: string): TableData[] => {
         },
         {
           id: "P002",
-          uuid: "550e8400-e29b-41d4-a716-446655440000",
           priority: 2,
           minCreditScore: 800,
           maxCreditScore: 999,
@@ -204,7 +202,6 @@ export const getInitialData = (schemaId: string): TableData[] => {
         },
         {
           id: "P003",
-          uuid: "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
           priority: 3,
           minCreditScore: 800,
           maxCreditScore: 999,

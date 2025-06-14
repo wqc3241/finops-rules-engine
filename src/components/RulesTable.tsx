@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -7,7 +6,6 @@ import { Button } from "@/components/ui/button";
 
 interface Rule {
   id: string;
-  uuid: string;
   priority: number;
   minCreditScore: number;
   maxCreditScore: number;
@@ -29,12 +27,12 @@ interface RulesTableProps {
 }
 
 // Function to generate a UUID
-const generateUUID = () => {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-    return v.toString(16);
-  });
-};
+// const generateUUID = () => {
+//   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+//     const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+//     return v.toString(16);
+//   });
+// };
 
 const initialRulesWithoutUUID = [
   {
@@ -84,10 +82,7 @@ const initialRulesWithoutUUID = [
   }
 ];
 
-const initialRules: Rule[] = initialRulesWithoutUUID.map(rule => ({
-  ...rule,
-  uuid: generateUUID()
-}));
+const initialRules: Rule[] = initialRulesWithoutUUID;
 
 const formatCurrency = (value: number) => {
   if (value === 0) return '';
@@ -129,7 +124,7 @@ const RulesTable = ({ onEdit, onCopy, onRemove }: RulesTableProps) => {
                 aria-label="Select all"
               />
             </TableHead>
-            <TableHead>UUID</TableHead>
+            {/* Removed UUID Header */}
             <TableHead>Profile ID</TableHead>
             <TableHead>Priority</TableHead>
             <TableHead>Min Credit Score</TableHead>
@@ -156,7 +151,7 @@ const RulesTable = ({ onEdit, onCopy, onRemove }: RulesTableProps) => {
                   aria-label={`Select rule ${rule.id}`}
                 />
               </TableCell>
-              <TableCell>{rule.uuid}</TableCell>
+              {/* Removed UUID cell */}
               <TableCell>{rule.id}</TableCell>
               <TableCell>{rule.priority}</TableCell>
               <TableCell>{rule.minCreditScore || ''}</TableCell>
