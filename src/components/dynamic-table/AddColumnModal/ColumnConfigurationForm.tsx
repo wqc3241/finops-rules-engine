@@ -84,7 +84,7 @@ const ColumnConfigurationForm = ({
       <div className="grid gap-2">
         <Label>Column Type</Label>
         <RadioGroup 
-          value={formData.inputType} 
+          value={formData.inputType}
           onValueChange={(value: "Input" | "Output") => 
             onFormDataChange({ 
               inputType: value,
@@ -92,7 +92,7 @@ const ColumnConfigurationForm = ({
             })
           }
           className="flex gap-4"
-          disabled={isDisabled}
+          disabled={isFromExisting && !!selectedColumn}
         >
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="Input" id="input-type" className="cursor-pointer" />
