@@ -1,4 +1,3 @@
-
 export interface ColumnDefinition {
   id: string;
   name: string;
@@ -9,6 +8,9 @@ export interface ColumnDefinition {
   sortable: boolean;
   editable: boolean;
   width?: number;
+  // New fields for table dependencies
+  sourceTable?: string;
+  sourceColumn?: string;
 }
 
 export interface DynamicTableSchema {
