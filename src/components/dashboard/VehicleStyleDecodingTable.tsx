@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { 
   Table,
@@ -11,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Copy, Edit, Trash2 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Pagination,
   PaginationContent,
@@ -31,6 +31,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { useVehicleOptions } from "@/hooks/useVehicleOptions";
 
 const mockVehicleStyleData = [
   {
@@ -102,6 +103,9 @@ const VehicleStyleDecodingTable = ({
   const [localSelectedItems, setLocalSelectedItems] = useState<string[]>([]);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [editingOptionCode, setEditingOptionCode] = useState<string | null>(null);
+  
+  const vehicleOptions = useVehicleOptions();
   
   // Use either prop or local state for selections
   const effectiveSelectedItems = selectedItems.length ? selectedItems : localSelectedItems;
@@ -156,6 +160,36 @@ const VehicleStyleDecodingTable = ({
     }
   };
 
+  const handleOptionCodeUpdate = (styleId: string, newOptionCode: string) => {
+    setData(current => 
+      current.map(item => 
+        item.id === styleId 
+          ? { ...item, optionCode: newOptionCode }
+          : item
+      )
+    );
+    setEditingOptionCode(null);
+    toast.success("Option code updated successfully");
+  };
+
+  const getOptionDisplayText = (optionCode: string) => {
+    if (!optionCode) return "";
+    
+    const option = vehicleOptions.find(opt => opt.code === optionCode);
+    if (!option) return optionCode;
+    
+    const details = [];
+    if (option.drivetrain) details.push(option.drivetrain);
+    if (option.color) details.push(option.color);
+    if (option.design) details.push(option.design);
+    if (option.roof) details.push(option.roof);
+    if (option.wheels) details.push(option.wheels);
+    if (option.adas) details.push(option.adas);
+    if (option.soundSystem) details.push(option.soundSystem);
+    
+    return details.length > 0 ? `${optionCode} - ${details.join(", ")}` : optionCode;
+  };
+
   return (
     <div className="space-y-4">
       <BatchOperations 
@@ -207,7 +241,38 @@ const VehicleStyleDecodingTable = ({
                 <TableCell>{row.make}</TableCell>
                 <TableCell>{row.model}</TableCell>
                 <TableCell>{row.trim}</TableCell>
-                <TableCell>{row.optionCode}</TableCell>
+                <TableCell>
+                  {editingOptionCode === row.id ? (
+                    <Select
+                      value={row.optionCode}
+                      onValueChange={(value) => handleOptionCodeUpdate(row.id, value)}
+                      onOpenChange={(open) => {
+                        if (!open) setEditingOptionCode(null);
+                      }}
+                    >
+                      <SelectTrigger className="w-48">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="z-50 bg-white max-h-60">
+                        <SelectItem value="">
+                          (No option code)
+                        </SelectItem>
+                        {vehicleOptions.map(option => (
+                          <SelectItem key={option.code} value={option.code}>
+                            {getOptionDisplayText(option.code)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <div 
+                      className="cursor-pointer hover:bg-gray-100 p-1 rounded min-h-[20px]"
+                      onClick={() => setEditingOptionCode(row.id)}
+                    >
+                      {row.optionCode || <span className="text-gray-400">Click to select</span>}
+                    </div>
+                  )}
+                </TableCell>
                 <TableCell>{row.priority}</TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end space-x-2">
