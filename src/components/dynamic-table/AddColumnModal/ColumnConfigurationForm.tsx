@@ -56,25 +56,28 @@ const ColumnConfigurationForm = ({
         />
       </div>
 
-      <div className="grid gap-2">
-        <Label>Data Type</Label>
-        <Select 
-          value={formData.type} 
-          onValueChange={(value: "string" | "boolean" | "number") => 
-            onFormDataChange({ type: value })
-          }
-          disabled={isDisabled}
-        >
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="string">String</SelectItem>
-            <SelectItem value="boolean">Boolean</SelectItem>
-            <SelectItem value="number">Number</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      {/* Only show Data Type select if NOT from an existing column */}
+      {(!isFromExisting || !selectedColumn) && (
+        <div className="grid gap-2">
+          <Label>Data Type</Label>
+          <Select 
+            value={formData.type} 
+            onValueChange={(value: "string" | "boolean" | "number") => 
+              onFormDataChange({ type: value })
+            }
+            disabled={isDisabled}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="string">String</SelectItem>
+              <SelectItem value="boolean">Boolean</SelectItem>
+              <SelectItem value="number">Number</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      )}
 
       <div className="grid gap-2">
         <Label>Column Type</Label>
@@ -140,3 +143,4 @@ const ColumnConfigurationForm = ({
 };
 
 export default ColumnConfigurationForm;
+
