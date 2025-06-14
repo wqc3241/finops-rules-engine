@@ -223,7 +223,6 @@ export const getInitialData = (schemaId: string): TableData[] => {
       return [
         {
           id: "PR001",
-          creditProfile: "P001",
           minLTV: 80,
           maxLTV: 100,
           minTerm: 24,
@@ -234,7 +233,6 @@ export const getInitialData = (schemaId: string): TableData[] => {
         },
         {
           id: "PR002",
-          creditProfile: "P002",
           minLTV: 0,
           maxLTV: 80.9,
           minTerm: 0,
@@ -245,7 +243,6 @@ export const getInitialData = (schemaId: string): TableData[] => {
         },
         {
           id: "PR003",
-          creditProfile: "P002",
           minLTV: 0,
           maxLTV: 80.9,
           minTerm: 24,
@@ -256,7 +253,6 @@ export const getInitialData = (schemaId: string): TableData[] => {
         },
         {
           id: "KSAPR001",
-          creditProfile: "KSAP001",
           minLTV: null,
           maxLTV: null,
           minTerm: 60,

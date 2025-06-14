@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { DynamicTableSchema, ColumnDefinition } from '@/types/dynamicTable';
 
@@ -91,7 +90,6 @@ const DEFAULT_SCHEMAS: Record<string, DynamicTableSchema> = {
     name: 'Pricing Config',
     columns: [
       { id: 'id', name: 'ID', key: 'id', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false },
-      { id: 'creditProfile', name: 'Credit Profile', key: 'creditProfile', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
       { id: 'minLTV', name: 'Min LTV', key: 'minLTV', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
       { id: 'maxLTV', name: 'Max LTV', key: 'maxLTV', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
       { id: 'minTerm', name: 'Min Term', key: 'minTerm', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },

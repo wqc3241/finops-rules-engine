@@ -27,11 +27,6 @@ const PricingConfigStep = ({ data, onUpdate }: PricingConfigStepProps) => {
   });
 
   const existingConfigs = getInitialData('pricing-config');
-  
-  // Filter configs that match the selected credit profile
-  const compatibleConfigs = data.creditProfile 
-    ? existingConfigs.filter(config => config.creditProfile === data.creditProfile.id)
-    : existingConfigs;
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -49,7 +44,6 @@ const PricingConfigStep = ({ data, onUpdate }: PricingConfigStepProps) => {
     const configId = `PC${Date.now()}`;
     const config = {
       id: configId,
-      creditProfile: data.creditProfile?.id || "",
       minLTV: formData.minLTV ? parseFloat(formData.minLTV) : null,
       maxLTV: formData.maxLTV ? parseFloat(formData.maxLTV) : null,
       minTerm: formData.minTerm ? parseInt(formData.minTerm) : null,
@@ -69,7 +63,7 @@ const PricingConfigStep = ({ data, onUpdate }: PricingConfigStepProps) => {
     const termRange = config.minTerm && config.maxTerm 
       ? `${config.minTerm}-${config.maxTerm} months` 
       : 'No term range';
-    return `${config.id} | LTV: ${ltvRange} | Term: ${termRange} | Profile: ${config.creditProfile}`;
+    return `${config.id} | LTV: ${ltvRange} | Term: ${termRange} | Priority: ${config.priority}`;
   };
 
   return (
@@ -77,17 +71,9 @@ const PricingConfigStep = ({ data, onUpdate }: PricingConfigStepProps) => {
       <div>
         <h3 className="text-lg font-semibold mb-4">Pricing Configuration</h3>
         <p className="text-sm text-muted-foreground mb-6">
-          Select an existing pricing configuration or create a new one linked to the credit profile.
+          Select an existing pricing configuration or create a new one.
         </p>
       </div>
-
-      {data.creditProfile && (
-        <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-          <p className="text-sm text-blue-800">
-            <strong>Linked Credit Profile:</strong> {data.creditProfile.id}
-          </p>
-        </div>
-      )}
 
       <div className="space-y-4">
         <div>
@@ -117,29 +103,20 @@ const PricingConfigStep = ({ data, onUpdate }: PricingConfigStepProps) => {
                   <SelectValue placeholder="Choose an existing pricing configuration" />
                 </SelectTrigger>
                 <SelectContent>
-                  {compatibleConfigs.length > 0 ? (
-                    compatibleConfigs.map((config) => (
+                  {existingConfigs.length > 0 ? (
+                    existingConfigs.map((config) => (
                       <SelectItem key={config.id} value={config.id}>
                         {formatConfigLabel(config)}
                       </SelectItem>
                     ))
                   ) : (
-                    <SelectItem value="no-compatible" disabled>
-                      No compatible configurations found
+                    <SelectItem value="no-configs" disabled>
+                      No configurations found
                     </SelectItem>
                   )}
                 </SelectContent>
               </Select>
             </div>
-
-            {compatibleConfigs.length === 0 && data.creditProfile && (
-              <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <p className="text-sm text-yellow-800">
-                  No existing pricing configurations found for credit profile "{data.creditProfile.id}". 
-                  Please create a new configuration.
-                </p>
-              </div>
-            )}
             
             {selectedExistingId && (
               <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
@@ -247,7 +224,7 @@ const PricingConfigStep = ({ data, onUpdate }: PricingConfigStepProps) => {
             </div>
 
             <div className="flex justify-end">
-              <Button onClick={handleCreateConfig} disabled={!data.creditProfile}>
+              <Button onClick={handleCreateConfig}>
                 Create Pricing Config
               </Button>
             </div>

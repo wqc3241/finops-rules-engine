@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -9,7 +8,6 @@ import { toast } from "sonner";
 
 interface PricingConfigRule {
   id: string;
-  creditProfile: string;
   minLTV: number | null;
   maxLTV: number | null;
   minTerm: number | null;
@@ -22,7 +20,6 @@ interface PricingConfigRule {
 const initialPricingConfigRules: PricingConfigRule[] = [
   {
     id: "PR001",
-    creditProfile: "P001",
     minLTV: 80,
     maxLTV: 100,
     minTerm: 24,
@@ -33,7 +30,6 @@ const initialPricingConfigRules: PricingConfigRule[] = [
   },
   {
     id: "PR002",
-    creditProfile: "P002",
     minLTV: 0,
     maxLTV: 80.9,
     minTerm: 0,
@@ -44,7 +40,6 @@ const initialPricingConfigRules: PricingConfigRule[] = [
   },
   {
     id: "PR003",
-    creditProfile: "P002",
     minLTV: 0,
     maxLTV: 80.9,
     minTerm: 24,
@@ -55,22 +50,10 @@ const initialPricingConfigRules: PricingConfigRule[] = [
   },
   {
     id: "KSAPR001",
-    creditProfile: "KSAP001",
     minLTV: null,
     maxLTV: null,
     minTerm: 60,
     maxTerm: 60,
-    minLeaseMileage: null,
-    maxLeaseMileage: null,
-    priority: 1
-  },
-  {
-    id: "KSAPR001",
-    creditProfile: "KSAP001",
-    minLTV: null,
-    maxLTV: null,
-    minTerm: 12,
-    maxTerm: 36,
     minLeaseMileage: null,
     maxLeaseMileage: null,
     priority: 1
@@ -140,7 +123,6 @@ const PricingConfigRulesTable = () => {
               />
             </TableHead>
             <TableHead>ID</TableHead>
-            <TableHead>Credit Profile</TableHead>
             <TableHead>Min LTV</TableHead>
             <TableHead>Max LTV</TableHead>
             <TableHead>Min Term</TableHead>
@@ -162,7 +144,6 @@ const PricingConfigRulesTable = () => {
                 />
               </TableCell>
               <TableCell>{rule.id}</TableCell>
-              <TableCell>{rule.creditProfile}</TableCell>
               <TableCell>{formatPercent(rule.minLTV)}</TableCell>
               <TableCell>{formatPercent(rule.maxLTV)}</TableCell>
               <TableCell>{rule.minTerm}</TableCell>
