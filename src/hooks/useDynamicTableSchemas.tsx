@@ -17,7 +17,6 @@ const DEFAULT_SCHEMAS: Record<string, DynamicTableSchema> = {
     id: 'bulletin-pricing',
     name: 'Bulletin Pricing',
     columns: [
-      { id: 'id', name: 'ID', key: 'id', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false },
       { id: 'financialProgramCode', name: 'Financial Program Code', key: 'financialProgramCode', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
       { id: 'programId', name: 'Program Id', key: 'programId', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
       { id: 'pricingConfig', name: 'Pricing Config', key: 'pricingConfig', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
@@ -25,7 +24,7 @@ const DEFAULT_SCHEMAS: Record<string, DynamicTableSchema> = {
       { id: 'lenderName', name: 'Lender Name', key: 'lenderName', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
       { id: 'advertised', name: 'Advertised', key: 'advertised', type: 'boolean', inputType: 'Input', isRequired: false, sortable: true, editable: true },
       { id: 'pricingType', name: 'Pricing Type', key: 'pricingType', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
-      { id: 'bulletinId', name: 'Bulletin ID', key: 'bulletinId', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false },
+      { id: 'id', name: 'Bulletin ID', key: 'id', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false },
       { id: 'pricingValue', name: 'Pricing Value', key: 'pricingValue', type: 'number', inputType: 'Input', isRequired: true, sortable: true, editable: true },
       { id: 'uploadDate', name: 'Upload Date', key: 'uploadDate', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false }
     ]

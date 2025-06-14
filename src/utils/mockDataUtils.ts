@@ -6,7 +6,7 @@ export const getInitialData = (schemaId: string): TableData[] => {
     case 'bulletin-pricing':
       return [
         {
-          id: "1",
+          id: "BTKSA01",
           financialProgramCode: "KSAAIBM05251",
           programId: "FPKSA01",
           pricingConfig: "PR003",
@@ -14,12 +14,11 @@ export const getInitialData = (schemaId: string): TableData[] => {
           lenderName: "KSAAJB",
           advertised: false,
           pricingType: "INR",
-          bulletinId: "BTKSA01",
           pricingValue: 0.0300,
           uploadDate: "2023-05-15"
         },
         {
-          id: "2",
+          id: "BTKSA01-2",
           financialProgramCode: "KSAAIBM05251",
           programId: "FPKSA01",
           pricingConfig: "PR003",
@@ -27,7 +26,6 @@ export const getInitialData = (schemaId: string): TableData[] => {
           lenderName: "KSAAJB",
           advertised: false,
           pricingType: "SPR",
-          bulletinId: "BTKSA01",
           pricingValue: 0.0295,
           uploadDate: "2023-05-15"
         },
@@ -40,7 +38,6 @@ export const getInitialData = (schemaId: string): TableData[] => {
           lenderName: "CMB, BAC",
           advertised: true,
           pricingType: "SUBAPR", 
-          bulletinId: "BT01",
           pricingValue: 2.99,
           uploadDate: "2024-07-24"
         },
@@ -53,7 +50,6 @@ export const getInitialData = (schemaId: string): TableData[] => {
           lenderName: "CMB, BAC",
           advertised: true,
           pricingType: "SUBAPR", 
-          bulletinId: "BT02",
           pricingValue: 7.49,
           uploadDate: "2024-07-24"
         },
@@ -66,7 +62,6 @@ export const getInitialData = (schemaId: string): TableData[] => {
           lenderName: "LFS",
           advertised: true,
           pricingType: "ENHRV", 
-          bulletinId: "BT03",
           pricingValue: 60.50,
           uploadDate: "2024-07-24"
         },
@@ -79,7 +74,6 @@ export const getInitialData = (schemaId: string): TableData[] => {
           lenderName: "LFS",
           advertised: true,
           pricingType: "SUBMF", 
-          bulletinId: "BT04",
           pricingValue: 60.50,
           uploadDate: "2024-07-24"
         },
@@ -92,7 +86,6 @@ export const getInitialData = (schemaId: string): TableData[] => {
           lenderName: "CMB",
           advertised: true,
           pricingType: "MAXBDAPR", 
-          bulletinId: "BT05",
           pricingValue: 2,
           uploadDate: "2024-07-24"
         },
@@ -105,7 +98,6 @@ export const getInitialData = (schemaId: string): TableData[] => {
           lenderName: "CMB",
           advertised: true,
           pricingType: "MAXMUAPR", 
-          bulletinId: "BT06",
           pricingValue: 3,
           uploadDate: "2024-07-24"
         },
@@ -118,7 +110,6 @@ export const getInitialData = (schemaId: string): TableData[] => {
           lenderName: "KSASNB",
           advertised: false,
           pricingType: "ADF", 
-          bulletinId: "BTKSA01",
           pricingValue: 3500.00,
           uploadDate: "2025-04-25"
         },
@@ -131,7 +122,6 @@ export const getInitialData = (schemaId: string): TableData[] => {
           lenderName: "KSASNB",
           advertised: false,
           pricingType: "INR", 
-          bulletinId: "BTKSA01",
           pricingValue: 2.0,
           uploadDate: "2025-04-25"
         }

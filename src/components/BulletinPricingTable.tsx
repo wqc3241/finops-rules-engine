@@ -6,7 +6,7 @@ import { Copy, Edit, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface BulletinPrice {
-  id: string;
+  id: string; // this is now Bulletin ID
   financialProgramCode: string;
   programId: string;
   pricingConfig: string;
@@ -14,7 +14,6 @@ interface BulletinPrice {
   lenderName: string;
   advertised: string;
   pricingType: string;
-  bulletinId: string;
   pricingValue: number;
   uploadDate: string;
 }
@@ -29,7 +28,7 @@ interface BulletinPricingTableProps {
 
 const sampleBulletinPrices: BulletinPrice[] = [
   {
-    id: "1",
+    id: "BTKSA01",
     financialProgramCode: "KSAAIBM05251",
     programId: "FPKSA01",
     pricingConfig: "PR003",
@@ -37,12 +36,11 @@ const sampleBulletinPrices: BulletinPrice[] = [
     lenderName: "KSAAJB",
     advertised: "No",
     pricingType: "INR",
-    bulletinId: "BTKSA01",
     pricingValue: 0.0300,
     uploadDate: "2023-05-15"
   },
   {
-    id: "2",
+    id: "BTKSA01-2",
     financialProgramCode: "KSAAIBM05251",
     programId: "FPKSA01",
     pricingConfig: "PR003",
@@ -50,55 +48,51 @@ const sampleBulletinPrices: BulletinPrice[] = [
     lenderName: "KSAAJB",
     advertised: "No",
     pricingType: "SPR",
-    bulletinId: "BTKSA01",
     pricingValue: 0.0295,
     uploadDate: "2023-05-15"
   },
   {
-    id: "3",
-    financialProgramCode: "KSAAIBM05251",
-    programId: "FPKSA01",
+    id: "BT01",
+    financialProgramCode: "AIPUNR07241",
+    programId: "FPUS01",
+    pricingConfig: "",
+    geoCode: "NA-US-CA",
+    lenderName: "CMB, BAC",
+    advertised: "Yes",
+    pricingType: "SUBAPR",
+    pricingValue: 2.99,
+    uploadDate: "2024-07-24"
+  },
+  {
+    id: "BT02",
+    financialProgramCode: "AIPUNR07241",
+    programId: "FPUS02",
+    pricingConfig: "PR002",
+    geoCode: "NA-US-CA",
+    lenderName: "CMB, BAC",
+    advertised: "Yes",
+    pricingType: "SUBAPR",
+    pricingValue: 7.49,
+    uploadDate: "2024-07-24"
+  },
+  {
+    id: "BT03",
+    financialProgramCode: "AIPUNL07241",
+    programId: "FPUS03",
     pricingConfig: "PR003",
-    geoCode: "ME-KSA",
-    lenderName: "KSAAJB",
-    advertised: "No",
-    pricingType: "DEPCR",
-    bulletinId: "BTKSA01",
-    pricingValue: 0.1500,
-    uploadDate: "2023-05-15"
+    geoCode: "NA-US-CA",
+    lenderName: "LFS",
+    advertised: "Yes",
+    pricingType: "ENHRV",
+    pricingValue: 60.50,
+    uploadDate: "2024-07-24"
   },
-  {
-    id: "4",
-    financialProgramCode: "KSAAIBM05251",
-    programId: "FPKSA01",
-    pricingConfig: "PR007",
-    geoCode: "ME-KSA",
-    lenderName: "KSAAJB",
-    advertised: "No",
-    pricingType: "INR",
-    bulletinId: "BTKSA01",
-    pricingValue: 0.0300,
-    uploadDate: "2023-05-15"
-  },
-  {
-    id: "5",
-    financialProgramCode: "KSAAIBA50500251",
-    programId: "FPKSA02",
-    pricingConfig: "PR004",
-    geoCode: "ME-KSA",
-    lenderName: "KSAAJB",
-    advertised: "No",
-    pricingType: "ADF",
-    bulletinId: "BTKSA01",
-    pricingValue: 3000.0000,
-    uploadDate: "2023-05-15"
-  }
 ];
 
-const BulletinPricingTable = ({ 
-  onEdit, 
-  onCopy, 
-  onRemove, 
+const BulletinPricingTable = ({
+  onEdit,
+  onCopy,
+  onRemove,
   onSelectionChange,
   selectedItems = []
 }: BulletinPricingTableProps) => {
@@ -120,7 +114,7 @@ const BulletinPricingTable = ({
     const updatedSelected = selected.includes(id)
       ? selected.filter(itemId => itemId !== id)
       : [...selected, id];
-    
+
     setSelected(updatedSelected);
     onSelectionChange?.(updatedSelected);
   };
@@ -131,12 +125,13 @@ const BulletinPricingTable = ({
         <TableHeader className="sticky-header">
           <TableRow>
             <TableHead className="w-10">
-              <Checkbox 
-                checked={selected.length === bulletinPrices.length && bulletinPrices.length > 0} 
+              <Checkbox
+                checked={selected.length === bulletinPrices.length && bulletinPrices.length > 0}
                 onCheckedChange={toggleSelectAll}
                 aria-label="Select all"
               />
             </TableHead>
+            <TableHead>Bulletin ID</TableHead>
             <TableHead>Financial Program Code</TableHead>
             <TableHead>Program Id</TableHead>
             <TableHead>Pricing Config</TableHead>
@@ -144,7 +139,6 @@ const BulletinPricingTable = ({
             <TableHead>Lender Name</TableHead>
             <TableHead>Advertised</TableHead>
             <TableHead>Pricing Type</TableHead>
-            <TableHead>Bulletin ID</TableHead>
             <TableHead>Pricing Value</TableHead>
             <TableHead>Upload Date</TableHead>
             <TableHead className="text-right">Actions</TableHead>
@@ -154,12 +148,13 @@ const BulletinPricingTable = ({
           {bulletinPrices.map((item) => (
             <TableRow key={item.id} className="hover:bg-gray-50">
               <TableCell>
-                <Checkbox 
+                <Checkbox
                   checked={selected.includes(item.id)}
                   onCheckedChange={() => toggleSelect(item.id)}
                   aria-label={`Select item ${item.id}`}
                 />
               </TableCell>
+              <TableCell>{item.id}</TableCell>
               <TableCell>{item.financialProgramCode}</TableCell>
               <TableCell>{item.programId}</TableCell>
               <TableCell>{item.pricingConfig}</TableCell>
@@ -167,28 +162,27 @@ const BulletinPricingTable = ({
               <TableCell>{item.lenderName}</TableCell>
               <TableCell>{item.advertised}</TableCell>
               <TableCell>{item.pricingType}</TableCell>
-              <TableCell>{item.bulletinId}</TableCell>
               <TableCell>{item.pricingValue.toFixed(4)}</TableCell>
               <TableCell>{item.uploadDate}</TableCell>
               <TableCell className="text-right space-x-2">
-                <Button 
-                  variant="ghost" 
+                <Button
+                  variant="ghost"
                   size="icon"
                   onClick={() => onEdit(item.id)}
                   className="h-8 w-8"
                 >
                   <Edit className="h-4 w-4" />
                 </Button>
-                <Button 
-                  variant="ghost" 
+                <Button
+                  variant="ghost"
                   size="icon"
                   onClick={() => onCopy(item.id)}
                   className="h-8 w-8"
                 >
                   <Copy className="h-4 w-4" />
                 </Button>
-                <Button 
-                  variant="ghost" 
+                <Button
+                  variant="ghost"
                   size="icon"
                   onClick={() => onRemove(item.id)}
                   className="h-8 w-8 text-destructive"
