@@ -45,16 +45,19 @@ const ColumnConfigurationForm = ({
         />
       </div>
       
-      <div className="grid gap-2">
-        <Label htmlFor="key">Column Key</Label>
-        <Input
-          id="key"
-          value={formData.key}
-          onChange={(e) => onFormDataChange({ key: e.target.value })}
-          placeholder="Generated from name"
-          disabled={isDisabled}
-        />
-      </div>
+      {/* Only show Column Key input when referencing an existing column */}
+      {(isFromExisting && selectedColumn) && (
+        <div className="grid gap-2">
+          <Label htmlFor="key">Column Key</Label>
+          <Input
+            id="key"
+            value={formData.key}
+            onChange={(e) => onFormDataChange({ key: e.target.value })}
+            placeholder="Generated from name"
+            disabled={isDisabled}
+          />
+        </div>
+      )}
 
       {/* Only show Data Type select if NOT from an existing column */}
       {(!isFromExisting || !selectedColumn) && (
