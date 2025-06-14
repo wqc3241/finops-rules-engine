@@ -51,6 +51,17 @@ const DynamicTable = ({
     ]
   };
 
+  // Helper to get next FPC ID for financial-program-config table
+  const getNextFPCId = () => {
+    // Get all ids matching FPC followed by digits, extract numbers
+    const fpIds = data
+      .map(row => typeof row.id === "string" && row.id.match(/^FPC(\d{2})$/) ? Number(row.id.slice(3)) : null)
+      .filter((v): v is number => v !== null);
+    const nextNumber = fpIds.length > 0 ? Math.max(...fpIds) + 1 : 1;
+    // Pad with leading zero to two digits
+    return `FPC${String(nextNumber).padStart(2, "0")}`;
+  };
+
   const handleSelectRow = (id: string) => {
     const updatedSelection = selectedItems.includes(id)
       ? selectedItems.filter(item => item !== id)
@@ -120,11 +131,50 @@ const DynamicTable = ({
     onSchemaChange(updatedSchema);
   };
 
+  const handleAddNewRow = () => {
+    // Only custom for financial-program-config table (otherwise fallback)
+    if (schema.id === "financial-program-config") {
+      const newId = getNextFPCId();
+      // Clone the first row as template or create empty row
+      const template = data[0] || {};
+      const newRow: TableData = { ...template, id: newId, version: 1 };
+      // Reset relevant values for a new row (set empty string or default for all non-id fields)
+      schema.columns.forEach((col) => {
+        if (col.key !== "id") {
+          switch (col.type) {
+            case 'number': newRow[col.key] = 0; break;
+            case 'boolean': newRow[col.key] = false; break;
+            default: newRow[col.key] = ""; break;
+          }
+        }
+      });
+      onDataChange([...data, newRow]);
+    } else {
+      // Default: mimic old add logic
+      const newRow: TableData = { id: `new_${Date.now()}` };
+      schema.columns.forEach((col: any) => {
+        if (col.key !== 'id') {
+          switch (col.type) {
+            case 'string': newRow[col.key] = ''; break;
+            case 'boolean': newRow[col.key] = false; break;
+            case 'number': newRow[col.key] = 0; break;
+          }
+        }
+      });
+      onDataChange([...data, newRow]);
+    }
+  };
+
   const handleCopyRow = (rowId: string) => {
     const rowToCopy = data.find(row => row.id === rowId);
     if (rowToCopy) {
-      const newId = `${rowId}_copy_${Date.now()}`;
-      const newRow = { ...rowToCopy, id: newId };
+      let newId = "";
+      if (schema.id === "financial-program-config") {
+        newId = getNextFPCId();
+      } else {
+        newId = `${rowId}_copy_${Date.now()}`;
+      }
+      const newRow = { ...rowToCopy, id: newId, version: (rowToCopy.version || 1) + 1, cloneFrom: rowToCopy.programCode || null };
       onDataChange([...data, newRow]);
       toast.success("Row copied successfully");
     }
