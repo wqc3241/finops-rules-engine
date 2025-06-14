@@ -80,10 +80,9 @@ const AddColumnModal = ({ open, onOpenChange, onAddColumn, existingColumns }: Ad
     
     if (column) {
       setFormData({
-        name: `${table.name} - ${column.name}`,
+        name: table.name, // <-- Default column name is table.name only!
         key: `${tableId}_${column.key}`,
         type: column.type,
-        // Updated: Always set FK columns to be Input and editable!
         inputType: "Input",
         isRequired: false,
         sortable: true,
