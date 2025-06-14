@@ -1,3 +1,3 @@
 
-// Re-export the refactored AddColumnModal
-export { default } from './AddColumnModal';
+// This file now just re-exports the main AddColumnModal component
+export { default } from './AddColumnModal/index';
