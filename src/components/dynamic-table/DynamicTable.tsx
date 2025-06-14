@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -10,6 +9,7 @@ import { DynamicTableProps, TableData, ColumnDefinition } from "@/types/dynamicT
 import { toast } from "sonner";
 import ColumnManagementModal from "./ColumnManagementModal";
 import AddColumnModal from "./AddColumnModal";
+import ForeignKeySelect from "./ForeignKeySelect";
 
 const DynamicTable = ({ 
   schema, 
@@ -122,6 +122,47 @@ const DynamicTable = ({
   const renderCellContent = (row: TableData, column: ColumnDefinition) => {
     const isEditing = editingCell?.rowId === row.id && editingCell?.columnKey === column.key;
     const value = row[column.key];
+
+    // NEW: Foreign key cell - use our dropdown to select a record
+    if (column.isForeignKey && isEditing && column.sourceTable) {
+      return (
+        <div className="flex items-center space-x-2">
+          <ForeignKeySelect
+            sourceTable={column.sourceTable}
+            value={editValue}
+            onChange={(val) => setEditValue(val)}
+            displayColumn={column.displayColumn}
+          />
+          <div className="space-x-2">
+            <Button size="sm" onClick={handleSaveEdit}>Save</Button>
+            <Button size="sm" variant="outline" onClick={handleCancelEdit}>Cancel</Button>
+          </div>
+        </div>
+      );
+    }
+    // Display value for FK columns (show referenced record's label)
+    if (column.isForeignKey && column.sourceTable && !isEditing) {
+      // Fetch referenced record (for display) from demo data (basic only!)
+      const DEMO_ROW_DATA = {
+        "financial-products": [
+          { id: "FP1", productType: "Auto" },
+          { id: "FP2", productType: "Home" }
+        ],
+        "lender": [
+          { id: "L1", lenderName: "Prime Bank" },
+          { id: "L2", lenderName: "Auto Credit" }
+        ],
+      };
+      const options = DEMO_ROW_DATA[column.sourceTable] || [];
+      const record = options.find((r) => r.id === value);
+      return (
+        <span>
+          {record
+            ? ((column.displayColumn && record[column.displayColumn]) || record.id)
+            : value || ""}
+        </span>
+      );
+    }
 
     if (isEditing && column.editable) {
       if (column.type === 'boolean') {

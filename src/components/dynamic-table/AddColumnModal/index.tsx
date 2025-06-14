@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -67,6 +66,14 @@ const AddColumnModal = ({ open, onOpenChange, onAddColumn, existingColumns }: Ad
     handleExistingColumnSelect(selectedTable, columnId);
   };
 
+  // Helper to pick the best display column for a source table
+  const guessDisplayColumn = (columns: any[]) => {
+    // Try to find a "name" or "Name" column, else just "id"
+    return columns.find((col: any) => col.key.toLowerCase().includes("name"))?.key
+      || columns[0]?.key
+      || "id";
+  };
+
   const handleExistingColumnSelect = (tableId: string, columnId: string) => {
     const table = schemas[tableId];
     const column = table?.columns.find(col => col.id === columnId);
@@ -76,10 +83,11 @@ const AddColumnModal = ({ open, onOpenChange, onAddColumn, existingColumns }: Ad
         name: `${table.name} - ${column.name}`,
         key: `${tableId}_${column.key}`,
         type: column.type,
-        inputType: "Output",
+        // Updated: Always set FK columns to be Input and editable!
+        inputType: "Input",
         isRequired: false,
         sortable: true,
-        editable: false
+        editable: true
       });
     }
   };
@@ -113,6 +121,7 @@ const AddColumnModal = ({ open, onOpenChange, onAddColumn, existingColumns }: Ad
     
     if (!validateForm()) return;
 
+    // Set up FK info if referencing existing column
     const newColumn: ColumnDefinition = {
       id: formData.key,
       name: formData.name,
@@ -124,7 +133,9 @@ const AddColumnModal = ({ open, onOpenChange, onAddColumn, existingColumns }: Ad
       editable: formData.inputType === "Input" ? formData.editable : false,
       ...(columnSource === "existing" && {
         sourceTable: selectedTable,
-        sourceColumn: selectedColumn
+        sourceColumn: selectedColumn,
+        isForeignKey: true,
+        displayColumn: guessDisplayColumn(schemas[selectedTable]?.columns || [])
       })
     };
 
