@@ -126,6 +126,105 @@ const DEFAULT_SCHEMAS: Record<string, DynamicTableSchema> = {
       { id: 'loanAmountPer10k', name: 'Loan Amount Per 10K', key: 'loanAmountPer10k', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
       { id: 'totalCostOfCredit', name: 'Total Cost of Credit', key: 'totalCostOfCredit', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true }
     ]
+  },
+  'gateway': {
+    id: 'gateway',
+    name: 'Gateway',
+    columns: [
+      { id: 'id', name: 'ID', key: 'id', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false },
+      { id: 'gatewayName', name: 'Gateway Name', key: 'gatewayName', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+    ]
+  },
+  'dealer': {
+    id: 'dealer',
+    name: 'Dealer',
+    columns: [
+      { id: 'id', name: 'ID', key: 'id', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false },
+      { id: 'dealerName', name: 'Dealer Name', key: 'dealerName', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+    ]
+  },
+  'lender': {
+    id: 'lender',
+    name: 'Lender',
+    columns: [
+      { id: 'id', name: 'ID', key: 'id', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false },
+      { id: 'lenderName', name: 'Lender Name', key: 'lenderName', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+    ]
+  },
+  'country': {
+    id: 'country',
+    name: 'Country',
+    columns: [
+      { id: 'id', name: 'ID', key: 'id', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false },
+      { id: 'countryName', name: 'Country Name', key: 'countryName', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'countryCode', name: 'Country Code', key: 'countryCode', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+    ]
+  },
+  'state': {
+    id: 'state',
+    name: 'State',
+    columns: [
+      { id: 'id', name: 'ID', key: 'id', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false },
+      { id: 'stateName', name: 'State Name', key: 'stateName', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+    ]
+  },
+  'location-geo': {
+    id: 'location-geo',
+    name: 'LocationGeo',
+    columns: [
+      { id: 'id', name: 'ID', key: 'id', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false },
+      { id: 'locationName', name: 'Location Name', key: 'locationName', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'geoCode', name: 'Geo Code', key: 'geoCode', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+    ]
+  },
+  'lease-config': {
+    id: 'lease-config',
+    name: 'Lease Config',
+    columns: [
+      { id: 'id', name: 'ID', key: 'id', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false },
+      { id: 'configName', name: 'Config Name', key: 'configName', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+    ]
+  },
+  'vehicle-condition': {
+    id: 'vehicle-condition',
+    name: 'Vehicle Condition',
+    columns: [
+      { id: 'id', name: 'ID', key: 'id', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false },
+      { id: 'condition', name: 'Condition', key: 'condition', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+    ]
+  },
+  'vehicle-options': {
+    id: 'vehicle-options',
+    name: 'Vehicle Options',
+    columns: [
+      { id: 'id', name: 'ID', key: 'id', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false },
+      { id: 'optionName', name: 'Option Name', key: 'optionName', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+    ]
+  },
+  'routing-rule': {
+    id: 'routing-rule',
+    name: 'Routing Rule',
+    columns: [
+      { id: 'id', name: 'ID', key: 'id', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false },
+      { id: 'ruleName', name: 'Rule Name', key: 'ruleName', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+    ]
+  },
+  'stipulation': {
+    id: 'stipulation',
+    name: 'Stipulation',
+    columns: [
+      { id: 'id', name: 'ID', key: 'id', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false },
+      { id: 'stipulationName', name: 'Stipulation Name', key: 'stipulationName', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+    ]
+  },
+  'vehicle-style-coding': {
+    id: 'vehicle-style-coding',
+    name: 'Vehicle Style Coding',
+    columns: [
+      { id: 'id', name: 'ID', key: 'id', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false },
+      { id: 'code', name: 'Style Code', key: 'code', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'description', name: 'Description', key: 'description', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+    ]
   }
 };
 
