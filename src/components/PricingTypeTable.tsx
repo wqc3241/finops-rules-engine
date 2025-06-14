@@ -20,37 +20,15 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-
-type PricingType = {
-  id: string;
-  typeCode: string;
-  typeName: string;
-};
-
-const initialData: PricingType[] = [
-  { id: "1", typeCode: "STDAPR", typeName: "Standard APR" },
-  { id: "2", typeCode: "SUBAPR", typeName: "Subvented APR" },
-  { id: "3", typeCode: "MINDWPAY", typeName: "Min Down Payment" },
-  { id: "4", typeCode: "STDRV", typeName: "Standard RV%" },
-  { id: "5", typeCode: "ENHRV", typeName: "Enhanced RV%" },
-  { id: "6", typeCode: "STDMF", typeName: "Standard MF" },
-  { id: "7", typeCode: "SUBMF", typeName: "Subvented MF" },
-  { id: "8", typeCode: "MILFEE", typeName: "Per Mile fee over Alloted" },
-  { id: "9", typeCode: "MAXMUAPR", typeName: "Max Markup APR" },
-  { id: "10", typeCode: "MAXBDAPR", typeName: "Max Buydown APR" },
-  { id: "11", typeCode: "STDBP", typeName: "Standard Balloon %" },
-  { id: "12", typeCode: "STDDP", typeName: "Standard Downpayment %" },
-  { id: "13", typeCode: "ADF", typeName: "AdminFee" },
-  { id: "14", typeCode: "INR", typeName: "Insurance rate" },
-  { id: "15", typeCode: "PAPR", typeName: "Payroll APR" },
-  { id: "16", typeCode: "NPAPR", typeName: "Non-Payroll APR" },
-];
+import { usePricingTypes, PricingType } from "@/hooks/usePricingTypes";
 
 const PricingTypeTable = () => {
-  const [data, setData] = useState<PricingType[]>(initialData);
+  const { pricingTypes, setPricingTypes } = usePricingTypes();
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+
+  const data = pricingTypes;
 
   const handleSelectItem = (id: string) => {
     setSelectedItems((prev) => 
@@ -78,32 +56,22 @@ const PricingTypeTable = () => {
   const handleCopy = (id: string) => {
     const itemToCopy = data.find(item => item.id === id);
     if (itemToCopy) {
-      const newId = String(data.length + 1);
+      const newId = (data.length + 1).toString();
       const newItem = {
         ...itemToCopy,
         id: newId,
         typeCode: `${itemToCopy.typeCode}_COPY`,
       };
-      setData([...data, newItem]);
+      setPricingTypes([...data, newItem]);
       toast.success(`Copied pricing type: ${itemToCopy.typeName}`);
     }
   };
 
   const handleDelete = (id: string) => {
     console.log(`Deleting item with ID: ${id}`);
-    setData(data.filter(item => item.id !== id));
+    setPricingTypes(data.filter(item => item.id !== id));
     setSelectedItems(selectedItems.filter(itemId => itemId !== id));
     toast.success(`Pricing type deleted successfully`);
-  };
-
-  const addNewPricingType = (typeCode: string, typeName: string) => {
-    const newId = String(data.length + 1);
-    const newPricingType = {
-      id: newId,
-      typeCode,
-      typeName,
-    };
-    setData([...data, newPricingType]);
   };
 
   // Paginate data
@@ -206,3 +174,4 @@ const PricingTypeTable = () => {
 
 export { PricingTypeTable, type PricingType };
 export default PricingTypeTable;
+

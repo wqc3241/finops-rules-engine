@@ -2,20 +2,12 @@
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { WizardData } from "../FinancialProgramWizard";
-
-// Mock data from Pricing Types table
-const pricingTypes = [
-  { code: "STDAPR", name: "Standard APR" },
-  { code: "SUBAPR", name: "Subvented APR" },
-  { code: "MINDWPAY", name: "Min Down Payment" },
-  { code: "SPR", name: "Special Rate" },
-  { code: "INR", name: "Interest Rate" },
-  { code: "ENHRV", name: "Enhanced Residual Value" },
-  { code: "SUBMF", name: "Subvented Money Factor" },
-  { code: "MAXBDAPR", name: "Max Base Down APR" },
-  { code: "MAXMUAPR", name: "Max Markup APR" },
-  { code: "ADF", name: "Additional Dealer Fee" }
-];
+import { useState } from "react";
+import { usePricingTypes } from "@/hooks/usePricingTypes";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 interface PricingTypesStepProps {
   data: WizardData;
@@ -23,12 +15,46 @@ interface PricingTypesStepProps {
 }
 
 const PricingTypesStep = ({ data, onUpdate }: PricingTypesStepProps) => {
+  const { pricingTypes, addPricingType } = usePricingTypes();
+
+  // Modal state for adding new
+  const [modalOpen, setModalOpen] = useState(false);
+  const [typeCode, setTypeCode] = useState("");
+  const [typeName, setTypeName] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const handlePricingTypeToggle = (typeCode: string, checked: boolean) => {
     const updatedTypes = checked
       ? [...data.pricingTypes, typeCode]
       : data.pricingTypes.filter(code => code !== typeCode);
     
     onUpdate({ pricingTypes: updatedTypes });
+  };
+
+  // Handle add new pricing type
+  const handleAddNewPricingType = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!typeCode.trim()) {
+      toast.error("Type Code is required");
+      return;
+    }
+    if (!typeName.trim()) {
+      toast.error("Type Name is required");
+      return;
+    }
+    setIsSubmitting(true);
+    setTimeout(() => {
+      const ok = addPricingType(typeCode.trim(), typeName.trim());
+      setIsSubmitting(false);
+      if (!ok) {
+        toast.error("That Type Code already exists");
+        return;
+      }
+      setTypeCode("");
+      setTypeName("");
+      setModalOpen(false);
+      toast.success("Pricing Type added successfully");
+    }, 400);
   };
 
   return (
@@ -40,20 +66,76 @@ const PricingTypesStep = ({ data, onUpdate }: PricingTypesStepProps) => {
         </p>
       </div>
 
+      <div className="flex justify-end mb-4">
+        <Button 
+          variant="outline" 
+          onClick={() => setModalOpen(true)}
+          size="sm"
+        >
+          + Add Pricing Type
+        </Button>
+      </div>
+
+      <Dialog open={modalOpen} onOpenChange={setModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add New Pricing Type</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleAddNewPricingType}>
+            <div className="grid gap-4 py-2">
+              <div>
+                <Label htmlFor="typeCode">Type Code</Label>
+                <Input 
+                  id="typeCode"
+                  value={typeCode}
+                  onChange={e => setTypeCode(e.target.value)}
+                  maxLength={10}
+                  placeholder="Enter type code"
+                />
+              </div>
+              <div>
+                <Label htmlFor="typeName">Type Name</Label>
+                <Input 
+                  id="typeName"
+                  value={typeName}
+                  onChange={e => setTypeName(e.target.value)}
+                  placeholder="Enter type name"
+                />
+              </div>
+            </div>
+            <DialogFooter className="gap-2">
+              <Button 
+                type="button" 
+                variant="outline"
+                onClick={() => setModalOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button 
+                type="submit"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Adding..." : "Add Pricing Type"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {pricingTypes.map((type) => (
-          <div key={type.code} className="flex items-start space-x-3 p-3 border rounded-lg hover:bg-gray-50">
+          <div key={type.code || type.typeCode} className="flex items-start space-x-3 p-3 border rounded-lg hover:bg-gray-50">
             <Checkbox
-              id={type.code}
-              checked={data.pricingTypes.includes(type.code)}
-              onCheckedChange={(checked) => handlePricingTypeToggle(type.code, checked as boolean)}
+              id={type.code || type.typeCode}
+              checked={data.pricingTypes.includes(type.code || type.typeCode)}
+              onCheckedChange={(checked) => handlePricingTypeToggle(type.code || type.typeCode, checked as boolean)}
             />
             <div className="flex-1">
-              <Label htmlFor={type.code} className="text-sm font-medium cursor-pointer">
-                {type.code}
+              <Label htmlFor={type.code || type.typeCode} className="text-sm font-medium cursor-pointer">
+                {type.code || type.typeCode}
               </Label>
               <p className="text-xs text-muted-foreground mt-1">
-                {type.name}
+                {type.name || type.typeName}
               </p>
             </div>
           </div>
@@ -75,3 +157,4 @@ const PricingTypesStep = ({ data, onUpdate }: PricingTypesStepProps) => {
 };
 
 export default PricingTypesStep;
+
