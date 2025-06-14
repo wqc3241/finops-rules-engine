@@ -1,15 +1,10 @@
+
 import { useState } from "react";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Pencil, Trash2, Copy } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
-import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
-import { useFinancialProducts } from "@/hooks/useFinancialProducts";
-import { useVehicleStyles } from "@/hooks/useVehicleStyles";
-import { useVehicleConditions } from "@/hooks/useVehicleConditions";
+import FinancialProgramConfigRow from "./FinancialProgramConfigRow";
+import DeleteConfirmationDialog from "./DeleteConfirmationDialog";
 
 interface FinancialProgramConfig {
   id: string;
@@ -113,16 +108,6 @@ const FinancialProgramConfigTable = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [programToDelete, setProgramToDelete] = useState<string | null>(null);
 
-  // For inline editing
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editingField, setEditingField] = useState<string | null>(null);
-  const [editingValue, setEditingValue] = useState<string>("");
-
-  // Get available options from data sources
-  const financialProducts = useFinancialProducts();
-  const vehicleStyles = useVehicleStyles();
-  const vehicleConditions = useVehicleConditions();
-
   const toggleSelectAll = () => {
     if (selectedPrograms.length === programs.length) {
       setSelectedPrograms([]);
@@ -152,25 +137,19 @@ const FinancialProgramConfigTable = () => {
     setProgramToDelete(null);
   };
 
-  const handleEditClick = (id: string, field?: string, value?: string) => {
-    setEditingId(id);
-    setEditingField(field ?? null);
-    setEditingValue(value ?? "");
-    toast.info(`Editing program ${id}${field ? ` → ${field}` : ""} - inline edit`);
+  const handleEditClick = (id: string) => {
+    toast.info(`Editing program ${id}`);
   };
 
-  // Copy functionality
   const handleCopy = (id: string) => {
     const original = programs.find(p => p.id === id);
     if (!original) return;
 
-    // Extract prefix (letters) and numeric part from ID
     const idMatch = original.id.match(/^([A-Za-z]+)(\d+)$/);
     let newId = "";
     if (idMatch) {
       const [, prefix, numericPart] = idMatch;
       const incremented = String(Number(numericPart) + 1).padStart(numericPart.length, "0");
-      // Prevent ID collision
       let candidateId = prefix + incremented;
       let tries = 1;
       while (programs.some(p => p.id === candidateId)) {
@@ -186,37 +165,19 @@ const FinancialProgramConfigTable = () => {
       ...original,
       id: newId,
       version: original.version + 1,
-      cloneFrom: original.programCode, // Set cloneFrom to original's programCode
+      cloneFrom: original.programCode,
     };
 
     setPrograms(prev => [...prev, newProgram]);
     toast.success(`Duplicated: ${original.id} → ${newId}`);
   };
 
-  const saveEdit = () => {
-    if (!editingId || !editingField) return;
+  const handleUpdate = (id: string, field: string, value: string) => {
     setPrograms(prev =>
       prev.map(program =>
-        program.id === editingId ? { ...program, [editingField]: editingValue } : program
+        program.id === id ? { ...program, [field]: value } : program
       )
     );
-    setEditingId(null);
-    setEditingField(null);
-    setEditingValue("");
-    toast.success("Value updated!");
-  };
-
-  const cancelEdit = () => {
-    setEditingId(null);
-    setEditingField(null);
-    setEditingValue("");
-  };
-
-  // Helper: for Select dropdowns, reset editing state and value
-  const startDropdownEdit = (id: string, field: string, currentValue: string) => {
-    setEditingId(id);
-    setEditingField(field);
-    setEditingValue(currentValue);
   };
 
   return (
@@ -248,154 +209,27 @@ const FinancialProgramConfigTable = () => {
         </TableHeader>
         <TableBody>
           {programs.map((program) => (
-            <TableRow key={program.id} className="hover:bg-gray-50">
-              <TableCell>
-                <Checkbox 
-                  checked={selectedPrograms.includes(program.id)}
-                  onCheckedChange={() => toggleSelectProgram(program.id)}
-                  aria-label={`Select program ${program.id}`}
-                />
-              </TableCell>
-              <TableCell>{program.id}</TableCell>
-              <TableCell>{program.programCode}</TableCell>
-              <TableCell>{program.cloneFrom || "-"}</TableCell>
-              <TableCell>{program.priority}</TableCell>
-              {/* Financial Product ID Dropdown - Fixed */}
-              <TableCell>
-                <Select
-                  value={program.financialProductId}
-                  onValueChange={(value) => {
-                    setPrograms(prev =>
-                      prev.map(p =>
-                        p.id === program.id ? { ...p, financialProductId: value } : p
-                      )
-                    );
-                    toast.success("Updated Financial Product ID");
-                  }}
-                >
-                  <SelectTrigger className="w-40">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="z-50 bg-white">
-                    {financialProducts.map(fp =>
-                      <SelectItem key={fp.id} value={fp.id}>
-                        {fp.id} - {fp.productType}
-                      </SelectItem>
-                    )}
-                  </SelectContent>
-                </Select>
-              </TableCell>
-              {/* Vehicle Style ID Dropdown - Fixed */}
-              <TableCell>
-                <Select
-                  value={program.vehicleStyleId}
-                  onValueChange={(value) => {
-                    setPrograms(prev =>
-                      prev.map(p =>
-                        p.id === program.id ? { ...p, vehicleStyleId: value } : p
-                      )
-                    );
-                    toast.success("Updated Vehicle Style ID");
-                  }}
-                >
-                  <SelectTrigger className="w-40">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="z-50 bg-white">
-                    {vehicleStyles.map(vs =>
-                      <SelectItem key={vs.id} value={vs.id}>
-                        {vs.id} - {vs.trim}
-                      </SelectItem>
-                    )}
-                  </SelectContent>
-                </Select>
-              </TableCell>
-              {/* Financing Vehicle Condition Dropdown - Fixed */}
-              <TableCell>
-                <Select
-                  value={program.financingVehicleCondition}
-                  onValueChange={(value) => {
-                    setPrograms(prev =>
-                      prev.map(p =>
-                        p.id === program.id ? { ...p, financingVehicleCondition: value } : p
-                      )
-                    );
-                    toast.success("Updated Vehicle Condition");
-                  }}
-                >
-                  <SelectTrigger className="w-32">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="z-50 bg-white">
-                    {Array.from(
-                      new Set(vehicleConditions.map(vc => vc.type))
-                    ).map(type => (
-                      <SelectItem key={type} value={type}>{type}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </TableCell>
-              <TableCell>{program.programStartDate}</TableCell>
-              <TableCell>{program.programEndDate}</TableCell>
-              <TableCell>
-                <Badge className={program.isActive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}>
-                  {program.isActive ? "Active" : "Inactive"}
-                </Badge>
-              </TableCell>
-              <TableCell>{program.orderTypes}</TableCell>
-              <TableCell>{program.version}</TableCell>
-              <TableCell className="text-right space-x-2">
-                <Button 
-                  variant="ghost" 
-                  size="icon"
-                  onClick={() => handleEditClick(program.id)}
-                  className="h-8 w-8"
-                >
-                  <Pencil className="h-4 w-4" />
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="icon"
-                  onClick={() => handleCopy(program.id)}
-                  className="h-8 w-8"
-                  title="Duplicate"
-                >
-                  <Copy className="h-4 w-4" />
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="icon"
-                  onClick={() => handleDeleteClick(program.id)}
-                  className="h-8 w-8 text-destructive"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </TableCell>
-            </TableRow>
+            <FinancialProgramConfigRow
+              key={program.id}
+              program={program}
+              isSelected={selectedPrograms.includes(program.id)}
+              onSelect={toggleSelectProgram}
+              onUpdate={handleUpdate}
+              onEdit={handleEditClick}
+              onCopy={handleCopy}
+              onDelete={handleDeleteClick}
+            />
           ))}
         </TableBody>
       </Table>
       
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Financial Program Config</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete this financial program configuration? This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteConfirmationDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 };
 
 export default FinancialProgramConfigTable;
-
-// NOTE: This file is now quite long (near or over 300 lines). Please consider refactoring into smaller focused components for future maintainability.
