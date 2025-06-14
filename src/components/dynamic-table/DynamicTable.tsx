@@ -9,6 +9,7 @@ import AddColumnModal from "./AddColumnModal";
 import TableCellRenderer from "./TableCellRenderer";
 import TableRowActions from "./TableRowActions";
 import { DynamicTableProps, TableData, ColumnDefinition } from "@/types/dynamicTable";
+import { Plus, Trash2 } from "lucide-react";
 
 const DynamicTable = ({ 
   schema, 
@@ -24,6 +25,8 @@ const DynamicTable = ({
   const [insertPosition, setInsertPosition] = useState<number>(0);
   const [editingCell, setEditingCell] = useState<{rowId: string, columnKey: string} | null>(null);
   const [editValue, setEditValue] = useState<any>("");
+  const [hoveredHeader, setHoveredHeader] = useState<number | null>(null);
+  const [hoveredBetween, setHoveredBetween] = useState<number | null>(null);
 
   // Options for custom program config dropdowns
   const programConfigOptions = {
@@ -166,6 +169,11 @@ const DynamicTable = ({
     }
   };
 
+  const openAddColumnModalAt = (insertAt: number) => {
+    setInsertPosition(insertAt);
+    setShowAddColumn(true);
+  };
+
   return (
     <div className="space-y-4">
       {/* Show column management button if allowed */}
@@ -182,12 +190,61 @@ const DynamicTable = ({
           <TableHeader>
             <TableRow>
               <TableHead className="w-10"></TableHead>
-              {schema.columns.map((column) => (
-                <TableHead key={column.id}>
-                  <span>{column.name}</span>
-                  {/* ... Column options could go here ... */}
-                </TableHead>
-              ))}
+              {
+                schema.columns.map((column, colIdx) => (
+                  <th key={column.id} 
+                    className="relative group"
+                    onMouseEnter={() => setHoveredHeader(colIdx)}
+                    onMouseLeave={() => setHoveredHeader(null)}
+                  >
+                    <div className="flex items-center">
+                      <span>{column.name}</span>
+                      {/* Delete column button (show if not first/ID col) */}
+                      {allowColumnManagement && hoveredHeader === colIdx && column.key !== 'id' && (
+                        <button
+                          className="absolute -top-2 -right-2 bg-white border border-gray-200 rounded-full shadow p-0.5 hover:bg-red-100 z-10 transition"
+                          title="Delete column"
+                          onClick={e => {
+                            e.stopPropagation();
+                            handleRemoveColumn(column.id);
+                          }}
+                        >
+                          <Trash2 size={16} className="text-gray-500 hover:text-red-500"/>
+                        </button>
+                      )}
+                    </div>
+                    {/* Add column button BETWEEN columns */}
+                    {allowColumnManagement && colIdx < schema.columns.length - 1 && (
+                      <div
+                        className="absolute top-1/2 right-0 transform translate-x-1/2 -translate-y-1/2"
+                        onMouseEnter={() => setHoveredBetween(colIdx)}
+                        onMouseLeave={() => setHoveredBetween(null)}
+                      >
+                        {hoveredBetween === colIdx && (
+                          <button
+                            className="bg-white border border-gray-200 rounded-full shadow p-0.5 hover:bg-blue-100 z-10 transition"
+                            title="Add column"
+                            onClick={e => {
+                              e.stopPropagation();
+                              openAddColumnModalAt(colIdx);
+                            }}
+                          >
+                            <Plus size={16} className="text-gray-500 hover:text-blue-600"/>
+                          </button>
+                        )}
+                        <div
+                          className="w-2 h-6 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 cursor-pointer"
+                          onMouseEnter={() => setHoveredBetween(colIdx)}
+                          onClick={e => {
+                            e.stopPropagation();
+                            openAddColumnModalAt(colIdx);
+                          }}
+                        />
+                      </div>
+                    )}
+                  </th>
+                ))
+              }
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
