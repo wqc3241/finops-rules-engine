@@ -172,6 +172,7 @@ const FinancialProgramConfigTable = () => {
       ...original,
       id: newId,
       version: original.version + 1,
+      cloneFrom: original.programCode, // Set cloneFrom to original's programCode
     };
 
     setPrograms(prev => [...prev, newProgram]);
