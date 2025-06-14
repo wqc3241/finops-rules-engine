@@ -72,7 +72,7 @@ const mockVehicleOptionsData = [
   {
     id: "KSAOP1",
     code: "KSAOP1",
-    drivetrain: "AWE",
+    drivetrain: "AWD",
     color: "Blue",
     design: "Stealth",
     roof: "Glass",
