@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import ColumnManagementModal from "./ColumnManagementModal";
 import AddColumnModal from "./AddColumnModal";
 import ForeignKeySelect from "./ForeignKeySelect";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 
 const DynamicTable = ({ 
   schema, 
@@ -27,6 +28,28 @@ const DynamicTable = ({
   const [editValue, setEditValue] = useState<any>("");
   const [hoveredDivider, setHoveredDivider] = useState<number | null>(null);
   const [hoveredDeleteButton, setHoveredDeleteButton] = useState<string | null>(null);
+
+  // Demo options for program config dropdowns (should be fetched in a real app)
+  const programConfigOptions = {
+    financialProducts: [
+      { id: "USLN", label: "USLN - US Loan" },
+      { id: "USLE", label: "USLE - US Lease" },
+      { id: "KSABM", label: "KSABM - KSA Balloon Mortgage" },
+      { id: "KSABA5050", label: "KSABA5050 - KSA Balloon 50/50" }
+    ],
+    vehicleStyles: [
+      { id: "L25A1", label: "L25A1 - 2025 Lucid Air Grand Touring" },
+      { id: "L25A2", label: "L25A2 - 2025 Lucid Air Pure" },
+      { id: "L25A3", label: "L25A3 - 2025 Lucid Air Pure" },
+      { id: "KSA25A1", label: "KSA25A1 - 2025 Lucid Air Pure (KSA)" }
+    ],
+    vehicleConditions: [
+      { id: "New", label: "New" },
+      { id: "Used", label: "Used" },
+      { id: "Demo", label: "Demo" },
+      { id: "CPO", label: "Certified Pre-Owned" }
+    ]
+  };
 
   const handleSelectRow = (id: string) => {
     const updatedSelection = selectedItems.includes(id)
@@ -164,7 +187,77 @@ const DynamicTable = ({
       );
     }
 
+    // Custom editing UI for program config special columns
     if (isEditing && column.editable) {
+      if (column.key === "financialProductId") {
+        return (
+          <div className="flex items-center space-x-2">
+            <Select
+              value={editValue}
+              onValueChange={setEditValue}
+            >
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder="Select product" />
+              </SelectTrigger>
+              <SelectContent className="z-50 bg-white">
+                {programConfigOptions.financialProducts.map(opt =>
+                  <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>
+                )}
+              </SelectContent>
+            </Select>
+            <div className="space-x-2">
+              <Button size="sm" onClick={handleSaveEdit}>Save</Button>
+              <Button size="sm" variant="outline" onClick={handleCancelEdit}>Cancel</Button>
+            </div>
+          </div>
+        );
+      }
+      if (column.key === "vehicleStyleId") {
+        return (
+          <div className="flex items-center space-x-2">
+            <Select
+              value={editValue}
+              onValueChange={setEditValue}
+            >
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder="Select style" />
+              </SelectTrigger>
+              <SelectContent className="z-50 bg-white">
+                {programConfigOptions.vehicleStyles.map(opt =>
+                  <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>
+                )}
+              </SelectContent>
+            </Select>
+            <div className="space-x-2">
+              <Button size="sm" onClick={handleSaveEdit}>Save</Button>
+              <Button size="sm" variant="outline" onClick={handleCancelEdit}>Cancel</Button>
+            </div>
+          </div>
+        );
+      }
+      if (column.key === "financingVehicleCondition") {
+        return (
+          <div className="flex items-center space-x-2">
+            <Select
+              value={editValue}
+              onValueChange={setEditValue}
+            >
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder="Select condition" />
+              </SelectTrigger>
+              <SelectContent className="z-50 bg-white">
+                {programConfigOptions.vehicleConditions.map(opt =>
+                  <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>
+                )}
+              </SelectContent>
+            </Select>
+            <div className="space-x-2">
+              <Button size="sm" onClick={handleSaveEdit}>Save</Button>
+              <Button size="sm" variant="outline" onClick={handleCancelEdit}>Cancel</Button>
+            </div>
+          </div>
+        );
+      }
       if (column.type === 'boolean') {
         return (
           <div className="flex items-center space-x-2">
@@ -179,7 +272,6 @@ const DynamicTable = ({
           </div>
         );
       }
-
       return (
         <div className="flex items-center space-x-2">
           <Input
