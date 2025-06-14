@@ -150,8 +150,11 @@ const AddColumnModal = ({ open, onOpenChange, onAddColumn, existingColumns }: Ad
     });
   };
 
-  const availableTables = Object.values(schemas).filter(schema => schema.id !== 'current');
+  // Include ALL available tables from all sections - don't filter any out
+  const availableTables = Object.values(schemas);
   const selectedTableColumns = selectedTable ? schemas[selectedTable]?.columns || [] : [];
+
+  console.log("Available tables for selection:", availableTables.map(t => ({ id: t.id, name: t.name })));
 
   return (
     <Dialog open={open} onOpenChange={(open) => {
