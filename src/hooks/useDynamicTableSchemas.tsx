@@ -137,10 +137,18 @@ export function DynamicTableSchemasProvider({ children }: { children: ReactNode 
     if (saved) {
       try {
         const parsedSchemas = JSON.parse(saved);
+        // Ensure bulletin-pricing uses the latest column structure from DEFAULT_SCHEMAS
+        // This helps override potentially outdated structures from localStorage.
+        if (parsedSchemas['bulletin-pricing']) {
+            parsedSchemas['bulletin-pricing'].columns = DEFAULT_SCHEMAS['bulletin-pricing'].columns;
+        }
         setSchemas({ ...DEFAULT_SCHEMAS, ...parsedSchemas });
       } catch (error) {
         console.error('Failed to parse saved schemas:', error);
+        setSchemas(DEFAULT_SCHEMAS); // Fallback to defaults if parsing fails
       }
+    } else {
+      setSchemas(DEFAULT_SCHEMAS); // Initialize with defaults if nothing is saved
     }
   }, []);
 
