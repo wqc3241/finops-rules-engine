@@ -42,7 +42,7 @@ const ExistingColumnSelector = ({
       {/* Column Selection */}
       {selectedTable && (
         <div className="grid gap-2">
-          <Label>Select Column</Label>
+          <Label>Select Key</Label>
           <Select value={selectedColumn} onValueChange={onColumnChange}>
             <SelectTrigger>
               <SelectValue placeholder="Choose a column" />
