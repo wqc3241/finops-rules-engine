@@ -17,7 +17,7 @@ import ConfirmationStep from "./WizardSteps/ConfirmationStep";
 export interface WizardData {
   vehicleStyleId: string;
   vehicleCondition: string;
-  financialProducts: string[];
+  financialProduct: string; // single string now
   pricingTypes: string[];
   creditProfile: any;
   pricingConfig: any;
@@ -50,7 +50,7 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete }: FinancialPro
   const [wizardData, setWizardData] = useState<WizardData>({
     vehicleStyleId: "",
     vehicleCondition: "",
-    financialProducts: [],
+    financialProduct: "",
     pricingTypes: [],
     creditProfile: null,
     pricingConfig: null,
@@ -69,7 +69,7 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete }: FinancialPro
       case 1:
         return wizardData.vehicleStyleId && wizardData.vehicleCondition;
       case 2:
-        return wizardData.financialProducts.length > 0;
+        return !!wizardData.financialProduct; // only one selection now
       case 3:
         return wizardData.pricingTypes.length > 0;
       case 4:
@@ -110,7 +110,7 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete }: FinancialPro
   };
 
   const generateProgramCode = (data: WizardData): string => {
-    const productCode = data.financialProducts[0]?.substring(0, 3) || "FIN";
+    const productCode = data.financialProduct?.substring(0, 3) || "FIN";
     const vehicleCode = data.vehicleStyleId.substring(0, 3) || "VEH";
     const dateCode = new Date().getFullYear().toString().substring(2);
     const randomSuffix = Math.random().toString(36).substring(2, 5).toUpperCase();

@@ -1,6 +1,6 @@
 
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { WizardData } from "../FinancialProgramWizard";
 
 // Mock data from Financial Products table
@@ -17,30 +17,30 @@ interface FinancialProductStepProps {
 }
 
 const FinancialProductStep = ({ data, onUpdate }: FinancialProductStepProps) => {
-  const handleProductToggle = (productId: string, checked: boolean) => {
-    const updatedProducts = checked
-      ? [...data.financialProducts, productId]
-      : data.financialProducts.filter(id => id !== productId);
-    
-    onUpdate({ financialProducts: updatedProducts });
+  const handleProductSelect = (value: string) => {
+    onUpdate({ financialProduct: value });
   };
 
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-semibold mb-4">Financial Products</h3>
+        <h3 className="text-lg font-semibold mb-4">Financial Product</h3>
         <p className="text-sm text-muted-foreground mb-6">
-          Select one or more financial products that will be available in this program.
+          Select the single financial product that will be available in this program.
         </p>
       </div>
 
-      <div className="space-y-4">
+      <RadioGroup
+        value={data.financialProduct}
+        onValueChange={handleProductSelect}
+        className="space-y-4"
+      >
         {financialProducts.map((product) => (
           <div key={product.id} className="flex items-start space-x-3 p-4 border rounded-lg hover:bg-gray-50">
-            <Checkbox
+            <RadioGroupItem
+              value={product.id}
               id={product.id}
-              checked={data.financialProducts.includes(product.id)}
-              onCheckedChange={(checked) => handleProductToggle(product.id, checked as boolean)}
+              className="mt-1"
             />
             <div className="flex-1">
               <Label htmlFor={product.id} className="text-sm font-medium cursor-pointer">
@@ -52,18 +52,15 @@ const FinancialProductStep = ({ data, onUpdate }: FinancialProductStepProps) => 
             </div>
           </div>
         ))}
-      </div>
+      </RadioGroup>
 
-      {data.financialProducts.length > 0 && (
+      {data.financialProduct && (
         <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
           <p className="text-sm text-blue-800">
-            <strong>Selected Products:</strong> {data.financialProducts.length} product(s)
+            <strong>Selected Product:</strong>
+            {" "}
+            {financialProducts.find(p => p.id === data.financialProduct)?.label}
           </p>
-          <ul className="text-xs text-blue-700 mt-2 space-y-1">
-            {data.financialProducts.map(id => (
-              <li key={id}>• {financialProducts.find(p => p.id === id)?.label}</li>
-            ))}
-          </ul>
         </div>
       )}
     </div>
