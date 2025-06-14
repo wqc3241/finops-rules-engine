@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
@@ -143,6 +143,41 @@ const FinancialProgramConfigTable = () => {
     toast.info(`Editing program ${id} - functionality to be implemented`);
   };
 
+  // Copy functionality
+  const handleCopy = (id: string) => {
+    const original = programs.find(p => p.id === id);
+    if (!original) return;
+
+    // Extract prefix (letters) and numeric part from ID
+    const idMatch = original.id.match(/^([A-Za-z]+)(\d+)$/);
+    let newId = "";
+    if (idMatch) {
+      const [, prefix, numericPart] = idMatch;
+      const incremented = String(Number(numericPart) + 1).padStart(numericPart.length, "0");
+      // Prevent ID collision
+      let candidateId = prefix + incremented;
+      let tries = 1;
+      while (programs.some(p => p.id === candidateId)) {
+        // Try next number if already taken
+        tries++;
+        candidateId = prefix + String(Number(numericPart) + tries).padStart(numericPart.length, "0");
+      }
+      newId = candidateId;
+    } else {
+      // Fallback: just append _COPY + timestamp if not matching pattern
+      newId = original.id + "_COPY" + Date.now();
+    }
+
+    const newProgram: FinancialProgramConfig = {
+      ...original,
+      id: newId,
+      version: original.version + 1,
+    };
+
+    setPrograms(prev => [...prev, newProgram]);
+    toast.success(`Duplicated: ${original.id} → ${newId}`);
+  };
+
   return (
     <div className="overflow-x-auto">
       <Table>
@@ -204,6 +239,15 @@ const FinancialProgramConfigTable = () => {
                   className="h-8 w-8"
                 >
                   <Pencil className="h-4 w-4" />
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  onClick={() => handleCopy(program.id)}
+                  className="h-8 w-8"
+                  title="Duplicate"
+                >
+                  <Copy className="h-4 w-4" />
                 </Button>
                 <Button 
                   variant="ghost" 
