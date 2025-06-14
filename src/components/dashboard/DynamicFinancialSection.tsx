@@ -89,7 +89,7 @@ const DynamicFinancialSection = ({
       programCode: wizardData.programCode || "",
       cloneFrom: null,
       priority: wizardData.creditProfile?.priority || 1,
-      financialProductId: wizardData.financialProducts[0] || "",
+      financialProductId: wizardData.financialProduct || "",
       productType: null,
       vehicleStyleId: wizardData.vehicleStyleId,
       financingVehicleCondition: wizardData.vehicleCondition,

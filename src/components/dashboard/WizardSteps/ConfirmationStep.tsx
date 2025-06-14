@@ -1,7 +1,14 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { WizardData } from "../FinancialProgramWizard";
+
+// Repeat mock products list so we can look up the label
+const financialProducts = [
+  { id: "USLN", label: "USLN - US Loan", type: "Loan", geoCode: "NA-US" },
+  { id: "USLE", label: "USLE - US Lease", type: "Lease", geoCode: "NA-US" },
+  { id: "KSABM", label: "KSABM - KSA Balloon Mortgage", type: "Loan", geoCode: "ME-KSA" },
+  { id: "KSABA5050", label: "KSABA5050 - KSA Balloon 50/50", type: "Loan", geoCode: "ME-KSA" }
+];
 
 interface ConfirmationStepProps {
   data: WizardData;
@@ -37,14 +44,16 @@ const ConfirmationStep = ({ data }: ConfirmationStepProps) => {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Financial Products</CardTitle>
+            <CardTitle className="text-base">Financial Product</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-wrap gap-1">
-              {data.financialProducts.map(product => (
-                <Badge key={product} variant="secondary">{product}</Badge>
-              ))}
-            </div>
+            {data.financialProduct ? (
+              <Badge variant="secondary">
+                {financialProducts.find(p => p.id === data.financialProduct)?.label || data.financialProduct}
+              </Badge>
+            ) : (
+              <span className="text-sm text-muted-foreground">None selected</span>
+            )}
           </CardContent>
         </Card>
 
