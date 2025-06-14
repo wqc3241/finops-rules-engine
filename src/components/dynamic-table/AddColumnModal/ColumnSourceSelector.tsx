@@ -22,7 +22,7 @@ const ColumnSourceSelector = ({ value, onChange }: ColumnSourceSelectorProps) =>
         </div>
         <div className="flex items-center space-x-2">
           <RadioGroupItem value="existing" id="existing-column" className="cursor-pointer" />
-          <Label htmlFor="existing-column" className="cursor-pointer">Reference Existing Column</Label>
+          <Label htmlFor="existing-column" className="cursor-pointer">From Existing Table</Label>
         </div>
       </RadioGroup>
     </div>
