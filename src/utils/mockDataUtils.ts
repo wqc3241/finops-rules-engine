@@ -1,4 +1,3 @@
-
 import { TableData } from "@/types/dynamicTable";
 
 export const getInitialData = (schemaId: string): TableData[] => {
@@ -32,7 +31,6 @@ export const getInitialData = (schemaId: string): TableData[] => {
           pricingValue: 0.0295,
           uploadDate: "2023-05-15"
         },
-        // Adding pricing rules data to bulletin pricing
         { 
           id: "BT01", 
           financialProgramCode: "AIPUNR07241", 
@@ -142,7 +140,14 @@ export const getInitialData = (schemaId: string): TableData[] => {
       return [
         { id: "1", typeCode: "STDAPR", typeName: "Standard APR" },
         { id: "2", typeCode: "SUBAPR", typeName: "Subvented APR" },
-        { id: "3", typeCode: "MINDWPAY", typeName: "Min Down Payment" }
+        { id: "3", typeCode: "MINDWPAY", typeName: "Min Down Payment" },
+        { id: "4", typeCode: "SPR", typeName: "Special Rate" },
+        { id: "5", typeCode: "INR", typeName: "Interest Rate" },
+        { id: "6", typeCode: "ENHRV", typeName: "Enhanced Residual Value" },
+        { id: "7", typeCode: "SUBMF", typeName: "Subvented Money Factor" },
+        { id: "8", typeCode: "MAXBDAPR", typeName: "Max Base Down APR" },
+        { id: "9", typeCode: "MAXMUAPR", typeName: "Max Markup APR" },
+        { id: "10", typeCode: "ADF", typeName: "Additional Dealer Fee" }
       ];
     case 'financial-products':
       return [
@@ -331,3 +336,33 @@ export const getInitialData = (schemaId: string): TableData[] => {
       return [];
   }
 };
+
+// Helper functions for wizard data
+export const getVehicleStyles = () => [
+  { id: "L25A1", label: "L25A1 - 2025 Lucid Air Grand Touring" },
+  { id: "L25A2", label: "L25A2 - 2025 Lucid Air Pure" },
+  { id: "L25A3", label: "L25A3 - 2025 Lucid Air Pure" },
+  { id: "KSA25A1", label: "KSA25A1 - 2025 Lucid Air Pure (KSA)" }
+];
+
+export const getVehicleConditions = () => [
+  { id: "New", label: "New" },
+  { id: "Used", label: "Used" },
+  { id: "Demo", label: "Demo" },
+  { id: "CPO", label: "Certified Pre-Owned" }
+];
+
+export const getLenders = () => [
+  { id: "CMB", name: "Chase Manhattan Bank" },
+  { id: "BAC", name: "Bank of America" },
+  { id: "LFS", name: "Lucid Financial Services" },
+  { id: "KSASNB", name: "KSA Saudi National Bank" },
+  { id: "KSAAJB", name: "KSA Al Jazira Bank" }
+];
+
+export const getGeoCodes = () => [
+  { id: "NA-US", name: "North America - United States" },
+  { id: "NA-US-CA", name: "North America - United States - California" },
+  { id: "ME-KSA", name: "Middle East - Saudi Arabia" },
+  { id: "ME-UAE", name: "Middle East - United Arab Emirates" }
+];

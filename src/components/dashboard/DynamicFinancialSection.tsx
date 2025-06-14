@@ -1,6 +1,8 @@
+
 import { useState } from "react";
 import SectionHeader from "./SectionHeader";
 import DynamicFinancialSectionContent from "./DynamicFinancialSectionContent";
+import FinancialProgramWizard, { WizardData } from "./FinancialProgramWizard";
 import { useDynamicTableSchemas } from "@/hooks/useDynamicTableSchemas";
 import { useDynamicFinancialData } from "@/hooks/useDynamicFinancialData";
 import { useUndoRedo } from "@/hooks/useUndoRedo";
@@ -22,6 +24,7 @@ const DynamicFinancialSection = ({
   onSetBatchDeleteCallback
 }: DynamicFinancialSectionProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [showWizard, setShowWizard] = useState(false);
   const { getSchema, updateSchema } = useDynamicTableSchemas();
   const { data, setData, handleAddNew } = useDynamicFinancialData({
     schemaId,
@@ -68,10 +71,46 @@ const DynamicFinancialSection = ({
   };
 
   const handleAddNewRecord = () => {
-    if (schema) {
-      saveState(data, schema, 'add_record');
+    // Use wizard for financial-program-config, regular add for others
+    if (schemaId === 'financial-program-config') {
+      setShowWizard(true);
+    } else {
+      if (schema) {
+        saveState(data, schema, 'add_record');
+      }
+      handleAddNew(schema);
     }
-    handleAddNew(schema);
+  };
+
+  const handleWizardComplete = (wizardData: WizardData) => {
+    // Convert wizard data to financial program config record
+    const newRecord = {
+      id: `FPC${Date.now()}`,
+      programCode: wizardData.programCode || "",
+      cloneFrom: null,
+      priority: wizardData.creditProfile?.priority || 1,
+      financialProductId: wizardData.financialProducts[0] || "",
+      productType: null,
+      vehicleStyleId: wizardData.vehicleStyleId,
+      financingVehicleCondition: wizardData.vehicleCondition,
+      programStartDate: new Date(wizardData.programStartDate).toLocaleDateString(),
+      programEndDate: new Date(wizardData.programEndDate).toLocaleDateString(),
+      isActive: true,
+      orderTypes: "INV, CON",
+      version: 1
+    };
+
+    // Save state for undo/redo
+    if (schema) {
+      saveState(data, schema, 'wizard_add');
+    }
+
+    // Add the new record to the data
+    const newData = [...data, newRecord];
+    setData(newData);
+    
+    console.log('Financial program created:', newRecord);
+    console.log('Full wizard data:', wizardData);
   };
 
   if (!schema) {
@@ -104,6 +143,15 @@ const DynamicFinancialSection = ({
           onSchemaChange={handleSchemaChange}
           onSelectionChange={onSelectionChange}
           selectedItems={selectedItems}
+        />
+      )}
+
+      {/* Financial Program Wizard */}
+      {schemaId === 'financial-program-config' && (
+        <FinancialProgramWizard
+          open={showWizard}
+          onOpenChange={setShowWizard}
+          onComplete={handleWizardComplete}
         />
       )}
     </div>
