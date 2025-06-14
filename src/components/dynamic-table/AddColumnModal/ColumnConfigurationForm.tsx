@@ -1,4 +1,3 @@
-
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -59,8 +58,8 @@ const ColumnConfigurationForm = ({
         </div>
       )}
 
-      {/* Only show Data Type select if NOT from an existing column */}
-      {(!isFromExisting || !selectedColumn) && (
+      {/* Only show Data Type select if creating a new column */}
+      {!isFromExisting && (
         <div className="grid gap-2">
           <Label>Data Type</Label>
           <Select 
@@ -146,4 +145,3 @@ const ColumnConfigurationForm = ({
 };
 
 export default ColumnConfigurationForm;
-
