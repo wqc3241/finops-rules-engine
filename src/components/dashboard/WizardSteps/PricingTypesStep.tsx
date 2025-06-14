@@ -1,4 +1,3 @@
-
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { WizardData } from "../FinancialProgramWizard";
@@ -124,18 +123,18 @@ const PricingTypesStep = ({ data, onUpdate }: PricingTypesStepProps) => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {pricingTypes.map((type) => (
-          <div key={type.code || type.typeCode} className="flex items-start space-x-3 p-3 border rounded-lg hover:bg-gray-50">
+          <div key={type.typeCode} className="flex items-start space-x-3 p-3 border rounded-lg hover:bg-gray-50">
             <Checkbox
-              id={type.code || type.typeCode}
-              checked={data.pricingTypes.includes(type.code || type.typeCode)}
-              onCheckedChange={(checked) => handlePricingTypeToggle(type.code || type.typeCode, checked as boolean)}
+              id={type.typeCode}
+              checked={data.pricingTypes.includes(type.typeCode)}
+              onCheckedChange={(checked) => handlePricingTypeToggle(type.typeCode, checked as boolean)}
             />
             <div className="flex-1">
-              <Label htmlFor={type.code || type.typeCode} className="text-sm font-medium cursor-pointer">
-                {type.code || type.typeCode}
+              <Label htmlFor={type.typeCode} className="text-sm font-medium cursor-pointer">
+                {type.typeCode}
               </Label>
               <p className="text-xs text-muted-foreground mt-1">
-                {type.name || type.typeName}
+                {type.typeName}
               </p>
             </div>
           </div>
@@ -157,4 +156,3 @@ const PricingTypesStep = ({ data, onUpdate }: PricingTypesStepProps) => {
 };
 
 export default PricingTypesStep;
-
