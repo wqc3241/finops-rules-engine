@@ -164,17 +164,20 @@ const AddColumnModal = ({ open, onOpenChange, onAddColumn, existingColumns }: Ad
                 value={columnSource} 
                 onValueChange={(value: "new" | "existing") => {
                   setColumnSource(value);
-                  resetForm();
+                  if (value === "new") {
+                    setSelectedTable("");
+                    setSelectedColumn("");
+                  }
                 }}
-                className="flex gap-4"
+                className="flex gap-6"
               >
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="new" id="new" />
-                  <Label htmlFor="new">Create New Column</Label>
+                  <RadioGroupItem value="new" id="new-column" className="cursor-pointer" />
+                  <Label htmlFor="new-column" className="cursor-pointer">Create New Column</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="existing" id="existing" />
-                  <Label htmlFor="existing">Reference Existing Column</Label>
+                  <RadioGroupItem value="existing" id="existing-column" className="cursor-pointer" />
+                  <Label htmlFor="existing-column" className="cursor-pointer">Reference Existing Column</Label>
                 </div>
               </RadioGroup>
             </div>
@@ -283,12 +286,12 @@ const AddColumnModal = ({ open, onOpenChange, onAddColumn, existingColumns }: Ad
                 disabled={columnSource === "existing" && selectedColumn !== ""}
               >
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="Input" id="input" />
-                  <Label htmlFor="input">Input</Label>
+                  <RadioGroupItem value="Input" id="input-type" className="cursor-pointer" />
+                  <Label htmlFor="input-type" className="cursor-pointer">Input</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="Output" id="output" />
-                  <Label htmlFor="output">Output</Label>
+                  <RadioGroupItem value="Output" id="output-type" className="cursor-pointer" />
+                  <Label htmlFor="output-type" className="cursor-pointer">Output</Label>
                 </div>
               </RadioGroup>
             </div>
@@ -301,7 +304,7 @@ const AddColumnModal = ({ open, onOpenChange, onAddColumn, existingColumns }: Ad
                   setFormData(prev => ({ ...prev, isRequired: !!checked }))
                 }
               />
-              <Label htmlFor="required">Required field</Label>
+              <Label htmlFor="required" className="cursor-pointer">Required field</Label>
             </div>
 
             <div className="flex items-center space-x-2">
@@ -312,7 +315,7 @@ const AddColumnModal = ({ open, onOpenChange, onAddColumn, existingColumns }: Ad
                   setFormData(prev => ({ ...prev, sortable: !!checked }))
                 }
               />
-              <Label htmlFor="sortable">Sortable</Label>
+              <Label htmlFor="sortable" className="cursor-pointer">Sortable</Label>
             </div>
 
             {formData.inputType === "Input" && (
@@ -325,7 +328,7 @@ const AddColumnModal = ({ open, onOpenChange, onAddColumn, existingColumns }: Ad
                   }
                   disabled={columnSource === "existing"}
                 />
-                <Label htmlFor="editable">Editable</Label>
+                <Label htmlFor="editable" className="cursor-pointer">Editable</Label>
               </div>
             )}
 
