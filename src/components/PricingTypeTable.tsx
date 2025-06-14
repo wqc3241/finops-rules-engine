@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Edit, Trash2, Copy } from "lucide-react";
+import { Edit, Trash2, Copy, Save, X } from "lucide-react";
 import { toast } from "sonner";
 import {
   Pagination,
@@ -21,12 +21,20 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { usePricingTypes, PricingType } from "@/hooks/usePricingTypes";
+import { Input } from "@/components/ui/input";
 
 const PricingTypeTable = () => {
   const { pricingTypes, setPricingTypes } = usePricingTypes();
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+
+  // Inline editing state
+  const [editingCell, setEditingCell] = useState<{
+    rowId: string;
+    field: keyof PricingType;
+  } | null>(null);
+  const [editValue, setEditValue] = useState<string>("");
 
   const data = pricingTypes;
 
@@ -74,6 +82,32 @@ const PricingTypeTable = () => {
     toast.success(`Pricing type deleted successfully`);
   };
 
+  // Inline editing logic
+  const handleCellClick = (
+    rowId: string, 
+    field: keyof PricingType, 
+    value: string
+  ) => {
+    setEditingCell({ rowId, field });
+    setEditValue(value);
+  };
+  const handleCellSave = () => {
+    if (!editingCell) return;
+    const { rowId, field } = editingCell;
+    setPricingTypes(prev =>
+      prev.map((item) =>
+        item.id === rowId ? { ...item, [field]: editValue } : item
+      )
+    );
+    setEditingCell(null);
+    setEditValue("");
+    toast.success("Cell updated successfully");
+  };
+  const handleCellCancel = () => {
+    setEditingCell(null);
+    setEditValue("");
+  };
+
   // Paginate data
   const totalPages = Math.ceil(data.length / itemsPerPage);
   const paginatedData = data.slice(
@@ -107,8 +141,80 @@ const PricingTypeTable = () => {
                     onCheckedChange={() => handleSelectItem(item.id)}
                   />
                 </TableCell>
-                <TableCell>{item.typeCode}</TableCell>
-                <TableCell>{item.typeName}</TableCell>
+                {/* Inline editable Type Code */}
+                <TableCell
+                  onClick={() =>
+                    !editingCell &&
+                    handleCellClick(item.id, "typeCode", item.typeCode)
+                  }
+                  className={`${
+                    editingCell &&
+                    editingCell.rowId === item.id &&
+                    editingCell.field === "typeCode"
+                      ? "bg-blue-50"
+                      : "cursor-pointer"
+                  }`}
+                  style={{ minWidth: 100 }}
+                >
+                  {editingCell &&
+                  editingCell.rowId === item.id &&
+                  editingCell.field === "typeCode" ? (
+                    <div className="flex items-center gap-2">
+                      <Input
+                        value={editValue}
+                        onChange={e => setEditValue(e.target.value)}
+                        className="w-32"
+                        autoFocus
+                        maxLength={24}
+                      />
+                      <Button size="sm" onClick={handleCellSave}>
+                        <Save className="w-4 h-4" />
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={handleCellCancel}>
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <span>{item.typeCode}</span>
+                  )}
+                </TableCell>
+                {/* Inline editable Type Name */}
+                <TableCell
+                  onClick={() =>
+                    !editingCell &&
+                    handleCellClick(item.id, "typeName", item.typeName)
+                  }
+                  className={`${
+                    editingCell &&
+                    editingCell.rowId === item.id &&
+                    editingCell.field === "typeName"
+                      ? "bg-blue-50"
+                      : "cursor-pointer"
+                  }`}
+                  style={{ minWidth: 120 }}
+                >
+                  {editingCell &&
+                  editingCell.rowId === item.id &&
+                  editingCell.field === "typeName" ? (
+                    <div className="flex items-center gap-2">
+                      <Input
+                        value={editValue}
+                        onChange={e => setEditValue(e.target.value)}
+                        className="w-32"
+                        autoFocus
+                        maxLength={48}
+                      />
+                      <Button size="sm" onClick={handleCellSave}>
+                        <Save className="w-4 h-4" />
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={handleCellCancel}>
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <span>{item.typeName}</span>
+                  )}
+                </TableCell>
                 <TableCell className="text-right space-x-2">
                   <Button
                     size="icon"
