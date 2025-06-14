@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -261,112 +260,80 @@ const FinancialProgramConfigTable = () => {
               <TableCell>{program.programCode}</TableCell>
               <TableCell>{program.cloneFrom || "-"}</TableCell>
               <TableCell>{program.priority}</TableCell>
-              {/* Financial Product ID Dropdown */}
+              {/* Financial Product ID Dropdown - Fixed */}
               <TableCell>
-                {editingId === program.id && editingField === "financialProductId" ? (
-                  <Select
-                    defaultValue={program.financialProductId}
-                    onValueChange={(value) => {
-                      setEditingValue(value);
-                      setPrograms(prev =>
-                        prev.map(p =>
-                          p.id === program.id ? { ...p, financialProductId: value } : p
-                        )
-                      );
-                      cancelEdit();
-                      toast.success("Updated Financial Product ID");
-                    }}
-                    value={editingValue || program.financialProductId}
-                  >
-                    <SelectTrigger className="w-32">
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {financialProducts.map(fp =>
-                        <SelectItem key={fp.id} value={fp.id}>{fp.id} - {fp.productType}</SelectItem>
-                      )}
-                    </SelectContent>
-                  </Select>
-                ) : (
-                  <span
-                    className="cursor-pointer"
-                    onClick={() => startDropdownEdit(program.id, "financialProductId", program.financialProductId)}
-                  >
-                    {program.financialProductId}
-                  </span>
-                )}
+                <Select
+                  value={program.financialProductId}
+                  onValueChange={(value) => {
+                    setPrograms(prev =>
+                      prev.map(p =>
+                        p.id === program.id ? { ...p, financialProductId: value } : p
+                      )
+                    );
+                    toast.success("Updated Financial Product ID");
+                  }}
+                >
+                  <SelectTrigger className="w-40">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="z-50 bg-white">
+                    {financialProducts.map(fp =>
+                      <SelectItem key={fp.id} value={fp.id}>
+                        {fp.id} - {fp.productType}
+                      </SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
               </TableCell>
-              {/* Vehicle Style ID Dropdown */}
+              {/* Vehicle Style ID Dropdown - Fixed */}
               <TableCell>
-                {editingId === program.id && editingField === "vehicleStyleId" ? (
-                  <Select
-                    defaultValue={program.vehicleStyleId}
-                    onValueChange={(value) => {
-                      setEditingValue(value);
-                      setPrograms(prev =>
-                        prev.map(p =>
-                          p.id === program.id ? { ...p, vehicleStyleId: value } : p
-                        )
-                      );
-                      cancelEdit();
-                      toast.success("Updated Vehicle Style ID");
-                    }}
-                    value={editingValue || program.vehicleStyleId}
-                  >
-                    <SelectTrigger className="w-32">
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {vehicleStyles.map(vs =>
-                        <SelectItem key={vs.id} value={vs.id}>{vs.id} - {vs.trim}</SelectItem>
-                      )}
-                    </SelectContent>
-                  </Select>
-                ) : (
-                  <span
-                    className="cursor-pointer"
-                    onClick={() => startDropdownEdit(program.id, "vehicleStyleId", program.vehicleStyleId)}
-                  >
-                    {program.vehicleStyleId}
-                  </span>
-                )}
+                <Select
+                  value={program.vehicleStyleId}
+                  onValueChange={(value) => {
+                    setPrograms(prev =>
+                      prev.map(p =>
+                        p.id === program.id ? { ...p, vehicleStyleId: value } : p
+                      )
+                    );
+                    toast.success("Updated Vehicle Style ID");
+                  }}
+                >
+                  <SelectTrigger className="w-40">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="z-50 bg-white">
+                    {vehicleStyles.map(vs =>
+                      <SelectItem key={vs.id} value={vs.id}>
+                        {vs.id} - {vs.trim}
+                      </SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
               </TableCell>
-              {/* Financing Vehicle Condition Dropdown */}
+              {/* Financing Vehicle Condition Dropdown - Fixed */}
               <TableCell>
-                {editingId === program.id && editingField === "financingVehicleCondition" ? (
-                  <Select
-                    defaultValue={program.financingVehicleCondition}
-                    onValueChange={(value) => {
-                      setEditingValue(value);
-                      setPrograms(prev =>
-                        prev.map(p =>
-                          p.id === program.id ? { ...p, financingVehicleCondition: value } : p
-                        )
-                      );
-                      cancelEdit();
-                      toast.success("Updated Vehicle Condition");
-                    }}
-                    value={editingValue || program.financingVehicleCondition}
-                  >
-                    <SelectTrigger className="w-32">
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Array.from(
-                        new Set(vehicleConditions.map(vc => vc.type))
-                      ).map(type => (
-                        <SelectItem key={type} value={type}>{type}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                ) : (
-                  <span
-                    className="cursor-pointer"
-                    onClick={() => startDropdownEdit(program.id, "financingVehicleCondition", program.financingVehicleCondition)}
-                  >
-                    {program.financingVehicleCondition}
-                  </span>
-                )}
+                <Select
+                  value={program.financingVehicleCondition}
+                  onValueChange={(value) => {
+                    setPrograms(prev =>
+                      prev.map(p =>
+                        p.id === program.id ? { ...p, financingVehicleCondition: value } : p
+                      )
+                    );
+                    toast.success("Updated Vehicle Condition");
+                  }}
+                >
+                  <SelectTrigger className="w-32">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="z-50 bg-white">
+                    {Array.from(
+                      new Set(vehicleConditions.map(vc => vc.type))
+                    ).map(type => (
+                      <SelectItem key={type} value={type}>{type}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </TableCell>
               <TableCell>{program.programStartDate}</TableCell>
               <TableCell>{program.programEndDate}</TableCell>
