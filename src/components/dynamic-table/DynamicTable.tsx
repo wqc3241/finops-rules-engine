@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import ColumnManagementModal from "./ColumnManagementModal";
 import AddColumnModal from "./AddColumnModal";
@@ -46,6 +47,7 @@ const DynamicTable = ({
     ]
   };
 
+  // --- ID generation for new FPC rows ---
   const getNextFPCId = () => {
     const fpIds = data
       .map(row => typeof row.id === "string" && row.id.match(/^FPC(\d{2})$/) ? Number(row.id.slice(3)) : null)
@@ -166,7 +168,16 @@ const DynamicTable = ({
 
   return (
     <div className="space-y-4">
-      <div className="overflow-x-auto border rounded-md">
+      {/* Show column management button if allowed */}
+      {allowColumnManagement && (
+        <div className="flex justify-end">
+          <Button variant="outline" onClick={() => setShowColumnManagement(true)}>
+            Manage Columns
+          </Button>
+        </div>
+      )}
+
+      <div className="overflow-x-auto border rounded-md mt-2">
         <Table>
           <TableHeader>
             <TableRow>
@@ -174,7 +185,7 @@ const DynamicTable = ({
               {schema.columns.map((column) => (
                 <TableHead key={column.id}>
                   <span>{column.name}</span>
-                  {/* ... Add column management UI here as needed ... */}
+                  {/* ... Column options could go here ... */}
                 </TableHead>
               ))}
               <TableHead className="text-right">Actions</TableHead>
@@ -232,6 +243,7 @@ const DynamicTable = ({
         </Table>
       </div>
 
+      {/* Modals for column management */}
       <ColumnManagementModal
         open={showColumnManagement}
         onOpenChange={setShowColumnManagement}
