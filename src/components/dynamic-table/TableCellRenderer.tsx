@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import ForeignKeySelect from "./ForeignKeySelect";
+import OrderTypeMultiSelect from "./OrderTypeMultiSelect";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { ColumnDefinition, TableData } from "@/types/dynamicTable";
 
@@ -78,6 +79,17 @@ const TableCellRenderer = ({
 
   // Special dropdowns (program config)
   if (isEditing && column.editable) {
+    // Multi-select for order types
+    if (column.key === "orderTypes") {
+      return (
+        <OrderTypeMultiSelect
+          value={editValue}
+          onChange={setEditValue}
+          onSave={handleSaveEdit}
+          onCancel={handleCancelEdit}
+        />
+      );
+    }
     if (column.key === "financialProductId") {
       return (
         <div className="flex items-center space-x-2">

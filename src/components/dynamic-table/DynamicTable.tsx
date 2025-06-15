@@ -1,16 +1,15 @@
+
 import { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Edit, Copy, Trash2, Plus } from "lucide-react";
 import { DynamicTableProps, TableData, ColumnDefinition } from "@/types/dynamicTable";
 import { toast } from "sonner";
 import ColumnManagementModal from "./ColumnManagementModal";
 import AddColumnModal from "./AddColumnModal";
-import ForeignKeySelect from "./ForeignKeySelect";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import TableCellRenderer from "./TableCellRenderer";
+import TableRowActions from "./TableRowActions";
+import TableHeaderComponent from "./TableHeader";
+import { getNextFPCId } from "./utils/tableUtils";
 
 const DynamicTable = ({ 
   schema, 
@@ -48,22 +47,7 @@ const DynamicTable = ({
       { id: "Used", label: "Used" },
       { id: "Demo", label: "Demo" },
       { id: "CPO", label: "Certified Pre-Owned" }
-    ],
-    orderTypes: [
-      { id: "INV", label: "Inventory", code: "INV" },
-      { id: "CON", label: "Configurator", code: "CON" }
     ]
-  };
-
-  // Helper to get next FPC ID for financial-program-config table
-  const getNextFPCId = () => {
-    // Get all ids matching FPC followed by digits, extract numbers
-    const fpIds = data
-      .map(row => typeof row.id === "string" && row.id.match(/^FPC(\d{2})$/) ? Number(row.id.slice(3)) : null)
-      .filter((v): v is number => v !== null);
-    const nextNumber = fpIds.length > 0 ? Math.max(...fpIds) + 1 : 1;
-    // Pad with leading zero to two digits
-    return `FPC${String(nextNumber).padStart(2, "0")}`;
   };
 
   const handleSelectRow = (id: string) => {
@@ -138,7 +122,7 @@ const DynamicTable = ({
   const handleAddNewRow = () => {
     // Only custom for financial-program-config table (otherwise fallback)
     if (schema.id === "financial-program-config") {
-      const newId = getNextFPCId();
+      const newId = getNextFPCId(data);
       // Clone the first row as template or create empty row
       const template = data[0] || {};
       const newRow: TableData = { ...template, id: newId, version: 1 };
@@ -174,7 +158,7 @@ const DynamicTable = ({
     if (rowToCopy) {
       let newId = "";
       if (schema.id === "financial-program-config") {
-        newId = getNextFPCId();
+        newId = getNextFPCId(data);
       } else {
         newId = `${rowId}_copy_${Date.now()}`;
       }
@@ -196,264 +180,22 @@ const DynamicTable = ({
     setShowAddColumn(true);
   };
 
-  // Handle multi-select for order types
-  const handleOrderTypeChange = (value: string, isSelected: boolean) => {
-    if (!editingCell) return;
-    
-    const currentValues = editValue ? editValue.split(', ').filter(Boolean) : [];
-    let newValues;
-    
-    if (isSelected) {
-      newValues = [...currentValues, value];
-    } else {
-      newValues = currentValues.filter(v => v !== value);
-    }
-    
-    setEditValue(newValues.join(', '));
-  };
-
-  const renderCellContent = (row: TableData, column: ColumnDefinition) => {
-    const isEditing = editingCell?.rowId === row.id && editingCell?.columnKey === column.key;
-    const value = row[column.key];
-
-    // NEW: Foreign key cell - use our dropdown to select a record
-    if (column.isForeignKey && isEditing && column.sourceTable) {
-      return (
-        <div className="flex items-center space-x-2">
-          <ForeignKeySelect
-            sourceTable={column.sourceTable}
-            value={editValue}
-            onChange={(val) => setEditValue(val)}
-            displayColumn={column.displayColumn}
-          />
-          <div className="space-x-2">
-            <Button size="sm" onClick={handleSaveEdit}>Save</Button>
-            <Button size="sm" variant="outline" onClick={handleCancelEdit}>Cancel</Button>
-          </div>
-        </div>
-      );
-    }
-    // Display value for FK columns (show referenced record's label)
-    if (column.isForeignKey && column.sourceTable && !isEditing) {
-      // Fetch referenced record (for display) from demo data (basic only!)
-      const DEMO_ROW_DATA = {
-        "financial-products": [
-          { id: "FP1", productType: "Auto" },
-          { id: "FP2", productType: "Home" }
-        ],
-        "lender": [
-          { id: "L1", lenderName: "Prime Bank" },
-          { id: "L2", lenderName: "Auto Credit" }
-        ],
-      };
-      const options = DEMO_ROW_DATA[column.sourceTable] || [];
-      const record = options.find((r) => r.id === value);
-      return (
-        <span>
-          {record
-            ? ((column.displayColumn && record[column.displayColumn]) || record.id)
-            : value || ""}
-        </span>
-      );
-    }
-
-    // Custom editing UI for program config special columns
-    if (isEditing && column.editable) {
-      // Multi-select for order types
-      if (column.key === "orderTypes") {
-        const selectedValues = editValue ? editValue.split(', ').filter(Boolean) : [];
-        return (
-          <div className="flex items-center space-x-2">
-            <div className="space-y-2 p-2 border rounded min-w-48">
-              {programConfigOptions.orderTypes.map(orderType => (
-                <div key={orderType.id} className="flex items-center space-x-2">
-                  <Checkbox
-                    checked={selectedValues.includes(orderType.code)}
-                    onCheckedChange={(checked) => 
-                      handleOrderTypeChange(orderType.code, checked as boolean)
-                    }
-                  />
-                  <span className="text-sm">{orderType.label} ({orderType.code})</span>
-                </div>
-              ))}
-            </div>
-            <div className="space-x-2">
-              <Button size="sm" onClick={handleSaveEdit}>Save</Button>
-              <Button size="sm" variant="outline" onClick={handleCancelEdit}>Cancel</Button>
-            </div>
-          </div>
-        );
-      }
-      if (column.key === "financialProductId") {
-        return (
-          <div className="flex items-center space-x-2">
-            <Select
-              value={editValue}
-              onValueChange={setEditValue}
-            >
-              <SelectTrigger className="w-40">
-                <SelectValue placeholder="Select product" />
-              </SelectTrigger>
-              <SelectContent className="z-50 bg-white">
-                {programConfigOptions.financialProducts.map(opt =>
-                  <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>
-                )}
-              </SelectContent>
-            </Select>
-            <div className="space-x-2">
-              <Button size="sm" onClick={handleSaveEdit}>Save</Button>
-              <Button size="sm" variant="outline" onClick={handleCancelEdit}>Cancel</Button>
-            </div>
-          </div>
-        );
-      }
-      if (column.key === "vehicleStyleId") {
-        return (
-          <div className="flex items-center space-x-2">
-            <Select
-              value={editValue}
-              onValueChange={setEditValue}
-            >
-              <SelectTrigger className="w-40">
-                <SelectValue placeholder="Select style" />
-              </SelectTrigger>
-              <SelectContent className="z-50 bg-white">
-                {programConfigOptions.vehicleStyles.map(opt =>
-                  <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>
-                )}
-              </SelectContent>
-            </Select>
-            <div className="space-x-2">
-              <Button size="sm" onClick={handleSaveEdit}>Save</Button>
-              <Button size="sm" variant="outline" onClick={handleCancelEdit}>Cancel</Button>
-            </div>
-          </div>
-        );
-      }
-      if (column.key === "financingVehicleCondition") {
-        return (
-          <div className="flex items-center space-x-2">
-            <Select
-              value={editValue}
-              onValueChange={setEditValue}
-            >
-              <SelectTrigger className="w-40">
-                <SelectValue placeholder="Select condition" />
-              </SelectTrigger>
-              <SelectContent className="z-50 bg-white">
-                {programConfigOptions.vehicleConditions.map(opt =>
-                  <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>
-                )}
-              </SelectContent>
-            </Select>
-            <div className="space-x-2">
-              <Button size="sm" onClick={handleSaveEdit}>Save</Button>
-              <Button size="sm" variant="outline" onClick={handleCancelEdit}>Cancel</Button>
-            </div>
-          </div>
-        );
-      }
-      if (column.type === 'boolean') {
-        return (
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              checked={editValue}
-              onCheckedChange={setEditValue}
-            />
-            <div className="space-x-2">
-              <Button size="sm" onClick={handleSaveEdit}>Save</Button>
-              <Button size="sm" variant="outline" onClick={handleCancelEdit}>Cancel</Button>
-            </div>
-          </div>
-        );
-      }
-      return (
-        <div className="flex items-center space-x-2">
-          <Input
-            value={editValue}
-            onChange={(e) => setEditValue(column.type === 'number' ? Number(e.target.value) : e.target.value)}
-            type={column.type === 'number' ? 'number' : 'text'}
-            className="w-32"
-          />
-          <div className="space-x-2">
-            <Button size="sm" onClick={handleSaveEdit}>Save</Button>
-            <Button size="sm" variant="outline" onClick={handleCancelEdit}>Cancel</Button>
-          </div>
-        </div>
-      );
-    }
-
-    if (column.type === 'boolean') {
-      return (
-        <Badge className={value ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
-          {value ? 'Yes' : 'No'}
-        </Badge>
-      );
-    }
-
-    if (column.type === 'number' && typeof value === 'number') {
-      return value.toLocaleString();
-    }
-
-    return value || '';
-  };
-
-  const getHeaderClassName = (column: ColumnDefinition) => {
-    return column.inputType === 'Input' 
-      ? 'bg-blue-50 text-blue-900' 
-      : 'bg-gray-50 text-gray-700';
-  };
-
   return (
     <div className="space-y-4">
       <div className="overflow-x-auto border rounded-md">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-10">
-                {/* Removed select all checkbox */}
-              </TableHead>
-              {schema.columns.map((column, index) => (
-                <TableHead key={column.id} className={`${getHeaderClassName(column)} relative overflow-visible`}>
-                  <span>{column.name}</span>
-                  
-                  {/* Delete button at top edge with better positioning */}
-                  {allowColumnManagement && column.key !== 'id' && (
-                    <div
-                      className="absolute -top-2 left-0 right-0 h-6 cursor-pointer group z-30"
-                      onMouseEnter={() => setHoveredDeleteButton(column.id)}
-                      onMouseLeave={() => setHoveredDeleteButton(null)}
-                    >
-                      {hoveredDeleteButton === column.id && (
-                        <div 
-                          className="absolute top-0 left-1/2 transform -translate-x-1/2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600 transition-colors shadow-lg z-40"
-                          onClick={() => handleRemoveColumn(column.id)}
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </div>
-                      )}
-                    </div>
-                  )}
-                  
-                  {/* Column divider with hover effect */}
-                  {allowColumnManagement && index < schema.columns.length - 1 && (
-                    <div
-                      className="absolute top-0 right-0 w-2 h-full cursor-pointer group z-10"
-                      onMouseEnter={() => setHoveredDivider(index)}
-                      onMouseLeave={() => setHoveredDivider(null)}
-                      onClick={() => handleDividerClick(index)}
-                    >
-                      <div className="w-px h-full bg-gray-200 group-hover:bg-blue-300 transition-colors" />
-                      {hoveredDivider === index && (
-                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-blue-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-blue-600 transition-colors">
-                          <Plus className="w-3 h-3" />
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </TableHead>
-              ))}
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHeaderComponent
+                columns={schema.columns}
+                allowColumnManagement={allowColumnManagement}
+                hoveredDeleteButton={hoveredDeleteButton}
+                setHoveredDeleteButton={setHoveredDeleteButton}
+                hoveredDivider={hoveredDivider}
+                setHoveredDivider={setHoveredDivider}
+                onRemoveColumn={handleRemoveColumn}
+                onDividerClick={handleDividerClick}
+              />
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -475,34 +217,26 @@ const DynamicTable = ({
                       }
                     }}
                   >
-                    {renderCellContent(row, column)}
+                    <TableCellRenderer
+                      row={row}
+                      column={column}
+                      isEditing={editingCell?.rowId === row.id && editingCell?.columnKey === column.key}
+                      editValue={editValue}
+                      setEditValue={setEditValue}
+                      handleSaveEdit={handleSaveEdit}
+                      handleCancelEdit={handleCancelEdit}
+                      programConfigOptions={programConfigOptions}
+                      editingCell={editingCell}
+                    />
                   </TableCell>
                 ))}
                 <TableCell className="text-right">
-                  <div className="flex justify-end space-x-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => toast.info("Edit functionality integrated in cell editing")}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleCopyRow(row.id)}
-                    >
-                      <Copy className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleDeleteRow(row.id)}
-                      className="text-destructive"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
+                  <TableRowActions
+                    rowId={row.id}
+                    onEdit={() => toast.info("Edit functionality integrated in cell editing")}
+                    onCopy={handleCopyRow}
+                    onDelete={handleDeleteRow}
+                  />
                 </TableCell>
               </TableRow>
             ))}
