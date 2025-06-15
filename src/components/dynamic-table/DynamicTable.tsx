@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -195,17 +194,6 @@ const DynamicTable = ({
   const handleDividerClick = (index: number) => {
     setInsertPosition(index);
     setShowAddColumn(true);
-  };
-
-  // Helper to get next FPC ID for financial-program-config table
-  const getNextFPCId = () => {
-    // Get all ids matching FPC followed by digits, extract numbers
-    const fpIds = data
-      .map(row => typeof row.id === "string" && row.id.match(/^FPC(\d{2})$/) ? Number(row.id.slice(3)) : null)
-      .filter((v): v is number => v !== null);
-    const nextNumber = fpIds.length > 0 ? Math.max(...fpIds) + 1 : 1;
-    // Pad with leading zero to two digits
-    return `FPC${String(nextNumber).padStart(2, "0")}`;
   };
 
   // Handle multi-select for order types
