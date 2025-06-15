@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -48,6 +49,10 @@ const DynamicTable = ({
       { id: "Used", label: "Used" },
       { id: "Demo", label: "Demo" },
       { id: "CPO", label: "Certified Pre-Owned" }
+    ],
+    orderTypes: [
+      { id: "INV", label: "Inventory", code: "INV" },
+      { id: "CON", label: "Configurator", code: "CON" }
     ]
   };
 
@@ -192,6 +197,33 @@ const DynamicTable = ({
     setShowAddColumn(true);
   };
 
+  // Helper to get next FPC ID for financial-program-config table
+  const getNextFPCId = () => {
+    // Get all ids matching FPC followed by digits, extract numbers
+    const fpIds = data
+      .map(row => typeof row.id === "string" && row.id.match(/^FPC(\d{2})$/) ? Number(row.id.slice(3)) : null)
+      .filter((v): v is number => v !== null);
+    const nextNumber = fpIds.length > 0 ? Math.max(...fpIds) + 1 : 1;
+    // Pad with leading zero to two digits
+    return `FPC${String(nextNumber).padStart(2, "0")}`;
+  };
+
+  // Handle multi-select for order types
+  const handleOrderTypeChange = (value: string, isSelected: boolean) => {
+    if (!editingCell) return;
+    
+    const currentValues = editValue ? editValue.split(', ').filter(Boolean) : [];
+    let newValues;
+    
+    if (isSelected) {
+      newValues = [...currentValues, value];
+    } else {
+      newValues = currentValues.filter(v => v !== value);
+    }
+    
+    setEditValue(newValues.join(', '));
+  };
+
   const renderCellContent = (row: TableData, column: ColumnDefinition) => {
     const isEditing = editingCell?.rowId === row.id && editingCell?.columnKey === column.key;
     const value = row[column.key];
@@ -239,6 +271,31 @@ const DynamicTable = ({
 
     // Custom editing UI for program config special columns
     if (isEditing && column.editable) {
+      // Multi-select for order types
+      if (column.key === "orderTypes") {
+        const selectedValues = editValue ? editValue.split(', ').filter(Boolean) : [];
+        return (
+          <div className="flex items-center space-x-2">
+            <div className="space-y-2 p-2 border rounded min-w-48">
+              {programConfigOptions.orderTypes.map(orderType => (
+                <div key={orderType.id} className="flex items-center space-x-2">
+                  <Checkbox
+                    checked={selectedValues.includes(orderType.code)}
+                    onCheckedChange={(checked) => 
+                      handleOrderTypeChange(orderType.code, checked as boolean)
+                    }
+                  />
+                  <span className="text-sm">{orderType.label} ({orderType.code})</span>
+                </div>
+              ))}
+            </div>
+            <div className="space-x-2">
+              <Button size="sm" onClick={handleSaveEdit}>Save</Button>
+              <Button size="sm" variant="outline" onClick={handleCancelEdit}>Cancel</Button>
+            </div>
+          </div>
+        );
+      }
       if (column.key === "financialProductId") {
         return (
           <div className="flex items-center space-x-2">
