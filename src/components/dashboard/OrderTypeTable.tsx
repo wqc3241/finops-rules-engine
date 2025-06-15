@@ -25,6 +25,7 @@ const mockOrderTypeData = [
   {
     id: "OT1",
     type: "Inventory",
+    code: "INV",
     description: "Vehicle available in dealer inventory",
     isActive: true,
     priority: 1,
@@ -33,18 +34,11 @@ const mockOrderTypeData = [
   {
     id: "OT2", 
     type: "Configurator",
+    code: "CON",
     description: "Vehicle configured by customer",
     isActive: true,
     priority: 2,
     createdDate: "2024-01-15"
-  },
-  {
-    id: "OT3",
-    type: "Special Order",
-    description: "Special order vehicle from manufacturer",
-    isActive: false,
-    priority: 3,
-    createdDate: "2024-02-01"
   }
 ];
 
@@ -103,6 +97,7 @@ const OrderTypeTable = ({
                 />
               </TableHead>
               <TableHead>Order Type</TableHead>
+              <TableHead>Order Type Code</TableHead>
               <TableHead>Description</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Priority</TableHead>
@@ -121,6 +116,7 @@ const OrderTypeTable = ({
                   />
                 </TableCell>
                 <TableCell className="font-medium">{row.type}</TableCell>
+                <TableCell className="font-medium">{row.code}</TableCell>
                 <TableCell>{row.description}</TableCell>
                 <TableCell>
                   <Badge className={row.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
