@@ -1,16 +1,7 @@
 
 import { useState } from "react";
 import TabComponent, { TabItem } from "./TabComponent";
-import { toast } from "sonner";
-import GeoTable from "./GeoTable";
-import LeaseConfigTable from "./LeaseConfigTable";
-import VehicleConditionTable from "./VehicleConditionTable";
-import RoutingRuleTable from "./RoutingRuleTable";
-import StipulationTable from "./StipulationTable";
-import VehicleStyleDecodingTable from "./VehicleStyleDecodingTable";
-import VehicleOptionsTable from "./VehicleOptionsTable";
-import OrderTypeTable from "./OrderTypeTable";
-import LFSSetupTabContent from "./LFSSetupTabContent";
+import DynamicFinancialSection from "./DynamicFinancialSection";
 
 interface LFSSetupTabsProps {
   onSelectionChange?: (items: string[]) => void;
@@ -18,27 +9,7 @@ interface LFSSetupTabsProps {
 }
 
 const LFSSetupTabs = ({ onSelectionChange, selectedItems = [] }: LFSSetupTabsProps) => {
-  const [activeTab, setActiveTab] = useState("geo");
-
-  const handleEditClick = (id: string) => {
-    console.log(`Edit rule ${id} clicked`);
-    toast.info(`Edit rule ${id} functionality to be implemented`);
-  };
-  
-  const handleCopyClick = (id: string) => {
-    console.log(`Copy rule ${id} clicked`);
-    toast.success(`Rule ${id} has been copied`);
-  };
-  
-  const handleRemoveClick = (id: string) => {
-    console.log(`Remove rule ${id} clicked`);
-    toast.success(`Rule ${id} has been removed`);
-  };
-
-  const handleAddRecord = (tabName: string) => {
-    console.log(`Add new record in ${tabName} tab`);
-    toast.info(`Add new ${tabName} record functionality activated`);
-  };
+  const [activeTab, setActiveTab] = useState("location-geo");
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
@@ -48,160 +19,106 @@ const LFSSetupTabs = ({ onSelectionChange, selectedItems = [] }: LFSSetupTabsPro
     }
   };
 
-  const handleSelectionChange = (items: string[]) => {
-    if (onSelectionChange) {
-      onSelectionChange(items);
-    }
-  };
-
   const tabItems: TabItem[] = [
     {
-      value: "geo",
+      value: "location-geo",
       label: "Geo",
       content: (
-        <LFSSetupTabContent 
+        <DynamicFinancialSection 
+          schemaId="location-geo"
           title="Geo Rules"
-          onAddRecord={() => handleAddRecord("Geo")}
-        >
-          <GeoTable 
-            onEdit={handleEditClick}
-            onCopy={handleCopyClick}
-            onRemove={handleRemoveClick}
-            onSelectionChange={handleSelectionChange}
-            selectedItems={selectedItems}
-          />
-        </LFSSetupTabContent>
+          onSelectionChange={onSelectionChange}
+          selectedItems={selectedItems}
+        />
       )
     },
     {
       value: "lease-config",
       label: "Lease Config",
       content: (
-        <LFSSetupTabContent 
+        <DynamicFinancialSection 
+          schemaId="lease-config"
           title="Lease Config Rules"
-          onAddRecord={() => handleAddRecord("Lease Config")}
-        >
-          <LeaseConfigTable 
-            onEdit={handleEditClick}
-            onCopy={handleCopyClick}
-            onRemove={handleRemoveClick}
-            onSelectionChange={handleSelectionChange}
-            selectedItems={selectedItems}
-          />
-        </LFSSetupTabContent>
+          onSelectionChange={onSelectionChange}
+          selectedItems={selectedItems}
+        />
       )
     },
     {
       value: "vehicle-condition",
       label: "Vehicle Condition",
       content: (
-        <LFSSetupTabContent 
+        <DynamicFinancialSection 
+          schemaId="vehicle-condition"
           title="Vehicle Condition Rules"
-          onAddRecord={() => handleAddRecord("Vehicle Condition")}
-        >
-          <VehicleConditionTable 
-            onEdit={handleEditClick}
-            onCopy={handleCopyClick}
-            onRemove={handleRemoveClick}
-            onSelectionChange={handleSelectionChange}
-            selectedItems={selectedItems}
-          />
-        </LFSSetupTabContent>
+          onSelectionChange={onSelectionChange}
+          selectedItems={selectedItems}
+        />
       )
     },
     {
       value: "order-type",
       label: "Order Type",
       content: (
-        <LFSSetupTabContent 
+        <DynamicFinancialSection 
+          schemaId="order-type"
           title="Order Type Rules"
-          onAddRecord={() => handleAddRecord("Order Type")}
-        >
-          <OrderTypeTable 
-            onEdit={handleEditClick}
-            onCopy={handleCopyClick}
-            onRemove={handleRemoveClick}
-            onSelectionChange={handleSelectionChange}
-            selectedItems={selectedItems}
-          />
-        </LFSSetupTabContent>
+          onSelectionChange={onSelectionChange}
+          selectedItems={selectedItems}
+        />
       )
     },
     {
       value: "vehicle-options",
       label: "Vehicle Options",
       content: (
-        <LFSSetupTabContent 
+        <DynamicFinancialSection 
+          schemaId="vehicle-options"
           title="Vehicle Options Rules"
-          onAddRecord={() => handleAddRecord("Vehicle Options")}
-        >
-          <VehicleOptionsTable 
-            onEdit={handleEditClick}
-            onCopy={handleCopyClick}
-            onRemove={handleRemoveClick}
-            onSelectionChange={handleSelectionChange}
-            selectedItems={selectedItems}
-          />
-        </LFSSetupTabContent>
+          onSelectionChange={onSelectionChange}
+          selectedItems={selectedItems}
+        />
       )
     },
     {
       value: "routing-rule",
       label: "Routing Rule",
       content: (
-        <LFSSetupTabContent 
+        <DynamicFinancialSection 
+          schemaId="routing-rule"
           title="Routing Rules"
-          onAddRecord={() => handleAddRecord("Routing Rules")}
-        >
-          <RoutingRuleTable 
-            onEdit={handleEditClick}
-            onCopy={handleCopyClick}
-            onRemove={handleRemoveClick}
-            onSelectionChange={handleSelectionChange}
-            selectedItems={selectedItems}
-          />
-        </LFSSetupTabContent>
+          onSelectionChange={onSelectionChange}
+          selectedItems={selectedItems}
+        />
       )
     },
     {
       value: "stipulation",
       label: "Stipulation",
       content: (
-        <LFSSetupTabContent 
+        <DynamicFinancialSection 
+          schemaId="stipulation"
           title="Stipulation Rules"
-          onAddRecord={() => handleAddRecord("Stipulation")}
-        >
-          <StipulationTable 
-            onEdit={handleEditClick}
-            onCopy={handleCopyClick}
-            onRemove={handleRemoveClick}
-            onSelectionChange={handleSelectionChange}
-            selectedItems={selectedItems}
-          />
-        </LFSSetupTabContent>
+          onSelectionChange={onSelectionChange}
+          selectedItems={selectedItems}
+        />
       )
     },
     {
       value: "vehicle-style-coding",
       label: "Vehicle Style Coding",
       content: (
-        <LFSSetupTabContent 
+        <DynamicFinancialSection 
+          schemaId="vehicle-style-coding"
           title="Vehicle Style Coding Rules"
-          onAddRecord={() => handleAddRecord("Vehicle Style Coding")}
-        >
-          <VehicleStyleDecodingTable 
-            onEdit={handleEditClick}
-            onCopy={handleCopyClick}
-            onRemove={handleRemoveClick}
-            onSelectionChange={handleSelectionChange}
-            selectedItems={selectedItems}
-          />
-        </LFSSetupTabContent>
+          onSelectionChange={onSelectionChange}
+          selectedItems={selectedItems}
+        />
       )
     }
   ];
 
-  return <TabComponent defaultValue="geo" items={tabItems} onValueChange={handleTabChange} />;
+  return <TabComponent defaultValue="location-geo" items={tabItems} onValueChange={handleTabChange} />;
 };
 
 export default LFSSetupTabs;

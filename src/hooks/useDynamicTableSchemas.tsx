@@ -225,6 +225,38 @@ const DEFAULT_SCHEMAS: Record<string, DynamicTableSchema> = {
       { id: 'code', name: 'Style Code', key: 'code', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
       { id: 'description', name: 'Description', key: 'description', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
     ]
+  },
+  'order-type': {
+    id: 'order-type',
+    name: 'Order Type',
+    columns: [
+      { id: 'id', name: 'ID', key: 'id', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false },
+      { id: 'typeName', name: 'Type Name', key: 'typeName', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'typeCode', name: 'Type Code', key: 'typeCode', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true }
+    ]
+  },
+  'fee-rules': {
+    id: 'fee-rules',
+    name: 'Fee Rules',
+    columns: [
+      { id: 'id', name: 'ID', key: 'id', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false },
+      { id: 'feeName', name: 'Fee Name', key: 'feeName', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'feeType', name: 'Fee Type', key: 'feeType', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'amount', name: 'Amount', key: 'amount', type: 'number', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'isActive', name: 'Active', key: 'isActive', type: 'boolean', inputType: 'Input', isRequired: false, sortable: true, editable: true }
+    ]
+  },
+  'tax-rules': {
+    id: 'tax-rules',
+    name: 'Tax Rules',
+    columns: [
+      { id: 'id', name: 'ID', key: 'id', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false },
+      { id: 'taxName', name: 'Tax Name', key: 'taxName', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'taxType', name: 'Tax Type', key: 'taxType', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'rate', name: 'Rate (%)', key: 'rate', type: 'number', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'geoCode', name: 'Geo Code', key: 'geoCode', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'isActive', name: 'Active', key: 'isActive', type: 'boolean', inputType: 'Input', isRequired: false, sortable: true, editable: true }
+    ]
   }
 };
 

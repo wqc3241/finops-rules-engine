@@ -110,7 +110,22 @@ const TabsSection = ({
       );
     
     case "Fee & Tax":
-      return <FeeTaxTabs />;
+      return (
+        <div className="relative">
+          {showBatchOperations && (
+            <BatchOperations 
+              selectedItems={selectedItems}
+              onClearSelection={handleClearSelection}
+              onBatchDelete={handleBatchDelete}
+            />
+          )}
+          <FeeTaxTabs 
+            onSelectionChange={handleSelectionChange}
+            selectedItems={selectedItems}
+            onSetBatchDeleteCallback={handleSetBatchDeleteCallback}
+          />
+        </div>
+      );
       
     default:
       // Dashboard as default

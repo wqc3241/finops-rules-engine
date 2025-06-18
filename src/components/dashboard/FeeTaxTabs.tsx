@@ -1,59 +1,67 @@
 
 import { useState } from "react";
 import TabComponent, { TabItem } from "./TabComponent";
-import FeeSection from "./FeeSection";
-import TaxSection from "./TaxSection";
-import { toast } from "sonner";
+import DynamicFinancialSection from "./DynamicFinancialSection";
 
-const FeeTaxTabs = () => {
-  const [selectedTab, setSelectedTab] = useState("fee");
-  const [showAddFeeModal, setShowAddFeeModal] = useState(false);
-  const [showAddTaxModal, setShowAddTaxModal] = useState(false);
+interface FeeTaxTabsProps {
+  onSelectionChange?: (items: string[]) => void;
+  selectedItems?: string[];
+  onSetBatchDeleteCallback?: (callback: () => void) => void;
+}
+
+const FeeTaxTabs = ({
+  onSelectionChange,
+  selectedItems = [],
+  onSetBatchDeleteCallback
+}: FeeTaxTabsProps) => {
+  const [activeTab, setActiveTab] = useState("fee-rules");
 
   const handleTabChange = (value: string) => {
-    setSelectedTab(value);
-  };
-
-  const handleAddFee = (feeData: any) => {
-    console.log("New fee data:", feeData);
-    toast.success("New fee has been added successfully");
-    setShowAddFeeModal(false);
-  };
-
-  const handleAddTax = (taxData: any) => {
-    console.log("New tax data:", taxData);
-    toast.success("New tax has been added successfully");
-    setShowAddTaxModal(false);
+    setActiveTab(value);
+    // Reset selections when changing tabs
+    if (onSelectionChange) {
+      onSelectionChange([]);
+    }
   };
 
   const tabItems: TabItem[] = [
     {
-      value: "fee",
-      label: "Fee",
+      value: "fee-rules",
+      label: "Fee Rules",
       content: (
-        <FeeSection 
-          title="Fee" 
-          showAddFeeModal={showAddFeeModal}
-          setShowAddFeeModal={setShowAddFeeModal}
-          onAddFee={handleAddFee}
+        <DynamicFinancialSection 
+          schemaId="fee-rules"
+          title="Fee Rules"
+          onSelectionChange={onSelectionChange}
+          selectedItems={selectedItems}
+          onSetBatchDeleteCallback={onSetBatchDeleteCallback}
         />
       )
     },
     {
-      value: "tax",
-      label: "Tax",
+      value: "tax-rules",
+      label: "Tax Rules",
       content: (
-        <TaxSection 
-          title="Tax" 
-          showAddTaxModal={showAddTaxModal}
-          setShowAddTaxModal={setShowAddTaxModal}
-          onAddTax={handleAddTax}
+        <DynamicFinancialSection 
+          schemaId="tax-rules"
+          title="Tax Rules"
+          onSelectionChange={onSelectionChange}
+          selectedItems={selectedItems}
+          onSetBatchDeleteCallback={onSetBatchDeleteCallback}
         />
       )
     }
   ];
 
-  return <TabComponent defaultValue="fee" items={tabItems} onValueChange={handleTabChange} />;
+  return (
+    <div className="bg-gray-50 p-4">
+      <TabComponent 
+        defaultValue="fee-rules" 
+        items={tabItems} 
+        onValueChange={handleTabChange}
+      />
+    </div>
+  );
 };
 
 export default FeeTaxTabs;

@@ -1,15 +1,6 @@
 
 import { useState } from "react";
 import TabComponent, { TabItem } from "./TabComponent";
-import { toast } from "sonner";
-import DealerTable from "./DealerTable";
-import LenderTable from "./LenderTable";
-import CountryTable from "./CountryTable";
-import StateTable from "./StateTable";
-import LocationTable from "./LocationTable";
-import GatewayTable from "./GatewayTable";
-import LFSSetupTabContent from "./LFSSetupTabContent";
-import PricingTypeSection from "./PricingTypeSection";
 import DynamicFinancialSection from "./DynamicFinancialSection";
 
 interface FinancingDataTableTabsProps {
@@ -25,26 +16,6 @@ const FinancingDataTableTabs = ({
 }: FinancingDataTableTabsProps) => {
   const [activeTab, setActiveTab] = useState("pricing-types");
 
-  const handleEditClick = (id: string) => {
-    console.log(`Edit item ${id} clicked`);
-    toast.info(`Edit item ${id} functionality to be implemented`);
-  };
-  
-  const handleCopyClick = (id: string) => {
-    console.log(`Copy item ${id} clicked`);
-    toast.success(`Item ${id} has been copied`);
-  };
-  
-  const handleRemoveClick = (id: string) => {
-    console.log(`Remove item ${id} clicked`);
-    toast.success(`Item ${id} has been removed`);
-  };
-
-  const handleAddRecord = (tabName: string) => {
-    console.log(`Add new record in ${tabName} tab`);
-    toast.info(`Add new ${tabName} record functionality activated`);
-  };
-
   const handleTabChange = (value: string) => {
     setActiveTab(value);
     // Reset selections when changing tabs
@@ -53,21 +24,17 @@ const FinancingDataTableTabs = ({
     }
   };
 
-  const handleSelectionChange = (items: string[]) => {
-    if (onSelectionChange) {
-      onSelectionChange(items);
-    }
-  };
-
   const tabItems: TabItem[] = [
     {
       value: "pricing-types",
       label: "Pricing Types",
       content: (
-        <PricingTypeSection 
+        <DynamicFinancialSection 
+          schemaId="pricing-types"
           title="Pricing Types"
-          onSelectionChange={handleSelectionChange}
+          onSelectionChange={onSelectionChange}
           selectedItems={selectedItems}
+          onSetBatchDeleteCallback={onSetBatchDeleteCallback}
         />
       )
     },
@@ -88,108 +55,78 @@ const FinancingDataTableTabs = ({
       value: "gateway",
       label: "Gateway",
       content: (
-        <LFSSetupTabContent 
+        <DynamicFinancialSection 
+          schemaId="gateway"
           title="Gateway Rules"
-          onAddRecord={() => handleAddRecord("Gateway")}
-        >
-          <GatewayTable 
-            onEdit={handleEditClick}
-            onCopy={handleCopyClick}
-            onRemove={handleRemoveClick}
-            onSelectionChange={handleSelectionChange}
-            selectedItems={selectedItems}
-          />
-        </LFSSetupTabContent>
+          onSelectionChange={onSelectionChange}
+          selectedItems={selectedItems}
+          onSetBatchDeleteCallback={onSetBatchDeleteCallback}
+        />
       )
     },
     {
       value: "dealer",
       label: "Dealer",
       content: (
-        <LFSSetupTabContent 
+        <DynamicFinancialSection 
+          schemaId="dealer"
           title="Dealer Rules"
-          onAddRecord={() => handleAddRecord("Dealer")}
-        >
-          <DealerTable 
-            onEdit={handleEditClick}
-            onCopy={handleCopyClick}
-            onRemove={handleRemoveClick}
-            onSelectionChange={handleSelectionChange}
-            selectedItems={selectedItems}
-          />
-        </LFSSetupTabContent>
+          onSelectionChange={onSelectionChange}
+          selectedItems={selectedItems}
+          onSetBatchDeleteCallback={onSetBatchDeleteCallback}
+        />
       )
     },
     {
       value: "lender",
       label: "Lender",
       content: (
-        <LFSSetupTabContent 
+        <DynamicFinancialSection 
+          schemaId="lender"
           title="Lender Rules"
-          onAddRecord={() => handleAddRecord("Lender")}
-        >
-          <LenderTable 
-            onEdit={handleEditClick}
-            onCopy={handleCopyClick}
-            onRemove={handleRemoveClick}
-            onSelectionChange={handleSelectionChange}
-            selectedItems={selectedItems}
-          />
-        </LFSSetupTabContent>
+          onSelectionChange={onSelectionChange}
+          selectedItems={selectedItems}
+          onSetBatchDeleteCallback={onSetBatchDeleteCallback}
+        />
       )
     },
     {
       value: "country",
       label: "Country",
       content: (
-        <LFSSetupTabContent 
+        <DynamicFinancialSection 
+          schemaId="country"
           title="Country Data"
-          onAddRecord={() => handleAddRecord("Country")}
-        >
-          <CountryTable 
-            onEdit={handleEditClick}
-            onCopy={handleCopyClick}
-            onRemove={handleRemoveClick}
-            onSelectionChange={handleSelectionChange}
-            selectedItems={selectedItems}
-          />
-        </LFSSetupTabContent>
+          onSelectionChange={onSelectionChange}
+          selectedItems={selectedItems}
+          onSetBatchDeleteCallback={onSetBatchDeleteCallback}
+        />
       )
     },
     {
       value: "state",
       label: "State",
       content: (
-        <LFSSetupTabContent 
+        <DynamicFinancialSection 
+          schemaId="state"
           title="State Data"
-          onAddRecord={() => handleAddRecord("State")}
-        >
-          <StateTable 
-            onEdit={handleEditClick}
-            onCopy={handleCopyClick}
-            onRemove={handleRemoveClick}
-            onSelectionChange={handleSelectionChange}
-            selectedItems={selectedItems}
-          />
-        </LFSSetupTabContent>
+          onSelectionChange={onSelectionChange}
+          selectedItems={selectedItems}
+          onSetBatchDeleteCallback={onSetBatchDeleteCallback}
+        />
       )
     },
     {
       value: "location",
       label: "Location",
       content: (
-        <LFSSetupTabContent 
+        <DynamicFinancialSection 
+          schemaId="location-geo"
           title="Location Data"
-          onAddRecord={() => handleAddRecord("Location")}
-        >
-          <LocationTable 
-            onEdit={handleEditClick}
-            onCopy={handleCopyClick}
-            onRemove={handleRemoveClick}
-            onSelectionChange={handleSelectionChange}
-            selectedItems={selectedItems}
-          />
-        </LFSSetupTabContent>
+          onSelectionChange={onSelectionChange}
+          selectedItems={selectedItems}
+          onSetBatchDeleteCallback={onSetBatchDeleteCallback}
+        />
       )
     }
   ];

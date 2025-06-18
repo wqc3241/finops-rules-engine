@@ -1,351 +1,218 @@
+
 import { TableData } from "@/types/dynamicTable";
 
 export const getInitialData = (schemaId: string): TableData[] => {
-  console.log('Getting initial data for schema:', schemaId);
   switch (schemaId) {
     case 'bulletin-pricing':
       return [
         {
-          id: "BTKSA01",
-          financialProgramCode: "KSAAIBM05251",
-          programId: "FPKSA01",
-          pricingConfig: "PR003",
-          geoCode: "ME-KSA",
-          lenderName: "KSAAJB",
-          advertised: false,
-          pricingType: "INR",
-          pricingValue: 0.0300,
-          uploadDate: "2023-05-15"
+          id: "BP001",
+          financialProgramCode: "USLN-2024-Q1",
+          programId: "PROG001",
+          pricingConfig: "Standard",
+          geoCode: "US-CA",
+          lenderName: "Prime Bank",
+          advertised: true,
+          pricingType: "APR",
+          pricingValue: 3.99,
+          uploadDate: "2024-01-15"
         },
         {
-          id: "BTKSA01-2",
-          financialProgramCode: "KSAAIBM05251",
-          programId: "FPKSA01",
-          pricingConfig: "PR003",
-          geoCode: "ME-KSA",
-          lenderName: "KSAAJB",
+          id: "BP002",
+          financialProgramCode: "USLE-2024-Q1",
+          programId: "PROG002",
+          pricingConfig: "Premium",
+          geoCode: "US-TX",
+          lenderName: "Auto Credit",
           advertised: false,
-          pricingType: "SPR",
-          pricingValue: 0.0295,
-          uploadDate: "2023-05-15"
-        },
-        { 
-          id: "BT01", 
-          financialProgramCode: "AIPUNR07241", 
-          programId: "FPUS01",
-          pricingConfig: "", 
-          geoCode: "NA-US-CA",
-          lenderName: "CMB, BAC",
-          advertised: true,
-          pricingType: "SUBAPR", 
-          pricingValue: 2.99,
-          uploadDate: "2024-07-24"
-        },
-        { 
-          id: "BT02", 
-          financialProgramCode: "AIPUNR07241", 
-          programId: "FPUS02",
-          pricingConfig: "PR002", 
-          geoCode: "NA-US-CA",
-          lenderName: "CMB, BAC",
-          advertised: true,
-          pricingType: "SUBAPR", 
-          pricingValue: 7.49,
-          uploadDate: "2024-07-24"
-        },
-        { 
-          id: "BT03", 
-          financialProgramCode: "AIPUNL07241", 
-          programId: "FPUS03",
-          pricingConfig: "PR003", 
-          geoCode: "NA-US-CA",
-          lenderName: "LFS",
-          advertised: true,
-          pricingType: "ENHRV", 
-          pricingValue: 60.50,
-          uploadDate: "2024-07-24"
-        },
-        { 
-          id: "BT04", 
-          financialProgramCode: "AIPUNL07241", 
-          programId: "FPUS04",
-          pricingConfig: "PR003", 
-          geoCode: "NA-US-CA",
-          lenderName: "LFS",
-          advertised: true,
-          pricingType: "SUBMF", 
-          pricingValue: 60.50,
-          uploadDate: "2024-07-24"
-        },
-        { 
-          id: "BT05", 
-          financialProgramCode: "AIPUNR07241", 
-          programId: "FPUS05",
-          pricingConfig: "PR001", 
-          geoCode: "NA-US-CA",
-          lenderName: "CMB",
-          advertised: true,
-          pricingType: "MAXBDAPR", 
-          pricingValue: 2,
-          uploadDate: "2024-07-24"
-        },
-        { 
-          id: "BT06", 
-          financialProgramCode: "AIPUNR07241", 
-          programId: "FPUS06",
-          pricingConfig: "PR002", 
-          geoCode: "NA-US-CA",
-          lenderName: "CMB",
-          advertised: true,
-          pricingType: "MAXMUAPR", 
-          pricingValue: 3,
-          uploadDate: "2024-07-24"
-        },
-        { 
-          id: "BTKSA01-1", 
-          financialProgramCode: "SNBAIPUNL04251", 
-          programId: "FPKSA02",
-          pricingConfig: "KSAPR001", 
-          geoCode: "ME-KSA",
-          lenderName: "KSASNB",
-          advertised: false,
-          pricingType: "ADF", 
-          pricingValue: 3500.00,
-          uploadDate: "2025-04-25"
-        },
-        { 
-          id: "BTKSA01-2", 
-          financialProgramCode: "SNBAIPUNL04251", 
-          programId: "FPKSA03",
-          pricingConfig: "KSAPR001", 
-          geoCode: "ME-KSA",
-          lenderName: "KSASNB",
-          advertised: false,
-          pricingType: "INR", 
-          pricingValue: 2.0,
-          uploadDate: "2025-04-25"
+          pricingType: "Money Factor",
+          pricingValue: 0.00125,
+          uploadDate: "2024-01-16"
         }
       ];
+
     case 'pricing-types':
       return [
-        { id: "1", typeCode: "STDAPR", typeName: "Standard APR" },
-        { id: "2", typeCode: "SUBAPR", typeName: "Subvented APR" },
-        { id: "3", typeCode: "MINDWPAY", typeName: "Min Down Payment" },
-        { id: "4", typeCode: "SPR", typeName: "Special Rate" },
-        { id: "5", typeCode: "INR", typeName: "Interest Rate" },
-        { id: "6", typeCode: "ENHRV", typeName: "Enhanced Residual Value" },
-        { id: "7", typeCode: "SUBMF", typeName: "Subvented Money Factor" },
-        { id: "8", typeCode: "MAXBDAPR", typeName: "Max Base Down APR" },
-        { id: "9", typeCode: "MAXMUAPR", typeName: "Max Markup APR" },
-        { id: "10", typeCode: "ADF", typeName: "Additional Dealer Fee" }
+        { id: "PT001", typeCode: "APR", typeName: "Annual Percentage Rate" },
+        { id: "PT002", typeCode: "MF", typeName: "Money Factor" },
+        { id: "PT003", typeCode: "CASH", typeName: "Cash Incentive" }
       ];
+
     case 'financial-products':
       return [
         {
-          id: "USLN",
+          id: "FP001",
           productType: "Loan",
-          productSubtype: null,
-          geoCode: "NA-US",
-          category: "Personal",
+          productSubtype: "Standard",
+          geoCode: "US",
+          category: "Auto",
           isActive: true
         },
         {
-          id: "USLE",
+          id: "FP002",
           productType: "Lease",
-          productSubtype: null,
-          geoCode: "NA-US",
-          category: "Personal",
+          productSubtype: "Premium",
+          geoCode: "CA",
+          category: "Auto",
           isActive: true
         }
       ];
+
     case 'credit-profile':
       return [
         {
-          id: "P001",
+          id: "CP001",
           priority: 1,
-          minCreditScore: 800,
-          maxCreditScore: 999,
-          minIncome: 80000,
-          maxIncome: 100000,
-          minAge: 23,
-          maxAge: 28,
-          minPTI: 10,
-          maxPTI: 20,
-          minDTI: 50,
-          maxDTI: 60,
-          employmentType: "Payroll"
-        },
-        {
-          id: "P002",
-          priority: 2,
-          minCreditScore: 800,
-          maxCreditScore: 999,
-          minIncome: 80000,
-          maxIncome: 100000,
-          minAge: 23,
-          maxAge: 28,
-          minPTI: null,
-          maxPTI: null,
-          minDTI: 50,
-          maxDTI: 60,
-          employmentType: "Payroll"
-        },
-        {
-          id: "P003",
-          priority: 3,
-          minCreditScore: 800,
-          maxCreditScore: 999,
-          minIncome: 0,
-          maxIncome: 0,
-          minAge: 0,
-          maxAge: 0,
-          minPTI: null,
-          maxPTI: null,
+          minCreditScore: 720,
+          maxCreditScore: 850,
+          minIncome: 75000,
+          maxIncome: null,
+          minAge: 21,
+          maxAge: 75,
+          minPTI: 0,
+          maxPTI: 25,
           minDTI: 0,
-          maxDTI: 0,
-          employmentType: "Payroll"
+          maxDTI: 40,
+          employmentType: "Full-time"
         }
       ];
+
     case 'pricing-config':
       return [
         {
-          id: "PR001",
-          minLTV: 80,
-          maxLTV: 100,
-          minTerm: 24,
-          maxTerm: 48,
-          minLeaseMileage: null,
-          maxLeaseMileage: null,
-          priority: 1
-        },
-        {
-          id: "PR002",
-          minLTV: 0,
-          maxLTV: 80.9,
-          minTerm: 0,
-          maxTerm: 36,
-          minLeaseMileage: null,
-          maxLeaseMileage: null,
-          priority: 1
-        },
-        {
-          id: "PR003",
-          minLTV: 0,
-          maxLTV: 80.9,
-          minTerm: 24,
-          maxTerm: 36,
-          minLeaseMileage: 12000,
-          maxLeaseMileage: 24000,
-          priority: 1
-        },
-        {
-          id: "KSAPR001",
-          minLTV: null,
-          maxLTV: null,
-          minTerm: 60,
-          maxTerm: 60,
-          minLeaseMileage: null,
-          maxLeaseMileage: null,
+          id: "PC001",
+          minLTV: 60,
+          maxLTV: 120,
+          minTerm: 12,
+          maxTerm: 84,
+          minLeaseMileage: 10000,
+          maxLeaseMileage: 15000,
           priority: 1
         }
       ];
+
     case 'financial-program-config':
       return [
         {
           id: "FPC01",
-          programCode: "AIPUNL07241",
-          cloneFrom: "AIPUNL06241",
+          programCode: "USLN-2024-Q1",
+          cloneFrom: null,
           priority: 1,
           financialProductId: "USLN",
-          productType: null,
+          productType: "Loan",
           vehicleStyleId: "L25A1",
           financingVehicleCondition: "New",
-          programStartDate: "2/1/2025",
-          programEndDate: "2/28/2025",
-          isActive: true,
-          orderTypes: "INV, CON",
-          version: 1
-        },
-        {
-          id: "FPC02",
-          programCode: "AIPUNR07241",
-          cloneFrom: null,
-          priority: 2,
-          financialProductId: "USLE",
-          productType: null,
-          vehicleStyleId: "L25A2",
-          financingVehicleCondition: "New",
-          programStartDate: "4/1/2025",
-          programEndDate: "4/30/2025",
-          isActive: true,
-          orderTypes: "INV, CON",
-          version: 1
-        },
-        {
-          id: "FPKSA01",
-          programCode: "SNBAIPUNL04251",
-          cloneFrom: null,
-          priority: 1,
-          financialProductId: "KSABM",
-          productType: null,
-          vehicleStyleId: "KSA25A1",
-          financingVehicleCondition: "New",
-          programStartDate: "4/1/2025",
-          programEndDate: "5/30/2025",
+          programStartDate: "2024-01-01",
+          programEndDate: "2024-12-31",
           isActive: true,
           orderTypes: "INV, CON",
           version: 1
         }
       ];
+
     case 'advertised-offers':
       return [
-        { 
-          id: "1", 
-          bulletinPricing: "BT001", 
-          disclosure: "Disclosure Text", 
-          loanAmountPer10k: "$186.43/month", 
-          totalCostOfCredit: "$1,345.80" 
-        },
-        { 
-          id: "2", 
-          bulletinPricing: "BTKSA02", 
-          disclosure: "Disclosure Text", 
-          loanAmountPer10k: "$194.15/month", 
-          totalCostOfCredit: "$1,649.00" 
+        {
+          id: "AO001",
+          bulletinPricing: "BP001",
+          disclosure: "Standard disclosure text",
+          loanAmountPer10k: "$125.50",
+          totalCostOfCredit: "$2,500"
         }
       ];
+
+    case 'gateway':
+      return [
+        { id: "GW001", gatewayName: "RouteOne" },
+        { id: "GW002", gatewayName: "DealerTrack" }
+      ];
+
+    case 'dealer':
+      return [
+        { id: "D001", dealerName: "Lucid Beverly Hills" },
+        { id: "D002", dealerName: "Lucid Palo Alto" }
+      ];
+
+    case 'lender':
+      return [
+        { id: "L001", lenderName: "Prime Bank" },
+        { id: "L002", lenderName: "Auto Credit Union" }
+      ];
+
+    case 'country':
+      return [
+        { id: "US", countryName: "United States", countryCode: "US" },
+        { id: "CA", countryName: "Canada", countryCode: "CA" }
+      ];
+
+    case 'state':
+      return [
+        { id: "CA", stateName: "California" },
+        { id: "TX", stateName: "Texas" }
+      ];
+
+    case 'location-geo':
+      return [
+        { id: "LG001", locationName: "California", geoCode: "US-CA" },
+        { id: "LG002", locationName: "Texas", geoCode: "US-TX" }
+      ];
+
+    case 'lease-config':
+      return [
+        { id: "LC001", configName: "Standard Lease" },
+        { id: "LC002", configName: "Premium Lease" }
+      ];
+
+    case 'vehicle-condition':
+      return [
+        { id: "VC001", condition: "New" },
+        { id: "VC002", condition: "Used" },
+        { id: "VC003", condition: "Demo" }
+      ];
+
+    case 'vehicle-options':
+      return [
+        { id: "VO001", optionName: "Premium Package" },
+        { id: "VO002", optionName: "Tech Package" }
+      ];
+
+    case 'routing-rule':
+      return [
+        { id: "RR001", ruleName: "Standard Routing" },
+        { id: "RR002", ruleName: "Premium Routing" }
+      ];
+
+    case 'stipulation':
+      return [
+        { id: "S001", stipulationName: "Income Verification" },
+        { id: "S002", stipulationName: "Employment Verification" }
+      ];
+
+    case 'vehicle-style-coding':
+      return [
+        { id: "VSC001", code: "L25A1", description: "2025 Lucid Air Grand Touring" },
+        { id: "VSC002", code: "L25A2", description: "2025 Lucid Air Pure" }
+      ];
+
+    case 'order-type':
+      return [
+        { id: "OT001", typeName: "Inventory", typeCode: "INV" },
+        { id: "OT002", typeName: "Configurator", typeCode: "CON" }
+      ];
+
+    case 'fee-rules':
+      return [
+        { id: "FR001", feeName: "Documentation Fee", feeType: "Fixed", amount: 299, isActive: true },
+        { id: "FR002", feeName: "Processing Fee", feeType: "Fixed", amount: 150, isActive: true }
+      ];
+
+    case 'tax-rules':
+      return [
+        { id: "TR001", taxName: "Sales Tax", taxType: "Percentage", rate: 8.25, geoCode: "US-CA", isActive: true },
+        { id: "TR002", taxName: "Registration Tax", taxType: "Fixed", rate: 25, geoCode: "US-CA", isActive: true }
+      ];
+
     default:
-      console.log('No mock data found for schema:', schemaId);
       return [];
   }
 };
-
-// Helper functions for wizard data
-export const getVehicleStyles = () => [
-  { id: "L25A1", label: "L25A1 - 2025 Lucid Air Grand Touring" },
-  { id: "L25A2", label: "L25A2 - 2025 Lucid Air Pure" },
-  { id: "L25A3", label: "L25A3 - 2025 Lucid Air Pure" },
-  { id: "KSA25A1", label: "KSA25A1 - 2025 Lucid Air Pure (KSA)" }
-];
-
-export const getVehicleConditions = () => [
-  { id: "New", label: "New" },
-  { id: "Used", label: "Used" },
-  { id: "Demo", label: "Demo" },
-  { id: "CPO", label: "Certified Pre-Owned" }
-];
-
-export const getLenders = () => [
-  { id: "CMB", name: "Chase Manhattan Bank" },
-  { id: "BAC", name: "Bank of America" },
-  { id: "LFS", name: "Lucid Financial Services" },
-  { id: "KSASNB", name: "KSA Saudi National Bank" },
-  { id: "KSAAJB", name: "KSA Al Jazira Bank" }
-];
-
-export const getGeoCodes = () => [
-  { id: "NA-US", name: "North America - United States" },
-  { id: "NA-US-CA", name: "North America - United States - California" },
-  { id: "ME-KSA", name: "Middle East - Saudi Arabia" },
-  { id: "ME-UAE", name: "Middle East - United Arab Emirates" }
-];
