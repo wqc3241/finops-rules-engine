@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ChevronDown, ChevronUp, Expand, Minimize } from 'lucide-react';
@@ -51,10 +50,19 @@ const CombinedApplicationView: React.FC<CombinedApplicationViewProps> = ({
       
       const targetRef = refs[activeSection as keyof typeof refs];
       if (targetRef?.current) {
-        targetRef.current.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'start' 
-        });
+        // For details section, scroll to the very top of the page
+        if (activeSection === 'details') {
+          window.scrollTo({ 
+            top: 0, 
+            behavior: 'smooth' 
+          });
+        } else {
+          // For other sections, scroll to the specific section
+          targetRef.current.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start' 
+          });
+        }
       }
     }
   }, [activeSection]);
