@@ -42,6 +42,8 @@ const CombinedApplicationView: React.FC<CombinedApplicationViewProps> = ({
   // Auto-scroll to section when activeSection changes
   useEffect(() => {
     if (activeSection) {
+      console.log('CombinedApplicationView - activeSection changed to:', activeSection);
+      
       const refs = {
         details: detailsRef,
         'financial-summary': financialRef,
@@ -52,17 +54,21 @@ const CombinedApplicationView: React.FC<CombinedApplicationViewProps> = ({
       if (targetRef?.current) {
         // For details section, scroll to the very top of the page
         if (activeSection === 'details') {
+          console.log('Scrolling to top for details section');
           window.scrollTo({ 
             top: 0, 
             behavior: 'smooth' 
           });
         } else {
           // For other sections, scroll to the specific section
+          console.log('Scrolling to section:', activeSection);
           targetRef.current.scrollIntoView({ 
             behavior: 'smooth', 
             block: 'start' 
           });
         }
+      } else {
+        console.log('No target ref found for section:', activeSection);
       }
     }
   }, [activeSection]);

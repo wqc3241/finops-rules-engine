@@ -21,6 +21,8 @@ const TabContent: React.FC<TabContentProps> = ({
   notes,
   onActiveSectionChange
 }) => {
+  console.log('TabContent - current tab:', tab);
+  
   switch (tab) {
     case 'funding':
       return <FundingView applicationFullDetails={applicationFullDetails} />;
