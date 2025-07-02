@@ -179,22 +179,6 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
 
   return (
     <div className="space-y-6">
-      {/* Header with Progress */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-lg">Document Management</CardTitle>
-            <div className="text-right">
-              <p className="text-sm font-medium">Overall Progress</p>
-              <p className="text-xs text-muted-foreground">
-                {documents.filter(d => d.isRequired && d.status === 'approved').length} of{' '}
-                {documents.filter(d => d.isRequired).length} required documents completed
-              </p>
-            </div>
-          </div>
-          <Progress value={getOverallProgress()} className="mt-2" />
-        </CardHeader>
-      </Card>
 
       {/* Filters */}
       <Card>
