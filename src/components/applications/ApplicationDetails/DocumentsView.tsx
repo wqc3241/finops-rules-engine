@@ -180,33 +180,6 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
   return (
     <div className="space-y-6">
 
-      {/* Filters */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex gap-4 items-center">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search documents..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-            </div>
-            <Button
-              variant={statusFilter !== 'all' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setStatusFilter(statusFilter === 'all' ? 'pending_review' : 'all')}
-              className="flex items-center gap-1"
-            >
-              <Filter className="h-4 w-4" />
-              {statusFilter === 'all' ? 'All Status' : 'Filtered'}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Document Categories */}
       <Tabs value={selectedCategory} onValueChange={(value) => setSelectedCategory(value as DocumentCategory | 'all')} className="relative">
