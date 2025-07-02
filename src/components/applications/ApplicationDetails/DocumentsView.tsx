@@ -256,6 +256,7 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
                 <TableRow>
                   <TableHead>Document</TableHead>
                   <TableHead>Type</TableHead>
+                  <TableHead>Required</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Uploaded</TableHead>
                   <TableHead>Expires</TableHead>
@@ -276,12 +277,14 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
                             </div>
                           )}
                         </div>
-                        {document.isRequired && (
-                          <Badge variant="secondary" className="text-xs">Required</Badge>
-                        )}
                       </div>
                     </TableCell>
                     <TableCell className="text-xs text-muted-foreground">{document.type}</TableCell>
+                    <TableCell>
+                      {document.isRequired && (
+                        <Badge variant="secondary" className="text-xs">Required</Badge>
+                      )}
+                    </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         {getStatusIcon(document.status)}
@@ -371,6 +374,7 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
                   <TableRow>
                     <TableHead>Document</TableHead>
                     <TableHead>Type</TableHead>
+                    <TableHead>Required</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Uploaded</TableHead>
                     <TableHead>Expires</TableHead>
@@ -391,12 +395,14 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
                               </div>
                             )}
                           </div>
-                          {document.isRequired && (
-                            <Badge variant="secondary" className="text-xs">Required</Badge>
-                          )}
                         </div>
                       </TableCell>
                       <TableCell className="text-xs text-muted-foreground">{document.type}</TableCell>
+                      <TableCell>
+                        {document.isRequired && (
+                          <Badge variant="secondary" className="text-xs">Required</Badge>
+                        )}
+                      </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
                           {getStatusIcon(document.status)}
