@@ -87,45 +87,39 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
 
 
       {/* Category Selection */}
-      <div className="bg-card rounded-lg border p-6">
-        <h2 className="text-lg font-semibold mb-4">Document Categories</h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
+      <div className="bg-card rounded-lg border p-4">
+        <h2 className="text-base font-semibold mb-3">Document Categories</h2>
+        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 gap-2">
           <button
             onClick={() => setSelectedCategory('all')}
             className={cn(
-              "flex flex-col items-center p-4 rounded-lg border transition-all",
+              "flex flex-col items-center p-3 rounded-lg border transition-all",
               selectedCategory === 'all' 
                 ? "bg-primary text-primary-foreground border-primary" 
                 : "bg-background hover:bg-muted border-border"
             )}
           >
-            <Folder className="h-5 w-5 mb-2" />
-            <span className="text-sm font-medium">All Documents</span>
+            <Folder className="h-4 w-4 mb-1" />
+            <span className="text-xs font-medium">All Documents</span>
             <span className="text-xs opacity-70">({filteredDocuments.length})</span>
           </button>
           {documentCategories.map(category => {
             const categoryDocs = getDocumentsByCategory(category.id);
-            const progress = getCategoryProgress(category.id);
             
             return (
               <button
                 key={category.id}
                 onClick={() => setSelectedCategory(category.id)}
                 className={cn(
-                  "flex flex-col items-center p-4 rounded-lg border transition-all",
+                  "flex flex-col items-center p-3 rounded-lg border transition-all",
                   selectedCategory === category.id 
                     ? "bg-primary text-primary-foreground border-primary" 
                     : "bg-background hover:bg-muted border-border"
                 )}
               >
                 {getCategoryIcon(category.id)}
-                <span className="text-sm font-medium mt-2">{category.label}</span>
+                <span className="text-xs font-medium mt-1">{category.label}</span>
                 <span className="text-xs opacity-70">({categoryDocs.length})</span>
-                {progress < 100 && (
-                  <Badge variant="secondary" className="mt-1 text-xs">
-                    {Math.round(progress)}%
-                  </Badge>
-                )}
               </button>
             );
           })}
