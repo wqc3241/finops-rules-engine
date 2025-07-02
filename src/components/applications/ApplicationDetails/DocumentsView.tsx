@@ -1,10 +1,6 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { 
   FileText, 
@@ -16,8 +12,6 @@ import {
   Upload,
   Download,
   Eye,
-  Search,
-  Filter,
   CheckCircle,
   Clock,
   XCircle,
@@ -34,8 +28,6 @@ interface DocumentsViewProps {
 const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
   const [documents] = useState<DocumentItem[]>(mockDocuments);
   const [selectedCategory, setSelectedCategory] = useState<DocumentCategory | 'all'>('all');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<DocumentItemStatus | 'all'>('all');
 
   const getStatusIcon = (status: DocumentItemStatus) => {
     switch (status) {
@@ -74,11 +66,7 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
 
   const filteredDocuments = documents.filter(doc => {
     const matchesCategory = selectedCategory === 'all' || doc.category === selectedCategory;
-    const matchesSearch = doc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         doc.type.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || doc.status === statusFilter;
-    
-    return matchesCategory && matchesSearch && matchesStatus;
+    return matchesCategory;
   });
 
   const getDocumentsByCategory = (category: DocumentCategory) => {
@@ -94,325 +82,171 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
     return (completedDocs.length / requiredDocs.length) * 100;
   };
 
-  const getOverallProgress = () => {
-    const requiredDocs = documents.filter(doc => doc.isRequired);
-    const completedDocs = requiredDocs.filter(doc => doc.status === 'approved');
-    
-    if (requiredDocs.length === 0) return 100;
-    return (completedDocs.length / requiredDocs.length) * 100;
-  };
-
-  const DocumentCard: React.FC<{ document: DocumentItem }> = ({ document }) => (
-    <Card className="hover:shadow-md transition-shadow">
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between mb-3">
-          <div className="flex items-start gap-3">
-            {getCategoryIcon(document.category)}
-            <div className="flex-1">
-              <h4 className="font-medium text-sm">{document.name}</h4>
-              <p className="text-xs text-muted-foreground">{document.type}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            {getStatusIcon(document.status)}
-            <Badge variant="outline" className={`text-xs ${getStatusColor(document.status)}`}>
-              {document.status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-            </Badge>
-          </div>
-        </div>
-
-        {document.fileName && (
-          <div className="text-xs text-muted-foreground mb-2">
-            <span>{document.fileName}</span>
-            {document.fileSize && <span className="ml-2">({document.fileSize})</span>}
-          </div>
-        )}
-
-        {document.uploadedDate && (
-          <div className="text-xs text-muted-foreground mb-2">
-            Uploaded: {document.uploadedDate} by {document.uploadedBy}
-          </div>
-        )}
-
-        {document.expirationDate && (
-          <div className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
-            <Calendar className="h-3 w-3" />
-            Expires: {document.expirationDate}
-          </div>
-        )}
-
-        {document.notes && (
-          <div className="text-xs text-muted-foreground mb-3 p-2 bg-muted/30 rounded">
-            {document.notes}
-          </div>
-        )}
-
-        <div className="flex items-center gap-2">
-          {document.status === 'not_submitted' ? (
-            <Button size="sm" variant="outline" className="text-xs">
-              <Upload className="h-3 w-3 mr-1" />
-              Upload
-            </Button>
-          ) : (
-            <>
-              {document.fileUrl && (
-                <>
-                  <Button size="sm" variant="outline" className="text-xs">
-                    <Eye className="h-3 w-3 mr-1" />
-                    View
-                  </Button>
-                  <Button size="sm" variant="outline" className="text-xs">
-                    <Download className="h-3 w-3 mr-1" />
-                    Download
-                  </Button>
-                </>
-              )}
-            </>
-          )}
-          {document.isRequired && (
-            <Badge variant="secondary" className="text-xs">Required</Badge>
-          )}
-        </div>
-      </CardContent>
-    </Card>
-  );
-
   return (
     <div className="space-y-6">
 
 
-      {/* Document Categories */}
-      <Tabs value={selectedCategory} onValueChange={(value) => setSelectedCategory(value as DocumentCategory | 'all')} className="relative">
-        <div className="sticky top-0 bg-background z-10 pb-4">
-          <TabsList className="w-full justify-start flex-wrap gap-1">
-            <TabsTrigger value="all" className="flex items-center gap-1">
-              <Folder className="h-4 w-4" />
-              All Documents ({filteredDocuments.length})
-            </TabsTrigger>
-            {documentCategories.map(category => {
-              const categoryDocs = getDocumentsByCategory(category.id);
-              const progress = getCategoryProgress(category.id);
-              
-              return (
-                <TabsTrigger key={category.id} value={category.id} className="flex items-center gap-1">
-                  {getCategoryIcon(category.id)}
-                  {category.label} ({categoryDocs.length})
-                  {progress < 100 && (
-                    <Badge variant="secondary" className="ml-1 text-xs">
-                      {Math.round(progress)}%
-                    </Badge>
-                  )}
-                </TabsTrigger>
-              );
-            })}
-          </TabsList>
-        </div>
-
-        <TabsContent value="all" className="mt-4">
-          <Card>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Document</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Required</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Uploaded</TableHead>
-                  <TableHead>Expires</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredDocuments.map(document => (
-                  <TableRow key={document.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        {getCategoryIcon(document.category)}
-                        <div>
-                          <div className="font-medium">{document.name}</div>
-                          {document.fileName && (
-                            <div className="text-xs text-muted-foreground">
-                              {document.fileName} {document.fileSize && `(${document.fileSize})`}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-xs text-muted-foreground">{document.type}</TableCell>
-                    <TableCell>
-                      {document.isRequired && (
-                        <Badge variant="secondary" className="text-xs">Required</Badge>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        {getStatusIcon(document.status)}
-                        <Badge variant="outline" className={`text-xs ${getStatusColor(document.status)}`}>
-                          {document.status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                        </Badge>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-xs text-muted-foreground">
-                      {document.uploadedDate ? (
-                        <div>
-                          <div>{document.uploadedDate}</div>
-                          <div>by {document.uploadedBy}</div>
-                        </div>
-                      ) : (
-                        '-'
-                      )}
-                    </TableCell>
-                    <TableCell className="text-xs text-muted-foreground">
-                      {document.expirationDate ? (
-                        <div className="flex items-center gap-1">
-                          <Calendar className="h-3 w-3" />
-                          {document.expirationDate}
-                        </div>
-                      ) : (
-                        '-'
-                      )}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center gap-1 justify-end">
-                        {document.status === 'not_submitted' ? (
-                          <Button size="sm" variant="outline" className="text-xs">
-                            <Upload className="h-3 w-3 mr-1" />
-                            Upload
-                          </Button>
-                        ) : (
-                          <>
-                            {document.fileUrl && (
-                              <>
-                                <Button size="sm" variant="outline" className="text-xs">
-                                  <Eye className="h-3 w-3 mr-1" />
-                                  View
-                                </Button>
-                                <Button size="sm" variant="outline" className="text-xs">
-                                  <Download className="h-3 w-3 mr-1" />
-                                  Download
-                                </Button>
-                              </>
-                            )}
-                          </>
-                        )}
-                      </div>
-                      {document.notes && (
-                        <div className="text-xs text-muted-foreground mt-1 p-1 bg-muted/30 rounded text-left">
-                          {document.notes}
-                        </div>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </Card>
-        </TabsContent>
-
-        {documentCategories.map(category => (
-          <TabsContent key={category.id} value={category.id} className="mt-4">
+      {/* Category Selection */}
+      <div className="bg-card rounded-lg border p-6">
+        <h2 className="text-lg font-semibold mb-4">Document Categories</h2>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
+          <button
+            onClick={() => setSelectedCategory('all')}
+            className={cn(
+              "flex flex-col items-center p-4 rounded-lg border transition-all",
+              selectedCategory === 'all' 
+                ? "bg-primary text-primary-foreground border-primary" 
+                : "bg-background hover:bg-muted border-border"
+            )}
+          >
+            <Folder className="h-5 w-5 mb-2" />
+            <span className="text-sm font-medium">All Documents</span>
+            <span className="text-xs opacity-70">({filteredDocuments.length})</span>
+          </button>
+          {documentCategories.map(category => {
+            const categoryDocs = getDocumentsByCategory(category.id);
+            const progress = getCategoryProgress(category.id);
             
-            <Card>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Document</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Required</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Uploaded</TableHead>
-                    <TableHead>Expires</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {getDocumentsByCategory(category.id).map(document => (
-                    <TableRow key={document.id}>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          {getCategoryIcon(document.category)}
-                          <div>
-                            <div className="font-medium">{document.name}</div>
-                            {document.fileName && (
-                              <div className="text-xs text-muted-foreground">
-                                {document.fileName} {document.fileSize && `(${document.fileSize})`}
-                              </div>
-                            )}
+            return (
+              <button
+                key={category.id}
+                onClick={() => setSelectedCategory(category.id)}
+                className={cn(
+                  "flex flex-col items-center p-4 rounded-lg border transition-all",
+                  selectedCategory === category.id 
+                    ? "bg-primary text-primary-foreground border-primary" 
+                    : "bg-background hover:bg-muted border-border"
+                )}
+              >
+                {getCategoryIcon(category.id)}
+                <span className="text-sm font-medium mt-2">{category.label}</span>
+                <span className="text-xs opacity-70">({categoryDocs.length})</span>
+                {progress < 100 && (
+                  <Badge variant="secondary" className="mt-1 text-xs">
+                    {Math.round(progress)}%
+                  </Badge>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Document List */}
+      <div className="bg-card rounded-lg border overflow-hidden">
+        <div className="p-4 border-b">
+          <h3 className="text-lg font-semibold">
+            {selectedCategory === 'all' ? 'All Documents' : 
+             documentCategories.find(cat => cat.id === selectedCategory)?.label}
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            {filteredDocuments.length} document{filteredDocuments.length !== 1 ? 's' : ''}
+          </p>
+        </div>
+        
+        <div className="overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-muted/50">
+                <TableHead className="font-semibold">Document</TableHead>
+                <TableHead className="font-semibold">Type</TableHead>
+                <TableHead className="font-semibold">Required</TableHead>
+                <TableHead className="font-semibold">Status</TableHead>
+                <TableHead className="font-semibold">Uploaded</TableHead>
+                <TableHead className="font-semibold">Expires</TableHead>
+                <TableHead className="font-semibold text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredDocuments.map(document => (
+                <TableRow key={document.id} className="hover:bg-muted/30">
+                  <TableCell className="py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-lg bg-muted">
+                        {getCategoryIcon(document.category)}
+                      </div>
+                      <div>
+                        <div className="font-medium text-sm">{document.name}</div>
+                        {document.fileName && (
+                          <div className="text-xs text-muted-foreground">
+                            {document.fileName} {document.fileSize && `(${document.fileSize})`}
                           </div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-xs text-muted-foreground">{document.type}</TableCell>
-                      <TableCell>
-                        {document.isRequired && (
-                          <Badge variant="secondary" className="text-xs">Required</Badge>
                         )}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          {getStatusIcon(document.status)}
-                          <Badge variant="outline" className={`text-xs ${getStatusColor(document.status)}`}>
-                            {document.status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                          </Badge>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-xs text-muted-foreground">
-                        {document.uploadedDate ? (
-                          <div>
-                            <div>{document.uploadedDate}</div>
-                            <div>by {document.uploadedBy}</div>
-                          </div>
-                        ) : (
-                          '-'
-                        )}
-                      </TableCell>
-                      <TableCell className="text-xs text-muted-foreground">
-                        {document.expirationDate ? (
-                          <div className="flex items-center gap-1">
-                            <Calendar className="h-3 w-3" />
-                            {document.expirationDate}
-                          </div>
-                        ) : (
-                          '-'
-                        )}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center gap-1 justify-end">
-                          {document.status === 'not_submitted' ? (
-                            <Button size="sm" variant="outline" className="text-xs">
-                              <Upload className="h-3 w-3 mr-1" />
-                              Upload
-                            </Button>
-                          ) : (
-                            <>
-                              {document.fileUrl && (
-                                <>
-                                  <Button size="sm" variant="outline" className="text-xs">
-                                    <Eye className="h-3 w-3 mr-1" />
-                                    View
-                                  </Button>
-                                  <Button size="sm" variant="outline" className="text-xs">
-                                    <Download className="h-3 w-3 mr-1" />
-                                    Download
-                                  </Button>
-                                </>
-                              )}
-                            </>
-                          )}
-                        </div>
                         {document.notes && (
-                          <div className="text-xs text-muted-foreground mt-1 p-1 bg-muted/30 rounded text-left">
+                          <div className="text-xs text-muted-foreground mt-1 p-2 bg-muted/50 rounded-md max-w-xs">
                             {document.notes}
                           </div>
                         )}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Card>
-          </TabsContent>
-        ))}
-      </Tabs>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-sm text-muted-foreground">{document.type}</TableCell>
+                  <TableCell>
+                    {document.isRequired ? (
+                      <Badge variant="secondary" className="text-xs">Required</Badge>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">Optional</span>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      {getStatusIcon(document.status)}
+                      <Badge variant="outline" className={`text-xs ${getStatusColor(document.status)}`}>
+                        {document.status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                      </Badge>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-sm">
+                    {document.uploadedDate ? (
+                      <div>
+                        <div className="font-medium">{document.uploadedDate}</div>
+                        <div className="text-xs text-muted-foreground">by {document.uploadedBy}</div>
+                      </div>
+                    ) : (
+                      <span className="text-muted-foreground">-</span>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-sm">
+                    {document.expirationDate ? (
+                      <div className="flex items-center gap-1">
+                        <Calendar className="h-3 w-3 text-muted-foreground" />
+                        <span>{document.expirationDate}</span>
+                      </div>
+                    ) : (
+                      <span className="text-muted-foreground">-</span>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex items-center gap-2 justify-end">
+                      {document.status === 'not_submitted' ? (
+                        <Button size="sm" className="text-xs">
+                          <Upload className="h-3 w-3 mr-1" />
+                          Upload
+                        </Button>
+                      ) : (
+                        <>
+                          {document.fileUrl && (
+                            <>
+                              <Button size="sm" variant="outline" className="text-xs">
+                                <Eye className="h-3 w-3 mr-1" />
+                                View
+                              </Button>
+                              <Button size="sm" variant="outline" className="text-xs">
+                                <Download className="h-3 w-3 mr-1" />
+                                Download
+                              </Button>
+                            </>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
     </div>
   );
 };
