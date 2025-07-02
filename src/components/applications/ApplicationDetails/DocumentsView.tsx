@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { 
   FileText, 
   Car, 
@@ -249,11 +250,101 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
         </TabsList>
 
         <TabsContent value="all" className="mt-4">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {filteredDocuments.map(document => (
-              <DocumentCard key={document.id} document={document} />
-            ))}
-          </div>
+          <Card>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Document</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Uploaded</TableHead>
+                  <TableHead>Expires</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredDocuments.map(document => (
+                  <TableRow key={document.id}>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        {getCategoryIcon(document.category)}
+                        <div>
+                          <div className="font-medium">{document.name}</div>
+                          {document.fileName && (
+                            <div className="text-xs text-muted-foreground">
+                              {document.fileName} {document.fileSize && `(${document.fileSize})`}
+                            </div>
+                          )}
+                        </div>
+                        {document.isRequired && (
+                          <Badge variant="secondary" className="text-xs">Required</Badge>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-xs text-muted-foreground">{document.type}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        {getStatusIcon(document.status)}
+                        <Badge variant="outline" className={`text-xs ${getStatusColor(document.status)}`}>
+                          {document.status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                        </Badge>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-xs text-muted-foreground">
+                      {document.uploadedDate ? (
+                        <div>
+                          <div>{document.uploadedDate}</div>
+                          <div>by {document.uploadedBy}</div>
+                        </div>
+                      ) : (
+                        '-'
+                      )}
+                    </TableCell>
+                    <TableCell className="text-xs text-muted-foreground">
+                      {document.expirationDate ? (
+                        <div className="flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          {document.expirationDate}
+                        </div>
+                      ) : (
+                        '-'
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center gap-1 justify-end">
+                        {document.status === 'not_submitted' ? (
+                          <Button size="sm" variant="outline" className="text-xs">
+                            <Upload className="h-3 w-3 mr-1" />
+                            Upload
+                          </Button>
+                        ) : (
+                          <>
+                            {document.fileUrl && (
+                              <>
+                                <Button size="sm" variant="outline" className="text-xs">
+                                  <Eye className="h-3 w-3 mr-1" />
+                                  View
+                                </Button>
+                                <Button size="sm" variant="outline" className="text-xs">
+                                  <Download className="h-3 w-3 mr-1" />
+                                  Download
+                                </Button>
+                              </>
+                            )}
+                          </>
+                        )}
+                      </div>
+                      {document.notes && (
+                        <div className="text-xs text-muted-foreground mt-1 p-1 bg-muted/30 rounded text-left">
+                          {document.notes}
+                        </div>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Card>
         </TabsContent>
 
         {documentCategories.map(category => (
@@ -274,11 +365,101 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
               </CardContent>
             </Card>
             
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {getDocumentsByCategory(category.id).map(document => (
-                <DocumentCard key={document.id} document={document} />
-              ))}
-            </div>
+            <Card>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Document</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Uploaded</TableHead>
+                    <TableHead>Expires</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {getDocumentsByCategory(category.id).map(document => (
+                    <TableRow key={document.id}>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          {getCategoryIcon(document.category)}
+                          <div>
+                            <div className="font-medium">{document.name}</div>
+                            {document.fileName && (
+                              <div className="text-xs text-muted-foreground">
+                                {document.fileName} {document.fileSize && `(${document.fileSize})`}
+                              </div>
+                            )}
+                          </div>
+                          {document.isRequired && (
+                            <Badge variant="secondary" className="text-xs">Required</Badge>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-xs text-muted-foreground">{document.type}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          {getStatusIcon(document.status)}
+                          <Badge variant="outline" className={`text-xs ${getStatusColor(document.status)}`}>
+                            {document.status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                          </Badge>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-xs text-muted-foreground">
+                        {document.uploadedDate ? (
+                          <div>
+                            <div>{document.uploadedDate}</div>
+                            <div>by {document.uploadedBy}</div>
+                          </div>
+                        ) : (
+                          '-'
+                        )}
+                      </TableCell>
+                      <TableCell className="text-xs text-muted-foreground">
+                        {document.expirationDate ? (
+                          <div className="flex items-center gap-1">
+                            <Calendar className="h-3 w-3" />
+                            {document.expirationDate}
+                          </div>
+                        ) : (
+                          '-'
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex items-center gap-1 justify-end">
+                          {document.status === 'not_submitted' ? (
+                            <Button size="sm" variant="outline" className="text-xs">
+                              <Upload className="h-3 w-3 mr-1" />
+                              Upload
+                            </Button>
+                          ) : (
+                            <>
+                              {document.fileUrl && (
+                                <>
+                                  <Button size="sm" variant="outline" className="text-xs">
+                                    <Eye className="h-3 w-3 mr-1" />
+                                    View
+                                  </Button>
+                                  <Button size="sm" variant="outline" className="text-xs">
+                                    <Download className="h-3 w-3 mr-1" />
+                                    Download
+                                  </Button>
+                                </>
+                              )}
+                            </>
+                          )}
+                        </div>
+                        {document.notes && (
+                          <div className="text-xs text-muted-foreground mt-1 p-1 bg-muted/30 rounded text-left">
+                            {document.notes}
+                          </div>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Card>
           </TabsContent>
         ))}
       </Tabs>
