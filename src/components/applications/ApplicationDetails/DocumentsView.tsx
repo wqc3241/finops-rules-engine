@@ -210,7 +210,7 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
 
       {/* Document Categories */}
       <Tabs value={selectedCategory} onValueChange={(value) => setSelectedCategory(value as DocumentCategory | 'all')}>
-        <TabsList className="w-full justify-start overflow-x-auto">
+        <TabsList className="w-full justify-start flex-wrap gap-1">
           <TabsTrigger value="all" className="flex items-center gap-1">
             <Folder className="h-4 w-4" />
             All Documents ({filteredDocuments.length})
