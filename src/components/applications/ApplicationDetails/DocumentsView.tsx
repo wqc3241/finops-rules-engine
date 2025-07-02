@@ -338,21 +338,6 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
 
         {documentCategories.map(category => (
           <TabsContent key={category.id} value={category.id} className="mt-4">
-            <Card className="mb-4">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    {getCategoryIcon(category.id)}
-                    <h3 className="font-medium">{category.label}</h3>
-                  </div>
-                  <Badge variant="outline" className="text-xs">
-                    {Math.round(getCategoryProgress(category.id))}% Complete
-                  </Badge>
-                </div>
-                <p className="text-sm text-muted-foreground mb-2">{category.description}</p>
-                <Progress value={getCategoryProgress(category.id)} className="h-2" />
-              </CardContent>
-            </Card>
             
             <Card>
               <Table>
