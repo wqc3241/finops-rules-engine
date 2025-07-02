@@ -11,6 +11,7 @@ const tabs = [
   { id: 'order-details', label: 'Order Details' },
   { id: 'funding', label: 'Funding' },
   { id: 'risk-compliance', label: 'Risk & Compliance' },
+  { id: 'documents', label: 'Documents' },
   { id: 'history', label: 'Application History' },
   { id: 'notes', label: 'Notes' },
 ];

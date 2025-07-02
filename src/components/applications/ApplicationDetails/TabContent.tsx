@@ -4,19 +4,22 @@ import ApplicationHistoryView from '@/components/applications/ApplicationDetails
 import NotesView from '@/components/applications/ApplicationDetails/NotesView';
 import RiskComplianceView from '@/components/applications/ApplicationDetails/RiskComplianceView';
 import FundingView from '@/components/applications/ApplicationDetails/FundingView';
+import DocumentsView from '@/components/applications/ApplicationDetails/DocumentsView';
 import CombinedApplicationView from './CombinedApplicationView';
 import { Note } from '@/types/application';
 import { mockRiskComplianceData } from '@/data/mock/riskCompliance';
 
 interface TabContentProps {
   tab?: string;
+  applicationId?: string;
   applicationFullDetails: any;
   notes: Note[];
   onActiveSectionChange?: (section: string) => void;
 }
 
 const TabContent: React.FC<TabContentProps> = ({ 
-  tab = 'details', 
+  tab = 'details',
+  applicationId,
   applicationFullDetails,
   notes,
   onActiveSectionChange
@@ -33,6 +36,8 @@ const TabContent: React.FC<TabContentProps> = ({
           qcErrors={mockRiskComplianceData.qcErrors}
         />
       );
+    case 'documents':
+      return <DocumentsView applicationId={applicationId || ''} />;
     case 'history':
       return <ApplicationHistoryView history={applicationFullDetails.history} />;
     case 'notes':

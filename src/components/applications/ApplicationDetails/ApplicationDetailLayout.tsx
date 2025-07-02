@@ -59,7 +59,8 @@ const ApplicationDetailLayout: React.FC<ApplicationDetailLayoutProps> = ({
               activeSection={activeSection}
             />
             <TabContent 
-              tab={currentTab} 
+              tab={currentTab}
+              applicationId={applicationId} 
               applicationFullDetails={applicationFullDetails}
               notes={notes}
               onActiveSectionChange={handleActiveSectionChange}

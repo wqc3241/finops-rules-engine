@@ -19,3 +19,5 @@ export * from './report';
 export * from './details';
 // Export funding types
 export * from './funding';
+// Export document types
+export * from './documents';
