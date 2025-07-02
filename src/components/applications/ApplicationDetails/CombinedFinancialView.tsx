@@ -19,7 +19,7 @@ const CombinedFinancialView: React.FC<CombinedFinancialViewProps> = ({
   onAllCardsExpandedChange
 }) => {
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <DealStructureSection
         dealStructure={dealStructure}
         title="Deal Structure"

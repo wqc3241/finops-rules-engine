@@ -9,18 +9,18 @@ interface LoanCollapsedViewProps {
 
 const LoanCollapsedView: React.FC<LoanCollapsedViewProps> = ({ termLength, monthlyPayments, downPayment }) => {
   return (
-    <div className="grid grid-cols-3 gap-4">
-      <div>
-        <span className="text-sm text-gray-600 block">Term Length (months)</span>
-        <span className="text-sm font-medium block bg-gray-50 p-2 mt-1">{termLength}</span>
+    <div className="flex flex-wrap gap-3 items-center">
+      <div className="flex items-center gap-1">
+        <span className="text-xs text-muted-foreground">Term:</span>
+        <span className="text-xs font-medium bg-secondary px-2 py-1 rounded">{termLength} mo</span>
       </div>
-      <div>
-        <span className="text-sm text-gray-600 block">Monthly Payments</span>
-        <span className="text-sm font-medium block bg-gray-50 p-2 mt-1">{monthlyPayments}</span>
+      <div className="flex items-center gap-1">
+        <span className="text-xs text-muted-foreground">Payment:</span>
+        <span className="text-xs font-medium bg-secondary px-2 py-1 rounded">{monthlyPayments}</span>
       </div>
-      <div>
-        <span className="text-sm text-gray-600 block">Down Payment</span>
-        <span className="text-sm font-medium block bg-gray-50 p-2 mt-1">{downPayment}</span>
+      <div className="flex items-center gap-1">
+        <span className="text-xs text-muted-foreground">Down:</span>
+        <span className="text-xs font-medium bg-secondary px-2 py-1 rounded">{downPayment}</span>
       </div>
     </div>
   );

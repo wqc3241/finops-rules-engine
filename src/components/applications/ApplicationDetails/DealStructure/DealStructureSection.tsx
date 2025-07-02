@@ -103,18 +103,18 @@ const DealStructureSection: React.FC<DealStructureSectionProps> = ({
   }
 
   return (
-    <Card className="mb-8">
-      <CardContent className="p-6">
-        <div className="flex justify-between items-center mb-1">
-          <h3 className="text-lg font-semibold">{title}</h3>
-          <Button variant="ghost" size="icon" onClick={() => setIsExpanded(!isExpanded)}>
-            {isExpanded ? <ChevronUp className="h-5 w-5 text-gray-400" /> : <ChevronDown className="h-5 w-5 text-gray-400" />}
+    <Card className="mb-4">
+      <CardContent className="p-3">
+        <div className="flex justify-between items-center mb-2">
+          <h3 className="text-base font-semibold">{title}</h3>
+          <Button variant="ghost" size="sm" onClick={() => setIsExpanded(!isExpanded)}>
+            {isExpanded ? <ChevronUp className="h-4 w-4 text-gray-400" /> : <ChevronDown className="h-4 w-4 text-gray-400" />}
           </Button>
         </div>
         
-        <Separator className="mb-1" />
+        <Separator className="mb-3" />
         
-        <div className="space-y-6">
+        <div className="space-y-3">
           {dealStructure.map((offer, index) => (
             <LenderOfferCard 
               key={index} 

@@ -120,7 +120,7 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
     <Card 
       className={`shadow-sm transition-all ${isSelected ? 'border-green-500 border-2' : ''}`}
     >
-      <CardContent className="p-6">
+      <CardContent className="p-3">
         <CardHeader 
           lenderName={offer.lenderName}
           status={offer.status}

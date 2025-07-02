@@ -136,9 +136,9 @@ const CombinedApplicationView: React.FC<CombinedApplicationViewProps> = ({
     : 'Loan'; // fallback to 'Loan' if type is not recognized
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       {/* Global Expand All Button */}
-      <div className="flex justify-end mb-4">
+      <div className="flex justify-end mb-2">
         <Button 
           variant="outline" 
           size="sm"
@@ -147,12 +147,12 @@ const CombinedApplicationView: React.FC<CombinedApplicationViewProps> = ({
         >
           {allExpanded ? (
             <>
-              <Minimize className="h-4 w-4" />
+              <Minimize className="h-3 w-3" />
               Collapse All
             </>
           ) : (
             <>
-              <Expand className="h-4 w-4" />
+              <Expand className="h-3 w-3" />
               Expand All
             </>
           )}
@@ -163,10 +163,10 @@ const CombinedApplicationView: React.FC<CombinedApplicationViewProps> = ({
       <div ref={detailsRef} id="details-section">
         <Collapsible open={expandedSections.details}>
           <div className="bg-white border border-gray-200 rounded-lg cursor-pointer" onClick={handleSectionClick('details')}>
-            <div className="flex items-center justify-between p-4">
-              <h2 className="text-lg font-semibold">Application Details</h2>
-              <div className="flex items-center gap-2">
-                <Button variant="outline">Edit</Button>
+            <div className="flex items-center justify-between p-3">
+              <h2 className="text-base font-semibold">Application Details</h2>
+              <div className="flex items-center gap-1">
+                <Button variant="outline" size="sm">Edit</Button>
                 <CollapsibleTrigger asChild>
                   <button className="text-gray-400 hover:text-gray-600">
                     {expandedSections.details ? (
@@ -179,7 +179,7 @@ const CombinedApplicationView: React.FC<CombinedApplicationViewProps> = ({
               </div>
             </div>
             <CollapsibleContent>
-              <div className="px-4 pb-4">
+              <div className="px-3 pb-3">
                 <ApplicationData
                   applicantInfo={applicationFullDetails.applicantInfo}
                   coApplicantInfo={applicationFullDetails.coApplicantInfo}
@@ -196,8 +196,8 @@ const CombinedApplicationView: React.FC<CombinedApplicationViewProps> = ({
       <div ref={financialRef} id="financial-section">
         <Collapsible open={expandedSections.financial}>
           <div className="bg-white border border-gray-200 rounded-lg cursor-pointer" onClick={handleSectionClick('financial')}>
-            <div className="flex items-center justify-between p-4">
-              <h2 className="text-lg font-semibold">Financial Summary</h2>
+            <div className="flex items-center justify-between p-3">
+              <h2 className="text-base font-semibold">Financial Summary</h2>
               <CollapsibleTrigger asChild>
                 <button className="text-gray-400 hover:text-gray-600">
                   {expandedSections.financial ? (
@@ -209,8 +209,8 @@ const CombinedApplicationView: React.FC<CombinedApplicationViewProps> = ({
               </CollapsibleTrigger>
             </div>
             <CollapsibleContent>
-              <div className="px-4 pb-4">
-                <CombinedFinancialView 
+              <div className="px-3 pb-3">
+                <CombinedFinancialView
                   financialSummary={getFinancialSummaryWithPresentedLender()}
                   dealStructure={applicationFullDetails.dealStructure}
                   applicationType={applicationType}
@@ -227,8 +227,8 @@ const CombinedApplicationView: React.FC<CombinedApplicationViewProps> = ({
       <div ref={orderRef} id="order-section">
         <Collapsible open={expandedSections.order}>
           <div className="bg-white border border-gray-200 rounded-lg cursor-pointer" onClick={handleSectionClick('order')}>
-            <div className="flex items-center justify-between p-4">
-              <h2 className="text-lg font-semibold">Order Details</h2>
+            <div className="flex items-center justify-between p-3">
+              <h2 className="text-base font-semibold">Order Details</h2>
               <CollapsibleTrigger asChild>
                 <button className="text-gray-400 hover:text-gray-600">
                   {expandedSections.order ? (
@@ -240,7 +240,7 @@ const CombinedApplicationView: React.FC<CombinedApplicationViewProps> = ({
               </CollapsibleTrigger>
             </div>
             <CollapsibleContent>
-              <div className="px-4 pb-4">
+              <div className="px-3 pb-3">
                 <OrderDetailsView orderDetails={applicationFullDetails.orderDetails} />
               </div>
             </CollapsibleContent>

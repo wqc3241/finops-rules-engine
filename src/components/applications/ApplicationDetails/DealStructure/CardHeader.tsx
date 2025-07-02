@@ -23,16 +23,16 @@ const CardHeader: React.FC<CardHeaderProps> = ({
   onSendToDT,
   onEditOffer
 }) => {
-  return <div className="flex justify-between items-center mb-1">
-      <div className="flex items-center">
-        <h4 className="text-xl font-bold">{lenderName}</h4>
+  return <div className="flex justify-between items-center mb-2">
+      <div className="flex items-center gap-2">
+        <h4 className="text-lg font-semibold">{lenderName}</h4>
         <StatusBadge status={status} />
       </div>
-      <div className="flex space-x-2 items-center">
+      <div className="flex space-x-1 items-center">
         <CardActions isSelected={isSelected} onPresentToCustomer={onPresentToCustomer} onSendToDT={onSendToDT} onEditOffer={onEditOffer} />
         
-        <Button variant="ghost" size="icon" onClick={onToggleExpand}>
-          {isExpanded ? <ChevronUp className="h-5 w-5 text-gray-400" /> : <ChevronDown className="h-5 w-5 text-gray-400" />}
+        <Button variant="ghost" size="sm" onClick={onToggleExpand}>
+          {isExpanded ? <ChevronUp className="h-4 w-4 text-gray-400" /> : <ChevronDown className="h-4 w-4 text-gray-400" />}
         </Button>
       </div>
     </div>;
