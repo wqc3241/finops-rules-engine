@@ -10,6 +10,18 @@ export const historyItems: HistoryItem[] = [
     time: "2:45 PM",
     date: "May 5, 2025",
     user: "Michael McCann",
+    versionId: "v4",
+    lenderId: "lfs",
+    lenderName: "LFS",
+    lenderOffer: {
+      applicationType: "Lease",
+      termLength: "36",
+      mf: "0.00025",
+      monthlyPayment: "$699.80",
+      dueAtSigning: "$4,995.00",
+      status: "Approved"
+    },
+    isShownToCustomer: true,
     changes: [
       {
         field: "Term Length",
@@ -36,6 +48,17 @@ export const historyItems: HistoryItem[] = [
     time: "11:22 AM",
     date: "May 3, 2025",
     user: "Jennifer Liu",
+    versionId: "v3",
+    lenderId: "chase",
+    lenderName: "Chase",
+    lenderOffer: {
+      applicationType: "Lease",
+      termLength: "48",
+      mf: "0.00028",
+      monthlyPayment: "$725.60",
+      dueAtSigning: "$6,500.00",
+      status: "Pending"
+    },
     changes: [
       {
         field: "Allowed Mileage",
@@ -52,6 +75,17 @@ export const historyItems: HistoryItem[] = [
     time: "9:15 AM",
     date: "May 1, 2025",
     user: "Michael McCann",
+    versionId: "v1",
+    lenderId: "boa",
+    lenderName: "Bank of America",
+    lenderOffer: {
+      applicationType: "Lease",
+      termLength: "24",
+      mf: "0.00032",
+      monthlyPayment: "$750.25",
+      dueAtSigning: "$9,500.00",
+      status: "Declined"
+    },
     changes: [
       {
         field: "Term Length",
@@ -83,6 +117,8 @@ export const historyItems: HistoryItem[] = [
     time: "3:40 PM",
     date: "May 4, 2025",
     user: "Tom Williams",
+    versionId: "v2",
+    // No lender associated with this version to test disabled state
     changes: [
       {
         field: "Capitalization",

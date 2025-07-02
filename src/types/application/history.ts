@@ -16,6 +16,21 @@ export interface HistoryItem {
     previously: string;
     now: string;
   }>;
+  // Enhanced fields for lender association
+  versionId: string;
+  lenderId?: string;
+  lenderName?: string;
+  lenderOffer?: {
+    applicationType: 'Lease' | 'Loan';
+    termLength: string;
+    apr?: string;
+    mf?: string;
+    monthlyPayment: string;
+    downPayment?: string;
+    dueAtSigning?: string;
+    status: string;
+  };
+  isShownToCustomer?: boolean;
 }
 
 export interface Note {
