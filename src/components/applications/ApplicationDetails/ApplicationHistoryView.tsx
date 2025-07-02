@@ -195,20 +195,20 @@ const ApplicationHistoryView: React.FC<ApplicationHistoryViewProps> = ({ history
               
               {/* Collapsible Content */}
               <CollapsibleContent>
-                <div className="border-t pt-3 space-y-3">
-                  <h4 className="text-sm font-medium text-muted-foreground">Changes in this version:</h4>
+                <div className="border-t pt-2 space-y-2">
+                  <h4 className="text-xs font-medium text-muted-foreground">Changes:</h4>
                   
                   {item.changes.map((change, idx) => (
-                    <div key={idx} className="p-2 bg-muted/30 rounded-md">
-                      <p className="text-sm font-medium mb-2">{change.field}</p>
-                      <div className="grid grid-cols-2 gap-3">
+                    <div key={idx} className="p-1.5 bg-muted/30 rounded">
+                      <p className="text-xs font-medium mb-1">{change.field}</p>
+                      <div className="grid grid-cols-2 gap-2">
                         <div>
-                          <p className="text-xs text-muted-foreground mb-1">Previously</p>
-                          <p className="text-xs">{change.previously}</p>
+                          <p className="text-[10px] text-muted-foreground mb-0.5">Previously</p>
+                          <p className="text-[10px]">{change.previously}</p>
                         </div>
                         <div>
-                          <p className="text-xs text-muted-foreground mb-1">Now</p>
-                          <p className="text-xs font-medium">{change.now}</p>
+                          <p className="text-[10px] text-muted-foreground mb-0.5">Now</p>
+                          <p className="text-[10px] font-medium">{change.now}</p>
                         </div>
                       </div>
                     </div>
