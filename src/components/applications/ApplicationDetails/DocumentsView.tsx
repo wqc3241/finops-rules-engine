@@ -209,29 +209,31 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
       </Card>
 
       {/* Document Categories */}
-      <Tabs value={selectedCategory} onValueChange={(value) => setSelectedCategory(value as DocumentCategory | 'all')}>
-        <TabsList className="w-full justify-start flex-wrap gap-1">
-          <TabsTrigger value="all" className="flex items-center gap-1">
-            <Folder className="h-4 w-4" />
-            All Documents ({filteredDocuments.length})
-          </TabsTrigger>
-          {documentCategories.map(category => {
-            const categoryDocs = getDocumentsByCategory(category.id);
-            const progress = getCategoryProgress(category.id);
-            
-            return (
-              <TabsTrigger key={category.id} value={category.id} className="flex items-center gap-1">
-                {getCategoryIcon(category.id)}
-                {category.label} ({categoryDocs.length})
-                {progress < 100 && (
-                  <Badge variant="secondary" className="ml-1 text-xs">
-                    {Math.round(progress)}%
-                  </Badge>
-                )}
-              </TabsTrigger>
-            );
-          })}
-        </TabsList>
+      <Tabs value={selectedCategory} onValueChange={(value) => setSelectedCategory(value as DocumentCategory | 'all')} className="relative">
+        <div className="sticky top-0 bg-background z-10 pb-4">
+          <TabsList className="w-full justify-start flex-wrap gap-1">
+            <TabsTrigger value="all" className="flex items-center gap-1">
+              <Folder className="h-4 w-4" />
+              All Documents ({filteredDocuments.length})
+            </TabsTrigger>
+            {documentCategories.map(category => {
+              const categoryDocs = getDocumentsByCategory(category.id);
+              const progress = getCategoryProgress(category.id);
+              
+              return (
+                <TabsTrigger key={category.id} value={category.id} className="flex items-center gap-1">
+                  {getCategoryIcon(category.id)}
+                  {category.label} ({categoryDocs.length})
+                  {progress < 100 && (
+                    <Badge variant="secondary" className="ml-1 text-xs">
+                      {Math.round(progress)}%
+                    </Badge>
+                  )}
+                </TabsTrigger>
+              );
+            })}
+          </TabsList>
+        </div>
 
         <TabsContent value="all" className="mt-4">
           <Card>
