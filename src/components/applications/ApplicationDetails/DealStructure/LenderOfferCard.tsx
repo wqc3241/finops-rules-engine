@@ -117,23 +117,28 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
   };
 
   const handleCardClick = (e: React.MouseEvent) => {
+    console.log('Card clicked!', e.target);
+    
     // Stop event from bubbling up to parent sections
     e.stopPropagation();
     
-    // Prevent toggle when clicking on buttons or interactive elements
+    // Prevent toggle when clicking directly on interactive elements
     const target = e.target as HTMLElement;
+    console.log('Click target:', target.tagName, target.className);
+    
+    // Check if click is on a button, svg, or other interactive element
     if (
-      target.closest('button') || 
-      target.closest('a') || 
-      target.closest('[role="button"]') || 
-      target.closest('input') || 
-      target.closest('select') ||
-      target.closest('[data-state]') || // For radix components
-      target.closest('.badge') // For status badges
+      target.tagName === 'BUTTON' ||
+      target.tagName === 'SVG' ||
+      target.tagName === 'PATH' ||
+      target.closest('button') ||
+      target.closest('svg')
     ) {
+      console.log('Click prevented - button or icon');
       return;
     }
     
+    console.log('Toggling card expansion');
     // Toggle the card expansion
     handleToggleExpand();
   };
