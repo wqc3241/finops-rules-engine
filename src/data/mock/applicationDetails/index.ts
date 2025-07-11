@@ -24,28 +24,12 @@ const createLenderSummaries = (application: ApplicationFullDetails): void => {
   // Get the application type to determine which data to use
   const applicationType = application.details?.type || 'Lease';
   
-  // Filter lease and loan offers from dealStructure
-  const leaseOffers = application.dealStructure.filter(offer => offer.applicationType !== 'Loan');
-  const loanOffers = application.dealStructure.filter(offer => offer.applicationType === 'Loan');
-  
-  // Process lease offers
-  leaseOffers.forEach(offer => {
-    // Create a new lender summary based on the lease financial data
-    application.financialSummary!.lenderSummaries![offer.lenderName] = {
-      type: 'Lease',
-      tabs: ['Requested', 'Approved', 'Customer'],
-      activeTab: 'Approved',
-      selectedForCustomer: false,
-      requested: { ...financialSummaryData.requested },
-      approved: { ...financialSummaryData.approved },
-      customer: { ...financialSummaryData.customer }
-    };
-  });
-  
-  // Process loan offers - use loan data for loan applications
-  loanOffers.forEach(offer => {
-    // For loan applications, use loan financial data
+  // Process all offers based on the application type
+  // For loan applications, all offers should use loan financial data
+  // For lease applications, all offers should use lease financial data
+  application.dealStructure.forEach(offer => {
     if (applicationType === 'Loan') {
+      // For loan applications, use loan financial data for all offers
       application.financialSummary!.lenderSummaries![offer.lenderName] = {
         type: 'Loan',
         tabs: ['Requested', 'Approved', 'Customer'],
@@ -56,15 +40,15 @@ const createLenderSummaries = (application: ApplicationFullDetails): void => {
         customer: { ...loanFinancialSummaryData.customer }
       };
     } else {
-      // For non-loan applications with loan offers, still use loan data
+      // For lease applications, use lease financial data for all offers
       application.financialSummary!.lenderSummaries![offer.lenderName] = {
-        type: 'Loan',
+        type: 'Lease',
         tabs: ['Requested', 'Approved', 'Customer'],
         activeTab: 'Approved',
         selectedForCustomer: false,
-        requested: { ...loanFinancialSummaryData.requested },
-        approved: { ...loanFinancialSummaryData.approved },
-        customer: { ...loanFinancialSummaryData.customer }
+        requested: { ...financialSummaryData.requested },
+        approved: { ...financialSummaryData.approved },
+        customer: { ...financialSummaryData.customer }
       };
     }
   });
