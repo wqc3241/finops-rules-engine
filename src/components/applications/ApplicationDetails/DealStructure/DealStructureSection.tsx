@@ -102,12 +102,39 @@ const DealStructureSection: React.FC<DealStructureSectionProps> = ({
     return null;
   }
 
+  const handleSectionClick = (e: React.MouseEvent) => {
+    console.log('Deal structure section clicked!', e.target);
+    
+    // Prevent toggle when clicking on buttons or lender cards
+    const target = e.target as HTMLElement;
+    console.log('Section click target:', target.tagName, target.className);
+    
+    // Don't toggle if clicking on buttons, icons, or lender cards
+    if (
+      target.tagName === 'BUTTON' ||
+      target.tagName === 'SVG' ||
+      target.tagName === 'PATH' ||
+      target.closest('button') ||
+      target.closest('svg') ||
+      target.closest('[data-lender-card]') // Prevent conflict with lender cards
+    ) {
+      console.log('Section click prevented - button, icon, or lender card');
+      return;
+    }
+    
+    console.log('Toggling section expansion');
+    setIsExpanded(!isExpanded);
+  };
+
   return (
     <Card className="mb-4">
-      <CardContent className="p-3">
+      <CardContent className="p-3 cursor-pointer" onClick={handleSectionClick}>
         <div className="flex justify-between items-center mb-2">
           <h3 className="text-base font-semibold">{title}</h3>
-          <Button variant="ghost" size="sm" onClick={() => setIsExpanded(!isExpanded)}>
+          <Button variant="ghost" size="sm" onClick={(e) => {
+            e.stopPropagation();
+            setIsExpanded(!isExpanded);
+          }}>
             {isExpanded ? <ChevronUp className="h-4 w-4 text-gray-400" /> : <ChevronDown className="h-4 w-4 text-gray-400" />}
           </Button>
         </div>

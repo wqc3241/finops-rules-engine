@@ -147,7 +147,7 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
     <Card 
       className={`shadow-sm transition-all ${isSelected ? 'border-green-500 border-2' : ''}`}
     >
-      <CardContent className="p-3 cursor-pointer" onClick={handleCardClick}>
+      <CardContent className="p-3 cursor-pointer" onClick={handleCardClick} data-lender-card>
         <CardHeader 
           lenderName={offer.lenderName}
           status={offer.status}
