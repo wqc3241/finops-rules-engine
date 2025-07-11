@@ -100,14 +100,7 @@ const CombinedApplicationView: React.FC<CombinedApplicationViewProps> = ({
   const handleSectionClick = (section: keyof typeof expandedSections) => (e: React.MouseEvent) => {
     // Prevent toggle when clicking on buttons or interactive elements
     const target = e.target as HTMLElement;
-    if (target.closest('button') || 
-        target.closest('a') || 
-        target.closest('[role="button"]') || 
-        target.closest('input') || 
-        target.closest('select') ||
-        target.closest('.card-container') ||
-        target.closest('[data-lender-card]') ||
-        target.closest('[data-interactive]')) {
+    if (target.closest('button') || target.closest('a') || target.closest('[role="button"]') || target.closest('input') || target.closest('select')) {
       return;
     }
     
@@ -169,8 +162,8 @@ const CombinedApplicationView: React.FC<CombinedApplicationViewProps> = ({
       {/* Application Details Section */}
       <div ref={detailsRef} id="details-section">
         <Collapsible open={expandedSections.details}>
-          <div className="bg-white border border-gray-200 rounded-lg">
-            <div className="flex items-center justify-between p-3 cursor-pointer" onClick={handleSectionClick('details')}>
+          <div className="bg-white border border-gray-200 rounded-lg cursor-pointer" onClick={handleSectionClick('details')}>
+            <div className="flex items-center justify-between p-3">
               <h2 className="text-base font-semibold">Application Details</h2>
               <div className="flex items-center gap-1">
                 <Button variant="outline" size="sm">Edit</Button>
@@ -202,8 +195,8 @@ const CombinedApplicationView: React.FC<CombinedApplicationViewProps> = ({
       {/* Financial Summary Section */}
       <div ref={financialRef} id="financial-section">
         <Collapsible open={expandedSections.financial}>
-          <div className="bg-white border border-gray-200 rounded-lg">
-            <div className="flex items-center justify-between p-3 cursor-pointer" onClick={handleSectionClick('financial')}>
+          <div className="bg-white border border-gray-200 rounded-lg cursor-pointer" onClick={handleSectionClick('financial')}>
+            <div className="flex items-center justify-between p-3">
               <h2 className="text-base font-semibold">Financial Summary</h2>
               <CollapsibleTrigger asChild>
                 <button className="text-gray-400 hover:text-gray-600">
@@ -233,8 +226,8 @@ const CombinedApplicationView: React.FC<CombinedApplicationViewProps> = ({
       {/* Order Details Section */}
       <div ref={orderRef} id="order-section">
         <Collapsible open={expandedSections.order}>
-          <div className="bg-white border border-gray-200 rounded-lg">
-            <div className="flex items-center justify-between p-3 cursor-pointer" onClick={handleSectionClick('order')}>
+          <div className="bg-white border border-gray-200 rounded-lg cursor-pointer" onClick={handleSectionClick('order')}>
+            <div className="flex items-center justify-between p-3">
               <h2 className="text-base font-semibold">Order Details</h2>
               <CollapsibleTrigger asChild>
                 <button className="text-gray-400 hover:text-gray-600">
