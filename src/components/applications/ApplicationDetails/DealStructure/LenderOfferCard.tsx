@@ -116,11 +116,33 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
     });
   };
 
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Stop event from bubbling up to parent sections
+    e.stopPropagation();
+    
+    // Prevent toggle when clicking on buttons or interactive elements
+    const target = e.target as HTMLElement;
+    if (
+      target.closest('button') || 
+      target.closest('a') || 
+      target.closest('[role="button"]') || 
+      target.closest('input') || 
+      target.closest('select') ||
+      target.closest('[data-state]') || // For radix components
+      target.closest('.badge') // For status badges
+    ) {
+      return;
+    }
+    
+    // Toggle the card expansion
+    handleToggleExpand();
+  };
+
   return (
     <Card 
       className={`shadow-sm transition-all ${isSelected ? 'border-green-500 border-2' : ''}`}
     >
-      <CardContent className="p-3">
+      <CardContent className="p-3 cursor-pointer" onClick={handleCardClick}>
         <CardHeader 
           lenderName={offer.lenderName}
           status={offer.status}

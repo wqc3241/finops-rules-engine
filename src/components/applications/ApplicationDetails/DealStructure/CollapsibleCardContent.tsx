@@ -60,22 +60,9 @@ const CollapsibleCardContent: React.FC<CollapsibleCardContentProps> = ({
     downPayment: offer.customer.find(item => item.name === 'ccrDownPayment')?.value || ''
   };
 
-  const handleClick = (e: React.MouseEvent) => {
-    // Stop event from bubbling up to parent sections
-    e.stopPropagation();
-    
-    // Prevent toggle when clicking on buttons or interactive elements
-    const target = e.target as HTMLElement;
-    if (target.closest('button') || target.closest('a') || target.closest('[role="button"]') || target.closest('input') || target.closest('select')) {
-      return;
-    }
-    
-    // Toggle the card expansion
-    onToggleExpand();
-  };
 
   return (
-    <div onClick={handleClick} className="cursor-pointer">
+    <div>
       <Collapsible open={isCardExpanded}>
         <Separator className="mb-1" />
 
