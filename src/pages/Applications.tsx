@@ -7,6 +7,7 @@ import ViewSelector, { ViewType } from "@/components/applications/ViewSelector";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import SortPopover from "@/components/applications/filters/SortPopover";
 import FilterPopover from "@/components/applications/filters/FilterPopover";
+import DateRangeFilter, { DateRange } from "@/components/applications/filters/DateRangeFilter";
 import { applications as initialApplications } from '@/data/mockApplications';
 import { useApplicationFiltering } from "@/hooks/useApplicationFiltering";
 
@@ -19,6 +20,7 @@ const Applications = () => {
   const [activeItem, setActiveItem] = React.useState('Applications');
   const [refreshTrigger, setRefreshTrigger] = React.useState(0);
   const [currentView, setCurrentView] = React.useState<ViewType>('list');
+  const [selectedDateRange, setSelectedDateRange] = React.useState<DateRange>('all');
   
   const {
     sortOption,
@@ -141,6 +143,10 @@ const Applications = () => {
                     setSortOption={setSortOption}
                     setSortDirection={setSortDirection}
                     toggleSortDirection={toggleSortDirection}
+                  />
+                  <DateRangeFilter
+                    selectedRange={selectedDateRange}
+                    onRangeChange={setSelectedDateRange}
                   />
                   <FilterPopover 
                     uniqueStatuses={uniqueStatuses}
