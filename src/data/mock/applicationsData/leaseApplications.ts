@@ -74,6 +74,38 @@ export const leaseApplications: Application[] = [
     reapplicationSequence: 1,
     reapplyEnabled: true
   },
+  // Additional reapply scenario - Declined lease that can be reapplied
+  {
+    id: '8-declined',
+    orderNumber: 'AD 76543-10987',
+    name: 'Aisha Washington',
+    type: 'Lease',
+    status: 'Declined',
+    notes: 'Application declined due to insufficient credit history. Reapply enabled for customer to submit additional documentation.',
+    notesArray: [
+      {
+        content: 'Application declined due to insufficient credit history.',
+        time: '1:30 PM',
+        date: '2024-05-04',
+        user: 'Tom Williams'
+      },
+      {
+        content: 'Customer requesting reconsideration with additional income documentation.',
+        time: '4:15 PM',
+        date: '2024-05-04',
+        user: 'Jennifer Liu'
+      },
+      {
+        content: 'Reapply enabled by FS ops to allow customer to submit additional documentation.',
+        time: '9:00 AM',
+        date: '2024-05-05',
+        user: 'Michael McCann'
+      }
+    ],
+    date: '2024-05-04',
+    reapplicationSequence: 1,
+    reapplyEnabled: true
+  },
   {
     id: '8',
     orderNumber: 'AD 76543-10987',

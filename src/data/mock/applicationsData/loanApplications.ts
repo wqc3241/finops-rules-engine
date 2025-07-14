@@ -49,6 +49,38 @@ export const loanApplications: Application[] = [
     reapplicationSequence: 1,
     reapplyEnabled: true
   },
+  // Additional reapply scenario - Approved loan that customer wants to switch to lease
+  {
+    id: '5-approved',
+    orderNumber: 'AD 87432-21958',
+    name: 'Michael Torres',
+    type: 'Loan',
+    status: 'Approved',
+    notes: 'Loan approved but customer now considering lease option. Reapply enabled by FS ops.',
+    notesArray: [
+      {
+        content: 'Loan application approved with excellent terms.',
+        time: '2:15 PM',
+        date: '2024-05-04',
+        user: 'Jennifer Liu'
+      },
+      {
+        content: 'Customer called requesting to explore lease options instead.',
+        time: '10:30 AM',
+        date: '2024-05-05',
+        user: 'Tom Williams'
+      },
+      {
+        content: 'Reapply enabled by FS ops to allow customer to submit lease application.',
+        time: '11:00 AM',
+        date: '2024-05-05',
+        user: 'Michael McCann'
+      }
+    ],
+    date: '2024-05-04',
+    reapplicationSequence: 1,
+    reapplyEnabled: true
+  },
   {
     id: '7',
     orderNumber: 'AD 32198-76543',
