@@ -189,7 +189,7 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({ application, isKanban
                       </Tooltip>
                     )}
                   </div>
-                  <span className="text-xs text-gray-500">| App ID: {application.id}</span>
+                  <span className="text-xs text-gray-500">App ID: {application.id}</span>
                 </div>
                 <ChevronRight className="text-gray-400 w-3 h-3" />
               </div>
