@@ -16,6 +16,14 @@ interface ApplicationCardProps {
   isKanbanView?: boolean;
 }
 
+// Format application ID to F-0000000 format
+const formatApplicationId = (id: string): string => {
+  // Extract numeric part from ID (handle IDs like "6-reapply", "1-original", etc.)
+  const numericPart = id.replace(/[^0-9]/g, '');
+  const paddedNumber = numericPart.padStart(7, '0');
+  return `F-${paddedNumber}`;
+};
+
 const ApplicationCard: React.FC<ApplicationCardProps> = ({ application, isKanbanView = false }) => {
   const navigate = useNavigate();
 
@@ -139,7 +147,7 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({ application, isKanban
                     </Tooltip>
                   )}
                 </div>
-                <span className="text-xs text-gray-500">| App ID: {application.id}</span>
+                <span className="text-xs text-gray-500">| App ID: {formatApplicationId(application.id)}</span>
               </div>
               <ChevronRight className="text-gray-400 w-3 h-3" />
             </div>
@@ -189,7 +197,7 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({ application, isKanban
                       </Tooltip>
                     )}
                   </div>
-                  <span className="text-xs text-gray-500">App ID: {application.id}</span>
+                  <span className="text-xs text-gray-500">App ID: {formatApplicationId(application.id)}</span>
                 </div>
                 <ChevronRight className="text-gray-400 w-3 h-3" />
               </div>
