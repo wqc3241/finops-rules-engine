@@ -36,6 +36,15 @@ export const useApplicationFiltering = (initialApplications: Application[]) => {
   // Get initial applications from localStorage or use initial data
   const getInitialApplications = useCallback((): Application[] => {
     const savedApplications = getSavedApplications();
+    console.log('Saved applications from localStorage:', savedApplications.length);
+    console.log('Initial applications from mock:', initialApplications.length);
+    
+    // Force using initialApplications to get the updated mock data with reapply scenarios
+    if (initialApplications.length > 0) {
+      console.log('Using initial applications (forcing refresh with new mock data)');
+      return initialApplications;
+    }
+    
     return savedApplications.length > 0 ? savedApplications : initialApplications;
   }, [initialApplications]);
 
