@@ -55,7 +55,7 @@ export const leaseApplications: Application[] = [
     orderNumber: 'AD 54621-39874',
     name: 'Sarah Johnson',
     type: 'Lease',
-    status: 'Pending Reapply',
+    status: 'Void',
     notes: 'Reapplication enabled. Customer considering switching to loan application.',
     notesArray: [
       {
@@ -81,7 +81,7 @@ export const leaseApplications: Application[] = [
     orderNumber: 'AD 76543-10987',
     name: 'Aisha Washington',
     type: 'Lease',
-    status: 'Declined',
+    status: 'Void',
     notes: 'Application declined due to insufficient credit history. Reapply enabled for customer to submit additional documentation.',
     notesArray: [
       {

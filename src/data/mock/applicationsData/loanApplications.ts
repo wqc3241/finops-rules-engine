@@ -35,7 +35,7 @@ export const loanApplications: Application[] = [
     orderNumber: 'AD 87432-21958',
     name: 'Michael Torres',
     type: 'Loan',
-    status: 'Submitted',
+    status: 'Void',
     notes: 'Customer uploaded all required documentation. Waiting for credit check.',
     notesArray: [
       {
