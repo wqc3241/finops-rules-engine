@@ -125,7 +125,7 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({ application, isKanban
         <div className="relative">
           <div className="p-3 border-l-4 border-transparent hover:border-gray-300">
             <div className="flex justify-between items-center mb-2">
-              <div className="flex flex-col gap-0.5">
+              <div className="flex items-center gap-2">
                 <div className="flex items-center gap-1">
                   <h3 className="text-sm font-medium text-gray-900">{formatOrderNumberWithSequence(application)}</h3>
                   {isReapplication(application) && (
@@ -139,7 +139,7 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({ application, isKanban
                     </Tooltip>
                   )}
                 </div>
-                <p className="text-xs text-gray-500">App ID: {application.id}</p>
+                <span className="text-xs text-gray-500">| App ID: {application.id}</span>
               </div>
               <ChevronRight className="text-gray-400 w-3 h-3" />
             </div>
@@ -174,8 +174,8 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({ application, isKanban
         <div className="p-2 border-l-4 border-transparent hover:border-gray-300">
           <div className="flex justify-between items-center">
             <div className="flex-1">
-              <div className="flex justify-between items-start mb-1">
-                <div className="flex flex-col gap-0.5">
+              <div className="flex justify-between items-center mb-1">
+                <div className="flex items-center gap-2">
                   <div className="flex items-center gap-1">
                     <h3 className="text-sm font-medium text-gray-900">{formatOrderNumberWithSequence(application)}</h3>
                     {isReapplication(application) && (
@@ -189,7 +189,7 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({ application, isKanban
                       </Tooltip>
                     )}
                   </div>
-                  <p className="text-xs text-gray-500">App ID: {application.id}</p>
+                  <span className="text-xs text-gray-500">| App ID: {application.id}</span>
                 </div>
                 <ChevronRight className="text-gray-400 w-3 h-3" />
               </div>
