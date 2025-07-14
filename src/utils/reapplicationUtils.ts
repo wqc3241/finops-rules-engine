@@ -34,7 +34,7 @@ export const findActiveApplicationForOrder = (
 /**
  * Check if an application can be reapplied
  */
-export const canReapply = (application: Application): boolean => {
+export const canReapply = (application: { reapplyEnabled?: boolean; status: string }): boolean => {
   return (
     application.reapplyEnabled === true &&
     !['Funded', 'Booked', 'Void', 'Pending Reapply'].includes(application.status)
