@@ -15,7 +15,12 @@ export interface Application {
     user: string;
   }>;
   state?: string;
-  country?: string; // Add country property to Application type
+  country?: string;
+  // Reapplication tracking fields
+  originalApplicationId?: string; // Links to the first application in the reapply chain
+  parentApplicationId?: string; // Links to the immediate previous application
+  reapplicationSequence?: number; // Tracks the sequence (1 for original, 2 for first reapply, etc.)
+  reapplyEnabled?: boolean; // Indicates if this application can be reapplied
 }
 
 export interface Note {

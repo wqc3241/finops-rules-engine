@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Application } from '../../types/application';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, RotateCcw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import {
@@ -9,6 +9,7 @@ import {
   TooltipContent,
   TooltipTrigger
 } from "@/components/ui/tooltip";
+import { formatOrderNumberWithSequence, isReapplication, getSequenceLabel } from '@/utils/reapplicationUtils';
 
 interface ApplicationCardProps {
   application: Application;
@@ -42,6 +43,10 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({ application, isKanban
         return 'bg-indigo-500';
       case 'Funded':
         return 'bg-emerald-500';
+      case 'Pending Reapply':
+        return 'bg-orange-600';
+      case 'Void':
+        return 'bg-gray-400';
       default:
         return 'bg-gray-500';
     }
@@ -120,7 +125,19 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({ application, isKanban
         <div className="relative">
           <div className="p-3 border-l-4 border-transparent hover:border-gray-300">
             <div className="flex justify-between items-center mb-2">
-              <h3 className="text-sm font-medium text-gray-900">{application.orderNumber}</h3>
+              <div className="flex items-center gap-1">
+                <h3 className="text-sm font-medium text-gray-900">{formatOrderNumberWithSequence(application)}</h3>
+                {isReapplication(application) && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <RotateCcw className="text-blue-500 w-3 h-3" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="text-xs">{getSequenceLabel(application)}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                )}
+              </div>
               <ChevronRight className="text-gray-400 w-3 h-3" />
             </div>
             <div className="space-y-2">
@@ -155,9 +172,19 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({ application, isKanban
           <div className="flex justify-between items-center">
             <div className="flex-1">
               <div className="flex justify-between items-center mb-1">
-                <h3 className="text-sm font-medium text-gray-900 flex items-center">
-                  {application.orderNumber}
-                </h3>
+                <div className="flex items-center gap-1">
+                  <h3 className="text-sm font-medium text-gray-900">{formatOrderNumberWithSequence(application)}</h3>
+                  {isReapplication(application) && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <RotateCcw className="text-blue-500 w-3 h-3" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="text-xs">{getSequenceLabel(application)}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+                </div>
                 <ChevronRight className="text-gray-400 w-3 h-3" />
               </div>
               <div className="grid grid-cols-4 gap-2">

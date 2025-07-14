@@ -18,24 +18,61 @@ export const leaseApplications: Application[] = [
         user: 'Michael McCann'
       }
     ],
-    date: '2024-05-01'
+    date: '2024-05-01',
+    originalApplicationId: '1-original',
+    parentApplicationId: '1-original',
+    reapplicationSequence: 2
+  },
+  // Original Loan application for same order (now Void after reapplication)
+  {
+    id: '1-original',
+    orderNumber: 'AD 24567-17246',
+    name: 'Becca Yukelson',
+    type: 'Loan',
+    status: 'Void',
+    notes: 'Original loan application. Customer switched to lease application.',
+    notesArray: [
+      {
+        content: 'Customer requested to switch from loan to lease.',
+        time: '10:15 AM',
+        date: '2024-04-28',
+        user: 'Michael McCann'
+      },
+      {
+        content: 'Application marked as void after successful reapplication.',
+        time: '2:45 PM',
+        date: '2024-05-01',
+        user: 'Michael McCann'
+      }
+    ],
+    date: '2024-04-28',
+    reapplicationSequence: 1,
+    reapplyEnabled: false
   },
   {
     id: '6',
     orderNumber: 'AD 54621-39874',
     name: 'Sarah Johnson',
     type: 'Lease',
-    status: 'Pending',
-    notes: 'Still waiting on proof of income documents from applicant.',
+    status: 'Pending Reapply',
+    notes: 'Reapplication enabled. Customer considering switching to loan application.',
     notesArray: [
       {
-        content: 'Still waiting on proof of income documents from applicant.',
+        content: 'Customer requested reapplication to explore loan options.',
         time: '3:15 PM',
         date: '2024-05-02',
         user: 'Tom Williams'
+      },
+      {
+        content: 'Reapplication enabled by FS ops. Waiting for customer decision.',
+        time: '4:20 PM',
+        date: '2024-05-02',
+        user: 'Jennifer Liu'
       }
     ],
-    date: '2024-05-02'
+    date: '2024-05-02',
+    reapplicationSequence: 1,
+    reapplyEnabled: true
   },
   {
     id: '8',

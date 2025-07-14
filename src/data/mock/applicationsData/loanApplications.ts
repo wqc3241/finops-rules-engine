@@ -3,6 +3,33 @@ import { Application } from '../../../types/application';
 
 // Loan applications
 export const loanApplications: Application[] = [
+  // New loan application after reapplying from lease
+  {
+    id: '6-reapply',
+    orderNumber: 'AD 54621-39874',
+    name: 'Sarah Johnson',
+    type: 'Loan',
+    status: 'Submitted',
+    notes: 'Reapplication - switched from lease to loan. Documentation under review.',
+    notesArray: [
+      {
+        content: 'Customer submitted new loan application after reapply.',
+        time: '9:30 AM',
+        date: '2024-05-03',
+        user: 'Jennifer Liu'
+      },
+      {
+        content: 'All required documentation received. Processing loan application.',
+        time: '11:15 AM',
+        date: '2024-05-03',
+        user: 'Tom Williams'
+      }
+    ],
+    date: '2024-05-03',
+    originalApplicationId: '6',
+    parentApplicationId: '6',
+    reapplicationSequence: 2
+  },
   {
     id: '5',
     orderNumber: 'AD 87432-21958',
@@ -18,7 +45,9 @@ export const loanApplications: Application[] = [
         user: 'Jennifer Liu'
       }
     ],
-    date: '2024-05-03'
+    date: '2024-05-03',
+    reapplicationSequence: 1,
+    reapplyEnabled: true
   },
   {
     id: '7',

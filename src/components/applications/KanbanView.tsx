@@ -10,7 +10,7 @@ interface KanbanViewProps {
 
 const KanbanView: React.FC<KanbanViewProps> = ({ applications }) => {
   // Get unique statuses from applications and define column order
-  const statusOrder = ['Submitted', 'Pending', 'Conditionally Approved', 'Approved', 'Pending Signature', 'Booked', 'Funded', 'Declined'];
+  const statusOrder = ['Submitted', 'Pending', 'Conditionally Approved', 'Approved', 'Pending Signature', 'Booked', 'Funded', 'Pending Reapply', 'Void', 'Declined'];
   
   // Group applications by status
   const applicationsByStatus = applications.reduce((acc, app) => {
@@ -38,6 +38,10 @@ const KanbanView: React.FC<KanbanViewProps> = ({ applications }) => {
       case 'Booked':
       case 'Funded':
         return 'bg-emerald-100 text-emerald-800';
+      case 'Pending Reapply':
+        return 'bg-orange-100 text-orange-800';
+      case 'Void':
+        return 'bg-gray-200 text-gray-600';
       case 'Declined':
         return 'bg-red-100 text-red-800';
       default:
