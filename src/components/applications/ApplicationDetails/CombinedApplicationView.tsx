@@ -1,12 +1,16 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown, ChevronUp, Expand, Minimize } from 'lucide-react';
+import { ChevronDown, ChevronUp, Expand, Minimize, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import ApplicationData from './ApplicationData';
 import CombinedFinancialView from './CombinedFinancialView';
 import OrderDetailsView from './OrderDetailsView';
 import { ApplicationFullDetails, Note } from '@/types/application';
+import { useToast } from '@/hooks/use-toast';
+import { canReapply } from '@/utils/reapplicationUtils';
 
 interface CombinedApplicationViewProps {
   applicationFullDetails: ApplicationFullDetails;
@@ -21,6 +25,7 @@ const CombinedApplicationView: React.FC<CombinedApplicationViewProps> = ({
   activeSection,
   onActiveSectionChange
 }) => {
+  const { toast } = useToast();
   const [expandedSections, setExpandedSections] = useState({
     details: true,
     financial: true,
@@ -29,6 +34,9 @@ const CombinedApplicationView: React.FC<CombinedApplicationViewProps> = ({
 
   const [allExpanded, setAllExpanded] = useState(true);
   const [allCardsExpanded, setAllCardsExpanded] = useState(false);
+  const [reapplyEnabled, setReapplyEnabled] = useState(
+    applicationFullDetails.details.reapplyEnabled || false
+  );
 
   const detailsRef = useRef<HTMLDivElement>(null);
   const financialRef = useRef<HTMLDivElement>(null);
@@ -137,6 +145,23 @@ const CombinedApplicationView: React.FC<CombinedApplicationViewProps> = ({
     return financialSummary;
   };
 
+  // Handle reapply toggle
+  const handleReapplyToggle = (enabled: boolean) => {
+    setReapplyEnabled(enabled);
+    
+    // Here you would typically make an API call to update the application
+    // For now, we'll just show a toast notification
+    toast({
+      title: enabled ? "Reapply Enabled" : "Reapply Disabled",
+      description: enabled 
+        ? "Customer can now request to reapply for this order." 
+        : "Customer can no longer request to reapply for this order.",
+    });
+  };
+
+  // Check if reapply can be enabled based on current status
+  const canEnableReapply = !['Funded', 'Booked', 'Void', 'Pending Reapply'].includes(applicationFullDetails.details.status);
+
   // Ensure applicationType is properly typed as 'Lease' | 'Loan'
   const applicationType = (applicationFullDetails.details.type === 'Lease' || applicationFullDetails.details.type === 'Loan') 
     ? applicationFullDetails.details.type as 'Lease' | 'Loan'
@@ -144,9 +169,28 @@ const CombinedApplicationView: React.FC<CombinedApplicationViewProps> = ({
 
   return (
     <div className="space-y-3">
-      {/* Global Expand All Button */}
-      <div className="flex justify-end mb-2">
-        <Button 
+      {/* Global Controls */}
+      <div className="flex justify-between items-center mb-2">
+        <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2">
+            <RotateCcw className="h-4 w-4 text-blue-600" />
+            <Label htmlFor="reapply-toggle" className="text-sm font-medium">
+              Enable Reapply
+            </Label>
+            <Switch
+              id="reapply-toggle"
+              checked={reapplyEnabled}
+              onCheckedChange={handleReapplyToggle}
+              disabled={!canEnableReapply}
+            />
+          </div>
+          {!canEnableReapply && (
+            <span className="text-xs text-gray-500">
+              (Not available for {applicationFullDetails.details.status} applications)
+            </span>
+          )}
+        </div>
+        <Button
           variant="outline" 
           size="sm"
           onClick={handleExpandAll}

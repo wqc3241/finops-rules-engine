@@ -7,6 +7,11 @@ export interface ApplicationDetails {
   orderedBy: string;
   status: string;
   type: string;
+  // Reapplication fields
+  reapplyEnabled?: boolean;
+  reapplicationSequence?: number;
+  originalApplicationId?: string;
+  parentApplicationId?: string;
 }
 
 export interface ApplicationFullDetails {
