@@ -3,29 +3,9 @@ import { Application } from '../../../types/application';
 
 // Lease applications
 export const leaseApplications: Application[] = [
+  // Original Loan application (now Void after reapplication)
   {
     id: '1',
-    orderNumber: 'AD 24567-17246',
-    name: 'Becca Yukelson',
-    type: 'Lease',
-    status: 'Approved',
-    notes: 'Customer confirmed delivery date for next Tuesday.',
-    notesArray: [
-      {
-        content: 'Customer confirmed delivery date for next Tuesday.',
-        time: '2:45 PM',
-        date: '2024-05-01',
-        user: 'Michael McCann'
-      }
-    ],
-    date: '2024-05-01',
-    originalApplicationId: '1-original',
-    parentApplicationId: '1-original',
-    reapplicationSequence: 2
-  },
-  // Original Loan application for same order (now Void after reapplication)
-  {
-    id: '1-original',
     orderNumber: 'AD 24567-17246',
     name: 'Becca Yukelson',
     type: 'Loan',
@@ -48,6 +28,27 @@ export const leaseApplications: Application[] = [
     date: '2024-04-28',
     reapplicationSequence: 1,
     reapplyEnabled: false
+  },
+  // Reapplied Lease application for same order (Approved)
+  {
+    id: '2',
+    orderNumber: 'AD 24567-17246',
+    name: 'Becca Yukelson',
+    type: 'Lease',
+    status: 'Approved',
+    notes: 'Customer confirmed delivery date for next Tuesday.',
+    notesArray: [
+      {
+        content: 'Customer confirmed delivery date for next Tuesday.',
+        time: '2:45 PM',
+        date: '2024-05-01',
+        user: 'Michael McCann'
+      }
+    ],
+    date: '2024-05-01',
+    originalApplicationId: '1',
+    parentApplicationId: '1',
+    reapplicationSequence: 2
   },
   {
     id: '6',
