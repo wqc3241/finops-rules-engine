@@ -75,9 +75,9 @@ export const leaseApplications: Application[] = [
     reapplicationSequence: 1,
     reapplyEnabled: true
   },
-  // Additional reapply scenario - Declined lease that can be reapplied
+  // Original declined lease application that can be reapplied
   {
-    id: '8-declined',
+    id: '3',
     orderNumber: 'AD 76543-10987',
     name: 'Aisha Washington',
     type: 'Lease',
@@ -108,30 +108,7 @@ export const leaseApplications: Application[] = [
     reapplyEnabled: true
   },
   {
-    id: '8',
-    orderNumber: 'AD 76543-10987',
-    name: 'Aisha Washington',
-    type: 'Lease',
-    status: 'Declined',
-    notes: 'Application declined due to insufficient credit history.',
-    notesArray: [
-      {
-        content: 'Application declined due to insufficient credit history.',
-        time: '1:30 PM',
-        date: '2024-05-04',
-        user: 'Tom Williams'
-      },
-      {
-        content: 'Customer requesting reconsideration with additional income documentation.',
-        time: '4:15 PM',
-        date: '2024-05-04',
-        user: 'Jennifer Liu'
-      }
-    ],
-    date: '2024-05-04'
-  },
-  {
-    id: '9',
+    id: '4',
     orderNumber: 'AD 98765-23456',
     name: 'Carlos Rodriguez',
     type: 'Lease',
@@ -154,7 +131,7 @@ export const leaseApplications: Application[] = [
     date: '2024-05-05'
   },
   {
-    id: '12',
+    id: '16',
     orderNumber: 'AD 87654-32109',
     name: 'Sophia Martinez',
     type: 'Lease',
@@ -177,7 +154,7 @@ export const leaseApplications: Application[] = [
     date: '2024-04-28'
   },
   {
-    id: '14',
+    id: '17',
     orderNumber: 'AD 66778-99001',
     name: 'Olivia Thompson',
     type: 'Lease',
@@ -200,7 +177,7 @@ export const leaseApplications: Application[] = [
     date: '2024-05-04'
   },
   {
-    id: '16',
+    id: '18',
     orderNumber: 'AD 54321-09876',
     name: 'Maria Garcia',
     type: 'Lease',

@@ -3,9 +3,9 @@ import { Application } from '../../../types/application';
 
 // Loan applications
 export const loanApplications: Application[] = [
-  // New loan application after reapplying from lease
+  // Reapplied loan application for Sarah Johnson (switched from lease)
   {
-    id: '6-reapply',
+    id: '7',
     orderNumber: 'AD 54621-39874',
     name: 'Sarah Johnson',
     type: 'Loan',
@@ -31,7 +31,7 @@ export const loanApplications: Application[] = [
     reapplicationSequence: 2
   },
   {
-    id: '5',
+    id: '8',
     orderNumber: 'AD 87432-21958',
     name: 'Michael Torres',
     type: 'Loan',
@@ -49,9 +49,9 @@ export const loanApplications: Application[] = [
     reapplicationSequence: 1,
     reapplyEnabled: true
   },
-  // Additional reapply scenario - Approved loan that customer wants to switch to lease
+  // Approved loan application for Michael Torres (same order as above)
   {
-    id: '5-approved',
+    id: '9',
     orderNumber: 'AD 87432-21958',
     name: 'Michael Torres',
     type: 'Loan',
@@ -82,7 +82,7 @@ export const loanApplications: Application[] = [
     reapplyEnabled: true
   },
   {
-    id: '7',
+    id: '10',
     orderNumber: 'AD 32198-76543',
     name: 'David Chen',
     type: 'Loan',
@@ -99,7 +99,7 @@ export const loanApplications: Application[] = [
     date: '2024-04-28'
   },
   {
-    id: '10',
+    id: '11',
     orderNumber: 'AD 34567-98765',
     name: 'Emily Chang',
     type: 'Loan',
@@ -122,7 +122,7 @@ export const loanApplications: Application[] = [
     date: '2024-05-06'
   },
   {
-    id: '11',
+    id: '12',
     orderNumber: 'AD 11223-45678',
     name: 'James Wilson',
     type: 'Loan',
@@ -168,7 +168,7 @@ export const loanApplications: Application[] = [
     date: '2024-05-07'
   },
   {
-    id: '15',
+    id: '14',
     orderNumber: 'AD 12345-67890',
     name: 'Daniel Patel',
     type: 'Loan',
@@ -191,7 +191,7 @@ export const loanApplications: Application[] = [
     date: '2024-05-08'
   },
   {
-    id: '17',
+    id: '15',
     orderNumber: 'AD 13579-24680',
     name: 'William Johnson',
     type: 'Loan',
