@@ -10,6 +10,8 @@ interface RequestedDealStructureProps {
   lenderName?: string;
   onViewFinancialSummary?: () => void;
   showFinancialDetailButton?: boolean;
+  onEditRequested?: () => void;
+  onViewHistory?: () => void;
 }
 
 const RequestedDealStructure: React.FC<RequestedDealStructureProps> = ({
@@ -17,7 +19,9 @@ const RequestedDealStructure: React.FC<RequestedDealStructureProps> = ({
   applicationType = 'Lease',
   lenderName,
   onViewFinancialSummary,
-  showFinancialDetailButton = false
+  showFinancialDetailButton = false,
+  onEditRequested,
+  onViewHistory
 }) => {
   const { navigateToFinancialSection } = useDealFinancialNavigation();
   
@@ -38,6 +42,8 @@ const RequestedDealStructure: React.FC<RequestedDealStructureProps> = ({
       section="requested"
       onViewFinancialSummary={handleViewFinancialSummary}
       showFinancialDetailButton={showFinancialDetailButton}
+      onEditRequested={onEditRequested}
+      onViewHistory={onViewHistory}
     />
   );
 };

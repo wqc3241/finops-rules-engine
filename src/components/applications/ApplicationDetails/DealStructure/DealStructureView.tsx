@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { DealStructureItem } from '@/types/application';
 import OfferParameters from './OfferParameters';
-import { BarChart2 } from 'lucide-react';
+import { BarChart2, Edit, History } from 'lucide-react';
 
 interface DealStructureViewProps {
   items: DealStructureItem[];
@@ -14,6 +14,8 @@ interface DealStructureViewProps {
   onViewFinancialSummary?: () => void;
   showFinancialDetailButton?: boolean;
   isCustomer?: boolean;
+  onEditRequested?: () => void;
+  onViewHistory?: () => void;
 }
 
 const DealStructureView: React.FC<DealStructureViewProps> = ({
@@ -24,12 +26,38 @@ const DealStructureView: React.FC<DealStructureViewProps> = ({
   section,
   onViewFinancialSummary,
   showFinancialDetailButton = false,
-  isCustomer = false
+  isCustomer = false,
+  onEditRequested,
+  onViewHistory
 }) => {
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <h4 className="text-md font-medium">{title}</h4>
+        <div className="flex items-center gap-2">
+          <h4 className="text-md font-medium">{title}</h4>
+          {section === 'requested' && onEditRequested && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onEditRequested}
+              className="h-6 w-6 p-0 hover:bg-muted"
+              title="Edit Requested Deal"
+            >
+              <Edit className="h-3 w-3" />
+            </Button>
+          )}
+          {section === 'requested' && onViewHistory && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onViewHistory}
+              className="h-6 w-6 p-0 hover:bg-muted"
+              title="View Deal History"
+            >
+              <History className="h-3 w-3" />
+            </Button>
+          )}
+        </div>
         {showFinancialDetailButton && (
           <button 
             onClick={onViewFinancialSummary} 
