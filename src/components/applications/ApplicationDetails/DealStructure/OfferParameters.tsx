@@ -46,22 +46,35 @@ const OfferParameters: React.FC<OfferParametersProps> = ({
     presentedLender
   } = useDealFinancialNavigation();
   
+  // Define which fields support editing
+  const editableFields = ['Term Length', 'Mileage Allowance', 'Down Payment'];
+  
+  const isFieldEditable = (fieldName: string): boolean => {
+    return editableFields.some(field => 
+      fieldName.toLowerCase().includes(field.toLowerCase()) ||
+      (field === 'Down Payment' && fieldName.toLowerCase().includes('due at signing'))
+    );
+  };
+  
   // Initialize edit values when entering edit mode
   useEffect(() => {
     if (isEditMode) {
       const standardParams = generateStandardParams(items, applicationType);
       const initialValues: {[key: string]: string} = {};
       standardParams.forEach(param => {
-        // Extract numeric values from formatted strings
-        let value = param.value;
-        if (param.name.toLowerCase().includes('term')) {
-          value = value.replace(' months', '').replace(',', '');
-        } else if (param.name.toLowerCase().includes('mileage')) {
-          value = value.replace(' miles/year', '').replace(',', '');
-        } else if (param.name.toLowerCase().includes('down') || param.name.toLowerCase().includes('due')) {
-          value = value.replace('$', '').replace(',', '');
+        // Only initialize editable fields
+        if (isFieldEditable(param.name)) {
+          // Extract numeric values from formatted strings
+          let value = param.value;
+          if (param.name.toLowerCase().includes('term')) {
+            value = value.replace(' months', '').replace(',', '');
+          } else if (param.name.toLowerCase().includes('mileage')) {
+            value = value.replace(' miles/year', '').replace(',', '');
+          } else if (param.name.toLowerCase().includes('down') || param.name.toLowerCase().includes('due')) {
+            value = value.replace('$', '').replace(',', '');
+          }
+          initialValues[param.name] = value;
         }
-        initialValues[param.name] = value;
       });
       setEditValues(initialValues);
     }
@@ -79,16 +92,20 @@ const OfferParameters: React.FC<OfferParametersProps> = ({
     const standardParams = generateStandardParams(items, applicationType);
     
     standardParams.forEach(param => {
-      const newValue = editValues[param.name] || param.value;
-      let formattedValue = newValue;
+      let formattedValue = param.value; // Keep original value for non-editable fields
       
-      // Format values back to original format
-      if (param.name.toLowerCase().includes('term')) {
-        formattedValue = `${newValue} months`;
-      } else if (param.name.toLowerCase().includes('mileage')) {
-        formattedValue = `${newValue} miles/year`;
-      } else if (param.name.toLowerCase().includes('down') || param.name.toLowerCase().includes('due')) {
-        formattedValue = `$${newValue}`;
+      // Only update values for editable fields
+      if (isFieldEditable(param.name) && editValues[param.name] !== undefined) {
+        const newValue = editValues[param.name];
+        
+        // Format values back to original format
+        if (param.name.toLowerCase().includes('term')) {
+          formattedValue = `${newValue} months`;
+        } else if (param.name.toLowerCase().includes('mileage')) {
+          formattedValue = `${newValue} miles/year`;
+        } else if (param.name.toLowerCase().includes('down') || param.name.toLowerCase().includes('due')) {
+          formattedValue = `$${newValue}`;
+        }
       }
       
       updatedItems.push({
@@ -129,7 +146,7 @@ const OfferParameters: React.FC<OfferParametersProps> = ({
         {standardParams.map((item, index) => (
           <div key={index} className="flex flex-col mb-2">
             <span className="text-gray-500">{item.label}</span>
-            {isEditMode ? (
+            {isEditMode && isFieldEditable(item.name) ? (
               <Input
                 value={editValues[item.name] || ''}
                 onChange={(e) => handleInputChange(item.name, e.target.value)}
