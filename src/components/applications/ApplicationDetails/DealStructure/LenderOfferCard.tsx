@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { DealStructureOffer, FinancialSummary, DealStructureItem } from '@/types/application';
@@ -276,15 +277,17 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
     const target = e.target as HTMLElement;
     console.log('Click target:', target.tagName, target.className);
     
-    // Check if click is on a button, svg, or other interactive element
+    // Check if click is on a button, svg, input, or other interactive element
     if (
       target.tagName === 'BUTTON' ||
       target.tagName === 'SVG' ||
       target.tagName === 'PATH' ||
+      target.tagName === 'INPUT' ||
       target.closest('button') ||
-      target.closest('svg')
+      target.closest('svg') ||
+      target.closest('input')
     ) {
-      console.log('Click prevented - button or icon');
+      console.log('Click prevented - interactive element');
       return;
     }
     
