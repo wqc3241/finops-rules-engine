@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -46,22 +45,37 @@ const OfferParameters: React.FC<OfferParametersProps> = ({
     presentedLender
   } = useDealFinancialNavigation();
   
+  // Define which fields are editable
+  const editableFields = ['Term Length', 'Mileage Allowance', 'Down Payment'];
+  
+  // Check if a field is editable based on its label
+  const isFieldEditable = (label: string) => {
+    return editableFields.some(editableField => 
+      label.toLowerCase().includes(editableField.toLowerCase()) ||
+      (editableField === 'Term Length' && label.toLowerCase().includes('term')) ||
+      (editableField === 'Mileage Allowance' && label.toLowerCase().includes('mileage')) ||
+      (editableField === 'Down Payment' && (label.toLowerCase().includes('down') || label.toLowerCase().includes('due')))
+    );
+  };
+  
   // Initialize edit values when entering edit mode
   useEffect(() => {
     if (isEditMode) {
       const standardParams = generateStandardParams(items, applicationType);
       const initialValues: {[key: string]: string} = {};
       standardParams.forEach(param => {
-        // Extract numeric values from formatted strings
-        let value = param.value;
-        if (param.name.toLowerCase().includes('term')) {
-          value = value.replace(' months', '').replace(',', '');
-        } else if (param.name.toLowerCase().includes('mileage')) {
-          value = value.replace(' miles/year', '').replace(',', '');
-        } else if (param.name.toLowerCase().includes('down') || param.name.toLowerCase().includes('due')) {
-          value = value.replace('$', '').replace(',', '');
+        if (isFieldEditable(param.label)) {
+          // Extract numeric values from formatted strings
+          let value = param.value;
+          if (param.name.toLowerCase().includes('term')) {
+            value = value.replace(' months', '').replace(',', '');
+          } else if (param.name.toLowerCase().includes('mileage')) {
+            value = value.replace(' miles/year', '').replace(',', '');
+          } else if (param.name.toLowerCase().includes('down') || param.name.toLowerCase().includes('due')) {
+            value = value.replace('$', '').replace(',', '');
+          }
+          initialValues[param.name] = value;
         }
-        initialValues[param.name] = value;
       });
       setEditValues(initialValues);
     }
@@ -79,23 +93,28 @@ const OfferParameters: React.FC<OfferParametersProps> = ({
     const standardParams = generateStandardParams(items, applicationType);
     
     standardParams.forEach(param => {
-      const newValue = editValues[param.name] || param.value;
-      let formattedValue = newValue;
-      
-      // Format values back to original format
-      if (param.name.toLowerCase().includes('term')) {
-        formattedValue = `${newValue} months`;
-      } else if (param.name.toLowerCase().includes('mileage')) {
-        formattedValue = `${newValue} miles/year`;
-      } else if (param.name.toLowerCase().includes('down') || param.name.toLowerCase().includes('due')) {
-        formattedValue = `$${newValue}`;
+      if (isFieldEditable(param.label) && editValues[param.name] !== undefined) {
+        const newValue = editValues[param.name] || param.value;
+        let formattedValue = newValue;
+        
+        // Format values back to original format
+        if (param.name.toLowerCase().includes('term')) {
+          formattedValue = `${newValue} months`;
+        } else if (param.name.toLowerCase().includes('mileage')) {
+          formattedValue = `${newValue} miles/year`;
+        } else if (param.name.toLowerCase().includes('down') || param.name.toLowerCase().includes('due')) {
+          formattedValue = `$${newValue}`;
+        }
+        
+        updatedItems.push({
+          name: param.name,
+          label: param.label,
+          value: formattedValue
+        });
+      } else {
+        // Keep original value for non-editable fields
+        updatedItems.push(param);
       }
-      
-      updatedItems.push({
-        name: param.name,
-        label: param.label,
-        value: formattedValue
-      });
     });
     
     if (onSaveEdit) {
@@ -129,7 +148,7 @@ const OfferParameters: React.FC<OfferParametersProps> = ({
         {standardParams.map((item, index) => (
           <div key={index} className="flex flex-col mb-2">
             <span className="text-gray-500">{item.label}</span>
-            {isEditMode ? (
+            {isEditMode && isFieldEditable(item.label) ? (
               <Input
                 value={editValues[item.name] || ''}
                 onChange={(e) => handleInputChange(item.name, e.target.value)}
