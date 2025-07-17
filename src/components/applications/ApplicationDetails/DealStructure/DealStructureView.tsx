@@ -18,6 +18,9 @@ interface DealStructureViewProps {
   onViewHistory?: () => void;
   onEditCustomer?: () => void;
   onViewCustomerHistory?: () => void;
+  isEditMode?: boolean;
+  onSaveEdit?: (updatedItems: DealStructureItem[]) => void;
+  onCancelEdit?: () => void;
 }
 
 const DealStructureView: React.FC<DealStructureViewProps> = ({
@@ -32,7 +35,10 @@ const DealStructureView: React.FC<DealStructureViewProps> = ({
   onEditRequested,
   onViewHistory,
   onEditCustomer,
-  onViewCustomerHistory
+  onViewCustomerHistory,
+  isEditMode = false,
+  onSaveEdit,
+  onCancelEdit
 }) => {
   return (
     <div>
@@ -101,6 +107,9 @@ const DealStructureView: React.FC<DealStructureViewProps> = ({
         lenderName={lenderName} 
         section={section}
         onViewFinancialSummary={onViewFinancialSummary}
+        isEditMode={isEditMode}
+        onSaveEdit={onSaveEdit}
+        onCancelEdit={onCancelEdit}
       />
     </div>
   );

@@ -13,6 +13,9 @@ interface CustomerDealStructureProps {
   isCustomer?: boolean;
   onEditCustomer?: () => void;
   onViewCustomerHistory?: () => void;
+  isEditMode?: boolean;
+  onSaveEdit?: (updatedItems: DealStructureItem[]) => void;
+  onCancelEdit?: () => void;
 }
 
 const CustomerDealStructure: React.FC<CustomerDealStructureProps> = ({
@@ -23,7 +26,10 @@ const CustomerDealStructure: React.FC<CustomerDealStructureProps> = ({
   showFinancialDetailButton = false,
   isCustomer = true,
   onEditCustomer,
-  onViewCustomerHistory
+  onViewCustomerHistory,
+  isEditMode = false,
+  onSaveEdit,
+  onCancelEdit
 }) => {
   const { navigateToFinancialSection } = useDealFinancialNavigation();
   
@@ -47,6 +53,9 @@ const CustomerDealStructure: React.FC<CustomerDealStructureProps> = ({
       isCustomer={isCustomer}
       onEditCustomer={onEditCustomer}
       onViewCustomerHistory={onViewCustomerHistory}
+      isEditMode={isEditMode}
+      onSaveEdit={onSaveEdit}
+      onCancelEdit={onCancelEdit}
     />
   );
 };

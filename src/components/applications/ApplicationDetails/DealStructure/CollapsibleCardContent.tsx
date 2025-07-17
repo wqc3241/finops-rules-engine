@@ -2,7 +2,7 @@
 import React from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Separator } from '@/components/ui/separator';
-import { DealStructureOffer, FinancialSummary } from '@/types/application';
+import { DealStructureOffer, FinancialSummary, DealStructureItem } from '@/types/application';
 import CollapsedView from './CollapsedView';
 import LoanCollapsedView from './LoanCollapsedView';
 import ExpandedView from './ExpandedView';
@@ -26,6 +26,12 @@ interface CollapsibleCardContentProps {
   onViewHistory?: () => void;
   onEditCustomer?: () => void;
   onViewCustomerHistory?: () => void;
+  isRequestedEditMode?: boolean;
+  isCustomerEditMode?: boolean;
+  onSaveRequestedEdit?: (updatedItems: DealStructureItem[]) => void;
+  onCancelRequestedEdit?: () => void;
+  onSaveCustomerEdit?: (updatedItems: DealStructureItem[]) => void;
+  onCancelCustomerEdit?: () => void;
 }
 
 const CollapsibleCardContent: React.FC<CollapsibleCardContentProps> = ({
@@ -45,7 +51,13 @@ const CollapsibleCardContent: React.FC<CollapsibleCardContentProps> = ({
   onEditRequested,
   onViewHistory,
   onEditCustomer,
-  onViewCustomerHistory
+  onViewCustomerHistory,
+  isRequestedEditMode = false,
+  isCustomerEditMode = false,
+  onSaveRequestedEdit,
+  onCancelRequestedEdit,
+  onSaveCustomerEdit,
+  onCancelCustomerEdit
 }) => {
   const applicationType = offer.applicationType || 'Lease';
 
@@ -94,6 +106,12 @@ const CollapsibleCardContent: React.FC<CollapsibleCardContentProps> = ({
               onViewHistory={onViewHistory}
               onEditCustomer={onEditCustomer}
               onViewCustomerHistory={onViewCustomerHistory}
+              isRequestedEditMode={isRequestedEditMode}
+              isCustomerEditMode={isCustomerEditMode}
+              onSaveRequestedEdit={onSaveRequestedEdit}
+              onCancelRequestedEdit={onCancelRequestedEdit}
+              onSaveCustomerEdit={onSaveCustomerEdit}
+              onCancelCustomerEdit={onCancelCustomerEdit}
             />
           )}
         </CollapsibleContent>

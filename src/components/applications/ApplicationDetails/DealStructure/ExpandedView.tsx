@@ -26,6 +26,12 @@ interface ExpandedViewProps {
   onViewHistory?: () => void;
   onEditCustomer?: () => void;
   onViewCustomerHistory?: () => void;
+  isRequestedEditMode?: boolean;
+  isCustomerEditMode?: boolean;
+  onSaveRequestedEdit?: (updatedItems: DealStructureItem[]) => void;
+  onCancelRequestedEdit?: () => void;
+  onSaveCustomerEdit?: (updatedItems: DealStructureItem[]) => void;
+  onCancelCustomerEdit?: () => void;
 }
 
 const ExpandedView: React.FC<ExpandedViewProps> = ({
@@ -44,7 +50,13 @@ const ExpandedView: React.FC<ExpandedViewProps> = ({
   onEditRequested,
   onViewHistory,
   onEditCustomer,
-  onViewCustomerHistory
+  onViewCustomerHistory,
+  isRequestedEditMode = false,
+  isCustomerEditMode = false,
+  onSaveRequestedEdit,
+  onCancelRequestedEdit,
+  onSaveCustomerEdit,
+  onCancelCustomerEdit
 }) => {
   const { navigateToFinancialSection } = useDealFinancialNavigation();
 
@@ -68,6 +80,9 @@ const ExpandedView: React.FC<ExpandedViewProps> = ({
             showFinancialDetailButton={showFinancialDetailButton}
             onEditRequested={onEditRequested}
             onViewHistory={onViewHistory}
+            isEditMode={isRequestedEditMode}
+            onSaveEdit={onSaveRequestedEdit}
+            onCancelEdit={onCancelRequestedEdit}
           />
         </div>
         
@@ -98,6 +113,9 @@ const ExpandedView: React.FC<ExpandedViewProps> = ({
             showFinancialDetailButton={showFinancialDetailButton}
             onEditCustomer={onEditCustomer}
             onViewCustomerHistory={onViewCustomerHistory}
+            isEditMode={isCustomerEditMode}
+            onSaveEdit={onSaveCustomerEdit}
+            onCancelEdit={onCancelCustomerEdit}
           />
         </div>
       </div>

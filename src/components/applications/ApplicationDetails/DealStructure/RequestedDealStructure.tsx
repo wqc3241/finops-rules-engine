@@ -12,6 +12,9 @@ interface RequestedDealStructureProps {
   showFinancialDetailButton?: boolean;
   onEditRequested?: () => void;
   onViewHistory?: () => void;
+  isEditMode?: boolean;
+  onSaveEdit?: (updatedItems: DealStructureItem[]) => void;
+  onCancelEdit?: () => void;
 }
 
 const RequestedDealStructure: React.FC<RequestedDealStructureProps> = ({
@@ -21,7 +24,10 @@ const RequestedDealStructure: React.FC<RequestedDealStructureProps> = ({
   onViewFinancialSummary,
   showFinancialDetailButton = false,
   onEditRequested,
-  onViewHistory
+  onViewHistory,
+  isEditMode = false,
+  onSaveEdit,
+  onCancelEdit
 }) => {
   const { navigateToFinancialSection } = useDealFinancialNavigation();
   
@@ -44,6 +50,9 @@ const RequestedDealStructure: React.FC<RequestedDealStructureProps> = ({
       showFinancialDetailButton={showFinancialDetailButton}
       onEditRequested={onEditRequested}
       onViewHistory={onViewHistory}
+      isEditMode={isEditMode}
+      onSaveEdit={onSaveEdit}
+      onCancelEdit={onCancelEdit}
     />
   );
 };

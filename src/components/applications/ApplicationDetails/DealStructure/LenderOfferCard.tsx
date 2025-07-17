@@ -1,11 +1,9 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { DealStructureOffer, FinancialSummary, DealStructureItem } from '@/types/application';
 import { useToast } from '@/hooks/use-toast';
 import CardHeader from './CardHeader';
 import CollapsibleCardContent from './CollapsibleCardContent';
-import EditRequestedDealDialog from './EditRequestedDealDialog';
 import DealVersionHistory, { DealVersion } from './DealVersionHistory';
 
 interface LenderOfferCardProps {
@@ -43,12 +41,12 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
 }) => {
   const [showFinancialSummary, setShowFinancialSummary] = useState(false);
   const [selectedSection, setSelectedSection] = useState<'requested' | 'approved' | 'customer'>('approved');
-  const [showEditDialog, setShowEditDialog] = useState(false);
   const [showHistoryDialog, setShowHistoryDialog] = useState(false);
-  const [showCustomerEditDialog, setShowCustomerEditDialog] = useState(false);
   const [showCustomerHistoryDialog, setShowCustomerHistoryDialog] = useState(false);
   const [dealVersions, setDealVersions] = useState<DealVersion[]>([]);
   const [customerDealVersions, setCustomerDealVersions] = useState<DealVersion[]>([]);
+  const [isRequestedEditMode, setIsRequestedEditMode] = useState(false);
+  const [isCustomerEditMode, setIsCustomerEditMode] = useState(false);
   const [currentOffer, setCurrentOffer] = useState<DealStructureOffer>(offer);
   const { toast } = useToast();
 
@@ -131,41 +129,25 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
   };
 
   const handleEditRequested = () => {
-    setShowEditDialog(true);
+    setIsRequestedEditMode(true);
   };
 
-  const handleViewHistory = () => {
-    setShowHistoryDialog(true);
-  };
-
-  const handleSaveRequestedDeal = (formData: { termLength: string; mileageAllowance?: string; downPayment: string }) => {
-    const updatedRequestedItems: DealStructureItem[] = [
-      { name: 'termLength', label: 'Term Length', value: `${formData.termLength} months` },
-      { name: 'downPayment', label: currentOffer.applicationType === 'Lease' ? 'Due at Signing' : 'Down Payment', value: formData.downPayment }
-    ];
-
-    if (currentOffer.applicationType === 'Lease' && formData.mileageAllowance) {
-      updatedRequestedItems.push({ 
-        name: 'mileageAllowance', 
-        label: 'Mileage Allowance', 
-        value: `${formData.mileageAllowance} miles/year` 
-      });
-    }
-
+  const handleSaveRequestedEdit = (updatedItems: DealStructureItem[]) => {
     const newVersion: DealVersion = {
       id: `version-${Date.now()}`,
       timestamp: new Date(),
-      items: updatedRequestedItems,
+      items: updatedItems,
       description: 'Updated requested deal parameters'
     };
 
     const updatedOffer: DealStructureOffer = {
       ...currentOffer,
-      requested: updatedRequestedItems
+      requested: updatedItems
     };
 
     setDealVersions(prev => [newVersion, ...prev]);
     setCurrentOffer(updatedOffer);
+    setIsRequestedEditMode(false);
     
     if (onOfferUpdate) {
       onOfferUpdate(updatedOffer);
@@ -176,6 +158,54 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
       description: "Requested deal parameters have been updated successfully.",
       duration: 3000
     });
+  };
+
+  const handleCancelRequestedEdit = () => {
+    setIsRequestedEditMode(false);
+  };
+
+  const handleViewHistory = () => {
+    setShowHistoryDialog(true);
+  };
+
+  const handleEditCustomer = () => {
+    setIsCustomerEditMode(true);
+  };
+
+  const handleSaveCustomerEdit = (updatedItems: DealStructureItem[]) => {
+    const newVersion: DealVersion = {
+      id: `customer-version-${Date.now()}`,
+      timestamp: new Date(),
+      items: updatedItems,
+      description: 'Updated customer deal parameters'
+    };
+
+    const updatedOffer: DealStructureOffer = {
+      ...currentOffer,
+      customer: updatedItems
+    };
+
+    setCustomerDealVersions(prev => [newVersion, ...prev]);
+    setCurrentOffer(updatedOffer);
+    setIsCustomerEditMode(false);
+    
+    if (onOfferUpdate) {
+      onOfferUpdate(updatedOffer);
+    }
+
+    toast({
+      title: "Customer Deal Updated",
+      description: "Customer deal parameters have been updated successfully.",
+      duration: 3000
+    });
+  };
+
+  const handleCancelCustomerEdit = () => {
+    setIsCustomerEditMode(false);
+  };
+
+  const handleViewCustomerHistory = () => {
+    setShowCustomerHistoryDialog(true);
   };
 
   const handleRestoreVersion = (version: DealVersion) => {
@@ -203,53 +233,6 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
     toast({
       title: "Version Restored",
       description: "Deal has been restored to the selected version.",
-      duration: 3000
-    });
-  };
-  const handleEditCustomer = () => {
-    setShowCustomerEditDialog(true);
-  };
-
-  const handleViewCustomerHistory = () => {
-    setShowCustomerHistoryDialog(true);
-  };
-
-  const handleSaveCustomerDeal = (formData: { termLength: string; mileageAllowance?: string; downPayment: string }) => {
-    const updatedCustomerItems: DealStructureItem[] = [
-      { name: 'termLength', label: 'Term Length', value: `${formData.termLength} months` },
-      { name: 'downPayment', label: currentOffer.applicationType === 'Lease' ? 'Due at Signing' : 'Down Payment', value: formData.downPayment }
-    ];
-
-    if (currentOffer.applicationType === 'Lease' && formData.mileageAllowance) {
-      updatedCustomerItems.push({ 
-        name: 'mileageAllowance', 
-        label: 'Mileage Allowance', 
-        value: `${formData.mileageAllowance} miles/year` 
-      });
-    }
-
-    const newVersion: DealVersion = {
-      id: `customer-version-${Date.now()}`,
-      timestamp: new Date(),
-      items: updatedCustomerItems,
-      description: 'Updated customer deal parameters'
-    };
-
-    const updatedOffer: DealStructureOffer = {
-      ...currentOffer,
-      customer: updatedCustomerItems
-    };
-
-    setCustomerDealVersions(prev => [newVersion, ...prev]);
-    setCurrentOffer(updatedOffer);
-    
-    if (onOfferUpdate) {
-      onOfferUpdate(updatedOffer);
-    }
-
-    toast({
-      title: "Customer Deal Updated",
-      description: "Customer deal parameters have been updated successfully.",
       duration: 3000
     });
   };
@@ -343,22 +326,12 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
           onViewHistory={handleViewHistory}
           onEditCustomer={handleEditCustomer}
           onViewCustomerHistory={handleViewCustomerHistory}
-        />
-
-        <EditRequestedDealDialog
-          isOpen={showEditDialog}
-          onClose={() => setShowEditDialog(false)}
-          onSave={handleSaveRequestedDeal}
-          currentData={currentOffer.requested}
-          applicationType={currentOffer.applicationType}
-        />
-
-        <EditRequestedDealDialog
-          isOpen={showCustomerEditDialog}
-          onClose={() => setShowCustomerEditDialog(false)}
-          onSave={handleSaveCustomerDeal}
-          currentData={currentOffer.customer}
-          applicationType={currentOffer.applicationType}
+          isRequestedEditMode={isRequestedEditMode}
+          isCustomerEditMode={isCustomerEditMode}
+          onSaveRequestedEdit={handleSaveRequestedEdit}
+          onCancelRequestedEdit={handleCancelRequestedEdit}
+          onSaveCustomerEdit={handleSaveCustomerEdit}
+          onCancelCustomerEdit={handleCancelCustomerEdit}
         />
 
         <DealVersionHistory
