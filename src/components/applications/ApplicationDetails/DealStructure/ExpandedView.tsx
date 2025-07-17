@@ -24,6 +24,8 @@ interface ExpandedViewProps {
   onViewCustomerFinancial?: () => void;
   onEditRequested?: () => void;
   onViewHistory?: () => void;
+  onEditCustomer?: () => void;
+  onViewCustomerHistory?: () => void;
 }
 
 const ExpandedView: React.FC<ExpandedViewProps> = ({
@@ -40,7 +42,9 @@ const ExpandedView: React.FC<ExpandedViewProps> = ({
   onViewApprovedFinancial,
   onViewCustomerFinancial,
   onEditRequested,
-  onViewHistory
+  onViewHistory,
+  onEditCustomer,
+  onViewCustomerHistory
 }) => {
   const { navigateToFinancialSection } = useDealFinancialNavigation();
 
@@ -92,6 +96,8 @@ const ExpandedView: React.FC<ExpandedViewProps> = ({
             lenderName={lenderName}
             onViewFinancialSummary={onViewCustomerFinancial}
             showFinancialDetailButton={showFinancialDetailButton}
+            onEditCustomer={onEditCustomer}
+            onViewCustomerHistory={onViewCustomerHistory}
           />
         </div>
       </div>

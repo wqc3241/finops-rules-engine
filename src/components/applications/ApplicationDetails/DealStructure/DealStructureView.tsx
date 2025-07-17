@@ -16,6 +16,8 @@ interface DealStructureViewProps {
   isCustomer?: boolean;
   onEditRequested?: () => void;
   onViewHistory?: () => void;
+  onEditCustomer?: () => void;
+  onViewCustomerHistory?: () => void;
 }
 
 const DealStructureView: React.FC<DealStructureViewProps> = ({
@@ -28,7 +30,9 @@ const DealStructureView: React.FC<DealStructureViewProps> = ({
   showFinancialDetailButton = false,
   isCustomer = false,
   onEditRequested,
-  onViewHistory
+  onViewHistory,
+  onEditCustomer,
+  onViewCustomerHistory
 }) => {
   return (
     <div>
@@ -46,6 +50,17 @@ const DealStructureView: React.FC<DealStructureViewProps> = ({
               <Edit className="h-3 w-3" />
             </Button>
           )}
+          {section === 'customer' && onEditCustomer && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onEditCustomer}
+              className="h-6 w-6 p-0 hover:bg-muted"
+              title="Edit Customer Deal"
+            >
+              <Edit className="h-3 w-3" />
+            </Button>
+          )}
           {section === 'requested' && onViewHistory && (
             <Button
               variant="ghost"
@@ -53,6 +68,17 @@ const DealStructureView: React.FC<DealStructureViewProps> = ({
               onClick={onViewHistory}
               className="h-6 w-6 p-0 hover:bg-muted"
               title="View Deal History"
+            >
+              <History className="h-3 w-3" />
+            </Button>
+          )}
+          {section === 'customer' && onViewCustomerHistory && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onViewCustomerHistory}
+              className="h-6 w-6 p-0 hover:bg-muted"
+              title="View Customer Deal History"
             >
               <History className="h-3 w-3" />
             </Button>

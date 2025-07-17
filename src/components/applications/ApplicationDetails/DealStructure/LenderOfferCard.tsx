@@ -45,11 +45,14 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
   const [selectedSection, setSelectedSection] = useState<'requested' | 'approved' | 'customer'>('approved');
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showHistoryDialog, setShowHistoryDialog] = useState(false);
+  const [showCustomerEditDialog, setShowCustomerEditDialog] = useState(false);
+  const [showCustomerHistoryDialog, setShowCustomerHistoryDialog] = useState(false);
   const [dealVersions, setDealVersions] = useState<DealVersion[]>([]);
+  const [customerDealVersions, setCustomerDealVersions] = useState<DealVersion[]>([]);
   const [currentOffer, setCurrentOffer] = useState<DealStructureOffer>(offer);
   const { toast } = useToast();
 
-  // Initialize with current offer as first version
+  // Initialize with current offers as first versions
   React.useEffect(() => {
     if (dealVersions.length === 0) {
       setDealVersions([{
@@ -59,7 +62,15 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
         description: 'Initial requested deal'
       }]);
     }
-  }, [offer.requested, dealVersions.length]);
+    if (customerDealVersions.length === 0) {
+      setCustomerDealVersions([{
+        id: 'initial-customer',
+        timestamp: new Date(),
+        items: offer.customer,
+        description: 'Initial customer deal'
+      }]);
+    }
+  }, [offer.requested, offer.customer, dealVersions.length, customerDealVersions.length]);
 
   // If the parent is expanded, we force the card to be expanded too
   const cardIsExpanded = isExpanded || isCardExpanded;
@@ -195,6 +206,82 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
       duration: 3000
     });
   };
+  const handleEditCustomer = () => {
+    setShowCustomerEditDialog(true);
+  };
+
+  const handleViewCustomerHistory = () => {
+    setShowCustomerHistoryDialog(true);
+  };
+
+  const handleSaveCustomerDeal = (formData: { termLength: string; mileageAllowance?: string; downPayment: string }) => {
+    const updatedCustomerItems: DealStructureItem[] = [
+      { name: 'termLength', label: 'Term Length', value: `${formData.termLength} months` },
+      { name: 'downPayment', label: currentOffer.applicationType === 'Lease' ? 'Due at Signing' : 'Down Payment', value: formData.downPayment }
+    ];
+
+    if (currentOffer.applicationType === 'Lease' && formData.mileageAllowance) {
+      updatedCustomerItems.push({ 
+        name: 'mileageAllowance', 
+        label: 'Mileage Allowance', 
+        value: `${formData.mileageAllowance} miles/year` 
+      });
+    }
+
+    const newVersion: DealVersion = {
+      id: `customer-version-${Date.now()}`,
+      timestamp: new Date(),
+      items: updatedCustomerItems,
+      description: 'Updated customer deal parameters'
+    };
+
+    const updatedOffer: DealStructureOffer = {
+      ...currentOffer,
+      customer: updatedCustomerItems
+    };
+
+    setCustomerDealVersions(prev => [newVersion, ...prev]);
+    setCurrentOffer(updatedOffer);
+    
+    if (onOfferUpdate) {
+      onOfferUpdate(updatedOffer);
+    }
+
+    toast({
+      title: "Customer Deal Updated",
+      description: "Customer deal parameters have been updated successfully.",
+      duration: 3000
+    });
+  };
+
+  const handleRestoreCustomerVersion = (version: DealVersion) => {
+    const restoredOffer: DealStructureOffer = {
+      ...currentOffer,
+      customer: version.items
+    };
+
+    const newVersion: DealVersion = {
+      id: `customer-restored-${Date.now()}`,
+      timestamp: new Date(),
+      items: version.items,
+      description: `Restored from ${version.description}`
+    };
+
+    setCustomerDealVersions(prev => [newVersion, ...prev]);
+    setCurrentOffer(restoredOffer);
+    
+    if (onOfferUpdate) {
+      onOfferUpdate(restoredOffer);
+    }
+
+    setShowCustomerHistoryDialog(false);
+    
+    toast({
+      title: "Customer Version Restored",
+      description: "Customer deal has been restored to the selected version.",
+      duration: 3000
+    });
+  };
 
   const handleCardClick = (e: React.MouseEvent) => {
     console.log('Card clicked!', e.target);
@@ -254,6 +341,8 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
           onViewCustomerFinancial={() => handleViewFinancialDetail('customer')}
           onEditRequested={handleEditRequested}
           onViewHistory={handleViewHistory}
+          onEditCustomer={handleEditCustomer}
+          onViewCustomerHistory={handleViewCustomerHistory}
         />
 
         <EditRequestedDealDialog
@@ -264,11 +353,27 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
           applicationType={currentOffer.applicationType}
         />
 
+        <EditRequestedDealDialog
+          isOpen={showCustomerEditDialog}
+          onClose={() => setShowCustomerEditDialog(false)}
+          onSave={handleSaveCustomerDeal}
+          currentData={currentOffer.customer}
+          applicationType={currentOffer.applicationType}
+        />
+
         <DealVersionHistory
           isOpen={showHistoryDialog}
           onClose={() => setShowHistoryDialog(false)}
           versions={dealVersions}
           onRestoreVersion={handleRestoreVersion}
+          applicationType={currentOffer.applicationType}
+        />
+
+        <DealVersionHistory
+          isOpen={showCustomerHistoryDialog}
+          onClose={() => setShowCustomerHistoryDialog(false)}
+          versions={customerDealVersions}
+          onRestoreVersion={handleRestoreCustomerVersion}
           applicationType={currentOffer.applicationType}
         />
       </CardContent>

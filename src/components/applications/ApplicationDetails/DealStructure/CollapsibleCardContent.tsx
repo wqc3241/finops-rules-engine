@@ -24,6 +24,8 @@ interface CollapsibleCardContentProps {
   onViewCustomerFinancial?: () => void;
   onEditRequested?: () => void;
   onViewHistory?: () => void;
+  onEditCustomer?: () => void;
+  onViewCustomerHistory?: () => void;
 }
 
 const CollapsibleCardContent: React.FC<CollapsibleCardContentProps> = ({
@@ -41,7 +43,9 @@ const CollapsibleCardContent: React.FC<CollapsibleCardContentProps> = ({
   onViewApprovedFinancial,
   onViewCustomerFinancial,
   onEditRequested,
-  onViewHistory
+  onViewHistory,
+  onEditCustomer,
+  onViewCustomerHistory
 }) => {
   const applicationType = offer.applicationType || 'Lease';
 
@@ -88,6 +92,8 @@ const CollapsibleCardContent: React.FC<CollapsibleCardContentProps> = ({
               onViewCustomerFinancial={onViewCustomerFinancial ? () => onViewCustomerFinancial() : undefined} 
               onEditRequested={onEditRequested}
               onViewHistory={onViewHistory}
+              onEditCustomer={onEditCustomer}
+              onViewCustomerHistory={onViewCustomerHistory}
             />
           )}
         </CollapsibleContent>
