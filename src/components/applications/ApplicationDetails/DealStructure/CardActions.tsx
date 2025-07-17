@@ -1,20 +1,18 @@
 
 import React from 'react';
-import { User, ArrowRight, Pencil } from 'lucide-react';
+import { User, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface CardActionsProps {
   isSelected: boolean;
   onPresentToCustomer: () => void;
   onSendToDT: () => void;
-  onEditOffer: () => void;
 }
 
 const CardActions: React.FC<CardActionsProps> = ({
   isSelected,
   onPresentToCustomer,
-  onSendToDT,
-  onEditOffer
+  onSendToDT
 }) => {
   return (
     <div className="flex space-x-1 items-center">
@@ -37,16 +35,6 @@ const CardActions: React.FC<CardActionsProps> = ({
       >
         <ArrowRight className="h-3 w-3" />
         Send to DT
-      </Button>
-      
-      <Button 
-        variant="outline" 
-        size="sm"
-        onClick={onEditOffer}
-        className="flex items-center gap-1"
-      >
-        <Pencil className="h-3 w-3" />
-        Edit
       </Button>
     </div>
   );

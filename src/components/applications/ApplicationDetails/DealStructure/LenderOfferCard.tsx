@@ -5,7 +5,6 @@ import { DealStructureOffer, FinancialSummary } from '@/types/application';
 import { useToast } from '@/hooks/use-toast';
 import CardHeader from './CardHeader';
 import CollapsibleCardContent from './CollapsibleCardContent';
-import { useDealFinancialNavigation } from '@/hooks/useDealFinancialNavigation';
 
 interface LenderOfferCardProps {
   offer: DealStructureOffer;
@@ -38,7 +37,6 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
   onCardToggle,
   financialSummary
 }) => {
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [showFinancialSummary, setShowFinancialSummary] = useState(false);
   const [selectedSection, setSelectedSection] = useState<'requested' | 'approved' | 'customer'>('approved');
   const { toast } = useToast();
@@ -101,21 +99,6 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
     setShowFinancialSummary(false);
   };
 
-  const handleEditSubmit = (data: {
-    termLength: string;
-    mileageAllowance?: string;
-    downPayment: string;
-    apr?: string;
-  }) => {
-    console.log('Edited customer parameters:', data);
-    setIsEditDialogOpen(false);
-    toast({
-      title: "Offer Updated",
-      description: "Customer parameters have been updated successfully.",
-      duration: 3000
-    });
-  };
-
   const handleCardClick = (e: React.MouseEvent) => {
     console.log('Card clicked!', e.target);
     
@@ -156,7 +139,6 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
           onToggleExpand={handleToggleExpand}
           onPresentToCustomer={handlePresentToCustomer}
           onSendToDT={handleSendToDT}
-          onEditOffer={() => setIsEditDialogOpen(true)}
         />
 
         <CollapsibleCardContent 
@@ -165,7 +147,6 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
           isSelected={isSelected}
           showFinancialSummary={showFinancialSummary}
           selectedSection={selectedSection}
-          isEditDialogOpen={isEditDialogOpen}
           financialSummary={financialSummary}
           showFinancialDetailButton={showFinancialDetailButton}
           onToggleExpand={handleToggleExpand}
@@ -174,8 +155,6 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
           onViewRequestedFinancial={() => handleViewFinancialDetail('requested')}
           onViewApprovedFinancial={() => handleViewFinancialDetail('approved')}
           onViewCustomerFinancial={() => handleViewFinancialDetail('customer')}
-          onEditDialogOpenChange={setIsEditDialogOpen}
-          onEditSubmit={handleEditSubmit}
         />
       </CardContent>
     </Card>
