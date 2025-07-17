@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { DealStructureOffer, FinancialSummary, DealStructureItem } from '@/types/application';
@@ -215,14 +214,7 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
       requested: version.items
     };
 
-    const newVersion: DealVersion = {
-      id: `restored-${Date.now()}`,
-      timestamp: new Date(),
-      items: version.items,
-      description: `Restored from ${version.description}`
-    };
-
-    setDealVersions(prev => [newVersion, ...prev]);
+    // Simply update the current offer without adding a new version to history
     setCurrentOffer(restoredOffer);
     
     if (onOfferUpdate) {
@@ -244,14 +236,7 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
       customer: version.items
     };
 
-    const newVersion: DealVersion = {
-      id: `customer-restored-${Date.now()}`,
-      timestamp: new Date(),
-      items: version.items,
-      description: `Restored from ${version.description}`
-    };
-
-    setCustomerDealVersions(prev => [newVersion, ...prev]);
+    // Simply update the current offer without adding a new version to history
     setCurrentOffer(restoredOffer);
     
     if (onOfferUpdate) {
