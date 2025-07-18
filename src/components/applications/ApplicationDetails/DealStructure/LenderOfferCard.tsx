@@ -100,6 +100,7 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
 
   const handleToggleExpand = () => {
     const newState = !cardIsExpanded;
+    console.log('Toggling card expansion to:', newState);
     if (onCardToggle) {
       onCardToggle(newState);
     }
@@ -270,7 +271,8 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
       target.tagName === 'INPUT' ||
       target.closest('button') ||
       target.closest('svg') ||
-      target.closest('input')
+      target.closest('input') ||
+      target.closest('[data-interactive]')
     ) {
       console.log('Click prevented - interactive element');
       return;
