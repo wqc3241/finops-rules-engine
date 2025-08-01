@@ -43,40 +43,36 @@ const ApplicationHeader: React.FC<ApplicationHeaderProps> = ({ details, vehicleD
         <Link to="/applications" className="flex items-center text-gray-600 hover:text-gray-800">
           <ChevronLeft className="h-5 w-5" />
         </Link>
-        <div className="ml-2">
-          <div className="flex items-center">
+        <div className="ml-2 flex-1">
+          <div className="flex items-center flex-wrap gap-4">
             <h2 className="text-lg font-medium">Order Number: {details.orderNumber}</h2>
-            <span className={`ml-4 px-3 py-1 text-sm font-medium rounded-full ${statusColor}`}>
+            <span className={`px-3 py-1 text-sm font-medium rounded-full ${statusColor}`}>
               {details.status}
             </span>
+            <span className="text-sm text-gray-600">
+              <span className="font-medium">Type:</span> {details.type || 'N/A'}
+            </span>
+            {vehicleData?.vin && (
+              <span className="text-sm text-gray-600">
+                <span className="font-medium">VIN:</span> <span className="font-mono">{vehicleData.vin}</span>
+              </span>
+            )}
           </div>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600 mt-1">
             {details.model} ordered by {details.orderedBy}
           </p>
         </div>
       </div>
       
       {/* Summary Information Section */}
-      <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-        <div className="flex flex-col">
-          <span className="text-gray-500 font-medium">Product Type</span>
-          <span className="text-gray-900">{details.type || 'N/A'}</span>
-        </div>
-        
-        {deliveryDate && (
+      {deliveryDate && (
+        <div className="mt-3 text-sm">
           <div className="flex flex-col">
             <span className="text-gray-500 font-medium">Delivery Date</span>
             <span className="text-gray-900">{deliveryDate}</span>
           </div>
-        )}
-        
-        {vehicleData?.vin && (
-          <div className="flex flex-col">
-            <span className="text-gray-500 font-medium">Vehicle VIN</span>
-            <span className="text-gray-900 font-mono text-xs">{vehicleData.vin}</span>
-          </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
