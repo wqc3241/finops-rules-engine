@@ -1,6 +1,7 @@
 
 // Order-related types
 export interface OrderDetail {
+  deliveryDate?: string;
   vehicleTradeIn: {
     year: string;
     make: string;

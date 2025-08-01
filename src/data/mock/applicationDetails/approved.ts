@@ -17,6 +17,7 @@ export const approvedApplications: Record<string, ApplicationFullDetails> = {
     },
     orderDetails: {
       ...orderDetails,
+      deliveryDate: '2024-11-28',
       registrationData: [
         ...orderDetails.registrationData.filter(item => item.label !== 'Registration State/Province' && 
                                                  item.label !== 'Registration City' && 
@@ -106,6 +107,7 @@ export const approvedApplications: Record<string, ApplicationFullDetails> = {
     },
     orderDetails: {
       ...orderDetails,
+      deliveryDate: '2024-12-22',
       registrationData: [
         ...orderDetails.registrationData.filter(item => item.label !== 'Registration State/Province' && 
                                                  item.label !== 'Registration City' && 

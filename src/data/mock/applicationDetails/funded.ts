@@ -18,6 +18,7 @@ export const fundedApplications: Record<string, ApplicationFullDetails> = {
     },
     orderDetails: {
       ...orderDetails,
+      deliveryDate: '2024-10-05',
       registrationData: [
         ...orderDetails.registrationData.filter(item => item.label !== 'Registration State/Province' && 
                                                  item.label !== 'Registration City' && 

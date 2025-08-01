@@ -2,6 +2,7 @@
 import { OrderDetail } from '../../types/application';
 
 export const orderDetails: OrderDetail = {
+  deliveryDate: '2024-12-15',
   vehicleTradeIn: {
     year: '2018',
     make: 'Tesla',

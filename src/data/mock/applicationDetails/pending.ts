@@ -17,6 +17,7 @@ export const pendingApplications: Record<string, ApplicationFullDetails> = {
     },
     orderDetails: {
       ...orderDetails,
+      deliveryDate: '2025-01-20',
       registrationData: [
         ...orderDetails.registrationData.filter(item => item.label !== 'Registration State/Province' && 
                                                  item.label !== 'Registration City' && 

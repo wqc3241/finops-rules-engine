@@ -54,7 +54,7 @@ const ApplicationDetailLayout: React.FC<ApplicationDetailLayoutProps> = ({
             <ApplicationHeader 
               details={applicationDetails} 
               vehicleData={applicationFullDetails?.vehicleData}
-              deliveryDate={applicationFullDetails?.orderDetails?.estimatedDeliveryDate || applicationFullDetails?.orderDetails?.deliveryDate}
+              deliveryDate={applicationFullDetails?.orderDetails?.deliveryDate}
             />
             <ApplicationTabs 
               tabs={tabs} 
