@@ -15,19 +15,25 @@ import {
   CheckCircle,
   Clock,
   XCircle,
-  Calendar
+  Calendar,
+  Plus
 } from 'lucide-react';
-import { DocumentItem, DocumentCategory, DocumentItemStatus } from '@/types/application/documents';
+import { DocumentItem, DocumentCategory, DocumentItemStatus, DocumentCategoryInfo } from '@/types/application/documents';
 import { mockDocuments, documentCategories } from '@/data/mock/documents';
 import { cn } from '@/lib/utils';
+import AddDocumentCategoryModal from './DocumentsView/AddDocumentCategoryModal';
+import AddDocumentModal from './DocumentsView/AddDocumentModal';
 
 interface DocumentsViewProps {
   applicationId: string;
 }
 
 const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
-  const [documents] = useState<DocumentItem[]>(mockDocuments);
+  const [documents, setDocuments] = useState<DocumentItem[]>(mockDocuments);
+  const [categories, setCategories] = useState<DocumentCategoryInfo[]>(documentCategories);
   const [selectedCategory, setSelectedCategory] = useState<DocumentCategory | 'all'>('all');
+  const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
+  const [showAddDocumentModal, setShowAddDocumentModal] = useState(false);
 
   const getStatusIcon = (status: DocumentItemStatus) => {
     switch (status) {
@@ -53,7 +59,24 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
     }
   };
 
-  const getCategoryIcon = (category: DocumentCategory) => {
+  const getCategoryIcon = (category: DocumentCategory | string) => {
+    // For custom categories, try to use the stored icon
+    const categoryInfo = categories.find(cat => cat.id === category);
+    if (categoryInfo) {
+      const iconMap = {
+        'FileText': FileText,
+        'Car': Car,
+        'User': User,
+        'AlertCircle': AlertCircle,
+        'Shield': Shield,
+        'Folder': Folder,
+        'Plus': Plus
+      };
+      const IconComponent = iconMap[categoryInfo.icon as keyof typeof iconMap] || Folder;
+      return <IconComponent className="h-4 w-4" />;
+    }
+    
+    // Fallback for original categories
     switch (category) {
       case 'order': return <FileText className="h-4 w-4" />;
       case 'registration': return <Car className="h-4 w-4" />;
@@ -61,7 +84,16 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
       case 'stipulation': return <AlertCircle className="h-4 w-4" />;
       case 'compliance': return <Shield className="h-4 w-4" />;
       case 'supporting': return <Folder className="h-4 w-4" />;
+      default: return <Folder className="h-4 w-4" />;
     }
+  };
+
+  const handleAddCategory = (newCategory: DocumentCategoryInfo) => {
+    setCategories(prev => [...prev, newCategory]);
+  };
+
+  const handleAddDocument = (newDocument: DocumentItem) => {
+    setDocuments(prev => [...prev, newDocument]);
   };
 
   const filteredDocuments = documents.filter(doc => {
@@ -88,7 +120,17 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
 
       {/* Category Selection */}
       <div className="bg-card rounded-lg border p-4">
-        <h2 className="text-base font-semibold mb-3">Document Categories</h2>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-base font-semibold">Document Categories</h2>
+          <Button 
+            size="sm" 
+            onClick={() => setShowAddCategoryModal(true)}
+            className="text-xs"
+          >
+            <Plus className="h-3 w-3 mr-1" />
+            Add Category
+          </Button>
+        </div>
         <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 gap-2">
           <button
             onClick={() => setSelectedCategory('all')}
@@ -103,7 +145,7 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
             <span className="text-xs font-medium">All Documents</span>
             <span className="text-xs opacity-70">({filteredDocuments.length})</span>
           </button>
-          {documentCategories.map(category => {
+          {categories.map(category => {
             const categoryDocs = getDocumentsByCategory(category.id);
             
             return (
@@ -129,13 +171,25 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
       {/* Document List */}
       <div className="bg-card rounded-lg border overflow-hidden">
         <div className="p-4 border-b">
-          <h3 className="text-lg font-semibold">
-            {selectedCategory === 'all' ? 'All Documents' : 
-             documentCategories.find(cat => cat.id === selectedCategory)?.label}
-          </h3>
-          <p className="text-sm text-muted-foreground">
-            {filteredDocuments.length} document{filteredDocuments.length !== 1 ? 's' : ''}
-          </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-semibold">
+                {selectedCategory === 'all' ? 'All Documents' : 
+                 categories.find(cat => cat.id === selectedCategory)?.label}
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                {filteredDocuments.length} document{filteredDocuments.length !== 1 ? 's' : ''}
+              </p>
+            </div>
+            <Button 
+              size="sm" 
+              onClick={() => setShowAddDocumentModal(true)}
+              className="text-xs"
+            >
+              <Plus className="h-3 w-3 mr-1" />
+              Add Document
+            </Button>
+          </div>
         </div>
         
         <div className="overflow-hidden">
@@ -241,6 +295,20 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
           </Table>
         </div>
       </div>
+
+      <AddDocumentCategoryModal
+        open={showAddCategoryModal}
+        onOpenChange={setShowAddCategoryModal}
+        onAddCategory={handleAddCategory}
+      />
+
+      <AddDocumentModal
+        open={showAddDocumentModal}
+        onOpenChange={setShowAddDocumentModal}
+        onAddDocument={handleAddDocument}
+        categories={categories}
+        selectedCategory={selectedCategory}
+      />
     </div>
   );
 };
