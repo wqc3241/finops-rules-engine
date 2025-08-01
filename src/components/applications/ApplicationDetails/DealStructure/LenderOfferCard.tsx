@@ -299,6 +299,7 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
           onToggleExpand={handleToggleExpand}
           onPresentToCustomer={handlePresentToCustomer}
           onSendToDT={handleSendToDT}
+          offer={currentOffer}
         />
 
         <CollapsibleCardContent 
