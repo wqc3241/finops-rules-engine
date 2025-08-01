@@ -128,8 +128,8 @@ const DealStructureSection: React.FC<DealStructureSectionProps> = ({
 
   return (
     <Card className="mb-4">
-      <CardContent className="p-3 cursor-pointer" onClick={handleSectionClick}>
-        <div className="flex justify-between items-center mb-2">
+      <CardContent className="p-3">
+        <div className="flex justify-between items-center mb-2 cursor-pointer" onClick={handleSectionClick}>
           <h3 className="text-base font-semibold">{title}</h3>
           <Button variant="ghost" size="sm" onClick={(e) => {
             e.stopPropagation();
@@ -141,29 +141,30 @@ const DealStructureSection: React.FC<DealStructureSectionProps> = ({
         
         <Separator className="mb-3" />
         
-        <div className="space-y-3">
-          {dealStructure.map((offer, index) => (
-            <LenderOfferCard 
-              key={index} 
-              offer={{
-                ...offer,
-                applicationType: applicationType
-              }} 
-              isExpanded={isExpanded} 
-              isSelected={selectedOfferLender === offer.lenderName}
-              isCardExpanded={individualCardStates[offer.lenderName] || false}
-              onSelectOffer={handleSelectOffer} 
-              onPresentToCustomer={handlePresentToCustomer} 
-              showFinancialDetailButton={showFinancialDetailButton} 
-              onViewFinancialDetail={() => handleViewFinancialDetail(offer.lenderName)} 
-              onViewRequestedFinancial={() => handleViewSection(offer.lenderName, 'requested')} 
-              onViewApprovedFinancial={() => handleViewSection(offer.lenderName, 'approved')} 
-              onViewCustomerFinancial={() => handleViewSection(offer.lenderName, 'customer')} 
-              onCardToggle={(newState) => handleIndividualCardToggle(offer.lenderName, newState)}
-              financialSummary={financialSummary} 
-            />
-          ))}
-        </div>
+        {isExpanded && (
+          <div className="space-y-3">
+            {dealStructure.map((offer, index) => (
+              <LenderOfferCard 
+                key={index} 
+                offer={{
+                  ...offer,
+                  applicationType: applicationType
+                }} 
+                isSelected={selectedOfferLender === offer.lenderName}
+                isCardExpanded={individualCardStates[offer.lenderName] || false}
+                onSelectOffer={handleSelectOffer} 
+                onPresentToCustomer={handlePresentToCustomer} 
+                showFinancialDetailButton={showFinancialDetailButton} 
+                onViewFinancialDetail={() => handleViewFinancialDetail(offer.lenderName)} 
+                onViewRequestedFinancial={() => handleViewSection(offer.lenderName, 'requested')} 
+                onViewApprovedFinancial={() => handleViewSection(offer.lenderName, 'approved')} 
+                onViewCustomerFinancial={() => handleViewSection(offer.lenderName, 'customer')} 
+                onCardToggle={(newState) => handleIndividualCardToggle(offer.lenderName, newState)}
+                financialSummary={financialSummary} 
+              />
+            ))}
+          </div>
+        )}
       </CardContent>
     </Card>
   );

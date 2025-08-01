@@ -8,7 +8,6 @@ import DealVersionHistory, { DealVersion } from './DealVersionHistory';
 
 interface LenderOfferCardProps {
   offer: DealStructureOffer;
-  isExpanded: boolean;
   isSelected: boolean;
   isCardExpanded?: boolean;
   onSelectOffer: (offerLender: string) => void;
@@ -25,7 +24,6 @@ interface LenderOfferCardProps {
 
 const LenderOfferCard: React.FC<LenderOfferCardProps> = ({ 
   offer, 
-  isExpanded, 
   isSelected, 
   isCardExpanded = false,
   onSelectOffer, 
@@ -70,8 +68,8 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
     }
   }, [offer.requested, offer.customer, dealVersions.length, customerDealVersions.length]);
 
-  // If the parent is expanded, we force the card to be expanded too
-  const cardIsExpanded = isExpanded || isCardExpanded;
+  // Card expansion is managed independently
+  const cardIsExpanded = isCardExpanded;
   
   const handlePresentToCustomer = () => {
     onSelectOffer(offer.lenderName);
@@ -98,7 +96,10 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
     });
   };
 
-  const handleToggleExpand = () => {
+  const handleToggleExpand = (e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+    }
     const newState = !cardIsExpanded;
     if (onCardToggle) {
       onCardToggle(newState);
@@ -253,30 +254,34 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
   };
 
   const handleCardClick = (e: React.MouseEvent) => {
-    console.log('Card clicked!', e.target);
-    
     // Stop event from bubbling up to parent sections
     e.stopPropagation();
     
     // Prevent toggle when clicking directly on interactive elements
     const target = e.target as HTMLElement;
-    console.log('Click target:', target.tagName, target.className);
     
-    // Check if click is on a button, svg, input, or other interactive element
-    if (
+    // More comprehensive check for interactive elements
+    const isInteractiveElement = (
       target.tagName === 'BUTTON' ||
       target.tagName === 'SVG' ||
       target.tagName === 'PATH' ||
       target.tagName === 'INPUT' ||
+      target.tagName === 'SELECT' ||
+      target.tagName === 'TEXTAREA' ||
       target.closest('button') ||
       target.closest('svg') ||
-      target.closest('input')
-    ) {
-      console.log('Click prevented - interactive element');
+      target.closest('input') ||
+      target.closest('select') ||
+      target.closest('textarea') ||
+      target.closest('[role="button"]') ||
+      target.getAttribute('role') === 'button' ||
+      target.hasAttribute('data-prevent-toggle')
+    );
+    
+    if (isInteractiveElement) {
       return;
     }
     
-    console.log('Toggling card expansion');
     // Toggle the card expansion
     handleToggleExpand();
   };
@@ -285,7 +290,7 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
     <Card 
       className={`shadow-sm transition-all ${isSelected ? 'border-green-500 border-2' : ''}`}
     >
-      <CardContent className="p-3 cursor-pointer" onClick={handleCardClick} data-lender-card>
+      <CardContent className="p-3 cursor-pointer" onClick={handleCardClick}>
         <CardHeader 
           lenderName={offer.lenderName}
           status={offer.status}
