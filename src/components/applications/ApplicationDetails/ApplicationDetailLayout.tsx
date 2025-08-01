@@ -51,7 +51,11 @@ const ApplicationDetailLayout: React.FC<ApplicationDetailLayoutProps> = ({
         />
         <main className="flex-1 overflow-auto">
           <div className="container mx-auto px-4 py-6">
-            <ApplicationHeader details={applicationDetails} />
+            <ApplicationHeader 
+              details={applicationDetails} 
+              vehicleData={applicationFullDetails?.vehicleData}
+              deliveryDate={applicationFullDetails?.orderDetails?.estimatedDeliveryDate || applicationFullDetails?.orderDetails?.deliveryDate}
+            />
             <ApplicationTabs 
               tabs={tabs} 
               baseUrl={`/applications/${applicationId}`}

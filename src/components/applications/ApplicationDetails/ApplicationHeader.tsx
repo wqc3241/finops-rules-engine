@@ -1,13 +1,15 @@
 import React from 'react';
 import { ChevronLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { ApplicationDetails } from '@/types/application';
+import { ApplicationDetails, VehicleData } from '@/types/application';
 
 interface ApplicationHeaderProps {
   details: ApplicationDetails;
+  vehicleData?: VehicleData;
+  deliveryDate?: string;
 }
 
-const ApplicationHeader: React.FC<ApplicationHeaderProps> = ({ details }) => {
+const ApplicationHeader: React.FC<ApplicationHeaderProps> = ({ details, vehicleData, deliveryDate }) => {
   // Enhanced status color mapping with more statuses (text colors for badges)
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -52,6 +54,28 @@ const ApplicationHeader: React.FC<ApplicationHeaderProps> = ({ details }) => {
             {details.model} ordered by {details.orderedBy}
           </p>
         </div>
+      </div>
+      
+      {/* Summary Information Section */}
+      <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+        <div className="flex flex-col">
+          <span className="text-gray-500 font-medium">Product Type</span>
+          <span className="text-gray-900">{details.type || 'N/A'}</span>
+        </div>
+        
+        {deliveryDate && (
+          <div className="flex flex-col">
+            <span className="text-gray-500 font-medium">Delivery Date</span>
+            <span className="text-gray-900">{deliveryDate}</span>
+          </div>
+        )}
+        
+        {vehicleData?.vin && (
+          <div className="flex flex-col">
+            <span className="text-gray-500 font-medium">Vehicle VIN</span>
+            <span className="text-gray-900 font-mono text-xs">{vehicleData.vin}</span>
+          </div>
+        )}
       </div>
     </div>
   );
