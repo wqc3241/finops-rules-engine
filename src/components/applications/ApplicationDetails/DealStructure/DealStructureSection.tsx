@@ -27,7 +27,7 @@ const DealStructureSection: React.FC<DealStructureSectionProps> = ({
   allCardsExpanded = false,
   onAllCardsExpandedChange
 }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true);
   const [selectedOfferLender, setSelectedOfferLender] = useState<string | null>(null);
   const [individualCardStates, setIndividualCardStates] = useState<Record<string, boolean>>({});
   
@@ -141,11 +141,15 @@ const DealStructureSection: React.FC<DealStructureSectionProps> = ({
         
         <Separator className="mb-3" />
         
-        {isExpanded && (
-          <div className="space-y-3">
-            {dealStructure.map((offer, index) => (
+        <div className="space-y-3">
+          {dealStructure.map((offer, index) => (
+            <div 
+              key={index}
+              style={{ 
+                display: isExpanded ? 'block' : 'none' 
+              }}
+            >
               <LenderOfferCard 
-                key={index} 
                 offer={{
                   ...offer,
                   applicationType: applicationType
@@ -162,9 +166,9 @@ const DealStructureSection: React.FC<DealStructureSectionProps> = ({
                 onCardToggle={(newState) => handleIndividualCardToggle(offer.lenderName, newState)}
                 financialSummary={financialSummary} 
               />
-            ))}
-          </div>
-        )}
+            </div>
+          ))}
+        </div>
       </CardContent>
     </Card>
   );
