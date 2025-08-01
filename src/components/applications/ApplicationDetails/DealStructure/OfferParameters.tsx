@@ -180,7 +180,7 @@ const OfferParameters: React.FC<OfferParametersProps> = ({
             className="h-7 px-2"
           >
             <Check className="h-3 w-3 mr-1" />
-            Save
+            Update Deal
           </Button>
         </div>
       )}
