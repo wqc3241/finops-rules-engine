@@ -3,7 +3,7 @@ import { DealStructureItem } from '@/types/application';
 
 // Standard financial parameters for lease
 export const leaseParams = [
-  'termLength', 'mileageAllowance', 'rv', 'rvs', 'ccrDownPayment', 
+  'termLength', 'mileageAllowance', 'ccrDownPayment', 'rv', 'rvs', 
   'maxLtv', 'ltv', 'dti', 'pti', 'fico', 'mf'
 ];
 
