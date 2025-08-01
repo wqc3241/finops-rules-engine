@@ -57,22 +57,17 @@ const ApplicationHeader: React.FC<ApplicationHeaderProps> = ({ details, vehicleD
                 <span className="font-medium">VIN:</span> <span className="font-mono">{vehicleData.vin}</span>
               </span>
             )}
+            {deliveryDate && (
+              <span className="text-sm text-gray-600">
+                <span className="font-medium">Delivery:</span> {deliveryDate}
+              </span>
+            )}
           </div>
           <p className="text-sm text-gray-600 mt-1">
             {details.model} ordered by {details.orderedBy}
           </p>
         </div>
       </div>
-      
-      {/* Summary Information Section */}
-      {deliveryDate && (
-        <div className="mt-3 text-sm">
-          <div className="flex flex-col">
-            <span className="text-gray-500 font-medium">Delivery Date</span>
-            <span className="text-gray-900">{deliveryDate}</span>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
