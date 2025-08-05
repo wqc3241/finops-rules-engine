@@ -1,7 +1,6 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, UserPermissions } from '@/types/user';
-import { UserRole } from '@/types/approval';
 
 interface AuthContextType {
   user: User | null;
@@ -9,9 +8,6 @@ interface AuthContextType {
   logout: () => void;
   hasPermission: (module: keyof UserPermissions, action: string) => boolean;
   isAdmin: () => boolean;
-  isFSAdmin: () => boolean;
-  isFSOps: () => boolean;
-  getUserRole: () => UserRole;
   isLoading: boolean;
 }
 
@@ -70,19 +66,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return user?.role === 'admin';
   };
 
-  const isFSAdmin = (): boolean => {
-    return user?.role === 'admin'; // For demo, admin acts as FS_ADMIN
-  };
-
-  const isFSOps = (): boolean => {
-    return user?.role === 'user'; // For demo, user acts as FS_OPS
-  };
-
-  const getUserRole = (): UserRole => {
-    if (!user) return 'FS_OPS';
-    return user.role === 'admin' ? 'FS_ADMIN' : 'FS_OPS';
-  };
-
   return (
     <AuthContext.Provider value={{
       user,
@@ -90,9 +73,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       logout,
       hasPermission,
       isAdmin,
-      isFSAdmin,
-      isFSOps,
-      getUserRole,
       isLoading
     }}>
       {children}
