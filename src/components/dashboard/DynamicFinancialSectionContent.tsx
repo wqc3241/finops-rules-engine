@@ -9,6 +9,7 @@ interface DynamicFinancialSectionContentProps {
   onSchemaChange: (updatedSchema: DynamicTableSchema) => void;
   onSelectionChange?: (items: string[]) => void;
   selectedItems: string[];
+  isSupabaseSchema?: boolean;
 }
 
 const DynamicFinancialSectionContent = ({
@@ -17,7 +18,8 @@ const DynamicFinancialSectionContent = ({
   onDataChange,
   onSchemaChange,
   onSelectionChange,
-  selectedItems
+  selectedItems,
+  isSupabaseSchema = false
 }: DynamicFinancialSectionContentProps) => {
   console.log('Rendering component with data:', data, 'schema:', schema);
 
@@ -30,7 +32,7 @@ const DynamicFinancialSectionContent = ({
         onSchemaChange={onSchemaChange}
         onSelectionChange={onSelectionChange}
         selectedItems={selectedItems}
-        allowColumnManagement={true}
+        allowColumnManagement={!isSupabaseSchema}
       />
     </div>
   );

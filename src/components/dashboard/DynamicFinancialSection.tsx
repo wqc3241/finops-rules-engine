@@ -262,6 +262,7 @@ const DynamicFinancialSection = ({
           onSchemaChange={handleSchemaChange}
           onSelectionChange={onSelectionChange}
           selectedItems={selectedItems}
+          isSupabaseSchema={isSupabaseSchema}
         />
       )}
 
