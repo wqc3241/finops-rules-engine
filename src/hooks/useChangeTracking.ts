@@ -30,6 +30,15 @@ export const useChangeTracking = () => {
 
       const hasChanges = JSON.stringify(tracked.originalData) !== JSON.stringify(newData);
       
+      console.log('Change tracking update:', {
+        schemaId,
+        hasChanges,
+        originalDataLength: tracked.originalData.length,
+        newDataLength: newData.length,
+        originalData: tracked.originalData,
+        newData
+      });
+      
       return {
         ...prev,
         [schemaId]: {

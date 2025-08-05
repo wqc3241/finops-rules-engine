@@ -33,6 +33,7 @@ export const useDynamicFinancialData = ({
         const parsedData = JSON.parse(savedData);
         console.log('Loaded saved data:', parsedData);
         setLocalData(parsedData);
+        console.log('Starting tracking for schema:', schemaId, 'with data:', parsedData);
         startTracking(schemaId, parsedData);
       } catch (error) {
         console.error('Failed to parse saved data:', error);
@@ -51,9 +52,10 @@ export const useDynamicFinancialData = ({
 
   // Save data to localStorage and update tracking
   useEffect(() => {
-    if (localData.length > 0) {
+    if (localData.length >= 0) { // Changed from > 0 to >= 0 to handle empty arrays
       console.log('Saving data to localStorage:', localData);
       localStorage.setItem(`dynamicTableData_${schemaId}`, JSON.stringify(localData));
+      console.log('Updating tracking for schema:', schemaId, 'with new data:', localData);
       updateTracking(schemaId, localData);
     }
   }, [localData, schemaId, updateTracking]);
