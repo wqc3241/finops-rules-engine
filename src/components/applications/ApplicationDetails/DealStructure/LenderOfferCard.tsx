@@ -125,6 +125,13 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
     }
   };
 
+  // Handle inline financial summary without navigation
+  const handleInlineFinancialSummary = (section: 'requested' | 'approved' | 'customer' = 'approved') => {
+    setSelectedSection(section);
+    setShowFinancialSummary(true);
+    // No navigation callbacks - keeps the view inline
+  };
+
   const handleBackToDealStructure = () => {
     setShowFinancialSummary(false);
   };
@@ -301,7 +308,7 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
           onSendToDT={handleSendToDT}
           offer={currentOffer}
           showFinancialDetailButton={showFinancialDetailButton}
-          onViewFinancialSummary={() => handleViewFinancialDetail('approved')}
+          onViewFinancialSummary={() => handleInlineFinancialSummary('approved')}
         />
 
         <CollapsibleCardContent 
