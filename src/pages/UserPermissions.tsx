@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/useSupabaseAuth';
 import { Navigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Sidebar from '@/components/Sidebar';
@@ -10,12 +10,12 @@ import { useState } from 'react';
 import { Check, X, Shield } from 'lucide-react';
 
 const UserPermissions = () => {
-  const { user } = useAuth();
+  const { user, profile, hasPermission } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeItem, setActiveItem] = useState('User Permissions');
 
   if (!user) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/auth" replace />;
   }
 
   const permissionModules = [
@@ -67,14 +67,14 @@ const UserPermissions = () => {
                     <CardContent className="pt-0">
                       <div className="space-y-3">
                         {module.actions.map((action) => {
-                          const hasPermission = (user.permissions[module.key as keyof typeof user.permissions] as any)[action];
+                          const hasPermissionForAction = hasPermission(module.key, action);
                           return (
                             <div key={action} className="flex items-center justify-between p-3 rounded-lg bg-gray-50 border border-gray-100">
                               <span className="capitalize text-sm font-medium text-gray-700">
                                 {action}
                               </span>
                               <div className="flex items-center gap-3">
-                                {hasPermission ? (
+                                {hasPermissionForAction ? (
                                   <div className="flex items-center gap-2">
                                     <div className="p-1 bg-green-100 rounded-full">
                                       <Check className="h-3 w-3 text-green-600" />
