@@ -240,10 +240,16 @@ const DEFAULT_SCHEMAS: Record<string, DynamicTableSchema> = {
     name: 'Fee Rules',
     columns: [
       { id: 'id', name: 'ID', key: 'id', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false },
-      { id: 'feeName', name: 'Fee Name', key: 'feeName', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
-      { id: 'feeType', name: 'Fee Type', key: 'feeType', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
-      { id: 'amount', name: 'Amount', key: 'amount', type: 'number', inputType: 'Input', isRequired: true, sortable: true, editable: true },
-      { id: 'isActive', name: 'Active', key: 'isActive', type: 'boolean', inputType: 'Input', isRequired: false, sortable: true, editable: true }
+      { id: 'fee_name', name: 'Fee Name', key: 'fee_name', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'fee_type', name: 'Fee Type', key: 'fee_type', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'amount', name: 'Amount', key: 'amount', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'fee_active', name: 'Fee Active', key: 'fee_active', type: 'boolean', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'fee_country', name: 'Fee Country', key: 'fee_country', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'fee_currency', name: 'Fee Currency', key: 'fee_currency', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'fee_state', name: 'Fee State', key: 'fee_state', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'fee_taxable', name: 'Fee Taxable', key: 'fee_taxable', type: 'boolean', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'category', name: 'Category', key: 'category', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'created_at', name: 'Created At', key: 'created_at', type: 'string', inputType: 'Output', isRequired: false, sortable: true, editable: false }
     ]
   },
   'tax-rules': {
@@ -251,11 +257,12 @@ const DEFAULT_SCHEMAS: Record<string, DynamicTableSchema> = {
     name: 'Tax Rules',
     columns: [
       { id: 'id', name: 'ID', key: 'id', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false },
-      { id: 'taxName', name: 'Tax Name', key: 'taxName', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
-      { id: 'taxType', name: 'Tax Type', key: 'taxType', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
-      { id: 'rate', name: 'Rate (%)', key: 'rate', type: 'number', inputType: 'Input', isRequired: true, sortable: true, editable: true },
-      { id: 'geoCode', name: 'Geo Code', key: 'geoCode', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
-      { id: 'isActive', name: 'Active', key: 'isActive', type: 'boolean', inputType: 'Input', isRequired: false, sortable: true, editable: true }
+      { id: 'tax_name', name: 'Tax Name', key: 'tax_name', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'tax_type', name: 'Tax Type', key: 'tax_type', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'rate', name: 'Rate (%)', key: 'rate', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'geo_code', name: 'Geo Code', key: 'geo_code', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'is_active', name: 'Active', key: 'is_active', type: 'boolean', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'created_at', name: 'Created At', key: 'created_at', type: 'string', inputType: 'Output', isRequired: false, sortable: true, editable: false }
     ]
   }
 };

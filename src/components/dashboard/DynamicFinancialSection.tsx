@@ -28,7 +28,7 @@ const DynamicFinancialSection = ({
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showWizard, setShowWizard] = useState(false);
   const { getSchema, updateSchema } = useDynamicTableSchemas();
-  const { data, setData, handleAddNew } = useDynamicFinancialData({
+  const { data, setData, handleAddNew, loading } = useDynamicFinancialData({
     schemaId,
     selectedItems,
     onSelectionChange,
@@ -142,7 +142,12 @@ const DynamicFinancialSection = ({
           'Fee Name': rule.fee_name,
           'Fee Type': rule.fee_type,
           'Amount': rule.amount,
-          'Is Active': rule.is_active ? 'Yes' : 'No',
+          'Fee Active': rule.fee_active ? 'Yes' : 'No',
+          'Fee Country': rule.fee_country,
+          'Fee Currency': rule.fee_currency,
+          'Fee State': rule.fee_state,
+          'Fee Taxable': rule.fee_taxable ? 'Yes' : 'No',
+          'Category': rule.category,
           'Created At': new Date(rule.created_at).toLocaleDateString()
         })) || [];
 
@@ -200,14 +205,22 @@ const DynamicFinancialSection = ({
         downloadLabel={`Download ${title}`}
       />
       {!isCollapsed && (
-        <DynamicFinancialSectionContent
-          schema={schema}
-          data={data}
-          onDataChange={handleDataChange}
-          onSchemaChange={handleSchemaChange}
-          onSelectionChange={onSelectionChange}
-          selectedItems={selectedItems}
-        />
+        <>
+          {loading ? (
+            <div className="flex justify-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
+          ) : (
+            <DynamicFinancialSectionContent
+              schema={schema}
+              data={data}
+              onDataChange={handleDataChange}
+              onSchemaChange={handleSchemaChange}
+              onSelectionChange={onSelectionChange}
+              selectedItems={selectedItems}
+            />
+          )}
+        </>
       )}
 
       {/* Financial Program Wizard */}
