@@ -653,27 +653,135 @@ export type Database = {
       fee_rules: {
         Row: {
           amount: number | null
+          capitalize_type: string | null
+          category: string | null
           created_at: string | null
+          created_by: string | null
+          description: string | null
+          end_date: string | null
+          fee_active: boolean | null
+          fee_country: string | null
+          fee_currency: string | null
           fee_name: string
+          fee_range_type: string | null
+          fee_ranges: Json | null
+          fee_state: string | null
+          fee_tax_rate: number | null
+          fee_taxable: boolean | null
           fee_type: string
+          fr_ca_translation: string | null
           id: string
           is_active: boolean | null
+          is_deleted: boolean | null
+          is_new_experience: boolean | null
+          migration: string | null
+          name: string | null
+          pay_type: string | null
+          pricing_version: string | null
+          provider: string | null
+          purchase_type_applies_to_all: boolean | null
+          purchase_type_values: string[] | null
+          self_reg: boolean | null
+          start_date: string | null
+          subcategory: string | null
+          title_status_applies_to_all: boolean | null
+          title_status_values: string[] | null
+          type: string | null
+          updated_at: string | null
+          updated_by: string | null
+          vehicle_model_applies_to_all: boolean | null
+          vehicle_model_values: string[] | null
+          vehicle_year_applies_to_all: boolean | null
+          vehicle_year_values: string[] | null
+          version_number: number | null
         }
         Insert: {
           amount?: number | null
+          capitalize_type?: string | null
+          category?: string | null
           created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          end_date?: string | null
+          fee_active?: boolean | null
+          fee_country?: string | null
+          fee_currency?: string | null
           fee_name: string
+          fee_range_type?: string | null
+          fee_ranges?: Json | null
+          fee_state?: string | null
+          fee_tax_rate?: number | null
+          fee_taxable?: boolean | null
           fee_type: string
+          fr_ca_translation?: string | null
           id?: string
           is_active?: boolean | null
+          is_deleted?: boolean | null
+          is_new_experience?: boolean | null
+          migration?: string | null
+          name?: string | null
+          pay_type?: string | null
+          pricing_version?: string | null
+          provider?: string | null
+          purchase_type_applies_to_all?: boolean | null
+          purchase_type_values?: string[] | null
+          self_reg?: boolean | null
+          start_date?: string | null
+          subcategory?: string | null
+          title_status_applies_to_all?: boolean | null
+          title_status_values?: string[] | null
+          type?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
+          vehicle_model_applies_to_all?: boolean | null
+          vehicle_model_values?: string[] | null
+          vehicle_year_applies_to_all?: boolean | null
+          vehicle_year_values?: string[] | null
+          version_number?: number | null
         }
         Update: {
           amount?: number | null
+          capitalize_type?: string | null
+          category?: string | null
           created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          end_date?: string | null
+          fee_active?: boolean | null
+          fee_country?: string | null
+          fee_currency?: string | null
           fee_name?: string
+          fee_range_type?: string | null
+          fee_ranges?: Json | null
+          fee_state?: string | null
+          fee_tax_rate?: number | null
+          fee_taxable?: boolean | null
           fee_type?: string
+          fr_ca_translation?: string | null
           id?: string
           is_active?: boolean | null
+          is_deleted?: boolean | null
+          is_new_experience?: boolean | null
+          migration?: string | null
+          name?: string | null
+          pay_type?: string | null
+          pricing_version?: string | null
+          provider?: string | null
+          purchase_type_applies_to_all?: boolean | null
+          purchase_type_values?: string[] | null
+          self_reg?: boolean | null
+          start_date?: string | null
+          subcategory?: string | null
+          title_status_applies_to_all?: boolean | null
+          title_status_values?: string[] | null
+          type?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
+          vehicle_model_applies_to_all?: boolean | null
+          vehicle_model_values?: string[] | null
+          vehicle_year_applies_to_all?: boolean | null
+          vehicle_year_values?: string[] | null
+          version_number?: number | null
         }
         Relationships: []
       }
