@@ -1,17 +1,33 @@
 
 import React from 'react';
 import { ApplicantInfo } from '@/types/application';
+import { Button } from '@/components/ui/button';
+import { FileText } from 'lucide-react';
 import DataField from './DataField';
 
 interface ApplicantSectionProps {
   applicantInfo: ApplicantInfo;
   title: string;
+  onViewCreditReport?: () => void;
 }
 
-const ApplicantSection: React.FC<ApplicantSectionProps> = ({ applicantInfo, title }) => {
+const ApplicantSection: React.FC<ApplicantSectionProps> = ({ applicantInfo, title, onViewCreditReport }) => {
   return (
     <section>
-      <h4 className="text-base font-medium mb-2">{title}</h4>
+      <div className="flex justify-between items-center mb-2">
+        <h4 className="text-base font-medium">{title}</h4>
+        {onViewCreditReport && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onViewCreditReport}
+            className="flex items-center space-x-2"
+          >
+            <FileText className="h-4 w-4" />
+            <span>View Credit Report</span>
+          </Button>
+        )}
+      </div>
       <div className="grid grid-cols-1 gap-y-1">
         <DataField label="Relationship" value={applicantInfo.relationship} />
         <DataField label="First Name" value={applicantInfo.firstName} />
