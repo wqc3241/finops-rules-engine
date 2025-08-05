@@ -10,8 +10,8 @@ interface LoanFinancialSummaryViewProps {
 
 const LoanFinancialSummaryView: React.FC<LoanFinancialSummaryViewProps> = ({ activeTab, tabData }) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {/* Left Column */}
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* Column 1 */}
       <div className="space-y-4">
         {/* Federal Truth */}
         <section className="mb-4">
@@ -37,7 +37,10 @@ const LoanFinancialSummaryView: React.FC<LoanFinancialSummaryViewProps> = ({ act
             <DataField label="Total Down Payment" value={tabData.totalDownPayment} />
           </div>
         </section>
+      </div>
 
+      {/* Column 2 */}
+      <div className="space-y-4">
         {/* Pricing */}
         <section className="mb-4">
           <h4 className="font-medium mb-3">Pricing</h4>
@@ -51,10 +54,7 @@ const LoanFinancialSummaryView: React.FC<LoanFinancialSummaryViewProps> = ({ act
             <DataField label="Taxable Sub-total" value={tabData.taxableSubTotal} />
           </div>
         </section>
-      </div>
 
-      {/* Right Column */}
-      <div className="space-y-4">
         {/* Fees */}
         <section className="mb-4">
           <h4 className="font-medium mb-3">Fees</h4>
@@ -75,7 +75,10 @@ const LoanFinancialSummaryView: React.FC<LoanFinancialSummaryViewProps> = ({ act
             <DataField label="Total Taxes" value={tabData.totalTaxes} />
           </div>
         </section>
+      </div>
 
+      {/* Column 3 */}
+      <div className="space-y-4">
         {/* Miscellaneous */}
         <section className="mb-4">
           <h4 className="font-medium mb-3">Miscellaneous</h4>
