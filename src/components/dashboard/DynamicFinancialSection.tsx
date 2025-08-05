@@ -6,7 +6,7 @@ import FinancialProgramWizard, { WizardData } from "./FinancialProgramWizard";
 import { useDynamicTableSchemas } from "@/hooks/useDynamicTableSchemas";
 import { useDynamicFinancialData } from "@/hooks/useDynamicFinancialData";
 import { useUndoRedo } from "@/hooks/useUndoRedo";
-import { useApprovalWorkflow } from "@/hooks/useApprovalWorkflow";
+import { useSupabaseApprovalWorkflow } from "@/hooks/useSupabaseApprovalWorkflow";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Lock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -37,7 +37,7 @@ const DynamicFinancialSection = ({
     onSelectionChange,
     onSetBatchDeleteCallback
   });
-  const { isTableLocked } = useApprovalWorkflow();
+  const { isTableLocked } = useSupabaseApprovalWorkflow();
 
   const schema = getSchema(schemaId);
   const { saveState, undo, redo, canUndo, canRedo } = useUndoRedo(data, schema || { id: '', name: '', columns: [] });
