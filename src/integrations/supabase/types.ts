@@ -366,6 +366,92 @@ export type Database = {
         }
         Relationships: []
       }
+      change_details: {
+        Row: {
+          comment: string | null
+          created_at: string
+          id: string
+          new_value: Json | null
+          old_value: Json | null
+          request_id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          rule_key: string
+          status: Database["public"]["Enums"]["approval_status"]
+          table_name: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          new_value?: Json | null
+          old_value?: Json | null
+          request_id: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          rule_key: string
+          status?: Database["public"]["Enums"]["approval_status"]
+          table_name: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          new_value?: Json | null
+          old_value?: Json | null
+          request_id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          rule_key?: string
+          status?: Database["public"]["Enums"]["approval_status"]
+          table_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "change_details_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "change_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      change_requests: {
+        Row: {
+          comment: string | null
+          created_at: string
+          created_by: string
+          id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["approval_status"]
+          submitted_at: string
+          version_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          created_by: string
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["approval_status"]
+          submitted_at?: string
+          version_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["approval_status"]
+          submitted_at?: string
+          version_id?: string
+        }
+        Relationships: []
+      }
       countries: {
         Row: {
           country_code: string
@@ -1273,6 +1359,36 @@ export type Database = {
         }
         Relationships: []
       }
+      rule_versions: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          rule_key: string
+          table_name: string
+          value: Json
+          version_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          rule_key: string
+          table_name: string
+          value: Json
+          version_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          rule_key?: string
+          table_name?: string
+          value?: Json
+          version_id?: string
+        }
+        Relationships: []
+      }
       states: {
         Row: {
           country_id: string | null
@@ -1323,6 +1439,38 @@ export type Database = {
         }
         Relationships: []
       }
+      table_locks: {
+        Row: {
+          id: string
+          locked_at: string
+          locked_by: string
+          request_id: string
+          schema_id: string
+        }
+        Insert: {
+          id?: string
+          locked_at?: string
+          locked_by: string
+          request_id: string
+          schema_id: string
+        }
+        Update: {
+          id?: string
+          locked_at?: string
+          locked_by?: string
+          request_id?: string
+          schema_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "table_locks_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "change_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tax_rules: {
         Row: {
           created_at: string | null
@@ -1350,6 +1498,39 @@ export type Database = {
           rate?: number | null
           tax_name?: string
           tax_type?: string
+        }
+        Relationships: []
+      }
+      user_profiles: {
+        Row: {
+          created_at: string
+          email: string
+          first_name: string | null
+          id: string
+          last_name: string | null
+          role: Database["public"]["Enums"]["user_role"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -1483,8 +1664,10 @@ export type Database = {
         | "Pending Signature"
         | "Pending Reapply"
       application_type: "Lease" | "Loan"
+      approval_status: "PENDING" | "APPROVED" | "REJECTED" | "IN_REVIEW"
       deal_status: "requested" | "approved" | "customer"
       financial_type: "Lease" | "Loan"
+      user_role: "FS_OPS" | "FS_ADMIN" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1625,8 +1808,10 @@ export const Constants = {
         "Pending Reapply",
       ],
       application_type: ["Lease", "Loan"],
+      approval_status: ["PENDING", "APPROVED", "REJECTED", "IN_REVIEW"],
       deal_status: ["requested", "approved", "customer"],
       financial_type: ["Lease", "Loan"],
+      user_role: ["FS_OPS", "FS_ADMIN", "admin"],
     },
   },
 } as const
