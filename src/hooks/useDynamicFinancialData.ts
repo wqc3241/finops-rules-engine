@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { TableData } from "@/types/dynamicTable";
 import { getInitialData } from "@/utils/mockDataUtils";
+import { useApprovalWorkflow } from "./useApprovalWorkflow";
+import { useChangeTracking } from "./useChangeTracking";
 import { toast } from "sonner";
 
 interface UseDynamicFinancialDataProps {
@@ -18,6 +20,8 @@ export const useDynamicFinancialData = ({
 }: UseDynamicFinancialDataProps) => {
   // All schemas now use local data (Supabase disconnected)
   const [localData, setLocalData] = useState<TableData[]>([]);
+  const { isTableLocked } = useApprovalWorkflow();
+  const { startTracking, updateTracking } = useChangeTracking();
 
   // Load initial data
   useEffect(() => {
@@ -28,26 +32,30 @@ export const useDynamicFinancialData = ({
         const parsedData = JSON.parse(savedData);
         console.log('Loaded saved data:', parsedData);
         setLocalData(parsedData);
+        startTracking(schemaId, parsedData);
       } catch (error) {
         console.error('Failed to parse saved data:', error);
         const initialData = getInitialData(schemaId);
         console.log('Using initial data:', initialData);
         setLocalData(initialData);
+        startTracking(schemaId, initialData);
       }
     } else {
       const initialData = getInitialData(schemaId);
       console.log('No saved data, using initial data:', initialData);
       setLocalData(initialData);
+      startTracking(schemaId, initialData);
     }
-  }, [schemaId]);
+  }, [schemaId, startTracking]);
 
-  // Save data to localStorage
+  // Save data to localStorage and update tracking
   useEffect(() => {
     if (localData.length > 0) {
       console.log('Saving data to localStorage:', localData);
       localStorage.setItem(`dynamicTableData_${schemaId}`, JSON.stringify(localData));
+      updateTracking(schemaId, localData);
     }
-  }, [localData, schemaId]);
+  }, [localData, schemaId, updateTracking]);
 
   // Batch delete function for local data
   const localBatchDeleteFunction = useCallback(() => {
@@ -115,6 +123,7 @@ export const useDynamicFinancialData = ({
     data: localData,
     setData: setLocalData,
     handleAddNew: handleAddNewLocal,
-    loading: false
+    loading: false,
+    isLocked: isTableLocked(schemaId)
   };
 };

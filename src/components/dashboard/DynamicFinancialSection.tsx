@@ -6,6 +6,9 @@ import FinancialProgramWizard, { WizardData } from "./FinancialProgramWizard";
 import { useDynamicTableSchemas } from "@/hooks/useDynamicTableSchemas";
 import { useDynamicFinancialData } from "@/hooks/useDynamicFinancialData";
 import { useUndoRedo } from "@/hooks/useUndoRedo";
+import { useApprovalWorkflow } from "@/hooks/useApprovalWorkflow";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Lock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import * as XLSX from 'xlsx';
 import { toast } from "sonner";
@@ -28,12 +31,13 @@ const DynamicFinancialSection = ({
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showWizard, setShowWizard] = useState(false);
   const { getSchema, updateSchema } = useDynamicTableSchemas();
-  const { data, setData, handleAddNew, loading } = useDynamicFinancialData({
+  const { data, setData, handleAddNew, loading, isLocked } = useDynamicFinancialData({
     schemaId,
     selectedItems,
     onSelectionChange,
     onSetBatchDeleteCallback
   });
+  const { isTableLocked } = useApprovalWorkflow();
 
   const schema = getSchema(schemaId);
   const { saveState, undo, redo, canUndo, canRedo } = useUndoRedo(data, schema || { id: '', name: '', columns: [] });
@@ -190,16 +194,26 @@ const DynamicFinancialSection = ({
 
   return (
     <div className="p-6 bg-white rounded-lg shadow-sm">
+      {isLocked && (
+        <Alert className="mb-4 border-warning bg-warning/5">
+          <Lock className="h-4 w-4 text-warning" />
+          <AlertDescription>
+            This table is currently locked while changes are under review. 
+            You cannot make edits until an admin approves or rejects the pending changes.
+          </AlertDescription>
+        </Alert>
+      )}
+
       <SectionHeader 
         title={title} 
         isCollapsed={isCollapsed} 
         setIsCollapsed={setIsCollapsed} 
-        onAddNew={handleAddNewRecord}
-        onUndo={handleUndo}
-        onRedo={handleRedo}
-        canUndo={canUndo}
-        canRedo={canRedo}
-        onUpload={shouldShowUploadDownload ? handleUpload : undefined}
+        onAddNew={isLocked ? undefined : handleAddNewRecord}
+        onUndo={isLocked ? undefined : handleUndo}
+        onRedo={isLocked ? undefined : handleRedo}
+        canUndo={canUndo && !isLocked}
+        canRedo={canRedo && !isLocked}
+        onUpload={shouldShowUploadDownload && !isLocked ? handleUpload : undefined}
         onDownload={shouldShowUploadDownload ? handleDownload : undefined}
         uploadLabel={`Upload ${title}`}
         downloadLabel={`Download ${title}`}
@@ -214,8 +228,8 @@ const DynamicFinancialSection = ({
             <DynamicFinancialSectionContent
               schema={schema}
               data={data}
-              onDataChange={handleDataChange}
-              onSchemaChange={handleSchemaChange}
+              onDataChange={isLocked ? () => {} : handleDataChange}
+              onSchemaChange={isLocked ? () => {} : handleSchemaChange}
               onSelectionChange={onSelectionChange}
               selectedItems={selectedItems}
             />
