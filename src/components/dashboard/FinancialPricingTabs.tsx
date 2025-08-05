@@ -38,6 +38,9 @@ const FinancialPricingTabs = ({
   const { isFSOps } = useAuth();
   const { submitForReview, getPendingRequestsForAdmin } = useSupabaseApprovalWorkflow();
   const { getChangedTables } = useChangeTracking();
+  
+  // Check if there are any changes
+  const hasChanges = getChangedTables().length > 0;
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
@@ -48,7 +51,6 @@ const FinancialPricingTabs = ({
     setShowReviewModal(true);
   };
 
-  const hasChanges = getChangedTables().length > 0;
 
   const tabItems: TabItem[] = [
     {
