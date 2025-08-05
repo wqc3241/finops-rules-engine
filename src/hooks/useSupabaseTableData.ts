@@ -28,7 +28,7 @@ export const useSupabaseTableData = ({
       const { data: supabaseData, error } = await supabase
         .from(tableName)
         .select('*')
-        .order(tableName === 'fee_rules' ? 'createdAt' : 'created_at', { ascending: false });
+        .order('_id', { ascending: false });
 
       if (error) {
         console.error('Error fetching data:', error);
@@ -52,11 +52,11 @@ export const useSupabaseTableData = ({
 
   // Handle adding new records
   const handleAddNew = useCallback(async (schema: any) => {
-    const newRow: any = { id: crypto.randomUUID() };
+    const newRow: any = { _id: crypto.randomUUID() };
     
     // Initialize with default values based on schema
     schema.columns.forEach((column: any) => {
-      if (column.key !== 'id' && column.key !== 'created_at' && column.key !== 'updated_at' && column.key !== 'createdAt' && column.key !== 'updatedAt') {
+      if (column.key !== '_id' && column.key !== 'created_at' && column.key !== 'updated_at' && column.key !== 'createdAt' && column.key !== 'updatedAt') {
         switch (column.type) {
           case 'boolean':
             newRow[column.key] = false;
@@ -94,9 +94,6 @@ export const useSupabaseTableData = ({
   // Handle data updates
   const handleDataChange = useCallback(async (newData: TableData[]) => {
     setData(newData);
-    
-    // You could implement auto-save here if needed
-    // For now, we'll just update the local state
   }, []);
 
   // Handle batch delete
@@ -104,10 +101,7 @@ export const useSupabaseTableData = ({
     if (selectedItems.length === 0) return;
 
     try {
-      const { error } = await supabase
-        .from(tableName)
-        .delete()
-        .in('id', selectedItems);
+      const { error } = await (supabase as any).from(tableName).delete().in('_id', selectedItems);
 
       if (error) {
         console.error('Error deleting records:', error);
@@ -115,7 +109,7 @@ export const useSupabaseTableData = ({
         return;
       }
 
-      setData(prev => prev.filter(item => !selectedItems.includes(item.id)));
+      setData(prev => prev.filter(item => !selectedItems.includes((item as any)._id)));
       onSelectionChange?.([]);
       toast.success(`${selectedItems.length} ${tableName} record(s) deleted successfully`);
     } catch (error) {

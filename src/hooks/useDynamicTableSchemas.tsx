@@ -330,6 +330,8 @@ export function DynamicTableSchemasProvider({ children }: { children: ReactNode 
     if (saved) {
       try {
         const parsedSchemas = JSON.parse(saved);
+        // Clear fee-rules from cache to ensure we use the latest schema structure
+        delete parsedSchemas['fee-rules'];
         // Ensure fee-rules and tax-rules use the latest column structure from DEFAULT_SCHEMAS
         // This helps override potentially outdated structures from localStorage.
         if (parsedSchemas['fee-rules']) {
