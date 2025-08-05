@@ -47,31 +47,6 @@ const CardHeader: React.FC<CardHeaderProps> = ({
         </div>
       </div>
       
-      {/* Show financial info when expanded */}
-      {isExpanded && offer?.collapsedView && (
-        <div className="flex flex-wrap gap-3 items-center pt-2 border-t border-border/50">
-          <div className="flex items-center gap-1">
-            <span className="text-xs text-muted-foreground">Term:</span>
-            <span className="text-xs font-medium bg-secondary px-2 py-1 rounded">{offer.collapsedView.termLength} mo</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <span className="text-xs text-muted-foreground">Payment:</span>
-            <span className="text-xs font-medium bg-secondary px-2 py-1 rounded">{offer.collapsedView.monthlyPayments}</span>
-          </div>
-          {offer.applicationType === 'Lease' && offer.collapsedView.dueAtSigning && (
-            <div className="flex items-center gap-1">
-              <span className="text-xs text-muted-foreground">Due:</span>
-              <span className="text-xs font-medium bg-secondary px-2 py-1 rounded">{offer.collapsedView.dueAtSigning}</span>
-            </div>
-          )}
-          {offer.applicationType === 'Loan' && offer.collapsedView.downPayment && (
-            <div className="flex items-center gap-1">
-              <span className="text-xs text-muted-foreground">Down:</span>
-              <span className="text-xs font-medium bg-secondary px-2 py-1 rounded">{offer.collapsedView.downPayment}</span>
-            </div>
-          )}
-        </div>
-      )}
     </div>
   );
 };
