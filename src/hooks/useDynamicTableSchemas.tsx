@@ -243,13 +243,7 @@ const DEFAULT_SCHEMAS: Record<string, DynamicTableSchema> = {
       { id: 'fee_name', name: 'Fee Name', key: 'fee_name', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
       { id: 'fee_type', name: 'Fee Type', key: 'fee_type', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
       { id: 'amount', name: 'Amount', key: 'amount', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
-      { id: 'fee_active', name: 'Fee Active', key: 'fee_active', type: 'boolean', inputType: 'Input', isRequired: false, sortable: true, editable: true },
-      { id: 'fee_country', name: 'Fee Country', key: 'fee_country', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true },
-      { id: 'fee_currency', name: 'Fee Currency', key: 'fee_currency', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true },
-      { id: 'fee_state', name: 'Fee State', key: 'fee_state', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true },
-      { id: 'fee_taxable', name: 'Fee Taxable', key: 'fee_taxable', type: 'boolean', inputType: 'Input', isRequired: false, sortable: true, editable: true },
-      { id: 'category', name: 'Category', key: 'category', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true },
-      { id: 'created_at', name: 'Created At', key: 'created_at', type: 'string', inputType: 'Output', isRequired: false, sortable: true, editable: false }
+      { id: 'fee_active', name: 'Active', key: 'fee_active', type: 'boolean', inputType: 'Input', isRequired: false, sortable: true, editable: true }
     ]
   },
   'tax-rules': {
