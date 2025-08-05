@@ -6,6 +6,8 @@ import FinancialProgramWizard, { WizardData } from "./FinancialProgramWizard";
 import { useDynamicTableSchemas } from "@/hooks/useDynamicTableSchemas";
 import { useDynamicFinancialData } from "@/hooks/useDynamicFinancialData";
 import { useUndoRedo } from "@/hooks/useUndoRedo";
+import { supabase } from "@/integrations/supabase/client";
+import * as XLSX from 'xlsx';
 import { toast } from "sonner";
 
 interface DynamicFinancialSectionProps {
@@ -118,9 +120,54 @@ const DynamicFinancialSection = ({
     toast.success(`Upload ${title} functionality will be implemented`);
   };
 
-  const handleDownload = () => {
-    console.log(`Download ${title} clicked`);
-    toast.success(`Download ${title} functionality will be implemented`);
+  const handleDownload = async () => {
+    try {
+      console.log(`Download ${title} clicked`);
+      
+      if (schemaId === 'fee-rules') {
+        // Fetch current fee rules data from Supabase
+        const { data: feeRules, error } = await supabase
+          .from('fee_rules')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error('Error fetching fee rules:', error);
+          toast.error('Failed to fetch fee rules data');
+          return;
+        }
+
+        // Prepare data for Excel export
+        const exportData = feeRules?.map(rule => ({
+          'Fee Name': rule.fee_name,
+          'Fee Type': rule.fee_type,
+          'Amount': rule.amount,
+          'Is Active': rule.is_active ? 'Yes' : 'No',
+          'Created At': new Date(rule.created_at).toLocaleDateString()
+        })) || [];
+
+        // Create Excel workbook
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Fee Rules');
+
+        // Auto-adjust column widths
+        const maxWidth = exportData.reduce((w, r) => Math.max(w, Object.keys(r).length), 10);
+        worksheet['!cols'] = Object.keys(exportData[0] || {}).map(() => ({ wch: maxWidth }));
+
+        // Generate filename with current date
+        const fileName = `fee_rules_${new Date().toISOString().split('T')[0]}.xlsx`;
+        
+        // Download the file
+        XLSX.writeFile(workbook, fileName);
+        toast.success(`Downloaded ${exportData.length} fee rules to ${fileName}`);
+      } else {
+        toast.success(`Download ${title} functionality will be implemented`);
+      }
+    } catch (error) {
+      console.error('Error downloading data:', error);
+      toast.error('Failed to download data');
+    }
   };
 
   // Determine if this section should have upload/download buttons
