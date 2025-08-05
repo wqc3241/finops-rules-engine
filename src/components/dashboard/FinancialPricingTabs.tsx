@@ -2,6 +2,12 @@
 import { useState } from "react";
 import TabComponent, { TabItem } from "./TabComponent";
 import DynamicFinancialSection from "./DynamicFinancialSection";
+import ApprovalNotificationBanner from "@/components/approval-workflow/ApprovalNotificationBanner";
+import SubmitForReviewModal from "@/components/approval-workflow/SubmitForReviewModal";
+import ChangeRequestSummary from "@/components/approval-workflow/ChangeRequestSummary";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
+import { useChangeTracking } from "@/hooks/useChangeTracking";
 import { toast } from "sonner";
 
 interface FinancialPricingTabsProps {
@@ -24,10 +30,23 @@ const FinancialPricingTabs = ({
   onSetBatchDeleteCallback
 }: FinancialPricingTabsProps) => {
   const [activeTab, setActiveTab] = useState("rules");
+  const [showSubmitModal, setShowSubmitModal] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
+  
+  const { isFSOps } = useAuth();
+  const { getChangedTables } = useChangeTracking();
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
   };
+
+  const handleOpenReview = (requestId: string) => {
+    setSelectedRequestId(requestId);
+    setShowReviewModal(true);
+  };
+
+  const hasChanges = getChangedTables().length > 0;
 
   const tabItems: TabItem[] = [
     {
@@ -99,10 +118,46 @@ const FinancialPricingTabs = ({
 
   return (
     <div className="bg-gray-50 p-4">
+      <ApprovalNotificationBanner onOpenReview={handleOpenReview} />
+      
+      {isFSOps && hasChanges && (
+        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className="flex items-center justify-between">
+            <div>
+              <h4 className="font-medium text-blue-900">You have unsaved changes</h4>
+              <p className="text-sm text-blue-700">
+                {getChangedTables().length} table{getChangedTables().length !== 1 ? 's' : ''} modified. 
+                Submit for admin approval to apply changes.
+              </p>
+            </div>
+            <Button 
+              onClick={() => setShowSubmitModal(true)}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              Submit for Review
+            </Button>
+          </div>
+        </div>
+      )}
+
       <TabComponent 
         defaultValue="rules" 
         items={tabItems} 
         onValueChange={handleTabChange}
+      />
+
+      <SubmitForReviewModal
+        isOpen={showSubmitModal}
+        onClose={() => setShowSubmitModal(false)}
+        onSubmit={() => {
+          toast.success("Changes submitted for review");
+        }}
+      />
+
+      <ChangeRequestSummary
+        isOpen={showReviewModal}
+        onClose={() => setShowReviewModal(false)}
+        requestId={selectedRequestId}
       />
     </div>
   );
