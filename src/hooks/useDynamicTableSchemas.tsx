@@ -301,8 +301,14 @@ export function DynamicTableSchemasProvider({ children }: { children: ReactNode 
     if (saved) {
       try {
         const parsedSchemas = JSON.parse(saved);
-        // Ensure bulletin-pricing uses the latest column structure from DEFAULT_SCHEMAS
+        // Ensure fee-rules and tax-rules use the latest column structure from DEFAULT_SCHEMAS
         // This helps override potentially outdated structures from localStorage.
+        if (parsedSchemas['fee-rules']) {
+            parsedSchemas['fee-rules'].columns = DEFAULT_SCHEMAS['fee-rules'].columns;
+        }
+        if (parsedSchemas['tax-rules']) {
+            parsedSchemas['tax-rules'].columns = DEFAULT_SCHEMAS['tax-rules'].columns;
+        }
         if (parsedSchemas['bulletin-pricing']) {
             parsedSchemas['bulletin-pricing'].columns = DEFAULT_SCHEMAS['bulletin-pricing'].columns;
         }
