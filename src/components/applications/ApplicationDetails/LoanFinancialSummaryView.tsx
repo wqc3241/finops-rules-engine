@@ -37,6 +37,15 @@ const LoanFinancialSummaryView: React.FC<LoanFinancialSummaryViewProps> = ({ act
             <DataField label="Total Down Payment" value={tabData.totalDownPayment} />
           </div>
         </section>
+
+        {/* Miscellaneous */}
+        <section className="mb-4">
+          <h4 className="font-medium mb-3">Miscellaneous</h4>
+          <div className="space-y-2">
+            <DataField label="PA Transaction ID" value={tabData.transactionId} />
+            <DataField label="Offer Accepted Date" value={tabData.acceptedOfferDate} />
+          </div>
+        </section>
       </div>
 
       {/* Column 2 */}
@@ -79,15 +88,6 @@ const LoanFinancialSummaryView: React.FC<LoanFinancialSummaryViewProps> = ({ act
 
       {/* Column 3 */}
       <div className="space-y-4">
-        {/* Miscellaneous */}
-        <section className="mb-4">
-          <h4 className="font-medium mb-3">Miscellaneous</h4>
-          <div className="space-y-2">
-            <DataField label="PA Transaction ID" value={tabData.transactionId} />
-            <DataField label="Offer Accepted Date" value={tabData.acceptedOfferDate} />
-          </div>
-        </section>
-
         {/* Approved Offers */}
         <section className="mb-4">
           <h4 className="font-medium mb-3">Approved Offers</h4>
