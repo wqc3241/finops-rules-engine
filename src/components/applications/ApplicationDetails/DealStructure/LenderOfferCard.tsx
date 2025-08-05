@@ -133,13 +133,20 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
 
   // Simple toggle for financial summary - basic approach
   const handleInlineFinancialSummary = () => {
-    // If card is not expanded, expand it first
-    if (!cardIsExpanded && onCardToggle) {
-      onCardToggle(true);
+    // If card is not expanded, expand it first, then show financial summary
+    if (!cardIsExpanded) {
+      // First expand the card through the parent
+      if (onCardToggle) {
+        onCardToggle(true);
+      }
+      // Then show financial summary
+      setShowFinancialSummary(true);
+      setSelectedSection('approved');
+    } else {
+      // If already expanded, just toggle the financial summary
+      setShowFinancialSummary(!showFinancialSummary);
+      setSelectedSection('approved');
     }
-    // Toggle the financial summary view
-    setShowFinancialSummary(!showFinancialSummary);
-    setSelectedSection('approved');
   };
 
   const handleBackToDealStructure = () => {
