@@ -2,21 +2,21 @@ import { Bell, Clock, Users } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useApprovalWorkflow } from "@/hooks/useApprovalWorkflow";
-import { useAuth } from "@/hooks/useAuth";
+import { useSupabaseApprovalWorkflow } from "@/hooks/useSupabaseApprovalWorkflow";
+import { useAuth } from "@/hooks/useSupabaseAuth";
 
 interface ApprovalNotificationBannerProps {
   onOpenReview: (requestId: string) => void;
 }
 
 const ApprovalNotificationBanner = ({ onOpenReview }: ApprovalNotificationBannerProps) => {
-  const { getPendingRequestsForAdmin } = useApprovalWorkflow();
-  const { user } = useAuth();
+  const { getPendingRequestsForAdmin } = useSupabaseApprovalWorkflow();
+  const { profile, isFSAdmin } = useAuth();
   
   const pendingRequests = getPendingRequestsForAdmin();
 
   // Only show for admins and if there are pending requests
-  if (!user || user.role !== 'admin' || pendingRequests.length === 0) {
+  if (!profile || !isFSAdmin() || pendingRequests.length === 0) {
     return null;
   }
 
