@@ -1,18 +1,22 @@
 
 import React from 'react';
-import { User, ArrowRight } from 'lucide-react';
+import { User, ArrowRight, BarChart2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface CardActionsProps {
   isSelected: boolean;
   onPresentToCustomer: () => void;
   onSendToDT: () => void;
+  showFinancialDetailButton?: boolean;
+  onViewFinancialSummary?: () => void;
 }
 
 const CardActions: React.FC<CardActionsProps> = ({
   isSelected,
   onPresentToCustomer,
-  onSendToDT
+  onSendToDT,
+  showFinancialDetailButton = false,
+  onViewFinancialSummary
 }) => {
   return (
     <div className="flex space-x-1 items-center">
@@ -36,6 +40,18 @@ const CardActions: React.FC<CardActionsProps> = ({
         <ArrowRight className="h-3 w-3" />
         Send to DT
       </Button>
+
+      {showFinancialDetailButton && (
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={onViewFinancialSummary}
+          className="flex items-center gap-1"
+        >
+          <BarChart2 className="h-3 w-3" />
+          Summary
+        </Button>
+      )}
     </div>
   );
 };

@@ -300,6 +300,8 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
           onPresentToCustomer={handlePresentToCustomer}
           onSendToDT={handleSendToDT}
           offer={currentOffer}
+          showFinancialDetailButton={showFinancialDetailButton}
+          onViewFinancialSummary={() => handleViewFinancialDetail('approved')}
         />
 
         <CollapsibleCardContent 

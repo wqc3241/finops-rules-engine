@@ -15,6 +15,8 @@ interface CardHeaderProps {
   onPresentToCustomer: () => void;
   onSendToDT: () => void;
   offer?: DealStructureOffer;
+  showFinancialDetailButton?: boolean;
+  onViewFinancialSummary?: () => void;
 }
 
 const CardHeader: React.FC<CardHeaderProps> = ({
@@ -25,7 +27,9 @@ const CardHeader: React.FC<CardHeaderProps> = ({
   onToggleExpand,
   onPresentToCustomer,
   onSendToDT,
-  offer
+  offer,
+  showFinancialDetailButton = false,
+  onViewFinancialSummary
 }) => {
   return (
     <div className="space-y-2">
@@ -38,7 +42,9 @@ const CardHeader: React.FC<CardHeaderProps> = ({
           <CardActions 
             isSelected={isSelected} 
             onPresentToCustomer={onPresentToCustomer} 
-            onSendToDT={onSendToDT} 
+            onSendToDT={onSendToDT}
+            showFinancialDetailButton={showFinancialDetailButton}
+            onViewFinancialSummary={onViewFinancialSummary}
           />
           
           <Button variant="ghost" size="sm" onClick={onToggleExpand}>

@@ -90,15 +90,6 @@ const DealStructureView: React.FC<DealStructureViewProps> = ({
             </Button>
           )}
         </div>
-        {showFinancialDetailButton && (
-          <button 
-            onClick={onViewFinancialSummary} 
-            className="text-blue-600 hover:text-blue-800 underline text-sm font-medium flex items-center transition-colors"
-          >
-            <BarChart2 className="h-3 w-3 mr-1" />
-            Summary
-          </button>
-        )}
       </div>
       <OfferParameters 
         items={items} 
