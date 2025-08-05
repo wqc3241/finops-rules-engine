@@ -45,7 +45,10 @@ const CardActions: React.FC<CardActionsProps> = ({
         <Button 
           variant="outline" 
           size="sm"
-          onClick={onViewFinancialSummary}
+          onClick={(e) => {
+            e.stopPropagation();
+            onViewFinancialSummary?.();
+          }}
           className="flex items-center gap-1"
         >
           <BarChart2 className="h-3 w-3" />
