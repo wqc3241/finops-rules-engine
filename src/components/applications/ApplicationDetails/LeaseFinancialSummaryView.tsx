@@ -41,6 +41,16 @@ const LeaseFinancialSummaryView: React.FC<LeaseFinancialSummaryViewProps> = ({ a
             <DataField label="Enhanced RV" value={tabData.enhancedRv} />
           </div>
         </section>
+
+        {/* Capitalized Fees */}
+        <section className="mb-4">
+          <h4 className="font-medium mb-3">Capitalized Fees</h4>
+          <div className="space-y-2">
+            <DataField label="Documentation Fee" value={tabData.documentationFee} />
+            <DataField label="Acquisition Fee" value={tabData.acquisitionFee} />
+            <DataField label="Total Capitalized Fees" value={tabData.totalCapitalizedFees} />
+          </div>
+        </section>
       </div>
 
       {/* Second Column */}
@@ -78,20 +88,7 @@ const LeaseFinancialSummaryView: React.FC<LeaseFinancialSummaryViewProps> = ({ a
             <DataField label="Total Upfront Tax" value={tabData.totalUpfrontTax} />
           </div>
         </section>
-      </div>
 
-      {/* Third Column */}
-      <div className="space-y-4">
-        {/* Capitalized Fees */}
-        <section className="mb-4">
-          <h4 className="font-medium mb-3">Capitalized Fees</h4>
-          <div className="space-y-2">
-            <DataField label="Documentation Fee" value={tabData.documentationFee} />
-            <DataField label="Acquisition Fee" value={tabData.acquisitionFee} />
-            <DataField label="Total Capitalized Fees" value={tabData.totalCapitalizedFees} />
-          </div>
-        </section>
-        
         {/* Upfront Fees */}
         <section className="mb-4">
           <h4 className="font-medium mb-3">Upfront Fees</h4>
@@ -101,7 +98,10 @@ const LeaseFinancialSummaryView: React.FC<LeaseFinancialSummaryViewProps> = ({ a
             <DataField label="Total Govt and Additional Fees" value={tabData.totalGovtAndAdditionalFees} />
           </div>
         </section>
-        
+      </div>
+
+      {/* Third Column */}
+      <div className="space-y-4">
         {/* Amount Paid In Signing */}
         <section className="mb-4">
           <h4 className="font-medium mb-3">Amount Paid In Signing</h4>
