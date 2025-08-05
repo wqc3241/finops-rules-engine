@@ -2,8 +2,6 @@
 import { useState } from "react";
 import BulletinPricingTable from "../BulletinPricingTable";
 import SectionHeader from "./SectionHeader";
-import { Button } from "@/components/ui/button";
-import { Upload, Download } from "lucide-react";
 import { toast } from "sonner";
 
 interface BulletinPricingSectionProps {
@@ -25,18 +23,6 @@ const BulletinPricingSection = ({
   
   const handleAddNew = () => {
     setShowAddModal(true);
-  };
-
-  const handleUploadPricing = () => {
-    console.log("Upload pricing clicked");
-    toast.info("Upload pricing functionality");
-    // Functionality for uploading pricing
-  };
-
-  const handleDownloadPricing = () => {
-    console.log("Download pricing clicked");
-    toast.info("Download pricing functionality");
-    // Functionality for downloading pricing
   };
 
   const handleEdit = (id: string) => {
@@ -61,16 +47,6 @@ const BulletinPricingSection = ({
       />
       {!isCollapsed && (
         <div className="mt-4">
-          <div className="flex justify-end space-x-2 mb-4">
-            <Button variant="outline" size="sm" onClick={handleUploadPricing}>
-              <Upload className="h-3 w-3 mr-1" />
-              Upload Pricing
-            </Button>
-            <Button variant="outline" size="sm" onClick={handleDownloadPricing}>
-              <Download className="h-3 w-3 mr-1" />
-              Download Pricing
-            </Button>
-          </div>
           <BulletinPricingTable 
             onEdit={handleEdit} 
             onCopy={handleCopy} 

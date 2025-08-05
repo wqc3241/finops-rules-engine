@@ -180,7 +180,7 @@ const DynamicFinancialSection = ({
   };
 
   // Determine if this section should have upload/download buttons
-  const shouldShowUploadDownload = schemaId === 'fee-rules' || schemaId === 'tax-rules';
+  const shouldShowUploadDownload = schemaId === 'fee-rules' || schemaId === 'tax-rules' || schemaId === 'bulletin-pricing';
 
   if (!schema) {
     return (
