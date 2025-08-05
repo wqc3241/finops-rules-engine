@@ -10,7 +10,7 @@ interface LoanFinancialSummaryViewProps {
 
 const LoanFinancialSummaryView: React.FC<LoanFinancialSummaryViewProps> = ({ activeTab, tabData }) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {/* Column 1 */}
       <div className="space-y-4">
         {/* Federal Truth */}
@@ -89,34 +89,30 @@ const LoanFinancialSummaryView: React.FC<LoanFinancialSummaryViewProps> = ({ act
         </section>
 
         {/* Approved Offers */}
-        <section className="mt-6">
+        <section className="mb-4">
           <h4 className="font-medium mb-3">Approved Offers</h4>
-          <div className="p-4">
-            <div className="space-y-2">
-              <DataField label="Term" value={tabData.term} />
-              <DataField label="APR" value={tabData.customerApr} />
-              <DataField label="Down Payment" value={tabData.totalDownPayment} />
-              <DataField label="Amount Financed" value={tabData.amountFinanced} />
-              <DataField label="Monthly Payment" value={tabData.monthlyPayment} />
-              <DataField label="Approved Date" value={tabData.acceptedOfferDate} />
-              <DataField label="Lender Name" value="Bank of America" />
-            </div>
+          <div className="space-y-2">
+            <DataField label="Term" value={tabData.term} />
+            <DataField label="APR" value={tabData.customerApr} />
+            <DataField label="Down Payment" value={tabData.totalDownPayment} />
+            <DataField label="Amount Financed" value={tabData.amountFinanced} />
+            <DataField label="Monthly Payment" value={tabData.monthlyPayment} />
+            <DataField label="Approved Date" value={tabData.acceptedOfferDate} />
+            <DataField label="Lender Name" value="Bank of America" />
           </div>
         </section>
 
         {/* TradeIn Details */}
-        <section className="mt-6">
+        <section className="mb-4">
           <h4 className="font-medium mb-3">TradeIn Details</h4>
-          <div className="p-4">
-            <div className="space-y-2">
-              <DataField label="Year" value="-" />
-              <DataField label="Make" value="-" />
-              <DataField label="Model" value="-" />
-              <DataField label="Trim" value="-" />
-              <DataField label="Lien Holder" value="-" />
-              <DataField label="Total Value" value="-" />
-              <DataField label="PayOff Amount" value="-" />
-            </div>
+          <div className="space-y-2">
+            <DataField label="Year" value="-" />
+            <DataField label="Make" value="-" />
+            <DataField label="Model" value="-" />
+            <DataField label="Trim" value="-" />
+            <DataField label="Lien Holder" value="-" />
+            <DataField label="Total Value" value="-" />
+            <DataField label="PayOff Amount" value="-" />
           </div>
         </section>
       </div>
