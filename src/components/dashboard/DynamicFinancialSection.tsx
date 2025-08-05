@@ -113,6 +113,19 @@ const DynamicFinancialSection = ({
     console.log('Full wizard data:', wizardData);
   };
 
+  const handleUpload = () => {
+    console.log(`Upload ${title} clicked`);
+    toast.success(`Upload ${title} functionality will be implemented`);
+  };
+
+  const handleDownload = () => {
+    console.log(`Download ${title} clicked`);
+    toast.success(`Download ${title} functionality will be implemented`);
+  };
+
+  // Determine if this section should have upload/download buttons
+  const shouldShowUploadDownload = schemaId === 'fee-rules' || schemaId === 'tax-rules';
+
   if (!schema) {
     return (
       <div className="p-6 bg-white rounded-lg shadow-sm">
@@ -134,6 +147,10 @@ const DynamicFinancialSection = ({
         onRedo={handleRedo}
         canUndo={canUndo}
         canRedo={canRedo}
+        onUpload={shouldShowUploadDownload ? handleUpload : undefined}
+        onDownload={shouldShowUploadDownload ? handleDownload : undefined}
+        uploadLabel={`Upload ${title}`}
+        downloadLabel={`Download ${title}`}
       />
       {!isCollapsed && (
         <DynamicFinancialSectionContent

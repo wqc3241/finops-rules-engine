@@ -23,15 +23,6 @@ const Dashboard = ({ activeSection }: DashboardProps) => {
     // Functionality for downloading pricing
   };
 
-  const handleUploadFeeTax = () => {
-    console.log("Upload fee/tax clicked");
-    // Functionality for uploading fee/tax
-  };
-
-  const handleDownloadFeeTax = () => {
-    console.log("Download fee/tax clicked");
-    // Functionality for downloading fee/tax
-  };
 
   // Only show "under construction" for the actual Dashboard section
   if (activeSection === "Dashboard") {
@@ -48,15 +39,15 @@ const Dashboard = ({ activeSection }: DashboardProps) => {
   return (
     <div className="container mx-auto px-2 py-3">
       <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-        {(activeSection === "Financial Pricing" || activeSection === "Fee & Tax") && (
+        {activeSection === "Financial Pricing" && (
           <div className="flex justify-end space-x-2 p-2 border-b border-gray-200">
-            <Button variant="outline" size="sm" onClick={activeSection === "Financial Pricing" ? handleUploadPricing : handleUploadFeeTax}>
+            <Button variant="outline" size="sm" onClick={handleUploadPricing}>
               <Upload className="h-3 w-3 mr-1" />
-              {activeSection === "Financial Pricing" ? "Upload Pricing" : "Upload Fee & Tax"}
+              Upload Pricing
             </Button>
-            <Button variant="outline" size="sm" onClick={activeSection === "Financial Pricing" ? handleDownloadPricing : handleDownloadFeeTax}>
+            <Button variant="outline" size="sm" onClick={handleDownloadPricing}>
               <Download className="h-3 w-3 mr-1" />
-              {activeSection === "Financial Pricing" ? "Download Pricing" : "Download Fee & Tax"}
+              Download Pricing
             </Button>
           </div>
         )}
