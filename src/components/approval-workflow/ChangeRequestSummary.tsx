@@ -6,7 +6,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle, XCircle, Clock, User, Calendar, FileText } from "lucide-react";
 import { ChangeRequestWithDetails, ApprovalStatus } from "@/types/approval";
-import { useApprovalWorkflow } from "@/hooks/useApprovalWorkflow";
+import { useSupabaseApprovalWorkflow } from "@/hooks/useSupabaseApprovalWorkflow";
 import TableReviewInterface from "./TableReviewInterface";
 
 interface ChangeRequestSummaryProps {
@@ -17,7 +17,7 @@ interface ChangeRequestSummaryProps {
 
 const ChangeRequestSummary = ({ isOpen, onClose, requestId }: ChangeRequestSummaryProps) => {
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
-  const { getChangeRequestWithDetails, approveTableChanges, rejectTableChanges, finalizeChangeRequest } = useApprovalWorkflow();
+  const { getChangeRequestWithDetails, approveTableChanges, rejectTableChanges, finalizeChangeRequest } = useSupabaseApprovalWorkflow();
 
   const request = requestId ? getChangeRequestWithDetails(requestId) : null;
 

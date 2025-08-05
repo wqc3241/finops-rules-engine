@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, CheckCircle, XCircle, GitCommit } from "lucide-react";
-import { useApprovalWorkflow } from "@/hooks/useApprovalWorkflow";
+import { useSupabaseApprovalWorkflow } from "@/hooks/useSupabaseApprovalWorkflow";
 import { ChangeDetail } from "@/types/approval";
 
 interface TableReviewInterfaceProps {
@@ -19,7 +19,7 @@ interface TableReviewInterfaceProps {
 
 const TableReviewInterface = ({ isOpen, onClose, onBack, requestId, tableId }: TableReviewInterfaceProps) => {
   const [comment, setComment] = useState("");
-  const { getChangeRequestWithDetails, approveTableChanges, rejectTableChanges, finalizeChangeRequest } = useApprovalWorkflow();
+  const { getChangeRequestWithDetails, approveTableChanges, rejectTableChanges, finalizeChangeRequest } = useSupabaseApprovalWorkflow();
 
   const request = getChangeRequestWithDetails(requestId);
   const tableChanges = request?.tableChanges.find(t => t.schemaId === tableId);

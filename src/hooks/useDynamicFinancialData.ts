@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { TableData } from "@/types/dynamicTable";
 import { getInitialData } from "@/utils/mockDataUtils";
-import { useApprovalWorkflow } from "./useApprovalWorkflow";
+import { useSupabaseApprovalWorkflow } from "./useSupabaseApprovalWorkflow";
+import { useSupabaseTableData } from "./useSupabaseTableData";
 import { useChangeTracking } from "./useChangeTracking";
 import { toast } from "sonner";
 
@@ -20,7 +21,7 @@ export const useDynamicFinancialData = ({
 }: UseDynamicFinancialDataProps) => {
   // All schemas now use local data (Supabase disconnected)
   const [localData, setLocalData] = useState<TableData[]>([]);
-  const { isTableLocked } = useApprovalWorkflow();
+  const { isTableLocked } = useSupabaseApprovalWorkflow();
   const { startTracking, updateTracking } = useChangeTracking();
 
   // Load initial data

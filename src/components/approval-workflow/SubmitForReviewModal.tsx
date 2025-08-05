@@ -5,7 +5,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, AlertTriangle, FileText } from "lucide-react";
 import { useChangeTracking } from "@/hooks/useChangeTracking";
-import { useApprovalWorkflow } from "@/hooks/useApprovalWorkflow";
+import { useSupabaseApprovalWorkflow } from "@/hooks/useSupabaseApprovalWorkflow";
 
 interface SubmitForReviewModalProps {
   isOpen: boolean;
@@ -16,7 +16,7 @@ interface SubmitForReviewModalProps {
 const SubmitForReviewModal = ({ isOpen, onClose, onSubmit }: SubmitForReviewModalProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { getChangesSummary, getTableChanges, trackedChanges } = useChangeTracking();
-  const { submitForReview } = useApprovalWorkflow();
+  const { submitForReview } = useSupabaseApprovalWorkflow();
 
   const changesSummary = getChangesSummary();
 

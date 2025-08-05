@@ -6,7 +6,7 @@ import ApprovalNotificationBanner from "@/components/approval-workflow/ApprovalN
 import SubmitForReviewModal from "@/components/approval-workflow/SubmitForReviewModal";
 import ChangeRequestSummary from "@/components/approval-workflow/ChangeRequestSummary";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/useSupabaseAuth";
 import { useChangeTracking } from "@/hooks/useChangeTracking";
 import { toast } from "sonner";
 
