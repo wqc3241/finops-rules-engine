@@ -101,6 +101,12 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
       e.stopPropagation();
     }
     const newState = !cardIsExpanded;
+    
+    // Reset financial summary when collapsing the card
+    if (!newState) {
+      setShowFinancialSummary(false);
+    }
+    
     if (onCardToggle) {
       onCardToggle(newState);
     }
