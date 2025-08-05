@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { TableData } from "@/types/dynamicTable";
 import { getInitialData } from "@/utils/mockDataUtils";
-import { useSupabaseTableData } from "./useSupabaseTableData";
 import { toast } from "sonner";
 
 interface UseDynamicFinancialDataProps {
@@ -17,61 +16,38 @@ export const useDynamicFinancialData = ({
   onSelectionChange,
   onSetBatchDeleteCallback
 }: UseDynamicFinancialDataProps) => {
-  // Check if this schema should use Supabase data
-  const useSupabase = schemaId === 'fee-rules' || schemaId === 'tax-rules';
-  
-  // Map schema IDs to Supabase table names
-  const getTableName = (id: string): 'fee_rules' | 'tax_rules' => {
-    switch (id) {
-      case 'fee-rules': return 'fee_rules';
-      case 'tax-rules': return 'tax_rules';
-      default: return 'fee_rules'; // fallback, should not happen
-    }
-  };
-
-  // Use Supabase hook for fee-rules and tax-rules
-  const supabaseData = useSupabaseTableData({
-    tableName: getTableName(schemaId),
-    schemaId,
-    selectedItems,
-    onSelectionChange,
-    onSetBatchDeleteCallback
-  });
-
-  // Local state for other schemas
+  // All schemas now use local data (Supabase disconnected)
   const [localData, setLocalData] = useState<TableData[]>([]);
 
-  // Load initial data for non-Supabase schemas
+  // Load initial data
   useEffect(() => {
-    if (!useSupabase) {
-      console.log('Loading data for schema:', schemaId);
-      const savedData = localStorage.getItem(`dynamicTableData_${schemaId}`);
-      if (savedData) {
-        try {
-          const parsedData = JSON.parse(savedData);
-          console.log('Loaded saved data:', parsedData);
-          setLocalData(parsedData);
-        } catch (error) {
-          console.error('Failed to parse saved data:', error);
-          const initialData = getInitialData(schemaId);
-          console.log('Using initial data:', initialData);
-          setLocalData(initialData);
-        }
-      } else {
+    console.log('Loading data for schema:', schemaId);
+    const savedData = localStorage.getItem(`dynamicTableData_${schemaId}`);
+    if (savedData) {
+      try {
+        const parsedData = JSON.parse(savedData);
+        console.log('Loaded saved data:', parsedData);
+        setLocalData(parsedData);
+      } catch (error) {
+        console.error('Failed to parse saved data:', error);
         const initialData = getInitialData(schemaId);
-        console.log('No saved data, using initial data:', initialData);
+        console.log('Using initial data:', initialData);
         setLocalData(initialData);
       }
+    } else {
+      const initialData = getInitialData(schemaId);
+      console.log('No saved data, using initial data:', initialData);
+      setLocalData(initialData);
     }
-  }, [schemaId, useSupabase]);
+  }, [schemaId]);
 
-  // Save data to localStorage for non-Supabase schemas
+  // Save data to localStorage
   useEffect(() => {
-    if (!useSupabase && localData.length > 0) {
+    if (localData.length > 0) {
       console.log('Saving data to localStorage:', localData);
       localStorage.setItem(`dynamicTableData_${schemaId}`, JSON.stringify(localData));
     }
-  }, [localData, schemaId, useSupabase]);
+  }, [localData, schemaId]);
 
   // Batch delete function for local data
   const localBatchDeleteFunction = useCallback(() => {
@@ -95,9 +71,9 @@ export const useDynamicFinancialData = ({
   const batchDeleteRef = useRef<(() => void) | null>(null);
   batchDeleteRef.current = localBatchDeleteFunction;
 
-  // Set up the batch delete callback for local data
+  // Set up the batch delete callback
   useEffect(() => {
-    if (!useSupabase && onSetBatchDeleteCallback) {
+    if (onSetBatchDeleteCallback) {
       const callback = () => {
         if (batchDeleteRef.current) {
           batchDeleteRef.current();
@@ -105,7 +81,7 @@ export const useDynamicFinancialData = ({
       };
       onSetBatchDeleteCallback(callback);
     }
-  }, [onSetBatchDeleteCallback, useSupabase]);
+  }, [onSetBatchDeleteCallback]);
 
   // Function to add new record for local data
   const handleAddNewLocal = useCallback((schema: any) => {
@@ -134,16 +110,6 @@ export const useDynamicFinancialData = ({
     console.log('New row created:', newRow);
     setLocalData(prevData => [newRow, ...prevData]);
   }, []);
-
-  // Return appropriate data and functions based on whether using Supabase
-  if (useSupabase) {
-    return {
-      data: supabaseData.data,
-      setData: supabaseData.setData,
-      handleAddNew: supabaseData.handleAddNew,
-      loading: supabaseData.loading
-    };
-  }
 
   return {
     data: localData,
