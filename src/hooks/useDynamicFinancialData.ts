@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { TableData } from "@/types/dynamicTable";
 import { getInitialData } from "@/utils/mockDataUtils";
 import { toast } from "sonner";
@@ -49,17 +49,27 @@ export const useDynamicFinancialData = ({
     }
   }, [data, schemaId]);
 
-  // Create batch delete function with useCallback to prevent recreation
-  const batchDeleteFunction = useCallback(() => {
-    const updatedData = data.filter(row => !selectedItems.includes(row.id));
-    setData(updatedData);
-    onSelectionChange?.([]);
-  }, [data, selectedItems, onSelectionChange]);
+  // Use ref to store the callback and update it only when needed
+  const batchDeleteCallbackRef = useRef<(() => void) | null>(null);
 
-  // Set up batch delete callback only once when the component mounts
+  // Create batch delete function that always uses current data
+  const batchDeleteFunction = useCallback(() => {
+    setData(currentData => {
+      const updatedData = currentData.filter(row => !selectedItems.includes(row.id));
+      onSelectionChange?.([]);
+      return updatedData;
+    });
+  }, [selectedItems, onSelectionChange]);
+
+  // Store the function in ref and set up callback only once
+  useEffect(() => {
+    batchDeleteCallbackRef.current = batchDeleteFunction;
+  }, [batchDeleteFunction]);
+
+  // Set up the callback only once when the component mounts
   useEffect(() => {
     if (onSetBatchDeleteCallback) {
-      onSetBatchDeleteCallback(batchDeleteFunction);
+      onSetBatchDeleteCallback(() => batchDeleteCallbackRef.current?.());
     }
   }, [onSetBatchDeleteCallback]);
 
