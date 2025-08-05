@@ -63,23 +63,29 @@ const CollapsibleCardContent: React.FC<CollapsibleCardContentProps> = ({
 
   return (
     <div>
+      <Separator className="mb-1" />
+      
       <Collapsible open={isCardExpanded}>
-        <Separator className="mb-1" />
-
-        {!isCardExpanded && (applicationType === 'Loan' ? (
-          <LoanCollapsedView 
-            termLength={offer.collapsedView.termLength} 
-            monthlyPayments={offer.collapsedView.monthlyPayments} 
-            downPayment={offer.collapsedView.downPayment || "N/A"} 
-          />
-        ) : (
-          <CollapsedView 
-            termLength={offer.collapsedView.termLength} 
-            monthlyPayments={offer.collapsedView.monthlyPayments} 
-            dueAtSigning={offer.collapsedView.dueAtSigning || "N/A"} 
-          />
-        ))}
+        {/* Show collapsed view when not expanded */}
+        {!isCardExpanded && (
+          <div className="py-2">
+            {applicationType === 'Loan' ? (
+              <LoanCollapsedView 
+                termLength={offer.collapsedView.termLength} 
+                monthlyPayments={offer.collapsedView.monthlyPayments} 
+                downPayment={offer.collapsedView.downPayment || "N/A"} 
+              />
+            ) : (
+              <CollapsedView 
+                termLength={offer.collapsedView.termLength} 
+                monthlyPayments={offer.collapsedView.monthlyPayments} 
+                dueAtSigning={offer.collapsedView.dueAtSigning || "N/A"} 
+              />
+            )}
+          </div>
+        )}
         
+        {/* Expanded content */}
         <CollapsibleContent>
           {showFinancialSummary ? (
             <FinancialSummarySection 
