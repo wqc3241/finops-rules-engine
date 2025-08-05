@@ -10,11 +10,11 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/useSupabaseAuth';
 import { useNavigate } from 'react-router-dom';
 
 const ProfileMenu = () => {
-  const { user, logout, isAdmin } = useAuth();
+  const { user, profile, signOut, isAdmin } = useAuth();
   const navigate = useNavigate();
 
   if (!user) return null;
@@ -31,9 +31,9 @@ const ProfileMenu = () => {
     navigate('/admin-settings');
   };
 
-  const handleLogout = () => {
-    logout();
-    navigate('/');
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/auth');
   };
 
   const getInitials = (name: string) => {
@@ -45,20 +45,24 @@ const ProfileMenu = () => {
       <DropdownMenuTrigger asChild>
         <div className="h-8 w-8 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center text-gray-700 font-semibold cursor-pointer hover:bg-gray-300 transition-colors">
           <Avatar className="h-8 w-8">
-            <AvatarImage src={user.avatar} alt={user.name} />
-            <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
+            <AvatarImage src={profile?.first_name} alt={profile?.first_name + ' ' + profile?.last_name} />
+            <AvatarFallback>{getInitials((profile?.first_name + ' ' + profile?.last_name) || user?.email || 'User')}</AvatarFallback>
           </Avatar>
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end">
         <DropdownMenuLabel>
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{user.name}</p>
-            <p className="text-xs leading-none text-muted-foreground">
-              ID: {user.id}
+            <p className="text-sm font-medium leading-none">
+              {profile?.first_name && profile?.last_name 
+                ? `${profile.first_name} ${profile.last_name}` 
+                : user?.email}
             </p>
             <p className="text-xs leading-none text-muted-foreground">
-              {user.email}
+              ID: {user?.id}
+            </p>
+            <p className="text-xs leading-none text-muted-foreground">
+              {user?.email}
             </p>
           </div>
         </DropdownMenuLabel>
