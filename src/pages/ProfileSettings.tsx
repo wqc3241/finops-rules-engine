@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/useSupabaseAuth';
 import { Navigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Sidebar from '@/components/Sidebar';
@@ -13,7 +13,7 @@ import { useState } from 'react';
 import { User, Mail, Shield, Calendar, Save, X } from 'lucide-react';
 
 const ProfileSettings = () => {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeItem, setActiveItem] = useState('Profile Settings');
 
@@ -66,9 +66,9 @@ const ProfileSettings = () => {
                       <div className="mx-auto w-24 h-24 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center mb-4">
                         <User className="h-12 w-12 text-blue-600" />
                       </div>
-                      <CardTitle className="text-2xl font-semibold text-gray-900 mb-2">{user.name}</CardTitle>
-                      <Badge className={`mx-auto w-fit text-sm px-3 py-1 ${getRoleBadgeColor(user.role)}`}>
-                        {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+                      <CardTitle className="text-2xl font-semibold text-gray-900 mb-2">{profile?.first_name} {profile?.last_name || user.email}</CardTitle>
+                      <Badge className={`mx-auto w-fit text-sm px-3 py-1 ${getRoleBadgeColor(profile?.role || 'user')}`}>
+                        {(profile?.role || 'user').charAt(0).toUpperCase() + (profile?.role || 'user').slice(1)}
                       </Badge>
                     </CardHeader>
                     <CardContent className="space-y-4">
@@ -82,7 +82,7 @@ const ProfileSettings = () => {
                       </div>
                       <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                         <Calendar className="h-5 w-5 text-gray-500" />
-                        <span className="text-sm text-gray-700">Member since {new Date(user.createdAt).toLocaleDateString()}</span>
+                        <span className="text-sm text-gray-700">Member since {new Date(profile?.created_at || user.created_at).toLocaleDateString()}</span>
                       </div>
                     </CardContent>
                   </Card>
@@ -103,7 +103,7 @@ const ProfileSettings = () => {
                           <Label htmlFor="name" className="text-sm font-medium text-gray-700">Full Name</Label>
                           <Input 
                             id="name" 
-                            defaultValue={user.name}
+                            defaultValue={`${profile?.first_name || ''} ${profile?.last_name || ''}`.trim() || user.email}
                             className="focus:ring-2 focus:ring-blue-500 focus:border-transparent border-gray-300"
                           />
                         </div>
@@ -123,7 +123,7 @@ const ProfileSettings = () => {
                           <Label htmlFor="role" className="text-sm font-medium text-gray-700">Role</Label>
                           <Input 
                             id="role" 
-                            value={user.role.charAt(0).toUpperCase() + user.role.slice(1)} 
+                            value={(profile?.role || 'user').charAt(0).toUpperCase() + (profile?.role || 'user').slice(1)} 
                             disabled 
                             className="bg-gray-100 text-gray-600 border-gray-300"
                           />
