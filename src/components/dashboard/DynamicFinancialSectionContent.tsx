@@ -22,16 +22,18 @@ const DynamicFinancialSectionContent = ({
   console.log('Rendering component with data:', data, 'schema:', schema);
 
   return (
-    <div className="mt-4">
-      <DynamicTable
-        schema={schema}
-        data={data}
-        onDataChange={onDataChange}
-        onSchemaChange={onSchemaChange}
-        onSelectionChange={onSelectionChange}
-        selectedItems={selectedItems}
-        allowColumnManagement={true}
-      />
+    <div className="mt-4 overflow-x-auto">
+      <div className="min-w-max">
+        <DynamicTable
+          schema={schema}
+          data={data}
+          onDataChange={onDataChange}
+          onSchemaChange={onSchemaChange}
+          onSelectionChange={onSelectionChange}
+          selectedItems={selectedItems}
+          allowColumnManagement={true}
+        />
+      </div>
     </div>
   );
 };
