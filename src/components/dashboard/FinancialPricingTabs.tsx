@@ -7,6 +7,7 @@ import SubmitForReviewModal from "@/components/approval-workflow/SubmitForReview
 import ChangeRequestSummary from "@/components/approval-workflow/ChangeRequestSummary";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useSupabaseAuth";
+import { useSupabaseApprovalWorkflow } from "@/hooks/useSupabaseApprovalWorkflow";
 import { useChangeTracking } from "@/hooks/useChangeTracking";
 import { toast } from "sonner";
 
@@ -35,6 +36,7 @@ const FinancialPricingTabs = ({
   const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
   
   const { isFSOps } = useAuth();
+  const { submitForReview, getPendingRequestsForAdmin } = useSupabaseApprovalWorkflow();
   const { getChangedTables } = useChangeTracking();
 
   const handleTabChange = (value: string) => {
