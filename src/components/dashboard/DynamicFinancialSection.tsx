@@ -143,16 +143,16 @@ const DynamicFinancialSection = ({
 
         // Prepare data for Excel export
         const exportData = feeRules?.map(rule => ({
-          'Fee Name': rule.fee_name,
-          'Fee Type': rule.fee_type,
-          'Amount': rule.amount,
-          'Fee Active': rule.fee_active ? 'Yes' : 'No',
-          'Fee Country': rule.fee_country,
-          'Fee Currency': rule.fee_currency,
-          'Fee State': rule.fee_state,
-          'Fee Taxable': rule.fee_taxable ? 'Yes' : 'No',
+          'Fee Name': rule.name,
+          'Fee Type': rule.type,
+          'Amount': rule.feeAmount,
+          'Fee Active': rule.feeActive ? 'Yes' : 'No',
+          'Fee Country': rule.feeCountry,
+          'Fee Currency': rule.feeCurrency,
+          'Fee State': rule.feeState,
+          'Fee Taxable': rule.feeTaxable ? 'Yes' : 'No',
           'Category': rule.category,
-          'Created At': new Date(rule.created_at).toLocaleDateString()
+          'Created At': new Date(rule.createdAt).toLocaleDateString()
         })) || [];
 
         // Create Excel workbook
