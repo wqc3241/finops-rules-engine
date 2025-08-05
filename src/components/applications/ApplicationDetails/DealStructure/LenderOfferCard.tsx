@@ -131,11 +131,15 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
     }
   };
 
-  // Handle inline financial summary without navigation
-  const handleInlineFinancialSummary = (section: 'requested' | 'approved' | 'customer' = 'approved') => {
-    setSelectedSection(section);
-    setShowFinancialSummary(true);
-    // No navigation callbacks - keeps the view inline
+  // Simple toggle for financial summary - basic approach
+  const handleInlineFinancialSummary = () => {
+    // If card is not expanded, expand it first
+    if (!cardIsExpanded && onCardToggle) {
+      onCardToggle(true);
+    }
+    // Toggle the financial summary view
+    setShowFinancialSummary(!showFinancialSummary);
+    setSelectedSection('approved');
   };
 
   const handleBackToDealStructure = () => {
@@ -314,7 +318,7 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
           onSendToDT={handleSendToDT}
           offer={currentOffer}
           showFinancialDetailButton={showFinancialDetailButton}
-          onViewFinancialSummary={() => handleInlineFinancialSummary('approved')}
+          onViewFinancialSummary={handleInlineFinancialSummary}
         />
 
         <CollapsibleCardContent 
