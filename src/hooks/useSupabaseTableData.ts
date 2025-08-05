@@ -28,7 +28,7 @@ export const useSupabaseTableData = ({
       const { data: supabaseData, error } = await supabase
         .from(tableName)
         .select('*')
-        .order('created_at', { ascending: false });
+        .order(tableName === 'fee_rules' ? 'createdAt' : 'created_at', { ascending: false });
 
       if (error) {
         console.error('Error fetching data:', error);
@@ -56,7 +56,7 @@ export const useSupabaseTableData = ({
     
     // Initialize with default values based on schema
     schema.columns.forEach((column: any) => {
-      if (column.key !== 'id' && column.key !== 'created_at' && column.key !== 'updated_at') {
+      if (column.key !== 'id' && column.key !== 'created_at' && column.key !== 'updated_at' && column.key !== 'createdAt' && column.key !== 'updatedAt') {
         switch (column.type) {
           case 'boolean':
             newRow[column.key] = false;
