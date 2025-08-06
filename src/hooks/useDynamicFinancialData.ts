@@ -98,7 +98,7 @@ export const useDynamicFinancialData = ({
     updateTracking(schemaId, data);
   }, [data, schemaId, updateTracking]);
 
-  // Get primary key name for a given schema
+  // Get primary key name for a given schema (simplified fallback approach)
   const getPrimaryKey = useCallback((schemaId: string): string => {
     const primaryKeyMap: Record<string, string> = {
       'credit-profile': 'profile_id',

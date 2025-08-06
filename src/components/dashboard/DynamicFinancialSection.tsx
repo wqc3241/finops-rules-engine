@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import SectionHeader from "./SectionHeader";
 import DynamicFinancialSectionContent from "./DynamicFinancialSectionContent";
 import FinancialProgramWizard, { WizardData } from "./FinancialProgramWizard";
@@ -30,7 +30,7 @@ const DynamicFinancialSection = ({
 }: DynamicFinancialSectionProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showWizard, setShowWizard] = useState(false);
-  const { getSchema, updateSchema } = useDynamicTableSchemas();
+  const { getSchema, getSyncSchema, updateSchema, loading: schemaLoading } = useDynamicTableSchemas();
   const { data, setData, handleAddNew, loading, isLocked } = useDynamicFinancialData({
     schemaId,
     selectedItems,
@@ -39,7 +39,19 @@ const DynamicFinancialSection = ({
   });
   const { isTableLocked } = useSupabaseApprovalWorkflow();
 
-  const schema = getSchema(schemaId);
+  // Load schema dynamically
+  const [schema, setSchema] = useState(getSyncSchema(schemaId));
+  
+  useEffect(() => {
+    const loadSchema = async () => {
+      const loadedSchema = await getSchema(schemaId);
+      setSchema(loadedSchema);
+    };
+    
+    if (!schema) {
+      loadSchema();
+    }
+  }, [schemaId, getSchema, schema]);
   const { saveState, undo, redo, canUndo, canRedo } = useUndoRedo(data, schema || { id: '', name: '', columns: [] });
 
   const handleDataChange = (newData: any) => {

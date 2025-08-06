@@ -19,8 +19,8 @@ const BulletinPricingTable = ({
   onSelectionChange,
   selectedItems = []
 }: BulletinPricingTableProps) => {
-  const { getSchema, updateSchema } = useDynamicTableSchemas();
-  const schema = getSchema('bulletin-pricing');
+  const { getSchema, getSyncSchema, updateSchema } = useDynamicTableSchemas();
+  const schema = getSyncSchema('bulletin-pricing');
   
   const { data, setData } = useDynamicFinancialData({
     schemaId: 'bulletin-pricing',
