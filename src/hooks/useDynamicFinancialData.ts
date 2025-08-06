@@ -5,6 +5,7 @@ import { getDynamicTableData, saveDynamicTableData, hasDynamicTableData } from "
 import { useSupabaseApprovalWorkflow } from "./useSupabaseApprovalWorkflow";
 import { useSupabaseTableData } from "./useSupabaseTableData";
 import { useChangeTracking } from "./useChangeTracking";
+import { useAuth } from "./useSupabaseAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -25,6 +26,7 @@ export const useDynamicFinancialData = ({
   const [loading, setLoading] = useState(true);
   const { isTableLocked } = useSupabaseApprovalWorkflow();
   const { startTracking, updateTracking } = useChangeTracking();
+  const { user, profile } = useAuth();
 
   // Map schema IDs to Supabase table names with type safety
   const getTableName = (schemaId: string) => {
@@ -150,13 +152,60 @@ export const useDynamicFinancialData = ({
 
   // Function to add new record to Supabase
   const handleAddNewSupabase = useCallback(async (schema: any) => {
+    console.log('=== ADD NEW RECORD DEBUG ===');
+    console.log('Schema ID:', schemaId);
+    console.log('Schema:', schema);
+    console.log('Current user:', user);
+    console.log('Current profile:', profile);
+    
     try {
       const tableName = getTableName(schemaId);
+      console.log('Table name:', tableName);
+      
+      // Check current user authentication state
+      const { data: { user: currentUser }, error: userError } = await supabase.auth.getUser();
+      console.log('Auth check - Current user:', currentUser);
+      console.log('Auth check - User error:', userError);
+      
+      if (!currentUser) {
+        console.error('No authenticated user found');
+        toast.error('You must be logged in to add records');
+        return;
+      }
       
       const newRow: any = {};
       
+      // Handle table-specific required fields and defaults
+      const handleTableSpecificFields = (tableName: string, row: any) => {
+        switch (tableName) {
+          case 'fee_rules':
+            // fee_rules has a required _id field that's not UUID
+            row['_id'] = `fee_${Date.now()}`;
+            break;
+          case 'credit_profiles':
+            // Make sure required fields are set properly
+            break;
+          case 'tax_rules':
+            // tax_rules requires tax_name and tax_type
+            if (!row['tax_name']) row['tax_name'] = 'New Tax Rule';
+            if (!row['tax_type']) row['tax_type'] = 'Percentage';
+            break;
+          case 'pricing_types':
+            // pricing_types requires type_code and type_name
+            if (!row['type_code']) row['type_code'] = 'NEW';
+            if (!row['type_name']) row['type_name'] = 'New Type';
+            break;
+          case 'financial_program_configs':
+            // program_code is required
+            if (!row['program_code']) row['program_code'] = `PROG_${Date.now()}`;
+            break;
+        }
+        return row;
+      };
+      
       // Initialize based on schema column types (excluding id which is auto-generated)
       schema.columns.forEach((column: any) => {
+        console.log('Processing column:', column);
         if (column.key !== 'id' && column.editable) {
           switch (column.type) {
             case 'boolean':
@@ -166,31 +215,41 @@ export const useDynamicFinancialData = ({
               newRow[column.key] = 0;
               break;
             default:
-              newRow[column.key] = '';
+              newRow[column.key] = column.isRequired ? 'Required Field' : '';
           }
         }
       });
 
-      console.log('Adding new row to Supabase:', newRow);
+      // Apply table-specific handling
+      const finalRow = handleTableSpecificFields(tableName, newRow);
+
+      console.log('Final row to insert:', finalRow);
       
       const { data: insertedData, error } = await supabase
         .from(tableName as any)
-        .insert([newRow])
+        .insert([finalRow])
         .select()
         .single();
 
+      console.log('Supabase insert result:', { insertedData, error });
+
       if (error) {
-        console.error('Error inserting to Supabase:', error);
-        toast.error('Failed to add new record');
+        console.error('Supabase insert error details:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        });
+        toast.error(`Failed to add new record: ${error.message}`);
         return;
       }
 
-      console.log('New row inserted:', insertedData);
+      console.log('New row successfully inserted:', insertedData);
       setData(prevData => [insertedData, ...prevData]);
       toast.success('New record added successfully');
     } catch (error) {
-      console.error('Error in handleAddNewSupabase:', error);
-      toast.error('Failed to add new record');
+      console.error('Catch block error in handleAddNewSupabase:', error);
+      toast.error(`Failed to add new record: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }, [schemaId]);
 
