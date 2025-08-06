@@ -58,15 +58,48 @@ export const useDynamicFinancialData = ({
     return (tableMap[schemaId as keyof typeof tableMap] || schemaId) as TableName;
   };
 
+  // Get appropriate ordering column for each table
+  const getOrderByColumn = useCallback((tableName: string) => {
+    // Define table-specific ordering columns based on actual database schema
+    const orderingMap: Record<string, string> = {
+      'bulletin_pricing': 'updated_date',
+      'pricing_types': 'created_at',
+      'financial_products': 'created_at',
+      'credit_profiles': 'created_at',
+      'pricing_configs': 'created_at',
+      'financial_program_configs': 'created_at',
+      'advertised_offers': 'created_at',
+      'fee_rules': '_id', // Use primary key for tables without timestamps
+      'tax_rules': 'created_at',
+      'gateways': 'created_at',
+      'dealers': 'id',
+      'lenders': 'Gateway lender ID',
+      'countries': 'country_code',
+      'states': 'state_name',
+      'geo_location': 'Geo Code',
+      'lease_configs': 'created_at',
+      'vehicle_conditions': 'created_at',
+      'vehicle_options': 'created_at',
+      'routing_rules': 'created_at',
+      'stipulations': 'created_at',
+      'vehicle_style_coding': 'created_at',
+      'order_types': 'created_at'
+    };
+    
+    return orderingMap[tableName] || 'id';
+  }, []);
+
   // Load data from Supabase
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
       const tableName = getTableName(schemaId);
+      const orderByColumn = getOrderByColumn(tableName);
+      
       const { data: supabaseData, error } = await supabase
         .from(tableName as any)
         .select('*')
-        .order('created_at', { ascending: false });
+        .order(orderByColumn, { ascending: false });
 
       if (error) {
         console.error('Error loading data from Supabase:', error);
@@ -87,7 +120,7 @@ export const useDynamicFinancialData = ({
     } finally {
       setLoading(false);
     }
-  }, [schemaId, startTracking]);
+  }, [schemaId, startTracking, getOrderByColumn]);
 
   useEffect(() => {
     loadData();
