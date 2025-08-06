@@ -73,10 +73,10 @@ export const useDynamicFinancialData = ({
       'tax_rules': 'created_at',
       'gateways': 'created_at',
       'dealers': 'id',
-      'lenders': 'Gateway lender ID',
+      'lenders': '"Gateway lender ID"',
       'countries': 'country_code',
       'states': 'state_name',
-      'geo_location': 'Geo Code',
+      'geo_location': '"Geo Code"',
       'lease_configs': 'created_at',
       'vehicle_conditions': 'created_at',
       'vehicle_options': 'created_at',
@@ -139,8 +139,8 @@ export const useDynamicFinancialData = ({
       'financial-products': 'product_id',
       'bulletin-pricing': 'bulletin_id',
       'fee-rules': '_id',
-      'lender': 'Gateway lender ID',
-      'location-geo': 'Geo Code'
+      'lender': '"Gateway lender ID"',
+      'location-geo': '"Geo Code"'
     };
     return primaryKeyMap[schemaId] || 'id';
   }, []);

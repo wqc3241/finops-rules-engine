@@ -99,8 +99,8 @@ class DynamicSchemaService {
       'financial_products': ['product_id'],
       'bulletin_pricing': ['bulletin_id'],
       'fee_rules': ['_id'],
-      'lenders': ['Gateway lender ID'],
-      'geo_location': ['Geo Code']
+      'lenders': ['"Gateway lender ID"'],
+      'geo_location': ['"Geo Code"']
     };
     
     return primaryKeyMap[tableName] || ['id'];
@@ -160,7 +160,9 @@ class DynamicSchemaService {
       const sampleRow = sampleData[0];
       const columnDefinitions: ColumnDefinition[] = Object.keys(sampleRow).map((columnName) => {
         const value = sampleRow[columnName];
-        const isPrimaryKey = primaryKeys.includes(columnName);
+        // Handle columns with spaces by checking both quoted and unquoted versions
+        const quotedColumnName = `"${columnName}"`;
+        const isPrimaryKey = primaryKeys.includes(columnName) || primaryKeys.includes(quotedColumnName);
         const dataType = this.inferDataType(value);
         const isEditable = this.isColumnEditable(columnName, dataType, true, null);
         
