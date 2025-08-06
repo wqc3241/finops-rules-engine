@@ -1,12 +1,12 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { WizardData } from "../FinancialProgramWizard";
-import { getInitialData } from "@/utils/mockDataUtils";
+import { supabase } from "@/integrations/supabase/client";
 
 interface CreditProfileStepProps {
   data: WizardData;
@@ -31,7 +31,16 @@ const CreditProfileStep = ({ data, onUpdate }: CreditProfileStepProps) => {
     employmentType: ""
   });
 
-  const existingProfiles = getInitialData('credit-profile');
+  const [existingProfiles, setExistingProfiles] = useState<any[]>([]);
+
+  // Load existing profiles from Supabase
+  useEffect(() => {
+    const loadProfiles = async () => {
+      const { data } = await supabase.from('credit_profiles').select('*');
+      setExistingProfiles(data || []);
+    };
+    loadProfiles();
+  }, []);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));

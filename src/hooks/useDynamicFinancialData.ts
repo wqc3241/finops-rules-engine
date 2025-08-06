@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { TableData } from "@/types/dynamicTable";
-import { getInitialData } from "@/utils/mockDataUtils";
-import { getDynamicTableData, saveDynamicTableData, hasDynamicTableData } from "@/utils/dynamicTableStorage";
+// Removed dependencies on mock data and local storage
 import { useSupabaseApprovalWorkflow } from "./useSupabaseApprovalWorkflow";
 import { useSupabaseTableData } from "./useSupabaseTableData";
 import { useChangeTracking } from "./useChangeTracking";
@@ -45,7 +44,7 @@ export const useDynamicFinancialData = ({
       'lender': 'lenders',
       'country': 'countries',
       'state': 'states',
-      'location-geo': 'location_geo',
+      'location-geo': 'geo_location',
       'lease-config': 'lease_configs',
       'vehicle-condition': 'vehicle_conditions',
       'vehicle-options': 'vehicle_options',
@@ -71,11 +70,9 @@ export const useDynamicFinancialData = ({
 
       if (error) {
         console.error('Error loading data from Supabase:', error);
-        toast.error(`Failed to load ${schemaId} data`);
-        // Fallback to initial data if Supabase fails
-        const fallbackData = getInitialData(schemaId);
-        setData(fallbackData);
-        startTracking(schemaId, fallbackData);
+        toast.error(`Failed to load ${schemaId} data: ${error.message}`);
+        setData([]);
+        startTracking(schemaId, []);
       } else {
         console.log('Loaded data from Supabase:', supabaseData);
         const formattedData = supabaseData || [];
@@ -84,9 +81,9 @@ export const useDynamicFinancialData = ({
       }
     } catch (error) {
       console.error('Error in loadData:', error);
-      const fallbackData = getInitialData(schemaId);
-      setData(fallbackData);
-      startTracking(schemaId, fallbackData);
+      toast.error(`Failed to load ${schemaId} data`);
+      setData([]);
+      startTracking(schemaId, []);
     } finally {
       setLoading(false);
     }
@@ -183,7 +180,8 @@ export const useDynamicFinancialData = ({
             row['_id'] = `fee_${Date.now()}`;
             break;
           case 'credit_profiles':
-            // Make sure required fields are set properly
+            // profile_id is required
+            if (!row['profile_id']) row['profile_id'] = `PROF_${Date.now()}`;
             break;
           case 'tax_rules':
             // tax_rules requires tax_name and tax_type
@@ -198,6 +196,46 @@ export const useDynamicFinancialData = ({
           case 'financial_program_configs':
             // program_code is required
             if (!row['program_code']) row['program_code'] = `PROG_${Date.now()}`;
+            break;
+          case 'pricing_configs':
+            // pricing_rule_id is required
+            if (!row['pricing_rule_id']) row['pricing_rule_id'] = `RULE_${Date.now()}`;
+            break;
+          case 'financial_products':
+            // product_id and product_type are required
+            if (!row['product_id']) row['product_id'] = `PROD_${Date.now()}`;
+            if (!row['product_type']) row['product_type'] = 'Loan';
+            break;
+          case 'countries':
+            // country_code and country_name are required
+            if (!row['country_code']) row['country_code'] = 'XX';
+            if (!row['country_name']) row['country_name'] = 'New Country';
+            break;
+          case 'states':
+            // state_name is required
+            if (!row['state_name']) row['state_name'] = 'New State';
+            break;
+          case 'order_types':
+            // type_code and type_name are required
+            if (!row['type_code']) row['type_code'] = 'NEW';
+            if (!row['type_name']) row['type_name'] = 'New Type';
+            break;
+          case 'stipulations':
+            // stipulation_name is required
+            if (!row['stipulation_name']) row['stipulation_name'] = 'New Stipulation';
+            break;
+          case 'gateways':
+            // gateway_name is required
+            if (!row['gateway_name']) row['gateway_name'] = 'New Gateway';
+            break;
+          case 'lenders':
+            // lender_name and Gateway lender ID are required
+            if (!row['lender_name']) row['lender_name'] = 'New Lender';
+            if (!row['Gateway lender ID']) row['Gateway lender ID'] = `GL_${Date.now()}`;
+            break;
+          case 'dealers':
+            // id is required and not auto-generated
+            if (!row['id']) row['id'] = `D_${Date.now()}`;
             break;
         }
         return row;

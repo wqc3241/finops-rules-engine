@@ -1,12 +1,12 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { WizardData } from "../FinancialProgramWizard";
-import { getInitialData } from "@/utils/mockDataUtils";
+import { supabase } from "@/integrations/supabase/client";
 
 interface PricingConfigStepProps {
   data: WizardData;
@@ -26,7 +26,16 @@ const PricingConfigStep = ({ data, onUpdate }: PricingConfigStepProps) => {
     priority: "1"
   });
 
-  const existingConfigs = getInitialData('pricing-config');
+  const [existingConfigs, setExistingConfigs] = useState<any[]>([]);
+
+  // Load existing configs from Supabase
+  useEffect(() => {
+    const loadConfigs = async () => {
+      const { data } = await supabase.from('pricing_configs').select('*');
+      setExistingConfigs(data || []);
+    };
+    loadConfigs();
+  }, []);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));

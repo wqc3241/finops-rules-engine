@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { ChangeRequest, ChangeDetail, ApprovalStatus, ChangeRequestWithDetails, TableChangesSummary } from "@/types/approval";
 import { TableData } from "@/types/dynamicTable";
-import { getDynamicTableData, saveDynamicTableData } from "@/utils/dynamicTableStorage";
+// Removed dependency on dynamic table storage - now using Supabase directly
 import { useAuth } from "./useAuth";
 import { toast } from "sonner";
 
@@ -212,25 +212,8 @@ export const useApprovalWorkflow = () => {
     let finalStatus: ApprovalStatus;
     if (allApproved) {
       finalStatus = "APPROVED";
-      // Apply approved changes to live data
-      requestDetails.forEach(detail => {
-        if (detail.status === "APPROVED" && detail.newValue) {
-          const currentData = getDynamicTableData(detail.table);
-          const updatedData = currentData.map((item: TableData) => 
-            item.id === detail.ruleKey ? detail.newValue : item
-          );
-          // Add new records
-          if (!currentData.find((item: TableData) => item.id === detail.ruleKey) && detail.newValue) {
-            updatedData.push(detail.newValue);
-          }
-          saveDynamicTableData(detail.table, updatedData);
-        } else if (detail.status === "APPROVED" && !detail.newValue) {
-          // Handle deletions
-          const currentData = getDynamicTableData(detail.table);
-          const updatedData = currentData.filter((item: TableData) => item.id !== detail.ruleKey);
-          saveDynamicTableData(detail.table, updatedData);
-        }
-      });
+      // Note: Changes are now applied directly to Supabase by individual table components
+      // This workflow now only manages the approval process
       
       // Unlock tables
       const affectedTables = [...new Set(requestDetails.map(d => d.table))];
