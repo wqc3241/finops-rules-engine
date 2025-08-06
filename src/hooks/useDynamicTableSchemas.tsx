@@ -17,16 +17,16 @@ const DEFAULT_SCHEMAS: Record<string, DynamicTableSchema> = {
     id: 'bulletin-pricing',
     name: 'Bulletin Pricing',
     columns: [
-      { id: 'id', name: 'Bulletin ID', key: 'id', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false },
-      { id: 'financialProgramCode', name: 'Financial Program Code', key: 'financialProgramCode', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
-      { id: 'programId', name: 'Program Id', key: 'programId', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
-      { id: 'pricingConfig', name: 'Pricing Config', key: 'pricingConfig', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
-      { id: 'geoCode', name: 'Geo Code', key: 'geoCode', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
-      { id: 'lenderName', name: 'Lender Name', key: 'lenderName', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'bulletin_id', name: 'Bulletin ID', key: 'bulletin_id', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false },
+      { id: 'financial_program_code', name: 'Financial Program Code', key: 'financial_program_code', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'pricing_config', name: 'Pricing Config', key: 'pricing_config', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'geo_code', name: 'Geo Code', key: 'geo_code', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'lender_list', name: 'Lender List', key: 'lender_list', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
       { id: 'advertised', name: 'Advertised', key: 'advertised', type: 'boolean', inputType: 'Input', isRequired: false, sortable: true, editable: true },
-      { id: 'pricingType', name: 'Pricing Type', key: 'pricingType', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
-      { id: 'pricingValue', name: 'Pricing Value', key: 'pricingValue', type: 'number', inputType: 'Input', isRequired: true, sortable: true, editable: true },
-      { id: 'uploadDate', name: 'Upload Date', key: 'uploadDate', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false }
+      { id: 'pricing_type', name: 'Pricing Type', key: 'pricing_type', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'pricing_value', name: 'Pricing Value', key: 'pricing_value', type: 'number', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'credit_profile', name: 'Credit Profile', key: 'credit_profile', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'upload_date', name: 'Upload Date', key: 'upload_date', type: 'string', inputType: 'Output', isRequired: false, sortable: true, editable: false }
     ]
   },
   'pricing-types': {
@@ -34,20 +34,20 @@ const DEFAULT_SCHEMAS: Record<string, DynamicTableSchema> = {
     name: 'Pricing Types',
     columns: [
       { id: 'id', name: 'ID', key: 'id', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false },
-      { id: 'typeCode', name: 'Type Code', key: 'typeCode', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
-      { id: 'typeName', name: 'Type Name', key: 'typeName', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true }
+      { id: 'type_code', name: 'Type Code', key: 'type_code', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'type_name', name: 'Type Name', key: 'type_name', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true }
     ]
   },
   'financial-products': {
     id: 'financial-products',
     name: 'Financial Products',
     columns: [
-      { id: 'id', name: 'Product ID', key: 'id', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false },
-      { id: 'productType', name: 'Product Type', key: 'productType', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
-      { id: 'productSubtype', name: 'Product Subtype', key: 'productSubtype', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true },
-      { id: 'geoCode', name: 'Geo Code', key: 'geoCode', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'product_id', name: 'Product ID', key: 'product_id', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false },
+      { id: 'product_type', name: 'Product Type', key: 'product_type', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'product_subtype', name: 'Product Subtype', key: 'product_subtype', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'geo_code', name: 'Geo Code', key: 'geo_code', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
       { id: 'category', name: 'Category', key: 'category', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
-      { id: 'isActive', name: 'Status', key: 'isActive', type: 'boolean', inputType: 'Input', isRequired: false, sortable: true, editable: true }
+      { id: 'is_active', name: 'Status', key: 'is_active', type: 'boolean', inputType: 'Input', isRequired: false, sortable: true, editable: true }
     ]
   },
   'pricing-rules': {
@@ -68,33 +68,33 @@ const DEFAULT_SCHEMAS: Record<string, DynamicTableSchema> = {
     id: 'credit-profile',
     name: 'Credit Profile',
     columns: [
-      { id: 'id', name: 'ID', key: 'id', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false },
-      { id: 'priority', name: 'Priority', key: 'priority', type: 'number', inputType: 'Input', isRequired: true, sortable: true, editable: true },
-      { id: 'minCreditScore', name: 'Min Credit Score', key: 'minCreditScore', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
-      { id: 'maxCreditScore', name: 'Max Credit Score', key: 'maxCreditScore', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
-      { id: 'minIncome', name: 'Min Income', key: 'minIncome', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
-      { id: 'maxIncome', name: 'Max Income', key: 'maxIncome', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
-      { id: 'minAge', name: 'Min Age', key: 'minAge', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
-      { id: 'maxAge', name: 'Max Age', key: 'maxAge', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
-      { id: 'minPTI', name: 'Min PTI', key: 'minPTI', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
-      { id: 'maxPTI', name: 'Max PTI', key: 'maxPTI', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
-      { id: 'minDTI', name: 'Min DTI', key: 'minDTI', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
-      { id: 'maxDTI', name: 'Max DTI', key: 'maxDTI', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
-      { id: 'employmentType', name: 'Employment Type', key: 'employmentType', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true }
+      { id: 'profile_id', name: 'Profile ID', key: 'profile_id', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false },
+      { id: 'priority', name: 'Priority', key: 'priority', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'min_credit_score', name: 'Min Credit Score', key: 'min_credit_score', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'max_credit_score', name: 'Max Credit Score', key: 'max_credit_score', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'min_income', name: 'Min Income', key: 'min_income', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'max_income', name: 'Max Income', key: 'max_income', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'min_age', name: 'Min Age', key: 'min_age', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'max_age', name: 'Max Age', key: 'max_age', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'min_pti', name: 'Min PTI', key: 'min_pti', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'max_pti', name: 'Max PTI', key: 'max_pti', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'min_dti', name: 'Min DTI', key: 'min_dti', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'max_dti', name: 'Max DTI', key: 'max_dti', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'employment_type', name: 'Employment Type', key: 'employment_type', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true }
     ]
   },
   'pricing-config': {
     id: 'pricing-config',
     name: 'Pricing Config',
     columns: [
-      { id: 'id', name: 'ID', key: 'id', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false },
-      { id: 'minLTV', name: 'Min LTV', key: 'minLTV', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
-      { id: 'maxLTV', name: 'Max LTV', key: 'maxLTV', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
-      { id: 'minTerm', name: 'Min Term', key: 'minTerm', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
-      { id: 'maxTerm', name: 'Max Term', key: 'maxTerm', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
-      { id: 'minLeaseMileage', name: 'Min Lease Mileage', key: 'minLeaseMileage', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
-      { id: 'maxLeaseMileage', name: 'Max Lease Mileage', key: 'maxLeaseMileage', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
-      { id: 'priority', name: 'Priority', key: 'priority', type: 'number', inputType: 'Input', isRequired: true, sortable: true, editable: true }
+      { id: 'pricing_rule_id', name: 'Pricing Rule ID', key: 'pricing_rule_id', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false },
+      { id: 'min_ltv', name: 'Min LTV', key: 'min_ltv', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'max_ltv', name: 'Max LTV', key: 'max_ltv', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'min_term', name: 'Min Term', key: 'min_term', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'max_term', name: 'Max Term', key: 'max_term', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'min_lease_mileage', name: 'Min Lease Mileage', key: 'min_lease_mileage', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'max_lease_mileage', name: 'Max Lease Mileage', key: 'max_lease_mileage', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'priority', name: 'Priority', key: 'priority', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true }
     ]
   },
   'financial-program-config': {
@@ -102,18 +102,19 @@ const DEFAULT_SCHEMAS: Record<string, DynamicTableSchema> = {
     name: 'Financial Program Config',
     columns: [
       { id: 'id', name: 'ID', key: 'id', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false },
-      { id: 'programCode', name: 'Program Code', key: 'programCode', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
-      { id: 'cloneFrom', name: 'Clone From', key: 'cloneFrom', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true },
-      { id: 'priority', name: 'Priority', key: 'priority', type: 'number', inputType: 'Input', isRequired: true, sortable: true, editable: true },
-      { id: 'financialProductId', name: 'Financial Product ID', key: 'financialProductId', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
-      { id: 'productType', name: 'Product Type', key: 'productType', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true },
-      { id: 'vehicleStyleId', name: 'Vehicle Style ID', key: 'vehicleStyleId', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
-      { id: 'financingVehicleCondition', name: 'Financing Vehicle Condition', key: 'financingVehicleCondition', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
-      { id: 'programStartDate', name: 'Program Start Date', key: 'programStartDate', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
-      { id: 'programEndDate', name: 'Program End Date', key: 'programEndDate', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
-      { id: 'isActive', name: 'Active', key: 'isActive', type: 'boolean', inputType: 'Input', isRequired: false, sortable: true, editable: true },
-      { id: 'orderTypes', name: 'Order Types', key: 'orderTypes', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true },
-      { id: 'version', name: 'Version', key: 'version', type: 'number', inputType: 'Input', isRequired: true, sortable: true, editable: true }
+      { id: 'program_code', name: 'Program Code', key: 'program_code', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'clone_from', name: 'Clone From', key: 'clone_from', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'priority', name: 'Priority', key: 'priority', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'financial_product_id', name: 'Financial Product ID', key: 'financial_product_id', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'product_type', name: 'Product Type', key: 'product_type', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'vehicle_style_id', name: 'Vehicle Style ID', key: 'vehicle_style_id', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'financing_vehicle_condition', name: 'Financing Vehicle Condition', key: 'financing_vehicle_condition', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'program_start_date', name: 'Program Start Date', key: 'program_start_date', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'program_end_date', name: 'Program End Date', key: 'program_end_date', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'is_active', name: 'Active', key: 'is_active', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'order_types', name: 'Order Types', key: 'order_types', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'advertised', name: 'Advertised', key: 'advertised', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'version', name: 'Version', key: 'version', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true }
     ]
   },
   'advertised-offers': {
@@ -121,10 +122,10 @@ const DEFAULT_SCHEMAS: Record<string, DynamicTableSchema> = {
     name: 'Advertised Offers',
     columns: [
       { id: 'id', name: 'ID', key: 'id', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false },
-      { id: 'bulletinPricing', name: 'Bulletin Pricing', key: 'bulletinPricing', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
-      { id: 'disclosure', name: 'Disclosure', key: 'disclosure', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
-      { id: 'loanAmountPer10k', name: 'Loan Amount Per 10K', key: 'loanAmountPer10k', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
-      { id: 'totalCostOfCredit', name: 'Total Cost of Credit', key: 'totalCostOfCredit', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true }
+      { id: 'financial_program_code', name: 'Financial Program Code', key: 'financial_program_code', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'lender', name: 'Lender', key: 'lender', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'term', name: 'Term', key: 'term', type: 'number', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'is_active', name: 'Active', key: 'is_active', type: 'boolean', inputType: 'Input', isRequired: false, sortable: true, editable: true }
     ]
   },
   'gateway': {
@@ -132,7 +133,9 @@ const DEFAULT_SCHEMAS: Record<string, DynamicTableSchema> = {
     name: 'Gateway',
     columns: [
       { id: 'id', name: 'ID', key: 'id', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false },
-      { id: 'gatewayName', name: 'Gateway Name', key: 'gatewayName', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'gateway_name', name: 'Gateway Name', key: 'gateway_name', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'geo_code', name: 'Geo Code', key: 'geo_code', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'platform_id', name: 'Platform ID', key: 'platform_id', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true },
     ]
   },
   'dealer': {
@@ -140,15 +143,22 @@ const DEFAULT_SCHEMAS: Record<string, DynamicTableSchema> = {
     name: 'Dealer',
     columns: [
       { id: 'id', name: 'ID', key: 'id', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false },
-      { id: 'dealerName', name: 'Dealer Name', key: 'dealerName', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'dba_name', name: 'DBA Name', key: 'dba_name', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'legal_entity_name', name: 'Legal Entity Name', key: 'legal_entity_name', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'gateway_dealer_id', name: 'Gateway Dealer ID', key: 'gateway_dealer_id', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'geo_code', name: 'Geo Code', key: 'geo_code', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'selling_state', name: 'Selling State', key: 'selling_state', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true },
     ]
   },
   'lender': {
     id: 'lender',
     name: 'Lender',
     columns: [
-      { id: 'id', name: 'ID', key: 'id', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false },
-      { id: 'lenderName', name: 'Lender Name', key: 'lenderName', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'Gateway lender ID', name: 'Gateway Lender ID', key: 'Gateway lender ID', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false },
+      { id: 'lender_name', name: 'Lender Name', key: 'lender_name', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'gateway_lender_name', name: 'Gateway Lender Name', key: 'gateway_lender_name', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'lien_holder_name', name: 'Lien Holder Name', key: 'lien_holder_name', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'lender_address', name: 'Lender Address', key: 'lender_address', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true },
     ]
   },
   'country': {
@@ -156,8 +166,8 @@ const DEFAULT_SCHEMAS: Record<string, DynamicTableSchema> = {
     name: 'Country',
     columns: [
       { id: 'id', name: 'ID', key: 'id', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false },
-      { id: 'countryName', name: 'Country Name', key: 'countryName', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
-      { id: 'countryCode', name: 'Country Code', key: 'countryCode', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'country_name', name: 'Country Name', key: 'country_name', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'country_code', name: 'Country Code', key: 'country_code', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
     ]
   },
   'state': {
@@ -165,16 +175,21 @@ const DEFAULT_SCHEMAS: Record<string, DynamicTableSchema> = {
     name: 'State',
     columns: [
       { id: 'id', name: 'ID', key: 'id', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false },
-      { id: 'stateName', name: 'State Name', key: 'stateName', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'state_name', name: 'State Name', key: 'state_name', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'state_code', name: 'State Code', key: 'state_code', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'country_id', name: 'Country ID', key: 'country_id', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true },
     ]
   },
   'location-geo': {
     id: 'location-geo',
     name: 'LocationGeo',
     columns: [
-      { id: 'id', name: 'ID', key: 'id', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false },
-      { id: 'locationName', name: 'Location Name', key: 'locationName', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
-      { id: 'geoCode', name: 'Geo Code', key: 'geoCode', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'Geo Code', name: 'Geo Code', key: 'Geo Code', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false },
+      { id: 'Location Name', name: 'Location Name', key: 'Location Name', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'Country Name', name: 'Country Name', key: 'Country Name', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'Country Code', name: 'Country Code', key: 'Country Code', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'State Name', name: 'State Name', key: 'State Name', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true },
+      { id: 'State/ Provinces Code', name: 'State/Province Code', key: 'State/ Provinces Code', type: 'string', inputType: 'Input', isRequired: false, sortable: true, editable: true },
     ]
   },
   'lease-config': {
@@ -231,8 +246,8 @@ const DEFAULT_SCHEMAS: Record<string, DynamicTableSchema> = {
     name: 'Order Type',
     columns: [
       { id: 'id', name: 'ID', key: 'id', type: 'string', inputType: 'Output', isRequired: true, sortable: true, editable: false },
-      { id: 'typeName', name: 'Type Name', key: 'typeName', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
-      { id: 'typeCode', name: 'Type Code', key: 'typeCode', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true }
+      { id: 'type_name', name: 'Type Name', key: 'type_name', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true },
+      { id: 'type_code', name: 'Type Code', key: 'type_code', type: 'string', inputType: 'Input', isRequired: true, sortable: true, editable: true }
     ]
   },
   'fee-rules': {

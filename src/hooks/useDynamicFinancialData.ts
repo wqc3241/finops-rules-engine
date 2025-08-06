@@ -98,16 +98,32 @@ export const useDynamicFinancialData = ({
     updateTracking(schemaId, data);
   }, [data, schemaId, updateTracking]);
 
+  // Get primary key name for a given schema
+  const getPrimaryKey = useCallback((schemaId: string): string => {
+    const primaryKeyMap: Record<string, string> = {
+      'credit-profile': 'profile_id',
+      'pricing-config': 'pricing_rule_id',
+      'financial-products': 'product_id',
+      'bulletin-pricing': 'bulletin_id',
+      'fee-rules': '_id',
+      'lender': 'Gateway lender ID',
+      'location-geo': 'Geo Code'
+    };
+    return primaryKeyMap[schemaId] || 'id';
+  }, []);
+
   // Batch delete function for Supabase data
   const supabaseBatchDeleteFunction = useCallback(async () => {
     if (selectedItems.length === 0) return;
     
     try {
       const tableName = getTableName(schemaId);
+      const primaryKey = getPrimaryKey(schemaId);
+      
       const { error } = await supabase
         .from(tableName as any)
         .delete()
-        .in('id', selectedItems);
+        .in(primaryKey, selectedItems);
 
       if (error) {
         console.error('Error deleting from Supabase:', error);
@@ -117,8 +133,8 @@ export const useDynamicFinancialData = ({
 
       console.log('Batch deleted items from Supabase:', selectedItems);
       
-      // Update local state
-      setData(prevData => prevData.filter(item => !selectedItems.includes(item.id)));
+      // Update local state using the correct primary key
+      setData(prevData => prevData.filter(item => !selectedItems.includes(item[primaryKey])));
       
       if (onSelectionChange) {
         onSelectionChange([]);
@@ -129,7 +145,7 @@ export const useDynamicFinancialData = ({
       console.error('Error in batch delete:', error);
       toast.error('Failed to delete items');
     }
-  }, [selectedItems, onSelectionChange, schemaId]);
+  }, [selectedItems, onSelectionChange, schemaId, getPrimaryKey]);
 
   // Store the latest batch delete function in a ref for Supabase data
   const batchDeleteRef = useRef<(() => void) | null>(null);
@@ -241,10 +257,11 @@ export const useDynamicFinancialData = ({
         return row;
       };
       
-      // Initialize based on schema column types (excluding id which is auto-generated)
+      // Initialize based on schema column types (excluding primary keys which are auto-generated or manually handled)
+      const primaryKey = getPrimaryKey(schemaId);
       schema.columns.forEach((column: any) => {
         console.log('Processing column:', column);
-        if (column.key !== 'id' && column.editable) {
+        if (column.key !== primaryKey && column.editable) {
           switch (column.type) {
             case 'boolean':
               newRow[column.key] = false;
@@ -289,7 +306,7 @@ export const useDynamicFinancialData = ({
       console.error('Catch block error in handleAddNewSupabase:', error);
       toast.error(`Failed to add new record: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
-  }, [schemaId]);
+  }, [schemaId, getPrimaryKey]);
 
   // Function to update data in Supabase
   const handleDataChange = useCallback(async (newData: TableData[]) => {
