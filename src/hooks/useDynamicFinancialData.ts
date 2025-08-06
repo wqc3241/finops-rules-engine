@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { TableData } from "@/types/dynamicTable";
 import { getInitialData } from "@/utils/mockDataUtils";
+import { getDynamicTableData, saveDynamicTableData, hasDynamicTableData } from "@/utils/dynamicTableStorage";
 import { useSupabaseApprovalWorkflow } from "./useSupabaseApprovalWorkflow";
 import { useSupabaseTableData } from "./useSupabaseTableData";
 import { useChangeTracking } from "./useChangeTracking";
@@ -26,38 +27,38 @@ export const useDynamicFinancialData = ({
 
   // Load initial data
   useEffect(() => {
-    console.log('Loading data for schema:', schemaId);
-    const savedData = localStorage.getItem(`dynamicTableData_${schemaId}`);
-    if (savedData) {
-      try {
-        const parsedData = JSON.parse(savedData);
-        console.log('Loaded saved data:', parsedData);
-        setLocalData(parsedData);
-        console.log('Starting tracking for schema:', schemaId, 'with data:', parsedData);
-        startTracking(schemaId, parsedData);
-      } catch (error) {
-        console.error('Failed to parse saved data:', error);
-        const initialData = getInitialData(schemaId);
-        console.log('Using initial data:', initialData);
-        setLocalData(initialData);
-        startTracking(schemaId, initialData);
-      }
+    if (hasDynamicTableData(schemaId)) {
+      const savedData = getDynamicTableData(schemaId);
+      setLocalData(savedData);
+      startTracking(schemaId, savedData);
     } else {
       const initialData = getInitialData(schemaId);
-      console.log('No saved data, using initial data:', initialData);
       setLocalData(initialData);
       startTracking(schemaId, initialData);
+      // Save initial data immediately to prevent duplicate initialization
+      saveDynamicTableData(schemaId, initialData);
     }
   }, [schemaId, startTracking]);
 
-  // Save data to localStorage and update tracking
+  // Save data to localStorage and update tracking (debounced to prevent excessive saves)
+  const saveDataRef = useRef<NodeJS.Timeout>();
   useEffect(() => {
-    if (localData.length >= 0) { // Changed from > 0 to >= 0 to handle empty arrays
-      console.log('Saving data to localStorage:', localData);
-      localStorage.setItem(`dynamicTableData_${schemaId}`, JSON.stringify(localData));
-      console.log('Updating tracking for schema:', schemaId, 'with new data:', localData);
-      updateTracking(schemaId, localData);
+    // Clear any pending save
+    if (saveDataRef.current) {
+      clearTimeout(saveDataRef.current);
     }
+    
+    // Debounce saves to prevent excessive localStorage operations
+    saveDataRef.current = setTimeout(() => {
+      saveDynamicTableData(schemaId, localData);
+      updateTracking(schemaId, localData);
+    }, 100);
+    
+    return () => {
+      if (saveDataRef.current) {
+        clearTimeout(saveDataRef.current);
+      }
+    };
   }, [localData, schemaId, updateTracking]);
 
   // Batch delete function for local data

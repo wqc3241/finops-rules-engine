@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { ChangeRequest, ChangeDetail, ApprovalStatus, ChangeRequestWithDetails, TableChangesSummary } from "@/types/approval";
 import { TableData } from "@/types/dynamicTable";
+import { getDynamicTableData, saveDynamicTableData } from "@/utils/dynamicTableStorage";
 import { useAuth } from "./useAuth";
 import { toast } from "sonner";
 
@@ -214,7 +215,7 @@ export const useApprovalWorkflow = () => {
       // Apply approved changes to live data
       requestDetails.forEach(detail => {
         if (detail.status === "APPROVED" && detail.newValue) {
-          const currentData = JSON.parse(localStorage.getItem(`dynamicTableData_${detail.table}`) || '[]');
+          const currentData = getDynamicTableData(detail.table);
           const updatedData = currentData.map((item: TableData) => 
             item.id === detail.ruleKey ? detail.newValue : item
           );
@@ -222,12 +223,12 @@ export const useApprovalWorkflow = () => {
           if (!currentData.find((item: TableData) => item.id === detail.ruleKey) && detail.newValue) {
             updatedData.push(detail.newValue);
           }
-          localStorage.setItem(`dynamicTableData_${detail.table}`, JSON.stringify(updatedData));
+          saveDynamicTableData(detail.table, updatedData);
         } else if (detail.status === "APPROVED" && !detail.newValue) {
           // Handle deletions
-          const currentData = JSON.parse(localStorage.getItem(`dynamicTableData_${detail.table}`) || '[]');
+          const currentData = getDynamicTableData(detail.table);
           const updatedData = currentData.filter((item: TableData) => item.id !== detail.ruleKey);
-          localStorage.setItem(`dynamicTableData_${detail.table}`, JSON.stringify(updatedData));
+          saveDynamicTableData(detail.table, updatedData);
         }
       });
       
