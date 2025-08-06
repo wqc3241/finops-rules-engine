@@ -90,25 +90,46 @@ class DynamicSchemaService {
     return true;
   };
 
-  // Get primary key columns for a table (fallback approach)
-  private getPrimaryKeys(tableName: string): string[] {
-    // Use known primary keys for each table
-    const primaryKeyMap: Record<string, string[]> = {
+  // Get primary key columns dynamically from database schema
+  private async getPrimaryKeys(tableName: string): Promise<string[]> {
+    try {
+      // Query information_schema to get actual primary keys
+      const { data, error } = await supabase.rpc('get_primary_keys', { 
+        table_name_param: tableName 
+      });
+
+      if (error) {
+        console.warn(`Failed to get primary keys for ${tableName}, using fallback:`, error);
+        return this.getFallbackPrimaryKeys(tableName);
+      }
+
+      if (data && data.length > 0) {
+        return data.map((row: any) => row.column_name);
+      }
+
+      return this.getFallbackPrimaryKeys(tableName);
+    } catch (error) {
+      console.warn(`Error getting primary keys for ${tableName}:`, error);
+      return this.getFallbackPrimaryKeys(tableName);
+    }
+  }
+
+  // Fallback primary key detection for when database query fails
+  private getFallbackPrimaryKeys(tableName: string): string[] {
+    const fallbackMap: Record<string, string[]> = {
       'credit_profiles': ['profile_id'],
       'pricing_configs': ['pricing_rule_id'],
       'financial_products': ['product_id'],
       'bulletin_pricing': ['bulletin_id'],
-      'fee_rules': ['_id'],
-      'lenders': ['"Gateway lender ID"'],
-      'geo_location': ['"Geo Code"']
+      'fee_rules': ['_id']
     };
     
-    return primaryKeyMap[tableName] || ['id'];
+    return fallbackMap[tableName] || ['id'];
   }
 
   // Create fallback schema when no data is available
-  private createFallbackSchema(schemaId: string, tableName: string): DynamicTableSchema {
-    const primaryKeys = this.getPrimaryKeys(tableName);
+  private async createFallbackSchema(schemaId: string, tableName: string): Promise<DynamicTableSchema> {
+    const primaryKeys = await this.getPrimaryKeys(tableName);
     
     // Basic fallback columns
     const columns: ColumnDefinition[] = [
@@ -131,6 +152,44 @@ class DynamicSchemaService {
     };
   }
 
+  // Get ordering column for a table (fallback for tables without timestamps)
+  private async getOrderingColumn(tableName: string): Promise<string> {
+    // First try to find a timestamp column
+    const timestampColumns = ['created_at', 'updated_at', 'updated_date'];
+    
+    try {
+      // Get column information from the database
+      const { data: columnData, error } = await supabase.rpc('get_table_columns', { 
+        table_name_param: tableName 
+      });
+
+      if (!error && columnData) {
+        // Look for timestamp columns first
+        for (const tsCol of timestampColumns) {
+          if (columnData.some((col: any) => col.column_name === tsCol)) {
+            return tsCol;
+          }
+        }
+        
+        // If no timestamp columns, use primary key
+        const primaryKeys = await this.getPrimaryKeys(tableName);
+        if (primaryKeys.length > 0) {
+          return primaryKeys[0];
+        }
+        
+        // If no primary key, use first column
+        if (columnData.length > 0) {
+          return columnData[0].column_name;
+        }
+      }
+    } catch (error) {
+      console.warn(`Failed to get ordering column for ${tableName}:`, error);
+    }
+
+    // Ultimate fallback
+    return 'id';
+  }
+
   // Generate schema from database
   async generateSchemaFromDatabase(schemaId: string): Promise<DynamicTableSchema | null> {
     try {
@@ -150,21 +209,19 @@ class DynamicSchemaService {
       // If no data, create fallback schema
       if (!sampleData || sampleData.length === 0) {
         console.warn(`No data found for table: ${tableName}, using fallback schema`);
-        return this.createFallbackSchema(schemaId, tableName);
+        return await this.createFallbackSchema(schemaId, tableName);
       }
 
-      // Get primary keys
-      const primaryKeys = this.getPrimaryKeys(tableName);
+      // Get primary keys dynamically
+      const primaryKeys = await this.getPrimaryKeys(tableName);
 
       // Convert columns to ColumnDefinition format based on sample data
       const sampleRow = sampleData[0];
       const columnDefinitions: ColumnDefinition[] = Object.keys(sampleRow).map((columnName) => {
         const value = sampleRow[columnName];
-        // Handle columns with spaces by checking both quoted and unquoted versions
-        const quotedColumnName = `"${columnName}"`;
-        const isPrimaryKey = primaryKeys.includes(columnName) || primaryKeys.includes(quotedColumnName);
+        const isPrimaryKey = primaryKeys.includes(columnName);
         const dataType = this.inferDataType(value);
-        const isEditable = this.isColumnEditable(columnName, dataType, true, null);
+        const isEditable = this.isColumnEditable(columnName, dataType, true, null) && !isPrimaryKey;
         
         return {
           id: columnName,

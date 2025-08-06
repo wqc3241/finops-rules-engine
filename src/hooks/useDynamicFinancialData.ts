@@ -58,35 +58,43 @@ export const useDynamicFinancialData = ({
     return (tableMap[schemaId as keyof typeof tableMap] || schemaId) as TableName;
   };
 
-  // Get appropriate ordering column for each table
-  const getOrderByColumn = useCallback((tableName: string) => {
-    // Define table-specific ordering columns based on actual database schema
-    const orderingMap: Record<string, string> = {
-      'bulletin_pricing': 'updated_date',
-      'pricing_types': 'created_at',
-      'financial_products': 'created_at',
-      'credit_profiles': 'created_at',
-      'pricing_configs': 'created_at',
-      'financial_program_configs': 'created_at',
-      'advertised_offers': 'created_at',
-      'fee_rules': '_id', // Use primary key for tables without timestamps
-      'tax_rules': 'created_at',
-      'gateways': 'created_at',
-      'dealers': 'id',
-      'lenders': '"Gateway lender ID"',
-      'countries': 'country_code',
-      'states': 'state_name',
-      'geo_location': '"Geo Code"',
-      'lease_configs': 'created_at',
-      'vehicle_conditions': 'created_at',
-      'vehicle_options': 'created_at',
-      'routing_rules': 'created_at',
-      'stipulations': 'created_at',
-      'vehicle_style_coding': 'created_at',
-      'order_types': 'created_at'
-    };
-    
-    return orderingMap[tableName] || 'id';
+  // Get appropriate ordering column dynamically for each table
+  const getOrderByColumn = useCallback(async (tableName: string) => {
+    try {
+      // Try to get ordering column from database schema
+      const { data: columnData, error } = await supabase.rpc('get_table_columns', { 
+        table_name_param: tableName 
+      });
+
+      if (!error && columnData) {
+        // Prefer timestamp columns for ordering
+        const timestampColumns = ['created_at', 'updated_at', 'updated_date'];
+        for (const tsCol of timestampColumns) {
+          if (columnData.some((col: any) => col.column_name === tsCol)) {
+            return tsCol;
+          }
+        }
+        
+        // If no timestamp columns, try to get primary key
+        const { data: pkData, error: pkError } = await supabase.rpc('get_primary_keys', { 
+          table_name_param: tableName 
+        });
+        
+        if (!pkError && pkData && pkData.length > 0) {
+          return pkData[0].column_name;
+        }
+        
+        // Use first column as ultimate fallback
+        if (columnData.length > 0) {
+          return columnData[0].column_name;
+        }
+      }
+    } catch (error) {
+      console.warn(`Failed to get ordering column for ${tableName}:`, error);
+    }
+
+    // Hard fallback
+    return 'id';
   }, []);
 
   // Load data from Supabase
@@ -94,7 +102,7 @@ export const useDynamicFinancialData = ({
     setLoading(true);
     try {
       const tableName = getTableName(schemaId);
-      const orderByColumn = getOrderByColumn(tableName);
+      const orderByColumn = await getOrderByColumn(tableName);
       
       const { data: supabaseData, error } = await supabase
         .from(tableName as any)
@@ -131,18 +139,25 @@ export const useDynamicFinancialData = ({
     updateTracking(schemaId, data);
   }, [data, schemaId, updateTracking]);
 
-  // Get primary key name for a given schema (simplified fallback approach)
-  const getPrimaryKey = useCallback((schemaId: string): string => {
-    const primaryKeyMap: Record<string, string> = {
-      'credit-profile': 'profile_id',
-      'pricing-config': 'pricing_rule_id',
-      'financial-products': 'product_id',
-      'bulletin-pricing': 'bulletin_id',
-      'fee-rules': '_id',
-      'lender': '"Gateway lender ID"',
-      'location-geo': '"Geo Code"'
-    };
-    return primaryKeyMap[schemaId] || 'id';
+  // Get primary key name dynamically for a given schema
+  const getPrimaryKey = useCallback(async (schemaId: string): Promise<string> => {
+    try {
+      const tableName = getTableName(schemaId);
+      
+      // Try to get primary key from database schema
+      const { data: pkData, error } = await supabase.rpc('get_primary_keys', { 
+        table_name_param: tableName 
+      });
+
+      if (!error && pkData && pkData.length > 0) {
+        return pkData[0].column_name;
+      }
+    } catch (error) {
+      console.warn(`Failed to get primary key for ${schemaId}:`, error);
+    }
+
+    // Fallback to 'id'
+    return 'id';
   }, []);
 
   // Batch delete function for Supabase data
@@ -151,7 +166,7 @@ export const useDynamicFinancialData = ({
     
     try {
       const tableName = getTableName(schemaId);
-      const primaryKey = getPrimaryKey(schemaId);
+      const primaryKey = await getPrimaryKey(schemaId);
       
       const { error } = await supabase
         .from(tableName as any)
@@ -291,7 +306,7 @@ export const useDynamicFinancialData = ({
       };
       
       // Initialize based on schema column types (excluding primary keys which are auto-generated or manually handled)
-      const primaryKey = getPrimaryKey(schemaId);
+      const primaryKey = await getPrimaryKey(schemaId);
       schema.columns.forEach((column: any) => {
         console.log('Processing column:', column);
         if (column.key !== primaryKey && column.editable) {
