@@ -201,7 +201,28 @@ const TableCellRenderer = ({
     return value.toLocaleString();
   }
 
-  return value || '';
+  // Safely render arrays/objects (e.g., jsonb columns)
+  if (value === null || value === undefined) {
+    return '';
+  }
+  if (Array.isArray(value)) {
+    // Join primitives; fallback to JSON for nested arrays/objects
+    try {
+      const flat = value.every(v => ['string','number','boolean'].includes(typeof v));
+      return flat ? (value as any[]).join(', ') : JSON.stringify(value);
+    } catch {
+      return JSON.stringify(value);
+    }
+  }
+  if (typeof value === 'object') {
+    try {
+      return JSON.stringify(value);
+    } catch {
+      return String(value);
+    }
+  }
+
+  return String(value);
 };
 
 export default TableCellRenderer;
