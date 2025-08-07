@@ -2,7 +2,7 @@
 import LFSSetupTabs from "./LFSSetupTabs";
 import FinancialPricingTabs from "./FinancialPricingTabs";
 import DashboardTabs from "./DashboardTabs";
-import FeeTaxTabs from "./FeeTaxTabs";
+import SalesPricingRulesTabs from "./SalesPricingRulesTabs";
 import FinancingDataTableTabs from "./FinancingDataTableTabs";
 import { useState } from "react";
 import { BatchOperations } from "./BatchOperations";
@@ -109,7 +109,7 @@ const TabsSection = ({
         </div>
       );
     
-    case "Fee & Tax":
+    case "Sales Pricing Rules":
       return (
         <div className="relative">
           {showBatchOperations && (
@@ -119,7 +119,7 @@ const TabsSection = ({
               onBatchDelete={handleBatchDelete}
             />
           )}
-          <FeeTaxTabs 
+          <SalesPricingRulesTabs 
             onSelectionChange={handleSelectionChange}
             selectedItems={selectedItems}
             onSetBatchDeleteCallback={handleSetBatchDeleteCallback}

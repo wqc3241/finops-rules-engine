@@ -1,16 +1,15 @@
-
 import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import Dashboard from "@/components/Dashboard";
 
-const FeeTaxPage = () => {
+const SalesPricingRulesPage = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [activeItem, setActiveItem] = useState('Fee & Tax');
+  const [activeItem, setActiveItem] = useState('Sales Pricing Rules');
 
   // Ensure that the activeItem is correctly set on page load
   useEffect(() => {
-    setActiveItem('Fee & Tax');
+    setActiveItem('Sales Pricing Rules');
   }, []);
 
   return (
@@ -30,4 +29,4 @@ const FeeTaxPage = () => {
   );
 };
 
-export default FeeTaxPage;
+export default SalesPricingRulesPage;

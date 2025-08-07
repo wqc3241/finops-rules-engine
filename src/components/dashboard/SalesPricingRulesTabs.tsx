@@ -1,19 +1,18 @@
-
 import { useState } from "react";
 import TabComponent, { TabItem } from "./TabComponent";
 import DynamicFinancialSection from "./DynamicFinancialSection";
 
-interface FeeTaxTabsProps {
+interface SalesPricingRulesTabsProps {
   onSelectionChange?: (items: string[]) => void;
   selectedItems?: string[];
   onSetBatchDeleteCallback?: (callback: () => void) => void;
 }
 
-const FeeTaxTabs = ({
+const SalesPricingRulesTabs = ({
   onSelectionChange,
   selectedItems = [],
   onSetBatchDeleteCallback
-}: FeeTaxTabsProps) => {
+}: SalesPricingRulesTabsProps) => {
   const [activeTab, setActiveTab] = useState("fee-rules");
 
   const handleTabChange = (value: string) => {
@@ -50,6 +49,19 @@ const FeeTaxTabs = ({
           onSetBatchDeleteCallback={onSetBatchDeleteCallback}
         />
       )
+    },
+    {
+      value: "discount-rules",
+      label: "Discount Rules",
+      content: (
+        <DynamicFinancialSection 
+          schemaId="discount-rules"
+          title="Discount Rules"
+          onSelectionChange={onSelectionChange}
+          selectedItems={selectedItems}
+          onSetBatchDeleteCallback={onSetBatchDeleteCallback}
+        />
+      )
     }
   ];
 
@@ -64,4 +76,4 @@ const FeeTaxTabs = ({
   );
 };
 
-export default FeeTaxTabs;
+export default SalesPricingRulesTabs;

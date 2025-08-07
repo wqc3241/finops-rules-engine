@@ -88,9 +88,9 @@ const Sidebar = ({ open, activeItem, setActiveItem }: SidebarProps) => {
       path: '/lfs-setup'
     },
     {
-      title: 'Fee & Tax',
+      title: 'Sales Pricing Rules',
       icon: <Receipt className="h-5 w-5" />,
-      path: '/fee-tax'
+      path: '/sales-pricing-rules'
     },
   ];
 

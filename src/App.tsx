@@ -17,7 +17,7 @@ import Tasks from "./pages/Tasks";
 import FinancialPricingPage from "./pages/FinancialPricingPage";
 import LFSSetupPage from "./pages/LFSSetupPage";
 import FinancingDataTablePage from "./pages/FinancingDataTablePage";
-import FeeTaxPage from "./pages/FeeTaxPage";
+import SalesPricingRulesPage from "./pages/SalesPricingRulesPage";
 import ProfileSettings from "./pages/ProfileSettings";
 import UserPermissions from "./pages/UserPermissions";
 import AdminSettings from "./pages/AdminSettings";
@@ -68,7 +68,7 @@ const App = () => (
               <Route path="/financial-pricing" element={<ProtectedRoute><FinancialPricingPage /></ProtectedRoute>} />
               <Route path="/financing-data-table" element={<ProtectedRoute><FinancingDataTablePage /></ProtectedRoute>} />
               <Route path="/lfs-setup" element={<ProtectedRoute><LFSSetupPage /></ProtectedRoute>} />
-              <Route path="/fee-tax" element={<ProtectedRoute><FeeTaxPage /></ProtectedRoute>} />
+              <Route path="/sales-pricing-rules" element={<ProtectedRoute><SalesPricingRulesPage /></ProtectedRoute>} />
               <Route path="/profile-settings" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
               <Route path="/user-permissions" element={<ProtectedRoute><UserPermissions /></ProtectedRoute>} />
               <Route path="/admin-settings" element={<ProtectedRoute><AdminSettings /></ProtectedRoute>} />
