@@ -96,7 +96,7 @@ class DynamicSchemaService {
       // Query information_schema to get actual primary keys
       const { data, error } = await supabase.rpc('get_primary_keys', { 
         table_name_param: tableName 
-      });
+      }) as { data: Array<{ column_name: string }> | null, error: any };
 
       if (error) {
         console.warn(`Failed to get primary keys for ${tableName}, using fallback:`, error);
@@ -104,7 +104,7 @@ class DynamicSchemaService {
       }
 
       if (data && data.length > 0) {
-        return data.map((row: any) => row.column_name);
+        return data.map((row) => row.column_name);
       }
 
       return this.getFallbackPrimaryKeys(tableName);
@@ -161,12 +161,12 @@ class DynamicSchemaService {
       // Get column information from the database
       const { data: columnData, error } = await supabase.rpc('get_table_columns', { 
         table_name_param: tableName 
-      });
+      }) as { data: Array<{ column_name: string, data_type: string, is_nullable: string, column_default: string }> | null, error: any };
 
       if (!error && columnData) {
         // Look for timestamp columns first
         for (const tsCol of timestampColumns) {
-          if (columnData.some((col: any) => col.column_name === tsCol)) {
+          if (columnData.some((col) => col.column_name === tsCol)) {
             return tsCol;
           }
         }

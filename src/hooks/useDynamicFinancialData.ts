@@ -64,13 +64,13 @@ export const useDynamicFinancialData = ({
       // Try to get ordering column from database schema
       const { data: columnData, error } = await supabase.rpc('get_table_columns', { 
         table_name_param: tableName 
-      });
+      }) as { data: Array<{ column_name: string, data_type: string, is_nullable: string, column_default: string }> | null, error: any };
 
       if (!error && columnData) {
         // Prefer timestamp columns for ordering
         const timestampColumns = ['created_at', 'updated_at', 'updated_date'];
         for (const tsCol of timestampColumns) {
-          if (columnData.some((col: any) => col.column_name === tsCol)) {
+          if (columnData.some((col) => col.column_name === tsCol)) {
             return tsCol;
           }
         }
@@ -78,7 +78,7 @@ export const useDynamicFinancialData = ({
         // If no timestamp columns, try to get primary key
         const { data: pkData, error: pkError } = await supabase.rpc('get_primary_keys', { 
           table_name_param: tableName 
-        });
+        }) as { data: Array<{ column_name: string }> | null, error: any };
         
         if (!pkError && pkData && pkData.length > 0) {
           return pkData[0].column_name;
@@ -147,7 +147,7 @@ export const useDynamicFinancialData = ({
       // Try to get primary key from database schema
       const { data: pkData, error } = await supabase.rpc('get_primary_keys', { 
         table_name_param: tableName 
-      });
+      }) as { data: Array<{ column_name: string }> | null, error: any };
 
       if (!error && pkData && pkData.length > 0) {
         return pkData[0].column_name;
