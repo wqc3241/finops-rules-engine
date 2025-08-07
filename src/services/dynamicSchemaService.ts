@@ -121,7 +121,8 @@ class DynamicSchemaService {
       'pricing_configs': ['pricing_rule_id'],
       'financial_products': ['product_id'],
       'bulletin_pricing': ['bulletin_id'],
-      'fee_rules': ['_id']
+      'fee_rules': ['_id'],
+      'geo_location': ['geo_code'],
     };
     
     return fallbackMap[tableName] || ['id'];

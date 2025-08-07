@@ -156,8 +156,18 @@ export const useDynamicFinancialData = ({
       console.warn(`Failed to get primary key for ${schemaId}:`, error);
     }
 
-    // Fallback to 'id'
-    return 'id';
+    // Table-specific fallbacks for when primary key detection fails
+    const fallbacks: Record<string, string> = {
+      'geo_location': 'geo_code',
+      'credit_profiles': 'profile_id',
+      'pricing_configs': 'pricing_rule_id',
+      'financial_products': 'product_id',
+      'bulletin_pricing': 'bulletin_id',
+      'fee_rules': '_id',
+    };
+    
+    const tableName = getTableName(schemaId);
+    return fallbacks[tableName] || 'id';
   }, []);
 
   // Batch delete function for Supabase data
