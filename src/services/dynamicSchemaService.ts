@@ -16,6 +16,7 @@ class DynamicSchemaService {
       'advertised-offers': 'advertised_offers',
       'fee-rules': 'fee_rules',
       'tax-rules': 'tax_rules',
+      'discount-rules': 'discount_rules',
       'gateway': 'gateways',
       'dealer': 'dealers',
       'lender': 'lenders',
@@ -46,6 +47,7 @@ class DynamicSchemaService {
       'advertised-offers': 'Advertised Offers',
       'fee-rules': 'Fee Rules',
       'tax-rules': 'Tax Rules',
+      'discount-rules': 'Discount Rules',
       'gateway': 'Gateway',
       'dealer': 'Dealer',
       'lender': 'Lender',
@@ -122,6 +124,7 @@ class DynamicSchemaService {
       'financial_products': ['product_id'],
       'bulletin_pricing': ['bulletin_id'],
       'fee_rules': ['_id'],
+      'discount_rules': ['id'],
       'geo_location': ['geo_code'],
     };
     
@@ -296,6 +299,7 @@ class DynamicSchemaService {
       'advertised-offers',
       'fee-rules',
       'tax-rules',
+      'discount-rules',
       'gateway',
       'dealer',
       'lender',
