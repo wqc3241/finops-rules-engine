@@ -16,28 +16,31 @@ export type Database = {
     Tables: {
       advertised_offers: {
         Row: {
-          bulletin_pricing_id: string | null
           created_at: string | null
-          disclosure: string | null
+          financial_program_code: string | null
           id: string
-          loan_amount_per_10k: string | null
-          total_cost_of_credit: string | null
+          is_active: boolean | null
+          lender: string | null
+          term: number | null
+          updated_at: string | null
         }
         Insert: {
-          bulletin_pricing_id?: string | null
           created_at?: string | null
-          disclosure?: string | null
+          financial_program_code?: string | null
           id?: string
-          loan_amount_per_10k?: string | null
-          total_cost_of_credit?: string | null
+          is_active?: boolean | null
+          lender?: string | null
+          term?: number | null
+          updated_at?: string | null
         }
         Update: {
-          bulletin_pricing_id?: string | null
           created_at?: string | null
-          disclosure?: string | null
+          financial_program_code?: string | null
           id?: string
-          loan_amount_per_10k?: string | null
-          total_cost_of_credit?: string | null
+          is_active?: boolean | null
+          lender?: string | null
+          term?: number | null
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -327,41 +330,41 @@ export type Database = {
       bulletin_pricing: {
         Row: {
           advertised: boolean | null
-          created_at: string | null
+          bulletin_id: string
+          credit_profile: string | null
           financial_program_code: string | null
           geo_code: string | null
-          id: string
-          lender_name: string | null
+          lender_list: string | null
           pricing_config: string | null
           pricing_type: string | null
           pricing_value: number | null
-          program_id: string | null
+          updated_date: string | null
           upload_date: string | null
         }
         Insert: {
           advertised?: boolean | null
-          created_at?: string | null
+          bulletin_id: string
+          credit_profile?: string | null
           financial_program_code?: string | null
           geo_code?: string | null
-          id?: string
-          lender_name?: string | null
+          lender_list?: string | null
           pricing_config?: string | null
           pricing_type?: string | null
           pricing_value?: number | null
-          program_id?: string | null
+          updated_date?: string | null
           upload_date?: string | null
         }
         Update: {
           advertised?: boolean | null
-          created_at?: string | null
+          bulletin_id?: string
+          credit_profile?: string | null
           financial_program_code?: string | null
           geo_code?: string | null
-          id?: string
-          lender_name?: string | null
+          lender_list?: string | null
           pricing_config?: string | null
           pricing_type?: string | null
           pricing_value?: number | null
-          program_id?: string | null
+          updated_date?: string | null
           upload_date?: string | null
         }
         Relationships: []
@@ -477,7 +480,6 @@ export type Database = {
         Row: {
           created_at: string | null
           employment_type: string | null
-          id: string
           max_age: number | null
           max_credit_score: number | null
           max_dti: number | null
@@ -489,11 +491,11 @@ export type Database = {
           min_income: number | null
           min_pti: number | null
           priority: number | null
+          profile_id: string
         }
         Insert: {
           created_at?: string | null
           employment_type?: string | null
-          id?: string
           max_age?: number | null
           max_credit_score?: number | null
           max_dti?: number | null
@@ -505,11 +507,11 @@ export type Database = {
           min_income?: number | null
           min_pti?: number | null
           priority?: number | null
+          profile_id: string
         }
         Update: {
           created_at?: string | null
           employment_type?: string | null
-          id?: string
           max_age?: number | null
           max_credit_score?: number | null
           max_dti?: number | null
@@ -521,6 +523,7 @@ export type Database = {
           min_income?: number | null
           min_pti?: number | null
           priority?: number | null
+          profile_id?: string
         }
         Relationships: []
       }
@@ -655,18 +658,66 @@ export type Database = {
       dealers: {
         Row: {
           created_at: string | null
-          dealer_name: string
+          dba_name: string | null
+          financing_form_list: string | null
+          gateway_dealer_id: string | null
+          gateway_entity_address: string | null
+          gateway_entity_city: string | null
+          gateway_entity_phone: string | null
+          gateway_entity_state: string | null
+          gateway_entity_zip: string | null
+          gateway_id: string | null
+          geo_code: string | null
           id: string
+          legal_entity_address: string | null
+          legal_entity_city: string | null
+          legal_entity_name: string | null
+          legal_entity_phone: string | null
+          legal_entity_state: string | null
+          legal_entity_zip: string | null
+          selling_state: string | null
         }
         Insert: {
           created_at?: string | null
-          dealer_name: string
-          id?: string
+          dba_name?: string | null
+          financing_form_list?: string | null
+          gateway_dealer_id?: string | null
+          gateway_entity_address?: string | null
+          gateway_entity_city?: string | null
+          gateway_entity_phone?: string | null
+          gateway_entity_state?: string | null
+          gateway_entity_zip?: string | null
+          gateway_id?: string | null
+          geo_code?: string | null
+          id: string
+          legal_entity_address?: string | null
+          legal_entity_city?: string | null
+          legal_entity_name?: string | null
+          legal_entity_phone?: string | null
+          legal_entity_state?: string | null
+          legal_entity_zip?: string | null
+          selling_state?: string | null
         }
         Update: {
           created_at?: string | null
-          dealer_name?: string
+          dba_name?: string | null
+          financing_form_list?: string | null
+          gateway_dealer_id?: string | null
+          gateway_entity_address?: string | null
+          gateway_entity_city?: string | null
+          gateway_entity_phone?: string | null
+          gateway_entity_state?: string | null
+          gateway_entity_zip?: string | null
+          gateway_id?: string | null
+          geo_code?: string | null
           id?: string
+          legal_entity_address?: string | null
+          legal_entity_city?: string | null
+          legal_entity_name?: string | null
+          legal_entity_phone?: string | null
+          legal_entity_state?: string | null
+          legal_entity_zip?: string | null
+          selling_state?: string | null
         }
         Relationships: []
       }
@@ -867,8 +918,8 @@ export type Database = {
           category: string | null
           created_at: string | null
           geo_code: string | null
-          id: string
           is_active: boolean | null
+          product_id: string
           product_subtype: string | null
           product_type: string
         }
@@ -876,8 +927,8 @@ export type Database = {
           category?: string | null
           created_at?: string | null
           geo_code?: string | null
-          id?: string
           is_active?: boolean | null
+          product_id: string
           product_subtype?: string | null
           product_type: string
         }
@@ -885,8 +936,8 @@ export type Database = {
           category?: string | null
           created_at?: string | null
           geo_code?: string | null
-          id?: string
           is_active?: boolean | null
+          product_id?: string
           product_subtype?: string | null
           product_type?: string
         }
@@ -894,50 +945,62 @@ export type Database = {
       }
       financial_program_configs: {
         Row: {
+          advertised: string | null
           clone_from: string | null
+          created: string | null
           created_at: string | null
           financial_product_id: string | null
           financing_vehicle_condition: string | null
           id: string
-          is_active: boolean | null
+          is_active: string | null
           order_types: string | null
           priority: number | null
           product_type: string | null
           program_code: string
           program_end_date: string | null
+          program_id: string | null
           program_start_date: string | null
+          updated: string | null
           vehicle_style_id: string | null
           version: number | null
         }
         Insert: {
+          advertised?: string | null
           clone_from?: string | null
+          created?: string | null
           created_at?: string | null
           financial_product_id?: string | null
           financing_vehicle_condition?: string | null
           id?: string
-          is_active?: boolean | null
+          is_active?: string | null
           order_types?: string | null
           priority?: number | null
           product_type?: string | null
           program_code: string
           program_end_date?: string | null
+          program_id?: string | null
           program_start_date?: string | null
+          updated?: string | null
           vehicle_style_id?: string | null
           version?: number | null
         }
         Update: {
+          advertised?: string | null
           clone_from?: string | null
+          created?: string | null
           created_at?: string | null
           financial_product_id?: string | null
           financing_vehicle_condition?: string | null
           id?: string
-          is_active?: boolean | null
+          is_active?: string | null
           order_types?: string | null
           priority?: number | null
           product_type?: string | null
           program_code?: string
           program_end_date?: string | null
+          program_id?: string | null
           program_start_date?: string | null
+          updated?: string | null
           vehicle_style_id?: string | null
           version?: number | null
         }
@@ -1017,74 +1080,144 @@ export type Database = {
         Row: {
           created_at: string | null
           gateway_name: string
+          geo_code: string | null
           id: string
+          platform_id: string | null
         }
         Insert: {
           created_at?: string | null
           gateway_name: string
-          id?: string
+          geo_code?: string | null
+          id: string
+          platform_id?: string | null
         }
         Update: {
           created_at?: string | null
           gateway_name?: string
+          geo_code?: string | null
           id?: string
+          platform_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gateways_geo_code_fkey"
+            columns: ["geo_code"]
+            isOneToOne: false
+            referencedRelation: "geo_location"
+            referencedColumns: ["geo_code"]
+          },
+        ]
+      }
+      geo_location: {
+        Row: {
+          country_code: string | null
+          country_name: string | null
+          created_at: string | null
+          created_by: string | null
+          currency: string | null
+          geo_code: string
+          geo_level: string | null
+          location_code: string | null
+          location_name: string | null
+          state_name: string | null
+          state_or_provinces_code: string | null
+        }
+        Insert: {
+          country_code?: string | null
+          country_name?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          currency?: string | null
+          geo_code: string
+          geo_level?: string | null
+          location_code?: string | null
+          location_name?: string | null
+          state_name?: string | null
+          state_or_provinces_code?: string | null
+        }
+        Update: {
+          country_code?: string | null
+          country_name?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          currency?: string | null
+          geo_code?: string
+          geo_level?: string | null
+          location_code?: string | null
+          location_name?: string | null
+          state_name?: string | null
+          state_or_provinces_code?: string | null
         }
         Relationships: []
       }
       lease_configs: {
         Row: {
-          config_name: string
           created_at: string | null
+          fee_capitalization: string | null
+          "Geo Code": string | null
           id: string
+          sales_tax_basis: string | null
+          tax_capitalization: string | null
+          tax_payment_option: string | null
+          trade_on_ccr: string | null
+          trade_tax_credit_eligibility: string | null
         }
         Insert: {
-          config_name: string
           created_at?: string | null
+          fee_capitalization?: string | null
+          "Geo Code"?: string | null
           id?: string
+          sales_tax_basis?: string | null
+          tax_capitalization?: string | null
+          tax_payment_option?: string | null
+          trade_on_ccr?: string | null
+          trade_tax_credit_eligibility?: string | null
         }
         Update: {
-          config_name?: string
           created_at?: string | null
+          fee_capitalization?: string | null
+          "Geo Code"?: string | null
           id?: string
+          sales_tax_basis?: string | null
+          tax_capitalization?: string | null
+          tax_payment_option?: string | null
+          trade_on_ccr?: string | null
+          trade_tax_credit_eligibility?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "lease_configs_geo_code_fkey"
+            columns: ["Geo Code"]
+            isOneToOne: false
+            referencedRelation: "geo_location"
+            referencedColumns: ["geo_code"]
+          },
+        ]
       }
       lenders: {
         Row: {
           created_at: string | null
-          id: string
+          "Gateway lender ID": string
+          gateway_lender_name: string | null
+          lender_address: string | null
           lender_name: string
+          lien_holder_name: string | null
         }
         Insert: {
           created_at?: string | null
-          id?: string
+          "Gateway lender ID": string
+          gateway_lender_name?: string | null
+          lender_address?: string | null
           lender_name: string
+          lien_holder_name?: string | null
         }
         Update: {
           created_at?: string | null
-          id?: string
+          "Gateway lender ID"?: string
+          gateway_lender_name?: string | null
+          lender_address?: string | null
           lender_name?: string
-        }
-        Relationships: []
-      }
-      location_geo: {
-        Row: {
-          created_at: string | null
-          geo_code: string
-          id: string
-          location_name: string
-        }
-        Insert: {
-          created_at?: string | null
-          geo_code: string
-          id?: string
-          location_name: string
-        }
-        Update: {
-          created_at?: string | null
-          geo_code?: string
-          id?: string
-          location_name?: string
+          lien_holder_name?: string | null
         }
         Relationships: []
       }
@@ -1287,35 +1420,35 @@ export type Database = {
       pricing_configs: {
         Row: {
           created_at: string | null
-          id: string
           max_lease_mileage: number | null
           max_ltv: number | null
           max_term: number | null
           min_lease_mileage: number | null
           min_ltv: number | null
           min_term: number | null
+          pricing_rule_id: string
           priority: number | null
         }
         Insert: {
           created_at?: string | null
-          id?: string
           max_lease_mileage?: number | null
           max_ltv?: number | null
           max_term?: number | null
           min_lease_mileage?: number | null
           min_ltv?: number | null
           min_term?: number | null
+          pricing_rule_id: string
           priority?: number | null
         }
         Update: {
           created_at?: string | null
-          id?: string
           max_lease_mileage?: number | null
           max_ltv?: number | null
           max_term?: number | null
           min_lease_mileage?: number | null
           min_ltv?: number | null
           min_term?: number | null
+          pricing_rule_id?: string
           priority?: number | null
         }
         Relationships: []
@@ -1344,20 +1477,63 @@ export type Database = {
       routing_rules: {
         Row: {
           created_at: string | null
-          id: string
-          rule_name: string
+          credit_profile: string | null
+          dealer: string | null
+          financial_product: string | null
+          financing_vehicle_condition_type: string | null
+          geo_code: string | null
+          is_active: boolean | null
+          lender: string | null
+          routing_priority: number | null
+          rule_id: string
         }
         Insert: {
           created_at?: string | null
-          id?: string
-          rule_name: string
+          credit_profile?: string | null
+          dealer?: string | null
+          financial_product?: string | null
+          financing_vehicle_condition_type?: string | null
+          geo_code?: string | null
+          is_active?: boolean | null
+          lender?: string | null
+          routing_priority?: number | null
+          rule_id: string
         }
         Update: {
           created_at?: string | null
-          id?: string
-          rule_name?: string
+          credit_profile?: string | null
+          dealer?: string | null
+          financial_product?: string | null
+          financing_vehicle_condition_type?: string | null
+          geo_code?: string | null
+          is_active?: boolean | null
+          lender?: string | null
+          routing_priority?: number | null
+          rule_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "routing_rules_dealer_fkey"
+            columns: ["dealer"]
+            isOneToOne: false
+            referencedRelation: "dealers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "routing_rules_geo_code_fkey"
+            columns: ["geo_code"]
+            isOneToOne: false
+            referencedRelation: "geo_location"
+            referencedColumns: ["geo_code"]
+          },
+          {
+            foreignKeyName: "routing_rules_lender_fkey"
+            columns: ["lender"]
+            isOneToOne: false
+            referencedRelation: "lenders"
+            referencedColumns: ["Gateway lender ID"]
+          },
+        ]
       }
       rule_versions: {
         Row: {
@@ -1424,20 +1600,49 @@ export type Database = {
       stipulations: {
         Row: {
           created_at: string | null
+          customer_or_internal: string | null
+          description: string | null
+          document_list: string | null
+          document_required: boolean | null
+          geo_code: string | null
           id: string
+          is_active: boolean | null
+          primary_or_co_applicant: string | null
           stipulation_name: string
         }
         Insert: {
           created_at?: string | null
+          customer_or_internal?: string | null
+          description?: string | null
+          document_list?: string | null
+          document_required?: boolean | null
+          geo_code?: string | null
           id?: string
+          is_active?: boolean | null
+          primary_or_co_applicant?: string | null
           stipulation_name: string
         }
         Update: {
           created_at?: string | null
+          customer_or_internal?: string | null
+          description?: string | null
+          document_list?: string | null
+          document_required?: boolean | null
+          geo_code?: string | null
           id?: string
+          is_active?: boolean | null
+          primary_or_co_applicant?: string | null
           stipulation_name?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "stipulations_geo_code_fkey"
+            columns: ["geo_code"]
+            isOneToOne: false
+            referencedRelation: "geo_location"
+            referencedColumns: ["geo_code"]
+          },
+        ]
       }
       table_locks: {
         Row: {
@@ -1536,21 +1741,59 @@ export type Database = {
       }
       vehicle_conditions: {
         Row: {
-          condition: string
+          advertised_condition: string | null
+          applicable_rv_table: string | null
           created_at: string | null
+          financing_vehicle_condition_type: string | null
+          geo_code: string | null
           id: string
+          max_odometer: number | null
+          min_odometer: number | null
+          model_year: number | null
+          prior_sell_to_customer: boolean | null
+          registration_end_date: string | null
+          registration_start_date: string | null
+          title_status: string | null
         }
         Insert: {
-          condition: string
+          advertised_condition?: string | null
+          applicable_rv_table?: string | null
           created_at?: string | null
+          financing_vehicle_condition_type?: string | null
+          geo_code?: string | null
           id?: string
+          max_odometer?: number | null
+          min_odometer?: number | null
+          model_year?: number | null
+          prior_sell_to_customer?: boolean | null
+          registration_end_date?: string | null
+          registration_start_date?: string | null
+          title_status?: string | null
         }
         Update: {
-          condition?: string
+          advertised_condition?: string | null
+          applicable_rv_table?: string | null
           created_at?: string | null
+          financing_vehicle_condition_type?: string | null
+          geo_code?: string | null
           id?: string
+          max_odometer?: number | null
+          min_odometer?: number | null
+          model_year?: number | null
+          prior_sell_to_customer?: boolean | null
+          registration_end_date?: string | null
+          registration_start_date?: string | null
+          title_status?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_conditions_geo_code_fkey"
+            columns: ["geo_code"]
+            isOneToOne: false
+            referencedRelation: "geo_location"
+            referencedColumns: ["geo_code"]
+          },
+        ]
       }
       vehicle_data: {
         Row: {
@@ -1607,40 +1850,82 @@ export type Database = {
       }
       vehicle_options: {
         Row: {
+          adas: string | null
+          code: string | null
+          color: string | null
           created_at: string | null
+          design: string | null
+          drivetrain: string | null
           id: string
-          option_name: string
+          priority: number | null
+          roof: string | null
+          sound_system: string | null
+          wheels: string | null
         }
         Insert: {
+          adas?: string | null
+          code?: string | null
+          color?: string | null
           created_at?: string | null
+          design?: string | null
+          drivetrain?: string | null
           id?: string
-          option_name: string
+          priority?: number | null
+          roof?: string | null
+          sound_system?: string | null
+          wheels?: string | null
         }
         Update: {
+          adas?: string | null
+          code?: string | null
+          color?: string | null
           created_at?: string | null
+          design?: string | null
+          drivetrain?: string | null
           id?: string
-          option_name?: string
+          priority?: number | null
+          roof?: string | null
+          sound_system?: string | null
+          wheels?: string | null
         }
         Relationships: []
       }
       vehicle_style_coding: {
         Row: {
-          code: string
+          alg_code: number
           created_at: string | null
-          description: string
-          id: string
+          geo_code: string | null
+          make: string | null
+          model: string | null
+          model_year: number | null
+          option_code: string | null
+          priority: number | null
+          trim: string | null
+          vehicle_style_id: string
         }
         Insert: {
-          code: string
+          alg_code: number
           created_at?: string | null
-          description: string
-          id?: string
+          geo_code?: string | null
+          make?: string | null
+          model?: string | null
+          model_year?: number | null
+          option_code?: string | null
+          priority?: number | null
+          trim?: string | null
+          vehicle_style_id: string
         }
         Update: {
-          code?: string
+          alg_code?: number
           created_at?: string | null
-          description?: string
-          id?: string
+          geo_code?: string | null
+          make?: string | null
+          model?: string | null
+          model_year?: number | null
+          option_code?: string | null
+          priority?: number | null
+          trim?: string | null
+          vehicle_style_id?: string
         }
         Relationships: []
       }
@@ -1649,7 +1934,21 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_primary_keys: {
+        Args: { table_name_param: string }
+        Returns: {
+          column_name: string
+        }[]
+      }
+      get_table_columns: {
+        Args: { table_name_param: string }
+        Returns: {
+          column_name: string
+          data_type: string
+          is_nullable: string
+          column_default: string
+        }[]
+      }
     }
     Enums: {
       app_role: "admin" | "user" | "manager"
