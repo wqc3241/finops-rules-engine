@@ -93,8 +93,17 @@ export const useDynamicFinancialData = ({
       console.warn(`Failed to get ordering column for ${tableName}:`, error);
     }
 
-    // Hard fallback
-    return 'id';
+    // Table-specific fallbacks when database queries fail
+    const fallbacks: Record<string, string> = {
+      'geo_location': 'geo_code',
+      'credit_profiles': 'profile_id', 
+      'pricing_configs': 'pricing_rule_id',
+      'financial_products': 'product_id',
+      'bulletin_pricing': 'bulletin_id',
+      'fee_rules': '_id',
+    };
+
+    return fallbacks[tableName] || 'id';
   }, []);
 
   // Load data from Supabase
