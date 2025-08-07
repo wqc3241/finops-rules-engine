@@ -44,7 +44,7 @@ export const useDynamicFinancialData = ({
       'lender': 'lenders',
       'country': 'countries',
       'state': 'states',
-      'location-geo': 'geo_location',
+      'geo-location': 'geo_location',
       'lease-config': 'lease_configs',
       'vehicle-condition': 'vehicle_conditions',
       'vehicle-options': 'vehicle_options',

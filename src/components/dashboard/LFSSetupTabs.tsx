@@ -9,7 +9,7 @@ interface LFSSetupTabsProps {
 }
 
 const LFSSetupTabs = ({ onSelectionChange, selectedItems = [] }: LFSSetupTabsProps) => {
-  const [activeTab, setActiveTab] = useState("location-geo");
+  const [activeTab, setActiveTab] = useState("geo-location");
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
@@ -21,11 +21,11 @@ const LFSSetupTabs = ({ onSelectionChange, selectedItems = [] }: LFSSetupTabsPro
 
   const tabItems: TabItem[] = [
     {
-      value: "location-geo",
+      value: "geo-location",
       label: "Geo",
       content: (
         <DynamicFinancialSection 
-          schemaId="location-geo"
+          schemaId="geo-location"
           title="Geo Rules"
           onSelectionChange={onSelectionChange}
           selectedItems={selectedItems}
@@ -118,7 +118,7 @@ const LFSSetupTabs = ({ onSelectionChange, selectedItems = [] }: LFSSetupTabsPro
     }
   ];
 
-  return <TabComponent defaultValue="location-geo" items={tabItems} onValueChange={handleTabChange} />;
+  return <TabComponent defaultValue="geo-location" items={tabItems} onValueChange={handleTabChange} />;
 };
 
 export default LFSSetupTabs;

@@ -121,7 +121,7 @@ const FinancingDataTableTabs = ({
       label: "Location",
       content: (
         <DynamicFinancialSection 
-          schemaId="location-geo"
+          schemaId="geo-location"
           title="Location Data"
           onSelectionChange={onSelectionChange}
           selectedItems={selectedItems}
