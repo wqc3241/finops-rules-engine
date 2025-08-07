@@ -721,6 +721,108 @@ export type Database = {
         }
         Relationships: []
       }
+      discount_rules: {
+        Row: {
+          amount: number
+          amount_type: Database["public"]["Enums"]["amount_type_enum"]
+          auto_approval_rules: Json
+          capitalize_type:
+            | Database["public"]["Enums"]["capitalize_type_enum"]
+            | null
+          created_at: string
+          created_by: string | null
+          currency: string
+          description: string | null
+          discount_type: Database["public"]["Enums"]["discount_type_enum"]
+          eligibility: Json
+          end_at: string | null
+          exclusive_with: string[]
+          gl_code: string | null
+          id: string
+          is_active: boolean
+          max_stackable_count: number
+          name: string
+          priority: number
+          published_at: string | null
+          published_by: string | null
+          referral_registry_id: string | null
+          stacking_group_id: string | null
+          start_at: string
+          taxable: boolean
+          updated_at: string
+          updated_by: string | null
+          verification_modes: Database["public"]["Enums"]["verification_mode_enum"][]
+          verification_required: boolean
+          version: number
+        }
+        Insert: {
+          amount: number
+          amount_type: Database["public"]["Enums"]["amount_type_enum"]
+          auto_approval_rules?: Json
+          capitalize_type?:
+            | Database["public"]["Enums"]["capitalize_type_enum"]
+            | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          description?: string | null
+          discount_type: Database["public"]["Enums"]["discount_type_enum"]
+          eligibility?: Json
+          end_at?: string | null
+          exclusive_with?: string[]
+          gl_code?: string | null
+          id?: string
+          is_active?: boolean
+          max_stackable_count?: number
+          name: string
+          priority?: number
+          published_at?: string | null
+          published_by?: string | null
+          referral_registry_id?: string | null
+          stacking_group_id?: string | null
+          start_at: string
+          taxable?: boolean
+          updated_at?: string
+          updated_by?: string | null
+          verification_modes?: Database["public"]["Enums"]["verification_mode_enum"][]
+          verification_required?: boolean
+          version?: number
+        }
+        Update: {
+          amount?: number
+          amount_type?: Database["public"]["Enums"]["amount_type_enum"]
+          auto_approval_rules?: Json
+          capitalize_type?:
+            | Database["public"]["Enums"]["capitalize_type_enum"]
+            | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          description?: string | null
+          discount_type?: Database["public"]["Enums"]["discount_type_enum"]
+          eligibility?: Json
+          end_at?: string | null
+          exclusive_with?: string[]
+          gl_code?: string | null
+          id?: string
+          is_active?: boolean
+          max_stackable_count?: number
+          name?: string
+          priority?: number
+          published_at?: string | null
+          published_by?: string | null
+          referral_registry_id?: string | null
+          stacking_group_id?: string | null
+          start_at?: string
+          taxable?: boolean
+          updated_at?: string
+          updated_by?: string | null
+          verification_modes?: Database["public"]["Enums"]["verification_mode_enum"][]
+          verification_required?: boolean
+          version?: number
+        }
+        Relationships: []
+      }
       document_categories: {
         Row: {
           created_at: string | null
@@ -1951,6 +2053,7 @@ export type Database = {
       }
     }
     Enums: {
+      amount_type_enum: "Flat" | "Percent" | "PaymentCredit"
       app_role: "admin" | "user" | "manager"
       application_status:
         | "Pending"
@@ -1964,9 +2067,14 @@ export type Database = {
         | "Pending Reapply"
       application_type: "Lease" | "Loan"
       approval_status: "PENDING" | "APPROVED" | "REJECTED" | "IN_REVIEW"
+      capitalize_type_enum: "CapCostReduction" | "PostTaxCredit" | "N/A"
       deal_status: "requested" | "approved" | "customer"
+      discount_type_enum: "Cash" | "Lease" | "Loan"
       financial_type: "Lease" | "Loan"
+      inventory_scope_enum: "InventoryVINs" | "ConfiguredBuilds" | "Both"
       user_role: "FS_OPS" | "FS_ADMIN" | "admin"
+      vehicle_condition_enum: "New" | "CPO" | "Demo" | "Used"
+      verification_mode_enum: "Documentation" | "ReferralCode"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2094,6 +2202,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      amount_type_enum: ["Flat", "Percent", "PaymentCredit"],
       app_role: ["admin", "user", "manager"],
       application_status: [
         "Pending",
@@ -2108,9 +2217,14 @@ export const Constants = {
       ],
       application_type: ["Lease", "Loan"],
       approval_status: ["PENDING", "APPROVED", "REJECTED", "IN_REVIEW"],
+      capitalize_type_enum: ["CapCostReduction", "PostTaxCredit", "N/A"],
       deal_status: ["requested", "approved", "customer"],
+      discount_type_enum: ["Cash", "Lease", "Loan"],
       financial_type: ["Lease", "Loan"],
+      inventory_scope_enum: ["InventoryVINs", "ConfiguredBuilds", "Both"],
       user_role: ["FS_OPS", "FS_ADMIN", "admin"],
+      vehicle_condition_enum: ["New", "CPO", "Demo", "Used"],
+      verification_mode_enum: ["Documentation", "ReferralCode"],
     },
   },
 } as const
