@@ -39,6 +39,7 @@ export const useDynamicFinancialData = ({
       'advertised-offers': 'advertised_offers',
       'fee-rules': 'fee_rules',
       'tax-rules': 'tax_rules',
+      'discount-rules': 'discount_rules',
       'gateway': 'gateways',
       'dealer': 'dealers',
       'lender': 'lenders',
