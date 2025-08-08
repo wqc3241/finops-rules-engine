@@ -346,11 +346,18 @@ export const useDynamicFinancialData = ({
       // Apply table-specific handling
       const finalRow = handleTableSpecificFields(tableName, newRow);
 
-      console.log('Final row to insert:', finalRow);
+      console.log('Final row to insert (pre-sanitize):', finalRow);
+
+      // IMPORTANT: Remove empty-string values to avoid type errors on numeric/integer columns
+      const sanitizedRow = Object.fromEntries(
+        Object.entries(finalRow).filter(([, v]) => v !== '' && v !== undefined)
+      );
+
+      console.log('Final row to insert (sanitized):', sanitizedRow);
       
       const { data: insertedData, error } = await supabase
         .from(tableName as any)
-        .insert([finalRow])
+        .insert([sanitizedRow])
         .select()
         .single();
 
