@@ -2036,6 +2036,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      current_user_role: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       get_primary_keys: {
         Args: { table_name_param: string }
         Returns: {
@@ -2050,6 +2054,14 @@ export type Database = {
           is_nullable: string
           column_default: string
         }[]
+      }
+      is_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      is_fs_ops_or_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
       }
     }
     Enums: {
