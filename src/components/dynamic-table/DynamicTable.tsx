@@ -70,7 +70,12 @@ const DynamicTable = ({
   };
 
   const primaryKey = useMemo(() => getPrimaryKey(schema, data), [schema, data]);
-  const visibleColumns = useMemo(() => schema.columns.filter(c => c.key !== 'id'), [schema.columns]);
+  const visibleColumns = useMemo(() => {
+    const cols = schema.columns.filter(c => c.key !== 'id');
+    const rest = cols.filter(c => !(c.key === 'created_at' || c.name.toLowerCase() === 'created at'));
+    const created = cols.filter(c => (c.key === 'created_at' || c.name.toLowerCase() === 'created at'));
+    return [...rest, ...created];
+  }, [schema.columns]);
 
   const handleSelectRow = (id: string) => {
     const updatedSelection = selectedItems.includes(id)
