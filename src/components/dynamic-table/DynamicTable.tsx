@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DynamicTableProps, TableData, ColumnDefinition } from "@/types/dynamicTable";
@@ -10,6 +10,25 @@ import TableCellRenderer from "./TableCellRenderer";
 import TableRowActions from "./TableRowActions";
 import TableHeaderComponent from "./TableHeader";
 import { getNextFPCId } from "./utils/tableUtils";
+
+// Helper to determine the primary key column for any schema
+const getPrimaryKey = (schema: { columns: ColumnDefinition[] }, data: TableData[]): string => {
+  // If data rows have an explicit id, prefer it
+  if (data?.length && Object.prototype.hasOwnProperty.call(data[0], 'id')) return 'id';
+  // Prefer explicit id column from schema
+  const explicitId = schema.columns.find(c => c.key === 'id');
+  if (explicitId) return explicitId.key;
+  // Prefer columns ending with _id
+  const endsWithId = schema.columns.find(c => c.key.endsWith('_id'));
+  if (endsWithId) return endsWithId.key;
+  // Prefer columns that include 'id'
+  const includesId = schema.columns.find(c => c.key.toLowerCase().includes('id'));
+  if (includesId) return includesId.key;
+  // Fallback to first key in data if available
+  if (data?.length) return Object.keys(data[0])[0];
+  // Ultimate fallback
+  return 'id';
+};
 
 const DynamicTable = ({ 
   schema, 
@@ -50,7 +69,7 @@ const DynamicTable = ({
     ]
   };
 
-  const handleSelectRow = (id: string) => {
+  const primaryKey = useMemo(() => getPrimaryKey(schema, data), [schema, data]);
     const updatedSelection = selectedItems.includes(id)
       ? selectedItems.filter(item => item !== id)
       : [...selectedItems, id];
