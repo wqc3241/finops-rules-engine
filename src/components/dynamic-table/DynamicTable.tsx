@@ -70,12 +70,13 @@ const DynamicTable = ({
   };
 
   const primaryKey = useMemo(() => getPrimaryKey(schema, data), [schema, data]);
+
+  const handleSelectRow = (id: string) => {
     const updatedSelection = selectedItems.includes(id)
       ? selectedItems.filter(item => item !== id)
       : [...selectedItems, id];
     onSelectionChange?.(updatedSelection);
   };
-
   const handleCellEdit = (rowId: string, columnKey: string, currentValue: any) => {
     setEditingCell({ rowId, columnKey });
     setEditValue(currentValue);
@@ -85,7 +86,7 @@ const DynamicTable = ({
     if (!editingCell) return;
     
     const updatedData = data.map(row => {
-      if (row.id === editingCell.rowId) {
+      if ((row as any)[primaryKey] === editingCell.rowId) {
         return { ...row, [editingCell.columnKey]: editValue };
       }
       return row;
@@ -115,7 +116,7 @@ const DynamicTable = ({
 
   const handleRemoveColumn = (columnId: string) => {
     const column = schema.columns.find(col => col.id === columnId);
-    if (column?.key === 'id') {
+    if (column?.key === 'id' || column?.key === primaryKey) {
       toast.error("Cannot delete ID column");
       return;
     }
@@ -144,10 +145,12 @@ const DynamicTable = ({
       const newId = getNextFPCId(data);
       // Clone the first row as template or create empty row
       const template = data[0] || {};
-      const newRow: TableData = { ...template, id: newId, version: 1 };
-      // Reset relevant values for a new row (set empty string or default for all non-id fields)
+      const newRow: any = { ...template, id: newId, version: 1 };
+      // Ensure primary key is set
+      if (primaryKey !== 'id') newRow[primaryKey] = newId;
+      // Reset relevant values for a new row (set empty string or default for all non-PK fields)
       schema.columns.forEach((col) => {
-        if (col.key !== "id") {
+        if (col.key !== primaryKey) {
           switch (col.type) {
             case 'number': newRow[col.key] = 0; break;
             case 'boolean': newRow[col.key] = false; break;
@@ -158,9 +161,9 @@ const DynamicTable = ({
       onDataChange([...data, newRow]);
     } else {
       // Default: mimic old add logic
-      const newRow: TableData = { id: `new_${Date.now()}` };
+      const newRow: any = { [primaryKey]: `new_${Date.now()}` };
       schema.columns.forEach((col: any) => {
-        if (col.key !== 'id') {
+        if (col.key !== primaryKey) {
           switch (col.type) {
             case 'string': newRow[col.key] = ''; break;
             case 'boolean': newRow[col.key] = false; break;
@@ -173,7 +176,7 @@ const DynamicTable = ({
   };
 
   const handleCopyRow = (rowId: string) => {
-    const rowToCopy = data.find(row => row.id === rowId);
+    const rowToCopy = data.find(row => (row as any)[primaryKey] === rowId);
     if (rowToCopy) {
       let newId = "";
       if (schema.id === "financial-program-config") {
@@ -181,14 +184,14 @@ const DynamicTable = ({
       } else {
         newId = `${rowId}_copy_${Date.now()}`;
       }
-      const newRow = { ...rowToCopy, id: newId, version: (rowToCopy.version || 1) + 1, cloneFrom: rowToCopy.programCode || null };
+      const newRow: any = { ...rowToCopy, [primaryKey]: newId, version: ((rowToCopy as any).version || 1) + 1, cloneFrom: (rowToCopy as any).programCode || null };
       onDataChange([...data, newRow]);
       toast.success("Row copied successfully");
     }
   };
 
   const handleDeleteRow = (rowId: string) => {
-    const updatedData = data.filter(row => row.id !== rowId);
+    const updatedData = data.filter(row => (row as any)[primaryKey] !== rowId);
     onDataChange(updatedData);
     onSelectionChange?.(selectedItems.filter(id => id !== rowId));
     toast.success("Row deleted successfully");
@@ -219,11 +222,11 @@ const DynamicTable = ({
           </TableHeader>
           <TableBody>
             {data.map((row) => (
-              <TableRow key={row.id} className="hover:bg-gray-50">
+              <TableRow key={String((row as any)[primaryKey] ?? (row as any).id)} className="hover:bg-gray-50">
                 <TableCell>
                   <Checkbox
-                    checked={selectedItems.includes(row.id)}
-                    onCheckedChange={() => handleSelectRow(row.id)}
+                    checked={selectedItems.includes((row as any)[primaryKey])}
+                    onCheckedChange={() => handleSelectRow((row as any)[primaryKey])}
                   />
                 </TableCell>
                 {schema.columns.map((column) => (
@@ -232,14 +235,14 @@ const DynamicTable = ({
                     className={`${column.editable ? 'cursor-pointer hover:bg-blue-50' : ''}`}
                     onClick={() => {
                       if (column.editable && !editingCell) {
-                        handleCellEdit(row.id, column.key, row[column.key]);
+                        handleCellEdit((row as any)[primaryKey], column.key, (row as any)[column.key]);
                       }
                     }}
                   >
                     <TableCellRenderer
                       row={row}
                       column={column}
-                      isEditing={editingCell?.rowId === row.id && editingCell?.columnKey === column.key}
+                      isEditing={editingCell?.rowId === (row as any)[primaryKey] && editingCell?.columnKey === column.key}
                       editValue={editValue}
                       setEditValue={setEditValue}
                       handleSaveEdit={handleSaveEdit}
@@ -251,7 +254,7 @@ const DynamicTable = ({
                 ))}
                 <TableCell className="text-right">
                   <TableRowActions
-                    rowId={row.id}
+                    rowId={(row as any)[primaryKey]}
                     onEdit={() => toast.info("Edit functionality integrated in cell editing")}
                     onCopy={handleCopyRow}
                     onDelete={handleDeleteRow}
