@@ -6,15 +6,16 @@ interface TrackedChanges {
   originalData: TableData[];
   currentData: TableData[];
   hasChanges: boolean;
+  primaryKey?: string;
 }
 
 interface ChangeTrackingContextValue {
-  startTracking: (schemaId: string, data: TableData[]) => void;
+  startTracking: (schemaId: string, data: TableData[], primaryKey?: string) => void;
   updateTracking: (schemaId: string, newData: TableData[]) => void;
   getChangedTables: () => TrackedChanges[];
   getChangesSummary: () => { schemaId: string; added: number; modified: number; deleted: number; total: number }[];
   resetTracking: (schemaId?: string) => void;
-  getTableChanges: (schemaId: string) => { originalData: TableData[]; currentData: TableData[]; hasChanges: boolean } | null;
+  getTableChanges: (schemaId: string) => { originalData: TableData[]; currentData: TableData[]; hasChanges: boolean; primaryKey?: string } | null;
   trackedChanges: Record<string, TrackedChanges>;
 }
 
@@ -23,14 +24,15 @@ const ChangeTrackingContext = createContext<ChangeTrackingContextValue | null>(n
 export const ChangeTrackingProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const [trackedChanges, setTrackedChanges] = useState<Record<string, TrackedChanges>>({});
 
-  const startTracking = useCallback((schemaId: string, data: TableData[]) => {
+  const startTracking = useCallback((schemaId: string, data: TableData[], primaryKey?: string) => {
     setTrackedChanges(prev => ({
       ...prev,
       [schemaId]: {
         schemaId,
         originalData: JSON.parse(JSON.stringify(data)), // deep copy
         currentData: JSON.parse(JSON.stringify(data)),
-        hasChanges: false
+        hasChanges: false,
+        primaryKey
       }
     }));
   }, []);
@@ -40,17 +42,23 @@ export const ChangeTrackingProvider: React.FC<React.PropsWithChildren> = ({ chil
       const tracked = prev[schemaId];
       if (!tracked) return prev;
 
-      const hasChanges = JSON.stringify(tracked.originalData) !== JSON.stringify(newData);
-      
-      console.log('Change tracking update:', {
-        schemaId,
-        hasChanges,
-        originalDataLength: tracked.originalData.length,
-        newDataLength: newData.length,
-        originalData: tracked.originalData,
-        newData
-      });
-      
+      const getKey = (row: any) => String(row?.[tracked.primaryKey || 'id'] ?? row?.id ?? row?._id ?? '');
+      const origMap = new Map(tracked.originalData.map(r => [getKey(r), r] as const));
+      const newMap = new Map(newData.map(r => [getKey(r), r] as const));
+
+      let hasChanges = false;
+      if (origMap.size !== newMap.size) {
+        hasChanges = true;
+      } else {
+        for (const [k, n] of newMap) {
+          const o = origMap.get(k);
+          if (!o || JSON.stringify(o) !== JSON.stringify(n)) {
+            hasChanges = true;
+            break;
+          }
+        }
+      }
+
       return {
         ...prev,
         [schemaId]: {
@@ -69,26 +77,21 @@ export const ChangeTrackingProvider: React.FC<React.PropsWithChildren> = ({ chil
   const getChangesSummary = useCallback(() => {
     const changedTables = getChangedTables();
     return changedTables.map(tracked => {
-      const added = tracked.currentData.filter(current => 
-        !tracked.originalData.find(orig => orig.id === current.id)
-      );
-      
-      const modified = tracked.currentData.filter(current => {
-        const original = tracked.originalData.find(orig => orig.id === current.id);
-        return original && JSON.stringify(original) !== JSON.stringify(current);
-      });
-      
-      const deleted = tracked.originalData.filter(original => 
-        !tracked.currentData.find(current => current.id === original.id)
-      );
+      const getKey = (row: any) => String(row?.[tracked.primaryKey || 'id'] ?? row?.id ?? row?._id ?? '');
+      const origMap = new Map(tracked.originalData.map(r => [getKey(r), r] as const));
+      const newMap = new Map(tracked.currentData.map(r => [getKey(r), r] as const));
 
-      return {
-        schemaId: tracked.schemaId,
-        added: added.length,
-        modified: modified.length,
-        deleted: deleted.length,
-        total: added.length + modified.length + deleted.length
-      };
+      let added = 0, modified = 0, deleted = 0;
+      for (const [k, n] of newMap) {
+        const o = origMap.get(k);
+        if (!o) added++;
+        else if (JSON.stringify(o) !== JSON.stringify(n)) modified++;
+      }
+      for (const k of origMap.keys()) {
+        if (!newMap.has(k)) deleted++;
+      }
+
+      return { schemaId: tracked.schemaId, added, modified, deleted, total: added + modified + deleted };
     });
   }, [getChangedTables]);
 
@@ -139,14 +142,15 @@ export const useChangeTracking = (): ChangeTrackingContextValue => {
   // Fallback isolated instance (won't be shared). Prefer wrapping in ChangeTrackingProvider.
   const [trackedChanges, setTrackedChanges] = useState<Record<string, TrackedChanges>>({});
 
-  const startTracking = useCallback((schemaId: string, data: TableData[]) => {
+  const startTracking = useCallback((schemaId: string, data: TableData[], primaryKey?: string) => {
     setTrackedChanges(prev => ({
       ...prev,
       [schemaId]: {
         schemaId,
         originalData: JSON.parse(JSON.stringify(data)),
         currentData: JSON.parse(JSON.stringify(data)),
-        hasChanges: false
+        hasChanges: false,
+        primaryKey
       }
     }));
   }, []);
@@ -155,7 +159,17 @@ export const useChangeTracking = (): ChangeTrackingContextValue => {
     setTrackedChanges(prev => {
       const tracked = prev[schemaId];
       if (!tracked) return prev;
-      const hasChanges = JSON.stringify(tracked.originalData) !== JSON.stringify(newData);
+      const getKey = (row: any) => String(row?.[tracked.primaryKey || 'id'] ?? row?.id ?? row?._id ?? '');
+      const origMap = new Map(tracked.originalData.map(r => [getKey(r), r] as const));
+      const newMap = new Map(newData.map(r => [getKey(r), r] as const));
+      let hasChanges = false;
+      if (origMap.size !== newMap.size) hasChanges = true;
+      else {
+        for (const [k, n] of newMap) {
+          const o = origMap.get(k);
+          if (!o || JSON.stringify(o) !== JSON.stringify(n)) { hasChanges = true; break; }
+        }
+      }
       return { ...prev, [schemaId]: { ...tracked, currentData: JSON.parse(JSON.stringify(newData)), hasChanges } };
     });
   }, []);
@@ -165,13 +179,16 @@ export const useChangeTracking = (): ChangeTrackingContextValue => {
   const getChangesSummary = useCallback(() => {
     const changedTables = getChangedTables();
     return changedTables.map(tracked => {
-      const added = tracked.currentData.filter(current => !tracked.originalData.find(orig => orig.id === current.id));
-      const modified = tracked.currentData.filter(current => {
-        const original = tracked.originalData.find(orig => orig.id === current.id);
-        return original && JSON.stringify(original) !== JSON.stringify(current);
-      });
-      const deleted = tracked.originalData.filter(original => !tracked.currentData.find(current => current.id === original.id));
-      return { schemaId: tracked.schemaId, added: added.length, modified: modified.length, deleted: deleted.length, total: added.length + modified.length + deleted.length };
+      const getKey = (row: any) => String(row?.[tracked.primaryKey || 'id'] ?? row?.id ?? row?._id ?? '');
+      const origMap = new Map(tracked.originalData.map(r => [getKey(r), r] as const));
+      const newMap = new Map(tracked.currentData.map(r => [getKey(r), r] as const));
+      let added = 0, modified = 0, deleted = 0;
+      for (const [k, n] of newMap) {
+        const o = origMap.get(k);
+        if (!o) added++; else if (JSON.stringify(o) !== JSON.stringify(n)) modified++;
+      }
+      for (const k of origMap.keys()) { if (!newMap.has(k)) deleted++; }
+      return { schemaId: tracked.schemaId, added, modified, deleted, total: added + modified + deleted };
     });
   }, [getChangedTables]);
 

@@ -128,7 +128,8 @@ export const useDynamicFinancialData = ({
         console.log('Loaded data from Supabase:', supabaseData);
         const formattedData = supabaseData || [];
         setData(formattedData);
-        startTracking(schemaId, formattedData);
+        const pk = await getPrimaryKey(schemaId);
+        startTracking(schemaId, formattedData, pk);
       }
     } catch (error) {
       console.error('Error in loadData:', error);
