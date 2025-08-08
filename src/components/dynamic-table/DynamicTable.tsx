@@ -70,6 +70,7 @@ const DynamicTable = ({
   };
 
   const primaryKey = useMemo(() => getPrimaryKey(schema, data), [schema, data]);
+  const visibleColumns = useMemo(() => schema.columns.filter(c => c.key !== 'id'), [schema.columns]);
 
   const handleSelectRow = (id: string) => {
     const updatedSelection = selectedItems.includes(id)
@@ -209,7 +210,7 @@ const DynamicTable = ({
           <TableHeader>
             <TableRow>
               <TableHeaderComponent
-                columns={schema.columns}
+                columns={visibleColumns}
                 allowColumnManagement={allowColumnManagement}
                 hoveredDeleteButton={hoveredDeleteButton}
                 setHoveredDeleteButton={setHoveredDeleteButton}
@@ -229,7 +230,7 @@ const DynamicTable = ({
                     onCheckedChange={() => handleSelectRow((row as any)[primaryKey])}
                   />
                 </TableCell>
-                {schema.columns.map((column) => (
+                {visibleColumns.map((column) => (
                   <TableCell
                     key={column.id}
                     className={`${column.editable ? 'cursor-pointer hover:bg-blue-50' : ''}`}
