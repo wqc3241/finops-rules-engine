@@ -38,7 +38,7 @@ const SubmitForReviewModal = ({ isOpen, onClose, onSubmit }: SubmitForReviewModa
       });
 
       const schemaIds = changesSummary.map(s => s.schemaId);
-      const requestId = submitForReview(schemaIds, tableChanges);
+      const requestId = await submitForReview(schemaIds, tableChanges);
       
       if (requestId) {
         onSubmit();

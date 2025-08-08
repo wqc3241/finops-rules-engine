@@ -7,6 +7,7 @@ import FinancingDataTableTabs from "./FinancingDataTableTabs";
 import { useState } from "react";
 import { BatchOperations } from "./BatchOperations";
 import { toast } from "sonner";
+import { ChangeTrackingProvider } from "@/hooks/useChangeTracking";
 
 interface TabsSectionProps {
   activeSection: string;
@@ -79,15 +80,17 @@ const TabsSection = ({
               onBatchDelete={handleBatchDelete}
             />
           )}
-          <FinancialPricingTabs
-            showAddPricingModal={showAddPricingModal}
-            setShowAddPricingModal={setShowAddPricingModal}
-            showAddPricingTypeModal={showAddPricingTypeModal}
-            setShowAddPricingTypeModal={setShowAddPricingTypeModal}
-            onSelectionChange={handleSelectionChange}
-            selectedItems={selectedItems}
-            onSetBatchDeleteCallback={handleSetBatchDeleteCallback}
-          />
+          <ChangeTrackingProvider>
+            <FinancialPricingTabs
+              showAddPricingModal={showAddPricingModal}
+              setShowAddPricingModal={setShowAddPricingModal}
+              showAddPricingTypeModal={showAddPricingTypeModal}
+              setShowAddPricingTypeModal={setShowAddPricingTypeModal}
+              onSelectionChange={handleSelectionChange}
+              selectedItems={selectedItems}
+              onSetBatchDeleteCallback={handleSetBatchDeleteCallback}
+            />
+          </ChangeTrackingProvider>
         </div>
       );
 
