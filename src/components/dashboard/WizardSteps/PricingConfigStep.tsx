@@ -32,7 +32,17 @@ const PricingConfigStep = ({ data, onUpdate }: PricingConfigStepProps) => {
   useEffect(() => {
     const loadConfigs = async () => {
       const { data } = await supabase.from('pricing_configs').select('*');
-      setExistingConfigs(data || []);
+      const mapped = (data || []).map((r: any) => ({
+        id: r.pricing_rule_id,
+        minLTV: r.min_ltv,
+        maxLTV: r.max_ltv,
+        minTerm: r.min_term,
+        maxTerm: r.max_term,
+        minLeaseMileage: r.min_lease_mileage,
+        maxLeaseMileage: r.max_lease_mileage,
+        priority: r.priority,
+      }));
+      setExistingConfigs(mapped);
     };
     loadConfigs();
   }, []);

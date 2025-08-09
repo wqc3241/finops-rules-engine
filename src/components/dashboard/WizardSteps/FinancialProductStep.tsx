@@ -1,22 +1,38 @@
-
+import { useEffect, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { WizardData } from "../FinancialProgramWizard";
-
-// Mock data from Financial Products table
-const financialProducts = [
-  { id: "USLN", label: "USLN - US Loan", type: "Loan", geoCode: "NA-US" },
-  { id: "USLE", label: "USLE - US Lease", type: "Lease", geoCode: "NA-US" },
-  { id: "KSABM", label: "KSABM - KSA Balloon Mortgage", type: "Loan", geoCode: "ME-KSA" },
-  { id: "KSABA5050", label: "KSABA5050 - KSA Balloon 50/50", type: "Loan", geoCode: "ME-KSA" }
-];
+import { supabase } from "@/integrations/supabase/client";
 
 interface FinancialProductStepProps {
   data: WizardData;
   onUpdate: (updates: Partial<WizardData>) => void;
 }
 
+type Product = { id: string; label: string; type: string; geoCode?: string | null };
+
 const FinancialProductStep = ({ data, onUpdate }: FinancialProductStepProps) => {
+  const [products, setProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    const load = async () => {
+      const { data } = await supabase
+        .from("financial_products")
+        .select("product_id, product_type, product_subtype, geo_code, is_active");
+
+      const list: Product[] = (data || [])
+        .filter((r: any) => r.is_active !== false)
+        .map((r: any) => ({
+          id: r.product_id,
+          label: `${r.product_id} - ${r.product_subtype || r.product_type}`,
+          type: r.product_type,
+          geoCode: r.geo_code,
+        }));
+      setProducts(list);
+    };
+    load();
+  }, []);
+
   const handleProductSelect = (value: string) => {
     onUpdate({ financialProduct: value });
   };
@@ -35,31 +51,28 @@ const FinancialProductStep = ({ data, onUpdate }: FinancialProductStepProps) => 
         onValueChange={handleProductSelect}
         className="space-y-4"
       >
-        {financialProducts.map((product) => (
+        {products.map((product) => (
           <div key={product.id} className="flex items-start space-x-3 p-4 border rounded-lg hover:bg-gray-50">
-            <RadioGroupItem
-              value={product.id}
-              id={product.id}
-              className="mt-1"
-            />
+            <RadioGroupItem value={product.id} id={product.id} className="mt-1" />
             <div className="flex-1">
               <Label htmlFor={product.id} className="text-sm font-medium cursor-pointer">
                 {product.label}
               </Label>
               <p className="text-xs text-muted-foreground mt-1">
-                Type: {product.type} | Geo: {product.geoCode}
+                Type: {product.type} {product.geoCode ? `| Geo: ${product.geoCode}` : ""}
               </p>
             </div>
           </div>
         ))}
+        {products.length === 0 && (
+          <div className="text-sm text-muted-foreground">No financial products found.</div>
+        )}
       </RadioGroup>
 
       {data.financialProduct && (
         <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
           <p className="text-sm text-blue-800">
-            <strong>Selected Product:</strong>
-            {" "}
-            {financialProducts.find(p => p.id === data.financialProduct)?.label}
+            <strong>Selected Product ID:</strong> {data.financialProduct}
           </p>
         </div>
       )}

@@ -37,7 +37,22 @@ const CreditProfileStep = ({ data, onUpdate }: CreditProfileStepProps) => {
   useEffect(() => {
     const loadProfiles = async () => {
       const { data } = await supabase.from('credit_profiles').select('*');
-      setExistingProfiles(data || []);
+      const mapped = (data || []).map((r: any) => ({
+        id: r.profile_id,
+        priority: r.priority,
+        minCreditScore: r.min_credit_score,
+        maxCreditScore: r.max_credit_score,
+        minIncome: r.min_income,
+        maxIncome: r.max_income,
+        minAge: r.min_age,
+        maxAge: r.max_age,
+        minPTI: r.min_pti,
+        maxPTI: r.max_pti,
+        minDTI: r.min_dti,
+        maxDTI: r.max_dti,
+        employmentType: r.employment_type,
+      }));
+      setExistingProfiles(mapped);
     };
     loadProfiles();
   }, []);

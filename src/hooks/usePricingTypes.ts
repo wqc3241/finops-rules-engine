@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 export type PricingType = {
   id: string;
@@ -7,59 +8,45 @@ export type PricingType = {
   typeName: string;
 };
 
-const STORAGE_KEY = "pricingTypesTableData";
-
-const getInitialPricingTypes = (): PricingType[] => [
-  { id: "1", typeCode: "STDAPR", typeName: "Standard APR" },
-  { id: "2", typeCode: "SUBAPR", typeName: "Subvented APR" },
-  { id: "3", typeCode: "MINDWPAY", typeName: "Min Down Payment" },
-  { id: "4", typeCode: "SPR", typeName: "Special Rate" },
-  { id: "5", typeCode: "INR", typeName: "Interest Rate" },
-  { id: "6", typeCode: "ENHRV", typeName: "Enhanced Residual Value" },
-  { id: "7", typeCode: "SUBMF", typeName: "Subvented Money Factor" },
-  { id: "8", typeCode: "MAXBDAPR", typeName: "Max Base Down APR" },
-  { id: "9", typeCode: "MAXMUAPR", typeName: "Max Markup APR" },
-  { id: "10", typeCode: "ADF", typeName: "Additional Dealer Fee" }
-];
-
 export const usePricingTypes = () => {
   const [pricingTypes, setPricingTypes] = useState<PricingType[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  // Load from localStorage or initial data.
-  useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      try {
-        setPricingTypes(JSON.parse(saved));
-        return;
-      } catch {}
+  const fetchTypes = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("pricing_types")
+      .select("id, type_code, type_name")
+      .order("type_code", { ascending: true });
+
+    if (!error) {
+      setPricingTypes(
+        (data || []).map((r: any) => ({
+          id: r.id,
+          typeCode: r.type_code,
+          typeName: r.type_name,
+        }))
+      );
     }
-    setPricingTypes(getInitialPricingTypes());
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchTypes();
   }, []);
 
-  // Save to localStorage.
-  useEffect(() => {
-    if (pricingTypes.length > 0) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(pricingTypes));
-    }
-  }, [pricingTypes]);
-
-  const addPricingType = (typeCode: string, typeName: string) => {
-    // Prevent duplicates based on typeCode
-    if (pricingTypes.some(pt => pt.typeCode === typeCode)) {
+  const addPricingType = async (typeCode: string, typeName: string) => {
+    if (pricingTypes.some((pt) => pt.typeCode === typeCode)) {
       return false;
     }
-    setPricingTypes(prev => [
-      ...prev,
-      {
-        id: (prev.length + 1).toString(),
-        typeCode,
-        typeName,
-      },
-    ]);
+    const { error } = await supabase
+      .from("pricing_types")
+      .insert({ type_code: typeCode, type_name: typeName });
+    if (error) return false;
+    await fetchTypes();
     return true;
   };
 
-  return { pricingTypes, addPricingType, setPricingTypes };
+  return { pricingTypes, addPricingType, setPricingTypes, loading, refetch: fetchTypes };
 };
 

@@ -1,43 +1,50 @@
+import { useEffect, useMemo, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { WizardData } from "../FinancialProgramWizard";
+import { supabase } from "@/integrations/supabase/client";
 
-// Mock data from VehicleStyleDecodingTable and VehicleConditionTable
-const vehicleStyles = [{
-  id: "L25A1",
-  label: "L25A1 - 2025 Lucid Air Grand Touring"
-}, {
-  id: "L25A2",
-  label: "L25A2 - 2025 Lucid Air Pure"
-}, {
-  id: "L25A3",
-  label: "L25A3 - 2025 Lucid Air Pure"
-}, {
-  id: "KSA25A1",
-  label: "KSA25A1 - 2025 Lucid Air Pure (KSA)"
-}];
-const vehicleConditions = [{
-  id: "New",
-  label: "New"
-}, {
-  id: "Used",
-  label: "Used"
-}, {
-  id: "Demo",
-  label: "Demo"
-}, {
-  id: "CPO",
-  label: "Certified Pre-Owned"
-}];
 interface VehicleSelectionStepProps {
   data: WizardData;
   onUpdate: (updates: Partial<WizardData>) => void;
 }
-const VehicleSelectionStep = ({
-  data,
-  onUpdate
-}: VehicleSelectionStepProps) => {
-  return <div className="space-y-6">
+
+const VehicleSelectionStep = ({ data, onUpdate }: VehicleSelectionStepProps) => {
+  const [styles, setStyles] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      const { data } = await supabase
+        .from("vehicle_style_coding")
+        .select("*");
+      setStyles(data || []);
+      setLoading(false);
+    };
+    load();
+  }, []);
+
+  const styleOptions = useMemo(() => {
+    return styles.map((row: any) => {
+      const id = row.style_code ?? row.vehicle_style_id ?? row.id;
+      const parts = [row.model_year, row.make, row.model, row.trim, row.style_name, row.variant]
+        .filter(Boolean)
+        .join(" ");
+      const label = id ? (parts ? `${id} - ${parts}` : `${id}`) : parts || "Unknown Style";
+      return { id: String(id), label };
+    });
+  }, [styles]);
+
+  const vehicleConditions = [
+    { id: "New", label: "New" },
+    { id: "Used", label: "Used" },
+    { id: "Demo", label: "Demo" },
+    { id: "CPO", label: "Certified Pre-Owned" },
+  ];
+
+  return (
+    <div className="space-y-6">
       <div>
         <h3 className="text-lg font-semibold mb-4">Vehicle Selection</h3>
         <p className="text-sm text-muted-foreground mb-6">
@@ -48,42 +55,45 @@ const VehicleSelectionStep = ({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
           <Label htmlFor="vehicleStyle">Vehicle Style *</Label>
-          <Select value={data.vehicleStyleId} onValueChange={value => onUpdate({
-          vehicleStyleId: value
-        })}>
+          <Select value={data.vehicleStyleId} onValueChange={(value) => onUpdate({ vehicleStyleId: value })}>
             <SelectTrigger>
-              <SelectValue placeholder="Select vehicle style" />
+              <SelectValue placeholder={loading ? "Loading vehicle styles..." : "Select vehicle style"} />
             </SelectTrigger>
             <SelectContent>
-              {vehicleStyles.map(style => <SelectItem key={style.id} value={style.id}>
+              {styleOptions.map((style) => (
+                <SelectItem key={style.id} value={style.id}>
                   {style.label}
-                </SelectItem>)}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="vehicleCondition">Financing Vehicle Condition *</Label>
-          <Select value={data.vehicleCondition} onValueChange={value => onUpdate({
-          vehicleCondition: value
-        })}>
+          <Select value={data.vehicleCondition} onValueChange={(value) => onUpdate({ vehicleCondition: value })}>
             <SelectTrigger>
               <SelectValue placeholder="Select vehicle condition" />
             </SelectTrigger>
             <SelectContent>
-              {vehicleConditions.map(condition => <SelectItem key={condition.id} value={condition.id}>
+              {vehicleConditions.map((condition) => (
+                <SelectItem key={condition.id} value={condition.id}>
                   {condition.label}
-                </SelectItem>)}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
       </div>
 
-      {data.vehicleStyleId && data.vehicleCondition && <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+      {data.vehicleStyleId && data.vehicleCondition && (
+        <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
           <p className="text-sm text-green-800">
-            <strong>Selected:</strong> {vehicleStyles.find(s => s.id === data.vehicleStyleId)?.label} - {data.vehicleCondition}
+            <strong>Selected:</strong> {styleOptions.find((s) => s.id === data.vehicleStyleId)?.label || data.vehicleStyleId} - {data.vehicleCondition}
           </p>
-        </div>}
-    </div>;
+        </div>
+      )}
+    </div>
+  );
 };
 export default VehicleSelectionStep;
