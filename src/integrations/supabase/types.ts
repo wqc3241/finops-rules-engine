@@ -1770,6 +1770,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "table_locks_request_fk"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "change_requests"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "table_locks_request_id_fkey"
             columns: ["request_id"]
             isOneToOne: false
