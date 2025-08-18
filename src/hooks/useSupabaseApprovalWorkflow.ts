@@ -139,8 +139,80 @@ export const useSupabaseApprovalWorkflow = () => {
     setLoading(true);
     try {
       const versionId = `v${Date.now()}`;
-      
-      // Create change request
+
+      // 1) Build change details and lock targets BEFORE creating the request
+      type PendingDetail = {
+        table_name: string;
+        rule_key: any;
+        old_value: any;
+        new_value: any;
+      };
+
+      const pendingDetails: PendingDetail[] = [];
+      const lockSchemas = new Set<string>();
+
+      for (const [table, changes] of Object.entries(tableChanges)) {
+        const { oldData, newData } = changes;
+        lockSchemas.add(table);
+
+        // Compare old vs new data to create change details
+        const getPrimaryKey = (item: any) => {
+          return (
+            item?.id ||
+            item?._id ||
+            item?.pricing_rule_id ||
+            item?.profile_id ||
+            Object.values(item || {})[0]
+          ); // fallback to first value
+        };
+
+        const allKeys = new Set([
+          ...oldData.map(item => getPrimaryKey(item)),
+          ...newData.map(item => getPrimaryKey(item))
+        ]);
+
+        for (const key of allKeys) {
+          const oldItem = oldData.find(item => getPrimaryKey(item) === key);
+          const newItem = newData.find(item => getPrimaryKey(item) === key);
+
+          if (!oldItem && newItem) {
+            // New item
+            pendingDetails.push({
+              table_name: table,
+              rule_key: key,
+              old_value: null,
+              new_value: newItem
+            });
+          } else if (oldItem && !newItem) {
+            // Deleted item
+            pendingDetails.push({
+              table_name: table,
+              rule_key: key,
+              old_value: oldItem,
+              new_value: null
+            });
+          } else if (oldItem && newItem && JSON.stringify(oldItem) !== JSON.stringify(newItem)) {
+            // Modified item
+            pendingDetails.push({
+              table_name: table,
+              rule_key: key,
+              old_value: oldItem,
+              new_value: newItem
+            });
+          }
+        }
+      }
+
+      // 2) If no actual changes, do NOT create a request
+      if (pendingDetails.length === 0) {
+        toast({
+          title: "No changes detected",
+          description: "There are no differences to submit for review.",
+        });
+        return null;
+      }
+
+      // 3) Create change request only after confirming there are changes
       const { data: requestData, error: requestError } = await supabase
         .from('change_requests')
         .insert({
@@ -156,81 +228,29 @@ export const useSupabaseApprovalWorkflow = () => {
 
       const requestId = requestData.id;
 
-      // Create change details and table locks
-      const changeDetailsToInsert = [];
-      const tableLocks = [];
+      // 4) Insert change details (now attach the request_id)
+      const changeDetailsToInsert = pendingDetails.map(d => ({
+        request_id: requestId,
+        ...d,
+      }));
 
-      for (const [table, changes] of Object.entries(tableChanges)) {
-        const { oldData, newData } = changes;
-        
-        // Create table lock
-        tableLocks.push({
-          schema_id: table,
-          locked_by: user.id,
-          request_id: requestId
-        });
+      const { error: detailsError } = await supabase
+        .from('change_details')
+        .insert(changeDetailsToInsert);
+      
+      if (detailsError) throw detailsError;
 
-        // Compare old vs new data to create change details
-        const getPrimaryKey = (item: any) => {
-          return item.id || item._id || item.pricing_rule_id || item.profile_id || 
-                 Object.values(item)[0]; // fallback to first value
-        };
-        
-        const allKeys = new Set([
-          ...oldData.map(item => getPrimaryKey(item)),
-          ...newData.map(item => getPrimaryKey(item))
-        ]);
+      // 5) Insert table locks for affected schemas
+      const tableLocks = Array.from(lockSchemas).map(schemaId => ({
+        schema_id: schemaId,
+        locked_by: user.id,
+        request_id: requestId,
+      }));
 
-        for (const key of allKeys) {
-          const oldItem = oldData.find(item => getPrimaryKey(item) === key);
-          const newItem = newData.find(item => getPrimaryKey(item) === key);
-
-          if (!oldItem && newItem) {
-            // New item
-            changeDetailsToInsert.push({
-              request_id: requestId,
-              table_name: table,
-              rule_key: key,
-              old_value: null,
-              new_value: newItem
-            });
-          } else if (oldItem && !newItem) {
-            // Deleted item
-            changeDetailsToInsert.push({
-              request_id: requestId,
-              table_name: table,
-              rule_key: key,
-              old_value: oldItem,
-              new_value: null
-            });
-          } else if (oldItem && newItem && JSON.stringify(oldItem) !== JSON.stringify(newItem)) {
-            // Modified item
-            changeDetailsToInsert.push({
-              request_id: requestId,
-              table_name: table,
-              rule_key: key,
-              old_value: oldItem,
-              new_value: newItem
-            });
-          }
-        }
-      }
-
-      // Insert change details
-      if (changeDetailsToInsert.length > 0) {
-        const { error: detailsError } = await supabase
-          .from('change_details')
-          .insert(changeDetailsToInsert);
-        
-        if (detailsError) throw detailsError;
-      }
-
-      // Insert table locks
       if (tableLocks.length > 0) {
         const { error: locksError } = await supabase
           .from('table_locks')
           .insert(tableLocks);
-        
         if (locksError) throw locksError;
       }
 
@@ -389,9 +409,14 @@ export const useSupabaseApprovalWorkflow = () => {
   const getPendingRequestsForAdmin = useCallback((): ChangeRequestWithDetails[] => {
     return changeRequests
       .filter(request => request.status === 'IN_REVIEW')
-      .map(request => getChangeRequestWithDetails(request.id))
+      .map(request => {
+        const details = changeDetails.filter(d => d.requestId === request.id);
+        const hasPending = details.some(d => d.status === 'PENDING');
+        if (details.length === 0 || !hasPending) return null;
+        return getChangeRequestWithDetails(request.id);
+      })
       .filter(Boolean) as ChangeRequestWithDetails[];
-  }, [changeRequests, getChangeRequestWithDetails]);
+  }, [changeRequests, changeDetails, getChangeRequestWithDetails]);
 
   const isTableLocked = useCallback((schemaId: string): boolean => {
     return lockedTables.includes(schemaId);
