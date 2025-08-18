@@ -1,19 +1,56 @@
-import { Bell, Clock, Users } from "lucide-react";
+import { Bell, Clock, Users, RefreshCw } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useSupabaseApprovalWorkflow } from "@/hooks/useSupabaseApprovalWorkflow";
 import { useAuth } from "@/hooks/useSupabaseAuth";
+import { useEffect, useState } from "react";
+import { toast } from "@/hooks/use-toast";
 
 interface ApprovalNotificationBannerProps {
   onOpenReview: (requestId: string) => void;
 }
 
 const ApprovalNotificationBanner = ({ onOpenReview }: ApprovalNotificationBannerProps) => {
-  const { getPendingRequestsForAdmin } = useSupabaseApprovalWorkflow();
+  const { getPendingRequestsForAdmin, forceRefresh } = useSupabaseApprovalWorkflow();
   const { profile, isFSAdmin } = useAuth();
+  const [isRefreshing, setIsRefreshing] = useState(false);
   
   const pendingRequests = getPendingRequestsForAdmin();
+
+  // Debug logging
+  useEffect(() => {
+    console.log("ApprovalNotificationBanner Debug:", {
+      isFSAdmin: isFSAdmin(),
+      pendingRequestsCount: pendingRequests.length,
+      pendingRequests: pendingRequests.map(req => ({
+        id: req.id,
+        status: req.status,
+        totalChanges: req.totalChanges,
+        createdBy: req.createdBy
+      }))
+    });
+  }, [pendingRequests, isFSAdmin]);
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await forceRefresh();
+      toast({
+        title: "Data refreshed",
+        description: "Approval workflow data has been updated."
+      });
+    } catch (error) {
+      console.error("Failed to refresh approval data:", error);
+      toast({
+        title: "Refresh failed",
+        description: "Failed to refresh approval data. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   // Only show for admins and if there are pending requests
   if (!profile || !isFSAdmin() || pendingRequests.length === 0) {
@@ -43,6 +80,15 @@ const ApprovalNotificationBanner = ({ onOpenReview }: ApprovalNotificationBanner
         </div>
 
         <div className="flex gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="text-warning hover:bg-warning/10"
+          >
+            <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+          </Button>
           {pendingRequests.map(request => (
             <Button
               key={request.id}
