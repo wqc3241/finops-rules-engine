@@ -323,6 +323,12 @@ export const useSupabaseApprovalWorkflow = () => {
 
       if (error) throw error;
 
+      // Force refresh data to sync with database
+      await Promise.all([
+        loadChangeRequests(),
+        loadChangeDetails()
+      ]);
+
       toast({
         title: "Changes approved",
         description: `Changes for ${table} have been approved.`
@@ -353,6 +359,12 @@ export const useSupabaseApprovalWorkflow = () => {
         .eq('table_name', table);
 
       if (error) throw error;
+
+      // Force refresh data to sync with database
+      await Promise.all([
+        loadChangeRequests(),
+        loadChangeDetails()
+      ]);
 
       toast({
         title: "Changes rejected",
@@ -392,6 +404,13 @@ export const useSupabaseApprovalWorkflow = () => {
 
       if (locksError) throw locksError;
 
+      // Force refresh data to sync with database
+      await Promise.all([
+        loadChangeRequests(),
+        loadChangeDetails(),
+        loadLockedTables()
+      ]);
+
       toast({
         title: "Request finalized",
         description: "Change request has been finalized and tables unlocked."
@@ -422,6 +441,14 @@ export const useSupabaseApprovalWorkflow = () => {
     return lockedTables.includes(schemaId);
   }, [lockedTables]);
 
+  const forceRefresh = useCallback(async () => {
+    await Promise.all([
+      loadChangeRequests(),
+      loadChangeDetails(),
+      loadLockedTables()
+    ]);
+  }, []);
+
   return {
     changeRequests,
     changeDetails,
@@ -432,6 +459,7 @@ export const useSupabaseApprovalWorkflow = () => {
     rejectTableChanges,
     finalizeChangeRequest,
     getPendingRequestsForAdmin,
-    isTableLocked
+    isTableLocked,
+    forceRefresh
   };
 };
