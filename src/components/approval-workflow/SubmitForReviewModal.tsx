@@ -15,6 +15,7 @@ interface SubmitForReviewModalProps {
 
 const SubmitForReviewModal = ({ isOpen, onClose, onSubmit }: SubmitForReviewModalProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { getChangesSummary, getTableChanges, trackedChanges } = useChangeTracking();
   const { submitForReview } = useSupabaseApprovalWorkflow();
 
@@ -22,6 +23,7 @@ const SubmitForReviewModal = ({ isOpen, onClose, onSubmit }: SubmitForReviewModa
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
+    setError(null);
     
     try {
       // Prepare table changes data
@@ -37,15 +39,19 @@ const SubmitForReviewModal = ({ isOpen, onClose, onSubmit }: SubmitForReviewModa
         }
       });
 
+      console.log('Submitting table changes:', tableChanges);
       const schemaIds = changesSummary.map(s => s.schemaId);
       const requestId = await submitForReview(schemaIds, tableChanges);
       
       if (requestId) {
         onSubmit();
         onClose();
+      } else {
+        setError('Failed to submit changes for review. Please try again.');
       }
     } catch (error) {
       console.error('Error submitting for review:', error);
+      setError(error instanceof Error ? error.message : 'An unexpected error occurred');
     } finally {
       setIsSubmitting(false);
     }
@@ -114,6 +120,15 @@ const SubmitForReviewModal = ({ isOpen, onClose, onSubmit }: SubmitForReviewModa
                   Once submitted, these tables will be locked for editing until an admin approves or rejects the changes.
                 </AlertDescription>
               </Alert>
+
+              {error && (
+                <Alert className="border-destructive bg-destructive/5">
+                  <AlertTriangle className="h-4 w-4 text-destructive" />
+                  <AlertDescription className="text-destructive">
+                    {error}
+                  </AlertDescription>
+                </Alert>
+              )}
             </>
           )}
         </div>

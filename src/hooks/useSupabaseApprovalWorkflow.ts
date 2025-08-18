@@ -171,14 +171,19 @@ export const useSupabaseApprovalWorkflow = () => {
         });
 
         // Compare old vs new data to create change details
+        const getPrimaryKey = (item: any) => {
+          return item.id || item._id || item.pricing_rule_id || item.profile_id || 
+                 Object.values(item)[0]; // fallback to first value
+        };
+        
         const allKeys = new Set([
-          ...oldData.map(item => item.id || item._id),
-          ...newData.map(item => item.id || item._id)
+          ...oldData.map(item => getPrimaryKey(item)),
+          ...newData.map(item => getPrimaryKey(item))
         ]);
 
         for (const key of allKeys) {
-          const oldItem = oldData.find(item => (item.id || item._id) === key);
-          const newItem = newData.find(item => (item.id || item._id) === key);
+          const oldItem = oldData.find(item => getPrimaryKey(item) === key);
+          const newItem = newData.find(item => getPrimaryKey(item) === key);
 
           if (!oldItem && newItem) {
             // New item
