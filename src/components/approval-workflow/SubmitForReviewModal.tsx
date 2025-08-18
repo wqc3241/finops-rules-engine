@@ -93,7 +93,7 @@ const SubmitForReviewModal = ({ isOpen, onClose, onSubmit }: SubmitForReviewModa
           </DialogTitle>
         </DialogHeader>
 
-        <ScrollArea className="max-h-[60vh]">
+        <ScrollArea className="max-h-[65vh] pr-4">
           <div className="space-y-4 pr-4">
             {changesSummary.length === 0 ? (
               <Alert>

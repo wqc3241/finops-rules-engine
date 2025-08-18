@@ -78,6 +78,10 @@ const DetailedChangeView: React.FC<DetailedChangeViewProps> = ({
     return changes;
   };
 
+  const getChangedFields = (changes: { field: string; oldValue: any; newValue: any }[]): Set<string> => {
+    return new Set(changes.map(c => c.field));
+  };
+
   const formatValue = (value: any): string => {
     if (value === null || value === undefined) return 'null';
     if (typeof value === 'string') return value;
@@ -111,16 +115,16 @@ const DetailedChangeView: React.FC<DetailedChangeViewProps> = ({
                   </span>
                 </div>
                 <div className="bg-green-50 border border-green-200 rounded p-2">
-                  <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className="grid grid-cols-4 gap-x-4 gap-y-1 text-xs">
                     {Object.entries(change.record || {}).map(([field, value]) => (
-                      <div key={field} className="flex justify-between">
-                        <span className="font-medium text-green-700">
+                      <React.Fragment key={field}>
+                        <span className="font-medium text-green-700 truncate">
                           {formatFieldName(field)}:
                         </span>
-                        <span className="text-green-900 font-mono">
+                        <span className="text-green-900 font-mono col-span-3 truncate">
                           {formatValue(value)}
                         </span>
-                      </div>
+                      </React.Fragment>
                     ))}
                   </div>
                 </div>
@@ -138,28 +142,39 @@ const DetailedChangeView: React.FC<DetailedChangeViewProps> = ({
                     {primaryKey}: {change.key}
                   </span>
                 </div>
-                <div className="space-y-2">
-                  {change.changes?.map((fieldChange, idx) => (
-                    <div key={idx} className="border border-blue-200 rounded p-2">
-                      <div className="text-xs font-medium text-blue-700 mb-1">
-                        {formatFieldName(fieldChange.field)}
-                      </div>
-                      <div className="grid grid-cols-2 gap-2 text-xs">
-                        <div className="bg-red-50 border border-red-200 rounded p-1">
-                          <div className="text-red-600 font-medium mb-1">Before:</div>
-                          <div className="text-red-900 font-mono">
-                            {formatValue(fieldChange.oldValue)}
-                          </div>
-                        </div>
-                        <div className="bg-green-50 border border-green-200 rounded p-1">
-                          <div className="text-green-600 font-medium mb-1">After:</div>
-                          <div className="text-green-900 font-mono">
-                            {formatValue(fieldChange.newValue)}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                <div className="bg-blue-50 border border-blue-200 rounded p-2">
+                  <div className="grid grid-cols-4 gap-x-4 gap-y-1 text-xs">
+                    {Object.entries(change.record || {}).map(([field, value]) => {
+                      const changedFields = getChangedFields(change.changes || []);
+                      const isChanged = changedFields.has(field);
+                      const fieldChange = change.changes?.find(c => c.field === field);
+                      
+                      return (
+                        <React.Fragment key={field}>
+                          <span className={`font-medium truncate ${isChanged ? 'text-blue-700' : 'text-gray-600'}`}>
+                            {formatFieldName(field)}:
+                          </span>
+                          <span className="col-span-3 truncate">
+                            {isChanged && fieldChange ? (
+                              <div className="flex items-center gap-2">
+                                <span className="bg-red-100 text-red-800 px-1 rounded font-mono text-xs">
+                                  {formatValue(fieldChange.oldValue)}
+                                </span>
+                                <span className="text-gray-400">→</span>
+                                <span className="bg-green-100 text-green-800 px-1 rounded font-mono text-xs">
+                                  {formatValue(fieldChange.newValue)}
+                                </span>
+                              </div>
+                            ) : (
+                              <span className="text-gray-900 font-mono">
+                                {formatValue(value)}
+                              </span>
+                            )}
+                          </span>
+                        </React.Fragment>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             )}
@@ -176,16 +191,16 @@ const DetailedChangeView: React.FC<DetailedChangeViewProps> = ({
                   </span>
                 </div>
                 <div className="bg-red-50 border border-red-200 rounded p-2">
-                  <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className="grid grid-cols-4 gap-x-4 gap-y-1 text-xs">
                     {Object.entries(change.record || {}).map(([field, value]) => (
-                      <div key={field} className="flex justify-between">
-                        <span className="font-medium text-red-700">
+                      <React.Fragment key={field}>
+                        <span className="font-medium text-red-700 truncate">
                           {formatFieldName(field)}:
                         </span>
-                        <span className="text-red-900 font-mono">
+                        <span className="text-red-900 font-mono col-span-3 truncate">
                           {formatValue(value)}
                         </span>
-                      </div>
+                      </React.Fragment>
                     ))}
                   </div>
                 </div>
