@@ -52,6 +52,10 @@ const FinancialPricingTabs = ({
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
+    // Reset selections when changing tabs to prevent issues
+    if (onSelectionChange) {
+      onSelectionChange([]);
+    }
   };
 
   const handleOpenReview = (requestId: string) => {

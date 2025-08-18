@@ -42,6 +42,11 @@ export const ChangeTrackingProvider: React.FC<React.PropsWithChildren> = ({ chil
       const tracked = prev[schemaId];
       if (!tracked) return prev;
 
+      // Skip change detection if the new data is empty (likely during loading)
+      if (newData.length === 0 && tracked.originalData.length > 0) {
+        return prev;
+      }
+
       const getKey = (row: any) => String(row?.[tracked.primaryKey || 'id'] ?? row?.id ?? row?._id ?? '');
       const origMap = new Map(tracked.originalData.map(r => [getKey(r), r] as const));
       const newMap = new Map(newData.map(r => [getKey(r), r] as const));
@@ -159,6 +164,12 @@ export const useChangeTracking = (): ChangeTrackingContextValue => {
     setTrackedChanges(prev => {
       const tracked = prev[schemaId];
       if (!tracked) return prev;
+      
+      // Skip change detection if the new data is empty (likely during loading)
+      if (newData.length === 0 && tracked.originalData.length > 0) {
+        return prev;
+      }
+      
       const getKey = (row: any) => String(row?.[tracked.primaryKey || 'id'] ?? row?.id ?? row?._id ?? '');
       const origMap = new Map(tracked.originalData.map(r => [getKey(r), r] as const));
       const newMap = new Map(newData.map(r => [getKey(r), r] as const));
