@@ -314,7 +314,12 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete }: FinancialPro
                         />
                         <Label htmlFor={`credit-${profile.id}`} className="text-sm cursor-pointer">
                           {profile.id}
-                          <div className="text-xs text-muted-foreground">Priority: {profile.priority}</div>
+                          <div className="text-xs text-muted-foreground space-y-1 mt-1">
+                            <div>Priority: {profile.priority}</div>
+                            <div>Credit Score: {profile.minCreditScore} - {profile.maxCreditScore}</div>
+                            <div>Income: ${profile.minIncome?.toLocaleString()} - ${profile.maxIncome?.toLocaleString()}</div>
+                            <div>Employment: {profile.employmentType}</div>
+                          </div>
                         </Label>
                       </div>
                     ))}
@@ -338,7 +343,11 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete }: FinancialPro
                         />
                         <Label htmlFor={`pricing-${config.id}`} className="text-sm cursor-pointer">
                           {config.id}
-                          <div className="text-xs text-muted-foreground">Priority: {config.priority}</div>
+                          <div className="text-xs text-muted-foreground space-y-1 mt-1">
+                            <div>Priority: {config.priority}</div>
+                            <div>LTV: {config.minLTV}% - {config.maxLTV}%</div>
+                            <div>Term: {config.minTerm} - {config.maxTerm} months</div>
+                          </div>
                         </Label>
                       </div>
                     ))}
