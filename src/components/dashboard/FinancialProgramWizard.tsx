@@ -299,10 +299,10 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete }: FinancialPro
               <CardTitle className="text-lg">Configuration</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="space-y-6">
                 <div className="space-y-3">
                   <Label className="font-medium">Credit Profiles *</Label>
-                  <div className="space-y-2 max-h-40 overflow-y-auto border rounded-lg p-3">
+                  <div className="space-y-2 max-h-64 overflow-y-auto border rounded-lg p-3">
                     {creditProfiles.map((profile) => (
                       <div key={profile.id} className="flex items-center space-x-2">
                         <Checkbox
@@ -331,7 +331,7 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete }: FinancialPro
 
                 <div className="space-y-3">
                   <Label className="font-medium">Pricing Configurations *</Label>
-                  <div className="space-y-2 max-h-40 overflow-y-auto border rounded-lg p-3">
+                  <div className="space-y-2 max-h-64 overflow-y-auto border rounded-lg p-3">
                     {pricingConfigs.map((config) => (
                       <div key={config.id} className="flex items-center space-x-2">
                         <Checkbox
