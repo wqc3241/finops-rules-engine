@@ -295,7 +295,7 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete }: FinancialPro
 
           {/* Configuration */}
           <Card>
-            <CardHeader>
+            <CardHeader className="pb-3">
               <CardTitle className="text-lg">Configuration</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
