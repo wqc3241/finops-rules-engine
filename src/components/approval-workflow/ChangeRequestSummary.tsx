@@ -213,36 +213,66 @@ const ChangeRequestSummary = ({ isOpen, onClose, requestId }: ChangeRequestSumma
                                         </Badge>
                                       </div>
                                       
-                                      <div className="overflow-x-auto">
-                                        <table className="w-full border-collapse">
-                                          <thead>
-                                            <tr className="border-b">
-                                              <th className="text-left p-2 text-sm font-medium">Rule Key</th>
-                                              <th className="text-left p-2 text-sm font-medium">Before</th>
-                                              <th className="text-left p-2 text-sm font-medium">After</th>
-                                            </tr>
-                                          </thead>
-                                          <tbody>
-                                            {tableDetail.changes.map((change, idx) => (
-                                              <tr key={idx} className="border-b hover:bg-muted/50">
-                                                <td className="p-2 font-mono text-sm">
-                                                  {change.ruleKey}
-                                                </td>
-                                                <td className="p-2">
-                                                  <div className="bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-mono max-w-xs">
-                                                    {change.oldValue === null ? 'null' : JSON.stringify(change.oldValue)}
-                                                  </div>
-                                                </td>
-                                                <td className="p-2">
-                                                  <div className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-mono max-w-xs">
-                                                    {change.newValue === null ? 'null' : JSON.stringify(change.newValue)}
-                                                  </div>
-                                                </td>
-                                              </tr>
-                                            ))}
-                                          </tbody>
-                                        </table>
-                                      </div>
+                                      {tableDetail.changes.map((change, idx) => {
+                                        // Parse the old and new values to get individual fields
+                                        const oldRecord = change.oldValue ? (typeof change.oldValue === 'string' ? JSON.parse(change.oldValue) : change.oldValue) : {};
+                                        const newRecord = change.newValue ? (typeof change.newValue === 'string' ? JSON.parse(change.newValue) : change.newValue) : {};
+                                        
+                                        // Get all fields from both records
+                                        const allFields = new Set([...Object.keys(oldRecord), ...Object.keys(newRecord)]);
+                                        const fields = Array.from(allFields).sort();
+                                        
+                                        return (
+                                          <div key={idx} className="border rounded-lg overflow-hidden">
+                                            <div className="bg-muted p-2 font-mono text-sm font-medium">
+                                              {change.ruleKey}
+                                            </div>
+                                            
+                                            <div className="overflow-x-auto">
+                                              <table className="w-full">
+                                                <thead>
+                                                  <tr className="border-b bg-gray-50">
+                                                    {fields.map(field => (
+                                                      <th key={field} className="text-left p-2 text-sm font-medium border-r last:border-r-0">
+                                                        {field.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                                                      </th>
+                                                    ))}
+                                                  </tr>
+                                                </thead>
+                                                <tbody>
+                                                  <tr className="hover:bg-muted/50">
+                                                    {fields.map(field => {
+                                                      const oldValue = oldRecord[field];
+                                                      const newValue = newRecord[field];
+                                                      const hasChanged = JSON.stringify(oldValue) !== JSON.stringify(newValue);
+                                                      
+                                                      return (
+                                                        <td key={field} className="p-2 border-r last:border-r-0 align-top">
+                                                          {hasChanged ? (
+                                                            <div className="space-y-1">
+                                                              <div className="bg-red-100 text-red-800 px-2 py-1 rounded text-xs">
+                                                                {oldValue === null || oldValue === undefined ? 'null' : String(oldValue)}
+                                                              </div>
+                                                              <div className="text-center text-gray-400 text-xs">↓</div>
+                                                              <div className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">
+                                                                {newValue === null || newValue === undefined ? 'null' : String(newValue)}
+                                                              </div>
+                                                            </div>
+                                                          ) : (
+                                                            <div className="text-sm text-gray-600">
+                                                              {oldValue === null || oldValue === undefined ? 'null' : String(oldValue)}
+                                                            </div>
+                                                          )}
+                                                        </td>
+                                                      );
+                                                    })}
+                                                  </tr>
+                                                </tbody>
+                                              </table>
+                                            </div>
+                                          </div>
+                                        );
+                                      })}
                                     </div>
                                   ) : (
                                     <div className="text-sm text-muted-foreground p-4 text-center">
