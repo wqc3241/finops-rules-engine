@@ -267,7 +267,7 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete }: FinancialPro
                   <Label className="text-sm font-medium">Available Pricing Types *</Label>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
                     {[...pricingTypes].sort((a, b) => a.typeName.localeCompare(b.typeName)).map((type) => (
-                      <div key={type.typeCode} className="flex items-start space-x-3 p-3 border rounded-lg hover:bg-accent/50 transition-colors h-20">
+                      <div key={type.typeCode} className="flex items-start space-x-3 p-2 border rounded-lg hover:bg-accent/50 transition-colors h-10">
                         <Checkbox
                           id={type.typeCode}
                           checked={wizardData.pricingTypes.includes(type.typeCode)}
@@ -277,11 +277,11 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete }: FinancialPro
                               : wizardData.pricingTypes.filter(code => code !== type.typeCode);
                             updateWizardData({ pricingTypes: updated });
                           }}
-                          className="mt-0.5"
+                          className="mt-0.5 scale-75"
                         />
-                        <Label htmlFor={type.typeCode} className="text-sm cursor-pointer flex-1 min-w-0">
+                        <Label htmlFor={type.typeCode} className="text-xs cursor-pointer flex-1 min-w-0">
                           <div className="font-medium leading-tight">{type.typeName}</div>
-                          <div className="text-xs text-muted-foreground mt-1">{type.typeCode}</div>
+                          <div className="text-[10px] text-muted-foreground">{type.typeCode}</div>
                         </Label>
                       </div>
                     ))}
