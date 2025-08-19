@@ -4,10 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle, XCircle, Clock, User, Calendar, FileText } from "lucide-react";
+import { CheckCircle, XCircle, Clock, User, Calendar, FileText, ChevronDown, ChevronUp } from "lucide-react";
 import { ChangeRequestWithDetails, ApprovalStatus } from "@/types/approval";
 import { useSupabaseApprovalWorkflow } from "@/hooks/useSupabaseApprovalWorkflow";
 import TableReviewInterface from "./TableReviewInterface";
+import DetailedChangeView from "./DetailedChangeView";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface ChangeRequestSummaryProps {
   isOpen: boolean;
@@ -17,7 +19,31 @@ interface ChangeRequestSummaryProps {
 
 const ChangeRequestSummary = ({ isOpen, onClose, requestId }: ChangeRequestSummaryProps) => {
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
+  const [expandedTables, setExpandedTables] = useState<Set<string>>(new Set());
   const { getChangeRequestWithDetails, getPendingRequestsForAdmin, approveAllPendingRequests, rejectAllPendingRequests } = useSupabaseApprovalWorkflow();
+
+  const toggleTableExpansion = (tableKey: string) => {
+    const newExpanded = new Set(expandedTables);
+    if (newExpanded.has(tableKey)) {
+      newExpanded.delete(tableKey);
+    } else {
+      newExpanded.add(tableKey);
+    }
+    setExpandedTables(newExpanded);
+  };
+
+  const expandAll = () => {
+    if (isReviewingAll) {
+      const allTableKeys = allPendingRequests.flatMap(req => 
+        req.tableChanges.map(table => `${req.id}-${table.schemaId}`)
+      );
+      setExpandedTables(new Set(allTableKeys));
+    }
+  };
+
+  const collapseAll = () => {
+    setExpandedTables(new Set());
+  };
 
   // If no specific requestId provided, show all pending requests
   const allPendingRequests = getPendingRequestsForAdmin();
@@ -119,39 +145,117 @@ const ChangeRequestSummary = ({ isOpen, onClose, requestId }: ChangeRequestSumma
 
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Requests Summary</CardTitle>
+                  <CardTitle className="text-lg flex items-center justify-between">
+                    Changes Summary:
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" onClick={expandAll}>
+                        Expand All
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={collapseAll}>
+                        Collapse All
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
+                        Refresh
+                      </Button>
+                    </div>
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-3">
-                    {allPendingRequests.map(req => (
-                      <div key={req.id} className="p-3 border rounded-lg">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <Badge variant="outline" className="font-mono text-xs">
-                                {req.id}
-                              </Badge>
-                              <Badge className={getStatusColor(req.status)}>
-                                {getStatusIcon(req.status)}
-                                {req.status}
-                              </Badge>
-                            </div>
-                            <div className="mt-1 text-sm text-muted-foreground">
-                              By: {req.createdBy} | {req.totalChanges} changes | {new Date(req.submittedAt).toLocaleDateString()}
-                            </div>
-                          </div>
-                        </div>
-                        <div className="mt-2">
-                          <div className="flex gap-2 flex-wrap">
-                            {req.tableChanges.map(table => (
-                              <Badge key={table.schemaId} variant="outline" className="text-xs">
-                                {table.table.replace(/-/g, ' ')}: {table.changedRowsCount}
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
+                  <div className="space-y-4">
+                    {allPendingRequests.map(req => 
+                      req.tableChanges.map(table => {
+                        const tableKey = `${req.id}-${table.schemaId}`;
+                        const isExpanded = expandedTables.has(tableKey);
+                        const detailRequest = getChangeRequestWithDetails(req.id);
+                        const tableDetail = detailRequest?.tableChanges.find(t => t.schemaId === table.schemaId);
+                        
+                        return (
+                          <Collapsible key={tableKey} open={isExpanded} onOpenChange={() => toggleTableExpansion(tableKey)}>
+                            <Card className="border">
+                              <CollapsibleTrigger asChild>
+                                <CardHeader className="cursor-pointer hover:bg-muted/50 pb-3">
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                      {isExpanded ? (
+                                        <ChevronDown className="h-4 w-4" />
+                                      ) : (
+                                        <ChevronUp className="h-4 w-4" />
+                                      )}
+                                      <div>
+                                        <CardTitle className="text-base capitalize">
+                                          {table.table.replace(/-/g, ' ')}
+                                        </CardTitle>
+                                        <p className="text-sm text-muted-foreground">
+                                          Request: {req.id.split('-')[0]}...
+                                        </p>
+                                      </div>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <Badge variant="outline" className="text-xs">
+                                        ~{table.changedRowsCount}
+                                      </Badge>
+                                      <Badge className={getStatusColor(table.status)}>
+                                        {getStatusIcon(table.status)}
+                                        {table.status}
+                                      </Badge>
+                                    </div>
+                                  </div>
+                                </CardHeader>
+                              </CollapsibleTrigger>
+                              
+                              <CollapsibleContent>
+                                <CardContent className="pt-0">
+                                  {tableDetail && tableDetail.changes && tableDetail.changes.length > 0 ? (
+                                    <div className="space-y-4">
+                                      <div className="flex items-center gap-2">
+                                        <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                                          Modified Records ({tableDetail.changes.length})
+                                        </Badge>
+                                      </div>
+                                      
+                                      <div className="overflow-x-auto">
+                                        <table className="w-full border-collapse">
+                                          <thead>
+                                            <tr className="border-b">
+                                              <th className="text-left p-2 text-sm font-medium">Rule Key</th>
+                                              <th className="text-left p-2 text-sm font-medium">Before</th>
+                                              <th className="text-left p-2 text-sm font-medium">After</th>
+                                            </tr>
+                                          </thead>
+                                          <tbody>
+                                            {tableDetail.changes.map((change, idx) => (
+                                              <tr key={idx} className="border-b hover:bg-muted/50">
+                                                <td className="p-2 font-mono text-sm">
+                                                  {change.ruleKey}
+                                                </td>
+                                                <td className="p-2">
+                                                  <div className="bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-mono max-w-xs">
+                                                    {change.oldValue === null ? 'null' : JSON.stringify(change.oldValue)}
+                                                  </div>
+                                                </td>
+                                                <td className="p-2">
+                                                  <div className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-mono max-w-xs">
+                                                    {change.newValue === null ? 'null' : JSON.stringify(change.newValue)}
+                                                  </div>
+                                                </td>
+                                              </tr>
+                                            ))}
+                                          </tbody>
+                                        </table>
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <div className="text-sm text-muted-foreground p-4 text-center">
+                                      No detailed changes available for this table
+                                    </div>
+                                  )}
+                                </CardContent>
+                              </CollapsibleContent>
+                            </Card>
+                          </Collapsible>
+                        );
+                      })
+                    )}
                   </div>
                 </CardContent>
               </Card>
