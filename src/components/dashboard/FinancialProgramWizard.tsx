@@ -247,7 +247,7 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete }: FinancialPro
                   <RadioGroup
                     value={wizardData.financialProduct}
                     onValueChange={(value) => updateWizardData({ financialProduct: value })}
-                    className="grid grid-cols-2 md:grid-cols-3 gap-2"
+                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2"
                   >
                     {financialProducts.map((product) => (
                       <div key={product.id} className="flex items-start space-x-3 p-2 border rounded-lg hover:bg-accent/50 transition-colors h-10">
