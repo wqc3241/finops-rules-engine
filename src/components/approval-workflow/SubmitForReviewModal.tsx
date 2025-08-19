@@ -21,10 +21,10 @@ const SubmitForReviewModal = ({ isOpen, onClose, onSubmit }: SubmitForReviewModa
   const [error, setError] = useState<string | null>(null);
   const [expandedTables, setExpandedTables] = useState<Set<string>>(new Set());
   const { getChangesSummary, getTableChanges, trackedChanges } = useChangeTracking();
-  const { submitForReview } = useSupabaseApprovalWorkflow();
+  const { submitForReview, isTableLocked, forceRefresh } = useSupabaseApprovalWorkflow();
 
   const changesSummary = getChangesSummary();
-
+  const lockedSchemas = changesSummary.map(s => s.schemaId).filter(id => isTableLocked(id));
   const handleSubmit = async () => {
     setIsSubmitting(true);
     setError(null);
@@ -114,24 +114,32 @@ const SubmitForReviewModal = ({ isOpen, onClose, onSubmit }: SubmitForReviewModa
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <h4 className="font-medium text-sm">Changes Summary:</h4>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={expandAll}
-                        className="text-xs h-6 px-2"
-                      >
-                        Expand All
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={collapseAll}
-                        className="text-xs h-6 px-2"
-                      >
-                        Collapse All
-                      </Button>
-                    </div>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={expandAll}
+                          className="text-xs h-6 px-2"
+                        >
+                          Expand All
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={collapseAll}
+                          className="text-xs h-6 px-2"
+                        >
+                          Collapse All
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={forceRefresh}
+                          className="text-xs h-6 px-2"
+                        >
+                          Refresh
+                        </Button>
+                      </div>
                   </div>
 
                   {changesSummary.map(summary => {
@@ -219,7 +227,7 @@ const SubmitForReviewModal = ({ isOpen, onClose, onSubmit }: SubmitForReviewModa
           </Button>
           <Button 
             onClick={handleSubmit} 
-            disabled={changesSummary.length === 0 || isSubmitting}
+            disabled={changesSummary.length === 0 || isSubmitting || lockedSchemas.length > 0}
             className="bg-primary hover:bg-primary/90"
           >
             {isSubmitting ? "Submitting..." : "Submit for Review"}

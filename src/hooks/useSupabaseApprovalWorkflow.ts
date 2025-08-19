@@ -125,8 +125,14 @@ export const useSupabaseApprovalWorkflow = () => {
       
       if (error) throw error;
       setLockedTables(data?.map(lock => lock.schema_id) || []);
-    } catch (error) {
-      console.error('Error loading locked tables:', error);
+    } catch (err: any) {
+      // If table_locks doesn't exist, treat as no locks
+      if (err?.code === '42P01' || (typeof err?.message === 'string' && err.message.toLowerCase().includes('table_locks'))) {
+        setLockedTables([]);
+        console.warn('table_locks not found; skipping lock load');
+        return;
+      }
+      console.error('Error loading locked tables:', err);
     }
   };
 
@@ -138,6 +144,16 @@ export const useSupabaseApprovalWorkflow = () => {
 
     setLoading(true);
     try {
+      // Pre-check for locked tables
+      const locked = schemaIds.filter(id => lockedTables.includes(id));
+      if (locked.length > 0) {
+        toast({
+          title: "Tables locked",
+          description: `Cannot submit: ${locked.join(', ')} are locked by a pending request.`,
+          variant: "destructive"
+        });
+        return null;
+      }
       const versionId = `v${Date.now()}`;
 
       // 1) Build change details and lock targets BEFORE creating the request
@@ -251,7 +267,13 @@ export const useSupabaseApprovalWorkflow = () => {
         const { error: locksError } = await supabase
           .from('table_locks')
           .insert(tableLocks);
-        if (locksError) throw locksError;
+        if (locksError) {
+          if (locksError.code === '42P01' || (typeof locksError.message === 'string' && locksError.message.toLowerCase().includes('table_locks'))) {
+            console.warn('table_locks not found; skipping lock creation');
+          } else {
+            throw locksError;
+          }
+        }
       }
 
       toast({
@@ -262,16 +284,17 @@ export const useSupabaseApprovalWorkflow = () => {
       return requestId;
     } catch (error) {
       console.error('Error submitting for review:', error);
+      const errMsg = (error as any)?.message || "Failed to submit changes for review.";
       toast({
         title: "Error",
-        description: "Failed to submit changes for review.",
+        description: errMsg,
         variant: "destructive"
       });
       return null;
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [user, lockedTables]);
 
   const getChangeRequestWithDetails = useCallback((requestId: string): ChangeRequestWithDetails | null => {
     const request = changeRequests.find(r => r.id === requestId);
@@ -396,13 +419,19 @@ export const useSupabaseApprovalWorkflow = () => {
 
       if (requestError) throw requestError;
 
-      // Remove table locks
+      // Remove table locks (if table exists)
       const { error: locksError } = await supabase
         .from('table_locks')
         .delete()
         .eq('request_id', requestId);
 
-      if (locksError) throw locksError;
+      if (locksError) {
+        if (locksError.code === '42P01' || (typeof locksError.message === 'string' && locksError.message.toLowerCase().includes('table_locks'))) {
+          console.warn('table_locks not found; skipping unlock');
+        } else {
+          throw locksError;
+        }
+      }
 
       // Force refresh data to sync with database
       await Promise.all([
