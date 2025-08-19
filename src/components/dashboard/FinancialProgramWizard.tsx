@@ -247,14 +247,16 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete }: FinancialPro
                   <RadioGroup
                     value={wizardData.financialProduct}
                     onValueChange={(value) => updateWizardData({ financialProduct: value })}
-                    className="grid grid-cols-2 md:grid-cols-3 gap-4"
+                    className="grid grid-cols-2 md:grid-cols-3 gap-2"
                   >
                     {financialProducts.map((product) => (
-                      <div key={product.id} className="flex items-center space-x-2 p-3 border rounded-lg">
-                        <RadioGroupItem value={product.id} id={product.id} />
-                        <Label htmlFor={product.id} className="text-sm cursor-pointer">
-                          {product.productType}{product.productSubtype ? ` - ${product.productSubtype}` : ''}
-                          <div className="text-xs text-muted-foreground">{product.geoCode} | {product.category}</div>
+                      <div key={product.id} className="flex items-start space-x-3 p-2 border rounded-lg hover:bg-accent/50 transition-colors h-10">
+                        <RadioGroupItem value={product.id} id={product.id} className="mt-0.5 scale-75" />
+                        <Label htmlFor={product.id} className="text-xs cursor-pointer flex-1 min-w-0">
+                          <div className="font-medium leading-tight">
+                            {product.productType}{product.productSubtype ? ` - ${product.productSubtype}` : ''}
+                          </div>
+                          <div className="text-[10px] text-muted-foreground">{product.geoCode} | {product.category}</div>
                         </Label>
                       </div>
                     ))}
