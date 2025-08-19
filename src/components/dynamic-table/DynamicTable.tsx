@@ -10,6 +10,10 @@ import TableCellRenderer from "./TableCellRenderer";
 import TableRowActions from "./TableRowActions";
 import TableHeaderComponent from "./TableHeader";
 import { getNextFPCId } from "./utils/tableUtils";
+import TableVersionHistory from "@/components/version-management/TableVersionHistory";
+import { useTableVersions } from "@/hooks/useTableVersions";
+import { Button } from "@/components/ui/button";
+import { History } from "lucide-react";
 
 // Helper to determine the primary key column for any schema
 const getPrimaryKey = (schema: { columns: ColumnDefinition[] }, data: TableData[]): string => {
@@ -41,11 +45,18 @@ const DynamicTable = ({
 }: DynamicTableProps) => {
   const [showColumnManagement, setShowColumnManagement] = useState(false);
   const [showAddColumn, setShowAddColumn] = useState(false);
+  const [showVersionHistory, setShowVersionHistory] = useState(false);
   const [insertPosition, setInsertPosition] = useState<number>(0);
   const [editingCell, setEditingCell] = useState<{rowId: string, columnKey: string} | null>(null);
   const [editValue, setEditValue] = useState<any>("");
   const [hoveredDivider, setHoveredDivider] = useState<number | null>(null);
   const [hoveredDeleteButton, setHoveredDeleteButton] = useState<string | null>(null);
+
+  // Version management
+  const { versions, saveVersion, restoreVersion } = useTableVersions({
+    tableName: schema.name,
+    initialData: data
+  });
 
   // Demo options for program config dropdowns (should be fetched in a real app)
   const programConfigOptions = {
@@ -147,6 +158,7 @@ const DynamicTable = ({
 
   const handleAddNewRow = () => {
     // Only custom for financial-program-config table (otherwise fallback)
+    let newData;
     if (schema.id === "financial-program-config") {
       const newId = getNextFPCId(data);
       // Clone the first row as template or create empty row
@@ -164,7 +176,7 @@ const DynamicTable = ({
           }
         }
       });
-      onDataChange([...data, newRow]);
+      newData = [...data, newRow];
     } else {
       // Default: mimic old add logic
       const newRow: any = { [primaryKey]: `new_${Date.now()}` };
@@ -177,8 +189,12 @@ const DynamicTable = ({
           }
         }
       });
-      onDataChange([...data, newRow]);
+      newData = [...data, newRow];
     }
+    
+    // Save version before making changes
+    saveVersion(data, 'Added new row');
+    onDataChange(newData);
   };
 
   const handleCopyRow = (rowId: string) => {
@@ -197,10 +213,20 @@ const DynamicTable = ({
   };
 
   const handleDeleteRow = (rowId: string) => {
+    // Save version before making changes
+    saveVersion(data, `Deleted row ${rowId}`);
+    
     const updatedData = data.filter(row => (row as any)[primaryKey] !== rowId);
     onDataChange(updatedData);
     onSelectionChange?.(selectedItems.filter(id => id !== rowId));
     toast.success("Row deleted successfully");
+  };
+
+  const handleRestoreVersion = (version: any) => {
+    const restoredData = restoreVersion(version);
+    onDataChange(restoredData);
+    setShowVersionHistory(false);
+    toast.success(`Restored to Version ${version.version}`);
   };
 
   const handleDividerClick = (index: number) => {
@@ -210,6 +236,30 @@ const DynamicTable = ({
 
   return (
     <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-medium">{schema.name}</h3>
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => setShowVersionHistory(true)}
+            className="flex items-center gap-1"
+          >
+            <History className="h-3 w-3" />
+            Versions
+          </Button>
+          {allowColumnManagement && (
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setShowColumnManagement(true)}
+            >
+              Manage Columns
+            </Button>
+          )}
+        </div>
+      </div>
+      
       <div className="overflow-x-auto border rounded-md">
         <Table>
           <TableHeader>
@@ -286,6 +336,14 @@ const DynamicTable = ({
         onOpenChange={setShowAddColumn}
         onAddColumn={handleAddColumn}
         existingColumns={schema.columns}
+      />
+
+      <TableVersionHistory
+        isOpen={showVersionHistory}
+        onClose={() => setShowVersionHistory(false)}
+        versions={versions}
+        onRestoreVersion={handleRestoreVersion}
+        tableName={schema.name}
       />
     </div>
   );
