@@ -3,8 +3,17 @@ import { Button } from '@/components/ui/button';
 import { History } from 'lucide-react';
 import TableVersionHistory from './TableVersionHistory';
 import { useTableVersions } from '@/hooks/useTableVersions';
-import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
+
+// Safe auth hook that doesn't require AuthProvider
+const useSafeAuth = () => {
+  try {
+    const authModule = require('@/hooks/useAuth');
+    return authModule.useAuth();
+  } catch {
+    return { isFSAdmin: () => false };
+  }
+};
 
 interface WithVersionManagementProps {
   tableName?: string;
@@ -19,7 +28,7 @@ export function withVersionManagement<T extends WithVersionManagementProps>(
 ) {
   return (props: T) => {
     const [showVersionHistory, setShowVersionHistory] = useState(false);
-    const { isFSAdmin } = useAuth();
+    const { isFSAdmin } = useSafeAuth();
     
     const tableName = props.tableName || defaultTableName;
     const data = props.data || [];

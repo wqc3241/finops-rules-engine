@@ -8,7 +8,16 @@ import {
 import { Button } from '@/components/ui/button';
 import { Clock, RotateCcw } from 'lucide-react';
 import { TableData } from '@/types/dynamicTable';
-import { useAuth } from '@/hooks/useAuth';
+
+// Safe auth hook that doesn't require AuthProvider
+const useSafeAuth = () => {
+  try {
+    const authModule = require('@/hooks/useAuth');
+    return authModule.useAuth();
+  } catch {
+    return { isFSAdmin: () => false };
+  }
+};
 
 export interface TableVersion {
   id: string;
@@ -34,7 +43,7 @@ const TableVersionHistory: React.FC<TableVersionHistoryProps> = ({
   onRestoreVersion,
   tableName
 }) => {
-  const { isFSAdmin } = useAuth();
+  const { isFSAdmin } = useSafeAuth();
 
   const formatDate = (date: Date) => {
     return date.toLocaleString();
