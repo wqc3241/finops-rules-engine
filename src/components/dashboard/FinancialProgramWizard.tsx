@@ -314,11 +314,11 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete }: FinancialPro
                         />
                         <Label htmlFor={`credit-${profile.id}`} className="text-sm cursor-pointer">
                           {profile.id}
-                          <div className="text-xs text-muted-foreground space-y-1 mt-1">
-                            <div>Priority: {profile.priority}</div>
-                            <div>Credit Score: {profile.minCreditScore} - {profile.maxCreditScore}</div>
-                            <div>Income: ${profile.minIncome?.toLocaleString()} - ${profile.maxIncome?.toLocaleString()}</div>
-                            <div>Employment: {profile.employmentType}</div>
+                          <div className="text-xs text-muted-foreground flex flex-wrap gap-x-4 gap-y-1 mt-1">
+                            <span>Priority: {profile.priority}</span>
+                            <span>Credit Score: {profile.minCreditScore} - {profile.maxCreditScore}</span>
+                            <span>Income: ${profile.minIncome?.toLocaleString()} - ${profile.maxIncome?.toLocaleString()}</span>
+                            <span>Employment: {profile.employmentType}</span>
                           </div>
                         </Label>
                       </div>
@@ -343,10 +343,10 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete }: FinancialPro
                         />
                         <Label htmlFor={`pricing-${config.id}`} className="text-sm cursor-pointer">
                           {config.id}
-                          <div className="text-xs text-muted-foreground space-y-1 mt-1">
-                            <div>Priority: {config.priority}</div>
-                            <div>LTV: {config.minLTV}% - {config.maxLTV}%</div>
-                            <div>Term: {config.minTerm} - {config.maxTerm} months</div>
+                          <div className="text-xs text-muted-foreground flex flex-wrap gap-x-4 gap-y-1 mt-1">
+                            <span>Priority: {config.priority}</span>
+                            <span>LTV: {config.minLTV}% - {config.maxLTV}%</span>
+                            <span>Term: {config.minTerm} - {config.maxTerm} months</span>
                           </div>
                         </Label>
                       </div>
