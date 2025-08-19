@@ -265,9 +265,9 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete }: FinancialPro
 
                 <div className="space-y-3">
                   <Label className="text-sm font-medium">Available Pricing Types *</Label>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                     {pricingTypes.map((type) => (
-                      <div key={type.typeCode} className="flex items-center space-x-2 p-2 border rounded">
+                      <div key={type.typeCode} className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-accent/50 transition-colors">
                         <Checkbox
                           id={type.typeCode}
                           checked={wizardData.pricingTypes.includes(type.typeCode)}
@@ -278,9 +278,9 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete }: FinancialPro
                             updateWizardData({ pricingTypes: updated });
                           }}
                         />
-                        <Label htmlFor={type.typeCode} className="text-sm cursor-pointer">
-                          {type.typeCode}
-                          <div className="text-xs text-muted-foreground">{type.typeName}</div>
+                        <Label htmlFor={type.typeCode} className="text-sm cursor-pointer flex-1">
+                          <div className="font-medium">{type.typeName}</div>
+                          <div className="text-xs text-muted-foreground">{type.typeCode}</div>
                         </Label>
                       </div>
                     ))}
