@@ -3,6 +3,7 @@ import { TableData } from "@/types/dynamicTable";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus, Minus, Edit } from "lucide-react";
 
 interface DetailedChangeViewProps {
@@ -92,122 +93,138 @@ const DetailedChangeView: React.FC<DetailedChangeViewProps> = ({
     return field.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
   };
 
+  const getAllFields = (changes: ChangeRecord[]): string[] => {
+    const fieldsSet = new Set<string>();
+    changes.forEach(change => {
+      if (change.record) {
+        Object.keys(change.record).forEach(field => fieldsSet.add(field));
+      }
+      if (change.originalRecord) {
+        Object.keys(change.originalRecord).forEach(field => fieldsSet.add(field));
+      }
+    });
+    return Array.from(fieldsSet).sort();
+  };
+
+  const renderChangeTable = (changeType: 'added' | 'modified' | 'deleted', typeChanges: ChangeRecord[]) => {
+    if (typeChanges.length === 0) return null;
+
+    const fields = getAllFields(typeChanges);
+    const typeConfig = {
+      added: {
+        icon: Plus,
+        label: 'New Records',
+        badgeClass: 'bg-green-100 text-green-800',
+        iconClass: 'text-green-600',
+        rowClass: 'bg-green-50 hover:bg-green-100'
+      },
+      modified: {
+        icon: Edit,
+        label: 'Modified Records',
+        badgeClass: 'bg-blue-100 text-blue-800',
+        iconClass: 'text-blue-600',
+        rowClass: 'bg-blue-50 hover:bg-blue-100'
+      },
+      deleted: {
+        icon: Minus,
+        label: 'Deleted Records',
+        badgeClass: 'bg-red-100 text-red-800',
+        iconClass: 'text-red-600',
+        rowClass: 'bg-red-50 hover:bg-red-100'
+      }
+    };
+
+    const config = typeConfig[changeType];
+    const Icon = config.icon;
+
+    return (
+      <Card key={changeType} className="p-3">
+        <div className="flex items-center gap-2 mb-3">
+          <Icon className={`h-4 w-4 ${config.iconClass}`} />
+          <Badge variant="secondary" className={config.badgeClass}>
+            {config.label} ({typeChanges.length})
+          </Badge>
+        </div>
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="min-w-[80px] text-xs">{primaryKey}</TableHead>
+                {fields.map(field => (
+                  <TableHead key={field} className="min-w-[120px] text-xs">
+                    {formatFieldName(field)}
+                  </TableHead>
+                ))}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {typeChanges.map((change, index) => (
+                <TableRow key={`${change.key}-${index}`} className={config.rowClass}>
+                  <TableCell className="font-mono text-xs font-medium">
+                    {change.key}
+                  </TableCell>
+                  {fields.map(field => {
+                    const value = change.record?.[field];
+                    
+                    if (changeType === 'modified') {
+                      const changedFields = getChangedFields(change.changes || []);
+                      const isChanged = changedFields.has(field);
+                      const fieldChange = change.changes?.find(c => c.field === field);
+                      
+                      return (
+                        <TableCell key={field} className="text-xs">
+                          {isChanged && fieldChange ? (
+                            <div className="space-y-1">
+                              <div className="bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-mono">
+                                {formatValue(fieldChange.oldValue)}
+                              </div>
+                              <div className="text-center text-gray-400">↓</div>
+                              <div className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-mono">
+                                {formatValue(fieldChange.newValue)}
+                              </div>
+                            </div>
+                          ) : (
+                            <span className="font-mono">
+                              {formatValue(value)}
+                            </span>
+                          )}
+                        </TableCell>
+                      );
+                    }
+                    
+                    return (
+                      <TableCell key={field} className="font-mono text-xs">
+                        {formatValue(value)}
+                      </TableCell>
+                    );
+                  })}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      </Card>
+    );
+  };
+
   const changes = getDetailedChanges();
 
   if (changes.length === 0) {
     return null;
   }
 
+  const changesByType = {
+    added: changes.filter(c => c.type === 'added'),
+    modified: changes.filter(c => c.type === 'modified'),
+    deleted: changes.filter(c => c.type === 'deleted')
+  };
+
   return (
     <ScrollArea className="max-h-[400px] w-full">
-      <div className="space-y-3">
-        {changes.map((change, index) => (
-          <Card key={`${change.type}-${change.key}-${index}`} className="p-3">
-            {change.type === 'added' && (
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Plus className="h-4 w-4 text-green-600" />
-                  <Badge variant="secondary" className="bg-green-100 text-green-800">
-                    New Record
-                  </Badge>
-                  <span className="text-sm font-mono text-muted-foreground">
-                    {primaryKey}: {change.key}
-                  </span>
-                </div>
-                <div className="bg-green-50 border border-green-200 rounded p-2">
-                  <div className="grid grid-cols-4 gap-x-4 gap-y-1 text-xs">
-                    {Object.entries(change.record || {}).map(([field, value]) => (
-                      <React.Fragment key={field}>
-                        <span className="font-medium text-green-700 truncate">
-                          {formatFieldName(field)}:
-                        </span>
-                        <span className="text-green-900 font-mono col-span-3 truncate">
-                          {formatValue(value)}
-                        </span>
-                      </React.Fragment>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {change.type === 'modified' && (
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Edit className="h-4 w-4 text-blue-600" />
-                  <Badge variant="secondary" className="bg-blue-100 text-blue-800">
-                    Modified Record
-                  </Badge>
-                  <span className="text-sm font-mono text-muted-foreground">
-                    {primaryKey}: {change.key}
-                  </span>
-                </div>
-                <div className="bg-blue-50 border border-blue-200 rounded p-2">
-                  <div className="grid grid-cols-4 gap-x-4 gap-y-1 text-xs">
-                    {Object.entries(change.record || {}).map(([field, value]) => {
-                      const changedFields = getChangedFields(change.changes || []);
-                      const isChanged = changedFields.has(field);
-                      const fieldChange = change.changes?.find(c => c.field === field);
-                      
-                      return (
-                        <React.Fragment key={field}>
-                          <span className={`font-medium truncate ${isChanged ? 'text-blue-700' : 'text-gray-600'}`}>
-                            {formatFieldName(field)}:
-                          </span>
-                          <span className="col-span-3 truncate">
-                            {isChanged && fieldChange ? (
-                              <div className="flex items-center gap-2">
-                                <span className="bg-red-100 text-red-800 px-1 rounded font-mono text-xs">
-                                  {formatValue(fieldChange.oldValue)}
-                                </span>
-                                <span className="text-gray-400">→</span>
-                                <span className="bg-green-100 text-green-800 px-1 rounded font-mono text-xs">
-                                  {formatValue(fieldChange.newValue)}
-                                </span>
-                              </div>
-                            ) : (
-                              <span className="text-gray-900 font-mono">
-                                {formatValue(value)}
-                              </span>
-                            )}
-                          </span>
-                        </React.Fragment>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {change.type === 'deleted' && (
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Minus className="h-4 w-4 text-red-600" />
-                  <Badge variant="secondary" className="bg-red-100 text-red-800">
-                    Deleted Record
-                  </Badge>
-                  <span className="text-sm font-mono text-muted-foreground">
-                    {primaryKey}: {change.key}
-                  </span>
-                </div>
-                <div className="bg-red-50 border border-red-200 rounded p-2">
-                  <div className="grid grid-cols-4 gap-x-4 gap-y-1 text-xs">
-                    {Object.entries(change.record || {}).map(([field, value]) => (
-                      <React.Fragment key={field}>
-                        <span className="font-medium text-red-700 truncate">
-                          {formatFieldName(field)}:
-                        </span>
-                        <span className="text-red-900 font-mono col-span-3 truncate">
-                          {formatValue(value)}
-                        </span>
-                      </React.Fragment>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-          </Card>
-        ))}
+      <div className="space-y-4">
+        {renderChangeTable('added', changesByType.added)}
+        {renderChangeTable('modified', changesByType.modified)}
+        {renderChangeTable('deleted', changesByType.deleted)}
       </div>
     </ScrollArea>
   );
