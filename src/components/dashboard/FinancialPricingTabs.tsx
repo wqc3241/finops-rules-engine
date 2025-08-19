@@ -58,8 +58,8 @@ const FinancialPricingTabs = ({
     }
   };
 
-  const handleOpenReview = (requestId: string) => {
-    setSelectedRequestId(requestId);
+  const handleOpenReview = () => {
+    setSelectedRequestId(null); // No specific request ID, reviewing all
     setShowReviewModal(true);
   };
 

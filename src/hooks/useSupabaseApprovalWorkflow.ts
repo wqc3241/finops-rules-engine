@@ -470,6 +470,88 @@ export const useSupabaseApprovalWorkflow = () => {
     return lockedTables.includes(schemaId);
   }, [lockedTables]);
 
+  const approveAllPendingRequests = useCallback(async (): Promise<void> => {
+    if (!user) return;
+
+    setLoading(true);
+    try {
+      const pendingRequests = getPendingRequestsForAdmin();
+      
+      if (pendingRequests.length === 0) {
+        toast({
+          title: "No pending requests",
+          description: "There are no pending requests to approve."
+        });
+        return;
+      }
+
+      // Approve all change details for all pending requests
+      for (const request of pendingRequests) {
+        for (const tableChange of request.tableChanges) {
+          if (tableChange.status === "PENDING") {
+            await approveTableChanges(request.id, tableChange.schemaId, "Bulk approval of all pending requests");
+          }
+        }
+        await finalizeChangeRequest(request.id);
+      }
+
+      toast({
+        title: "All requests approved",
+        description: `${pendingRequests.length} pending requests have been approved.`
+      });
+    } catch (error) {
+      console.error('Error approving all requests:', error);
+      toast({
+        title: "Error",
+        description: "Failed to approve all requests.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [user, getPendingRequestsForAdmin, approveTableChanges, finalizeChangeRequest]);
+
+  const rejectAllPendingRequests = useCallback(async (): Promise<void> => {
+    if (!user) return;
+
+    setLoading(true);
+    try {
+      const pendingRequests = getPendingRequestsForAdmin();
+      
+      if (pendingRequests.length === 0) {
+        toast({
+          title: "No pending requests",
+          description: "There are no pending requests to reject."
+        });
+        return;
+      }
+
+      // Reject all change details for all pending requests
+      for (const request of pendingRequests) {
+        for (const tableChange of request.tableChanges) {
+          if (tableChange.status === "PENDING") {
+            await rejectTableChanges(request.id, tableChange.schemaId, "Bulk rejection of all pending requests");
+          }
+        }
+        await finalizeChangeRequest(request.id);
+      }
+
+      toast({
+        title: "All requests rejected",
+        description: `${pendingRequests.length} pending requests have been rejected.`
+      });
+    } catch (error) {
+      console.error('Error rejecting all requests:', error);
+      toast({
+        title: "Error",
+        description: "Failed to reject all requests.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [user, getPendingRequestsForAdmin, rejectTableChanges, finalizeChangeRequest]);
+
   const forceRefresh = useCallback(async () => {
     await Promise.all([
       loadChangeRequests(),
@@ -488,6 +570,8 @@ export const useSupabaseApprovalWorkflow = () => {
     rejectTableChanges,
     finalizeChangeRequest,
     getPendingRequestsForAdmin,
+    approveAllPendingRequests,
+    rejectAllPendingRequests,
     isTableLocked,
     forceRefresh
   };

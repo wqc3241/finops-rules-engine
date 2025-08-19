@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import { toast } from "@/hooks/use-toast";
 
 interface ApprovalNotificationBannerProps {
-  onOpenReview: (requestId: string) => void;
+  onOpenReview: () => void;
 }
 
 const ApprovalNotificationBanner = ({ onOpenReview }: ApprovalNotificationBannerProps) => {
@@ -89,17 +89,14 @@ const ApprovalNotificationBanner = ({ onOpenReview }: ApprovalNotificationBanner
           >
             <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
           </Button>
-          {pendingRequests.map(request => (
-            <Button
-              key={request.id}
-              variant="outline"
-              size="sm"
-              onClick={() => onOpenReview(request.id)}
-              className="text-warning border-warning hover:bg-warning/10"
-            >
-              Review {request.id.split('_')[1]}
-            </Button>
-          ))}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onOpenReview()}
+            className="text-warning border-warning hover:bg-warning/10"
+          >
+            Review All Changes
+          </Button>
         </div>
       </AlertDescription>
     </Alert>
