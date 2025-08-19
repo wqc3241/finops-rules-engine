@@ -265,8 +265,8 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete }: FinancialPro
 
                 <div className="space-y-3">
                   <Label className="text-sm font-medium">Available Pricing Types *</Label>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                    {pricingTypes.map((type) => (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
+                    {[...pricingTypes].sort((a, b) => a.typeName.localeCompare(b.typeName)).map((type) => (
                       <div key={type.typeCode} className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-accent/50 transition-colors">
                         <Checkbox
                           id={type.typeCode}
