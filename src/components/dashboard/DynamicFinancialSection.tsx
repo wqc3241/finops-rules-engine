@@ -106,7 +106,7 @@ const DynamicFinancialSection = ({
       id: `FPC${Date.now()}`,
       programCode: wizardData.programCode || "",
       cloneFrom: null,
-      priority: wizardData.creditProfile?.priority || 1,
+      priority: wizardData.creditProfiles.length > 0 ? 1 : 1, // Use default priority since we have multiple profiles
       financialProductId: wizardData.financialProduct || "",
       productType: null,
       vehicleStyleId: wizardData.vehicleStyleId,

@@ -19,8 +19,8 @@ export interface WizardData {
   vehicleCondition: string;
   financialProduct: string; // single string now
   pricingTypes: string[];
-  creditProfile: any;
-  pricingConfig: any;
+  creditProfiles: string[]; // Changed to array
+  pricingConfigs: string[]; // Changed to array
   programStartDate: string;
   programEndDate: string;
   lenders: string[];
@@ -41,8 +41,8 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete }: FinancialPro
     vehicleCondition: "",
     financialProduct: "",
     pricingTypes: [],
-    creditProfile: null,
-    pricingConfig: null,
+    creditProfiles: [],
+    pricingConfigs: [],
     programStartDate: "",
     programEndDate: "",
     lenders: [],
@@ -139,8 +139,8 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete }: FinancialPro
            wizardData.vehicleCondition && 
            wizardData.financialProduct && 
            wizardData.pricingTypes.length > 0 && 
-           wizardData.creditProfile && 
-           wizardData.pricingConfig && 
+           wizardData.creditProfiles.length > 0 && 
+           wizardData.pricingConfigs.length > 0 && 
            wizardData.programStartDate && 
            wizardData.programEndDate && 
            wizardData.lenders.length > 0 && 
@@ -290,79 +290,89 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete }: FinancialPro
             </CardContent>
           </Card>
 
-          {/* Configuration & Dates */}
+          {/* Configuration */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Configuration & Program Dates</CardTitle>
+              <CardTitle className="text-lg">Configuration</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>Credit Profile *</Label>
-                    <Select 
-                      value={wizardData.creditProfile?.id || ""} 
-                      onValueChange={(value) => {
-                        const profile = creditProfiles.find(p => p.id === value);
-                        updateWizardData({ creditProfile: profile });
-                      }}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select credit profile" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {creditProfiles.map((profile) => (
-                          <SelectItem key={profile.id} value={profile.id}>
-                            {profile.id} (Priority: {profile.priority})
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Pricing Configuration *</Label>
-                    <Select 
-                      value={wizardData.pricingConfig?.id || ""} 
-                      onValueChange={(value) => {
-                        const config = pricingConfigs.find(c => c.id === value);
-                        updateWizardData({ pricingConfig: config });
-                      }}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select pricing config" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {pricingConfigs.map((config) => (
-                          <SelectItem key={config.id} value={config.id}>
-                            {config.id} (Priority: {config.priority})
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="space-y-3">
+                  <Label className="font-medium">Credit Profiles *</Label>
+                  <div className="space-y-2 max-h-40 overflow-y-auto border rounded-lg p-3">
+                    {creditProfiles.map((profile) => (
+                      <div key={profile.id} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`credit-${profile.id}`}
+                          checked={wizardData.creditProfiles.includes(profile.id)}
+                          onCheckedChange={(checked) => {
+                            const updated = checked
+                              ? [...wizardData.creditProfiles, profile.id]
+                              : wizardData.creditProfiles.filter(id => id !== profile.id);
+                            updateWizardData({ creditProfiles: updated });
+                          }}
+                        />
+                        <Label htmlFor={`credit-${profile.id}`} className="text-sm cursor-pointer">
+                          {profile.id}
+                          <div className="text-xs text-muted-foreground">Priority: {profile.priority}</div>
+                        </Label>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="startDate">Program Start Date *</Label>
-                    <Input
-                      id="startDate"
-                      type="date"
-                      value={wizardData.programStartDate}
-                      onChange={(e) => updateWizardData({ programStartDate: e.target.value })}
-                    />
+                <div className="space-y-3">
+                  <Label className="font-medium">Pricing Configurations *</Label>
+                  <div className="space-y-2 max-h-40 overflow-y-auto border rounded-lg p-3">
+                    {pricingConfigs.map((config) => (
+                      <div key={config.id} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`pricing-${config.id}`}
+                          checked={wizardData.pricingConfigs.includes(config.id)}
+                          onCheckedChange={(checked) => {
+                            const updated = checked
+                              ? [...wizardData.pricingConfigs, config.id]
+                              : wizardData.pricingConfigs.filter(id => id !== config.id);
+                            updateWizardData({ pricingConfigs: updated });
+                          }}
+                        />
+                        <Label htmlFor={`pricing-${config.id}`} className="text-sm cursor-pointer">
+                          {config.id}
+                          <div className="text-xs text-muted-foreground">Priority: {config.priority}</div>
+                        </Label>
+                      </div>
+                    ))}
                   </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="endDate">Program End Date *</Label>
-                    <Input
-                      id="endDate"
-                      type="date"
-                      value={wizardData.programEndDate}
-                      onChange={(e) => updateWizardData({ programEndDate: e.target.value })}
-                    />
-                  </div>
+          {/* Program Dates */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Program Dates</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="startDate">Program Start Date *</Label>
+                  <Input
+                    id="startDate"
+                    type="date"
+                    value={wizardData.programStartDate}
+                    onChange={(e) => updateWizardData({ programStartDate: e.target.value })}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="endDate">Program End Date *</Label>
+                  <Input
+                    id="endDate"
+                    type="date"
+                    value={wizardData.programEndDate}
+                    onChange={(e) => updateWizardData({ programEndDate: e.target.value })}
+                  />
                 </div>
               </div>
             </CardContent>
