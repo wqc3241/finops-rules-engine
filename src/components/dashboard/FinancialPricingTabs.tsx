@@ -75,7 +75,6 @@ const FinancialPricingTabs = ({
           onSelectionChange={onSelectionChange}
           selectedItems={selectedItems}
           onSetBatchDeleteCallback={onSetBatchDeleteCallback}
-          hideTitle={true}
         />
       )
     },
