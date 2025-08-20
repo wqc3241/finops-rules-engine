@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import FinancialProgramWizard, { WizardData } from "./FinancialProgramWizard";
 
 interface FinancialProgramConfigSectionProps {
   title: string;
@@ -31,6 +32,8 @@ const FinancialProgramConfigSection = ({
 }: FinancialProgramConfigSectionProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [internalShowAddModal, setInternalShowAddModal] = useState(false);
+  const [showWizard, setShowWizard] = useState(false);
+  const [editingProgram, setEditingProgram] = useState<string | null>(null);
   const [newConfig, setNewConfig] = useState({
     programName: "",
     programType: "",
@@ -52,6 +55,39 @@ const FinancialProgramConfigSection = ({
     setShowAddModal(false);
   };
 
+  const handleEditProgram = (programId: string) => {
+    setEditingProgram(programId);
+    setShowWizard(true);
+  };
+
+  const handleWizardComplete = (data: WizardData) => {
+    if (editingProgram) {
+      toast.success(`Program ${editingProgram} updated successfully`);
+      setEditingProgram(null);
+    } else {
+      toast.success("New program created successfully");
+    }
+    setShowWizard(false);
+  };
+
+  // Mock function to get program data for editing
+  const getEditData = (programId: string): WizardData => {
+    // In a real app, this would fetch the actual program data
+    return {
+      vehicleStyleId: "L25A1",
+      vehicleCondition: "New",
+      financialProduct: "USLN",
+      pricingTypes: ["RATE", "MARKUP"],
+      creditProfiles: ["PROFILE1"],
+      pricingConfigs: ["CONFIG1"],
+      programStartDate: "2025-02-01",
+      programEndDate: "2025-02-28",
+      lenders: ["LENDER1"],
+      geoCodes: ["US"],
+      programCode: programId
+    };
+  };
+
   return (
     <div className="p-6">
       <SectionHeader
@@ -62,7 +98,7 @@ const FinancialProgramConfigSection = ({
         <Button onClick={handleAddClick}>Add New Record</Button>
       </SectionHeader>
 
-      {!isCollapsed && <FinancialProgramConfigTable />}
+      {!isCollapsed && <FinancialProgramConfigTable onEditProgram={handleEditProgram} />}
 
       <Dialog open={showAddModal} onOpenChange={setShowAddModal}>
         <DialogContent>
@@ -105,6 +141,14 @@ const FinancialProgramConfigSection = ({
           </form>
         </DialogContent>
       </Dialog>
+
+      <FinancialProgramWizard
+        open={showWizard}
+        onOpenChange={setShowWizard}
+        onComplete={handleWizardComplete}
+        editData={editingProgram ? getEditData(editingProgram) : undefined}
+        isEditMode={!!editingProgram}
+      />
     </div>
   );
 };

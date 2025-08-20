@@ -102,7 +102,11 @@ const initialFinancialProgramConfigs: FinancialProgramConfig[] = [
   }
 ];
 
-const FinancialProgramConfigTable = () => {
+interface FinancialProgramConfigTableProps {
+  onEditProgram?: (id: string) => void;
+}
+
+const FinancialProgramConfigTable = ({ onEditProgram }: FinancialProgramConfigTableProps) => {
   const [programs, setPrograms] = useState<FinancialProgramConfig[]>(initialFinancialProgramConfigs);
   const [selectedPrograms, setSelectedPrograms] = useState<string[]>([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -138,7 +142,8 @@ const FinancialProgramConfigTable = () => {
   };
 
   const handleEditClick = (id: string) => {
-    toast.info(`Editing program ${id}`);
+    // This will be handled by the parent component
+    onEditProgram?.(id);
   };
 
   const handleCopy = (id: string) => {

@@ -32,10 +32,12 @@ interface FinancialProgramWizardProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onComplete: (data: WizardData) => void;
+  editData?: WizardData; // For editing existing programs
+  isEditMode?: boolean;
 }
 
 
-const FinancialProgramWizard = ({ open, onOpenChange, onComplete }: FinancialProgramWizardProps) => {
+const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEditMode = false }: FinancialProgramWizardProps) => {
   const [wizardData, setWizardData] = useState<WizardData>({
     vehicleStyleId: "",
     vehicleCondition: "",
@@ -48,6 +50,28 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete }: FinancialPro
     lenders: [],
     geoCodes: []
   });
+
+  // Reset wizard data when modal opens or edit data changes
+  useEffect(() => {
+    if (open) {
+      if (isEditMode && editData) {
+        setWizardData(editData);
+      } else {
+        setWizardData({
+          vehicleStyleId: "",
+          vehicleCondition: "",
+          financialProduct: "",
+          pricingTypes: [],
+          creditProfiles: [],
+          pricingConfigs: [],
+          programStartDate: "",
+          programEndDate: "",
+          lenders: [],
+          geoCodes: []
+        });
+      }
+    }
+  }, [open, isEditMode, editData]);
 
   // Data loading states
   const [vehicleStyles, setVehicleStyles] = useState<any[]>([]);
@@ -153,11 +177,11 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete }: FinancialPro
       return;
     }
     
-    const programCode = generateProgramCode(wizardData);
+    const programCode = isEditMode ? wizardData.programCode : generateProgramCode(wizardData);
     const finalData = { ...wizardData, programCode };
     onComplete(finalData);
     onOpenChange(false);
-    toast.success("Financial program created successfully!");
+    toast.success(isEditMode ? "Financial program updated successfully!" : "Financial program created successfully!");
   };
 
   const generateProgramCode = (data: WizardData): string => {
@@ -187,9 +211,9 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete }: FinancialPro
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Create New Financial Program</DialogTitle>
+          <DialogTitle>{isEditMode ? 'Edit Financial Program' : 'Create New Financial Program'}</DialogTitle>
           <p className="text-sm text-muted-foreground">
-            Complete all sections below to create your financial program
+            {isEditMode ? 'Update the program configuration below' : 'Complete all sections below to create your financial program'}
           </p>
         </DialogHeader>
 
@@ -454,7 +478,7 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete }: FinancialPro
             {isFormValid() ? "✓ All required fields completed" : "Complete all required fields to create program"}
           </div>
           <Button onClick={handleComplete} disabled={!isFormValid()}>
-            Create Financial Program
+            {isEditMode ? 'Update Financial Program' : 'Create Financial Program'}
           </Button>
         </div>
       </DialogContent>
