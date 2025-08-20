@@ -15,7 +15,7 @@ import { useSupabaseApprovalWorkflow } from '@/hooks/useSupabaseApprovalWorkflow
 import { ChangeRequestWithDetails } from '@/types/approval';
 import { formatDistanceToNow } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 
 interface NotificationItem {
   id: string;
@@ -32,7 +32,6 @@ const ChangeRequestNotifications = () => {
   const { getPendingRequestsForAdmin, changeRequests, changeDetails } = useSupabaseApprovalWorkflow();
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [isOpen, setIsOpen] = useState(false);
-  const { toast } = useToast();
 
   // Generate notifications based on user role
   useEffect(() => {

@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useSupabaseAuth';
 import { ApprovalStatus, ChangeRequest, ChangeDetail, ChangeRequestWithDetails, TableChangesSummary } from '@/types/approval';
 import { TableData } from '@/types/dynamicTable';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 
 export const useSupabaseApprovalWorkflow = () => {
   const { user } = useAuth();
@@ -11,7 +11,6 @@ export const useSupabaseApprovalWorkflow = () => {
   const [changeDetails, setChangeDetails] = useState<ChangeDetail[]>([]);
   const [lockedTables, setLockedTables] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
-  const { toast } = useToast();
 
   // Load data on mount and set up real-time subscriptions
   useEffect(() => {
@@ -148,11 +147,7 @@ export const useSupabaseApprovalWorkflow = () => {
       // Pre-check for locked tables
       const locked = schemaIds.filter(id => lockedTables.includes(id));
       if (locked.length > 0) {
-        toast({
-          title: "Tables locked",
-          description: `Cannot submit: ${locked.join(', ')} are locked by a pending request.`,
-          variant: "destructive"
-        });
+        toast.error(`Cannot submit: ${locked.join(', ')} are locked by a pending request.`);
         return null;
       }
       const versionId = `v${Date.now()}`;
@@ -222,10 +217,7 @@ export const useSupabaseApprovalWorkflow = () => {
 
       // 2) If no actual changes, do NOT create a request
       if (pendingDetails.length === 0) {
-        toast({
-          title: "No changes detected",
-          description: "There are no differences to submit for review.",
-        });
+        toast.info("No changes detected - there are no differences to submit for review.");
         return null;
       }
 
@@ -277,20 +269,13 @@ export const useSupabaseApprovalWorkflow = () => {
         }
       }
 
-      toast({
-        title: "Changes submitted for review",
-        description: `${changeDetailsToInsert.length} changes submitted successfully.`
-      });
+      toast.success(`Changes submitted for review - ${changeDetailsToInsert.length} changes submitted successfully.`);
 
       return requestId;
     } catch (error) {
       console.error('Error submitting for review:', error);
       const errMsg = (error as any)?.message || "Failed to submit changes for review.";
-      toast({
-        title: "Error",
-        description: errMsg,
-        variant: "destructive"
-      });
+      toast.error(`Error: ${errMsg}`);
       return null;
     } finally {
       setLoading(false);
@@ -353,17 +338,10 @@ export const useSupabaseApprovalWorkflow = () => {
         loadChangeDetails()
       ]);
 
-      toast({
-        title: "Changes approved",
-        description: `Changes for ${table} have been approved.`
-      });
+      toast.success(`Changes approved - Changes for ${table} have been approved.`);
     } catch (error) {
       console.error('Error approving changes:', error);
-      toast({
-        title: "Error",
-        description: "Failed to approve changes.",
-        variant: "destructive"
-      });
+      toast.error("Error: Failed to approve changes.");
     }
   }, [user]);
 
@@ -390,17 +368,10 @@ export const useSupabaseApprovalWorkflow = () => {
         loadChangeDetails()
       ]);
 
-      toast({
-        title: "Changes rejected",
-        description: `Changes for ${table} have been rejected.`
-      });
+      toast.success(`Changes rejected - Changes for ${table} have been rejected.`);
     } catch (error) {
       console.error('Error rejecting changes:', error);
-      toast({
-        title: "Error",
-        description: "Failed to reject changes.",
-        variant: "destructive"
-      });
+      toast.error("Error: Failed to reject changes.");
     }
   }, [user]);
 
@@ -441,17 +412,10 @@ export const useSupabaseApprovalWorkflow = () => {
         loadLockedTables()
       ]);
 
-      toast({
-        title: "Request finalized",
-        description: "Change request has been finalized and tables unlocked."
-      });
+      toast.success("Request finalized - Change request has been finalized and tables unlocked.");
     } catch (error) {
       console.error('Error finalizing request:', error);
-      toast({
-        title: "Error",
-        description: "Failed to finalize request.",
-        variant: "destructive"
-      });
+      toast.error("Error: Failed to finalize request.");
     }
   }, [user]);
 
@@ -479,10 +443,7 @@ export const useSupabaseApprovalWorkflow = () => {
       const pendingRequests = getPendingRequestsForAdmin();
       
       if (pendingRequests.length === 0) {
-        toast({
-          title: "No pending requests",
-          description: "There are no pending requests to approve."
-        });
+        toast.info("No pending requests - There are no pending requests to approve.");
         return;
       }
 
@@ -496,17 +457,10 @@ export const useSupabaseApprovalWorkflow = () => {
         await finalizeChangeRequest(request.id);
       }
 
-      toast({
-        title: "All requests approved",
-        description: `${pendingRequests.length} pending requests have been approved.`
-      });
+      toast.success(`All requests approved - ${pendingRequests.length} pending requests have been approved.`);
     } catch (error) {
       console.error('Error approving all requests:', error);
-      toast({
-        title: "Error",
-        description: "Failed to approve all requests.",
-        variant: "destructive"
-      });
+      toast.error("Error: Failed to approve all requests.");
     } finally {
       setLoading(false);
     }
@@ -520,10 +474,7 @@ export const useSupabaseApprovalWorkflow = () => {
       const pendingRequests = getPendingRequestsForAdmin();
       
       if (pendingRequests.length === 0) {
-        toast({
-          title: "No pending requests",
-          description: "There are no pending requests to reject."
-        });
+        toast.info("No pending requests - There are no pending requests to reject.");
         return;
       }
 
@@ -537,17 +488,10 @@ export const useSupabaseApprovalWorkflow = () => {
         await finalizeChangeRequest(request.id);
       }
 
-      toast({
-        title: "All requests rejected",
-        description: `${pendingRequests.length} pending requests have been rejected.`
-      });
+      toast.success(`All requests rejected - ${pendingRequests.length} pending requests have been rejected.`);
     } catch (error) {
       console.error('Error rejecting all requests:', error);
-      toast({
-        title: "Error",
-        description: "Failed to reject all requests.",
-        variant: "destructive"
-      });
+      toast.error("Error: Failed to reject all requests.");
     } finally {
       setLoading(false);
     }
