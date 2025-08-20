@@ -31,24 +31,27 @@ interface ProgramConfig {
 
 export async function exportBulletinPricing(selectedProgramCodes?: string[]) {
   try {
-    // Step 1: Fetch bulletin pricing data
-    let query = supabase
-      .from('bulletin_pricing')
-      .select('*');
-
-    if (selectedProgramCodes && selectedProgramCodes.length > 0) {
-      query = query.in('financial_program_code', selectedProgramCodes);
-    }
-
-    const { data: bulletinData, error } = await query;
-
-    if (error) {
-      throw new Error(`Failed to fetch bulletin pricing data: ${error.message}`);
-    }
+    // Step 1: Fetch bulletin pricing data in batches to avoid row limits
+    const bulletinData = await fetchAllBulletinPricing(selectedProgramCodes);
 
     if (!bulletinData || bulletinData.length === 0) {
       throw new Error('No bulletin pricing data found');
     }
+
+    // Debug: NL-prefixed program codes and LFS lender presence
+    const nlRows = bulletinData.filter(r =>
+      (r.financial_program_code ?? '')
+        .replace(/[\u200B\u00A0]/g, '')
+        .trim()
+        .toUpperCase()
+        .startsWith('NL')
+    );
+    const lfsNlCount = nlRows.filter(r => /(^|[^A-Z])LFS([^A-Z]|$)/i.test(r.lender_list ?? '')).length;
+    console.info('Bulletin Export Debug:fetchSummary', {
+      totalFetched: bulletinData.length,
+      nlRows: nlRows.length,
+      lfsNlRows: lfsNlCount
+    });
 
     // Step 2: Get unique program codes and fetch their configurations
     const programCodes = Array.from(new Set(bulletinData.map(row => row.financial_program_code).filter(Boolean))) as string[];
@@ -116,18 +119,22 @@ export async function exportBulletinPricing(selectedProgramCodes?: string[]) {
       // Single workbook - direct download
       const { filename, workbook } = workbooks[0];
       XLSX.writeFile(workbook, filename);
+      console.info('Bulletin Export Debug:downloadFile', { filename });
     } else {
       // Multiple workbooks - zip them
       const zip = new JSZip();
+      const zipFileNames: string[] = [];
       
       for (const { filename, workbook } of workbooks) {
         const buffer = XLSX.write(workbook, { type: 'array', bookType: 'xlsx' });
         zip.file(filename, buffer);
+        zipFileNames.push(filename);
       }
       
       const zipBlob = await zip.generateAsync({ type: 'blob' });
       const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
       const zipFilename = `bulletin_pricing_export_${dateStr}.zip`;
+      console.info('Bulletin Export Debug:zipFiles', { files: zipFileNames, count: zipFileNames.length, zipFilename });
       
       const url = URL.createObjectURL(zipBlob);
       const a = document.createElement('a');
@@ -471,4 +478,41 @@ function makeUniqueSheetName(desired: string, usedNames: Set<string>): string {
 // Backward-compatible helper if used elsewhere
 function truncateSheetName(name: string): string {
   return sanitizeSheetName(name).slice(0, 31);
+}
+
+// Fetch all bulletin_pricing rows in batches to bypass range limits
+async function fetchAllBulletinPricing(selectedProgramCodes?: string[]): Promise<BulletinPricingRow[]> {
+  const batchSize = 2000;
+  let offset = 0;
+  const all: BulletinPricingRow[] = [];
+  let total: number | null = null;
+
+  while (true) {
+    let q = supabase
+      .from('bulletin_pricing')
+      .select('*', { count: 'exact' })
+      .range(offset, offset + batchSize - 1);
+
+    if (selectedProgramCodes && selectedProgramCodes.length > 0) {
+      q = q.in('financial_program_code', selectedProgramCodes);
+    }
+
+    const { data, error, count } = await q;
+    if (error) throw new Error(`Failed to fetch bulletin pricing data: ${error.message}`);
+    const chunk = (data as any as BulletinPricingRow[]) ?? [];
+    all.push(...chunk);
+    if (total === null && typeof count === 'number') total = count;
+
+    if (chunk.length < batchSize) break;
+    offset += batchSize;
+  }
+
+  console.info('Bulletin Export Debug:fetchAll', {
+    batchSize,
+    fetched: all.length,
+    total: total ?? all.length,
+    pages: Math.ceil(all.length / batchSize)
+  });
+
+  return all;
 }
