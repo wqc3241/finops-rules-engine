@@ -166,20 +166,37 @@ function groupByLender(data: BulletinPricingRow[]): Record<string, BulletinPrici
       .split(/[,;|\n]+/)
       .map((l) => normLender(l))
       .filter(Boolean)
-      .map((l) => (/(^|\s)LFS(\s|$)/.test(l) ? 'LFS' : l));
+      .map((l) => {
+        // More aggressive LFS matching - match any occurrence of LFS
+        if (l.includes('LFS')) {
+          return 'LFS';
+        }
+        return l;
+      });
 
-  return data.reduce((groups, row) => {
-    const lendersRaw = row.lender_list ?? 'Unknown';
+  const groups: Record<string, BulletinPricingRow[]> = {};
+  
+  for (const row of data) {
+    const lendersRaw = row.lender_list ?? 'UNKNOWN';
     const lenders = splitLenders(lendersRaw);
-
     const effectiveLenders = lenders.length > 0 ? lenders : ['UNKNOWN'];
 
     for (const lender of effectiveLenders) {
       if (!groups[lender]) groups[lender] = [];
       groups[lender].push(row);
     }
-    return groups;
-  }, {} as Record<string, BulletinPricingRow[]>);
+  }
+
+  // Debug: Log all lenders found
+  console.info('Bulletin Export Debug:groupByLender', {
+    totalRows: data.length,
+    lenders: Object.keys(groups).sort(),
+    lenderCounts: Object.fromEntries(
+      Object.entries(groups).map(([k, v]) => [k, v.length])
+    )
+  });
+
+  return groups;
 }
 
 function createWorkbookForLender(
