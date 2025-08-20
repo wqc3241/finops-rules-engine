@@ -67,13 +67,12 @@ export async function exportBulletinPricing(selectedProgramCodes?: string[]) {
 
     // Debug: summarize lenders and row counts
     const lenderCounts: Record<string, number> = {};
+    const norm = (s?: string | null) => (s ?? '').replace(/[\u200B\u00A0]/g, '').trim().replace(/\s+/g, ' ').toUpperCase();
+    const splitLenders = (s: string) => s.split(/[,;|\n]+/).map((l) => norm(l)).filter(Boolean).map((l) => (/(^|\s)LFS(\s|$)/.test(l) ? 'LFS' : l));
     for (const row of bulletinData) {
-      const lenders = (row.lender_list ?? 'Unknown')
-        .split(',')
-        .map(l => l.trim())
-        .filter(Boolean);
-      if (lenders.length === 0) lenders.push('Unknown');
-      for (const l of lenders) lenderCounts[l] = (lenderCounts[l] ?? 0) + 1;
+      const lenders = splitLenders(row.lender_list ?? 'UNKNOWN');
+      const effective = lenders.length ? lenders : ['UNKNOWN'];
+      for (const l of effective) lenderCounts[l] = (lenderCounts[l] ?? 0) + 1;
     }
     console.info('Bulletin Export Debug:lenderSummary', {
       distinctLenders: Object.keys(lenderCounts).sort(),
@@ -148,20 +147,28 @@ export async function exportBulletinPricing(selectedProgramCodes?: string[]) {
 }
 
 function groupByLender(data: BulletinPricingRow[]): Record<string, BulletinPricingRow[]> {
+  const normLender = (s?: string | null) =>
+    (s ?? '')
+      .replace(/[\u200B\u00A0]/g, '')
+      .trim()
+      .replace(/\s+/g, ' ')
+      .toUpperCase();
+
+  const splitLenders = (s: string) =>
+    s
+      .split(/[,;|\n]+/)
+      .map((l) => normLender(l))
+      .filter(Boolean)
+      .map((l) => (/(^|\s)LFS(\s|$)/.test(l) ? 'LFS' : l));
+
   return data.reduce((groups, row) => {
     const lendersRaw = row.lender_list ?? 'Unknown';
-    const lenders = lendersRaw
-      .split(',')
-      .map(l => l.trim())
-      .filter(Boolean);
+    const lenders = splitLenders(lendersRaw);
 
-    // If no lenders after split (e.g., empty string), put under Unknown
-    const effectiveLenders = lenders.length > 0 ? lenders : ['Unknown'];
+    const effectiveLenders = lenders.length > 0 ? lenders : ['UNKNOWN'];
 
     for (const lender of effectiveLenders) {
-      if (!groups[lender]) {
-        groups[lender] = [];
-      }
+      if (!groups[lender]) groups[lender] = [];
       groups[lender].push(row);
     }
     return groups;
@@ -205,6 +212,11 @@ function createWorkbookForLender(
     const worksheet = createWorksheet(lender, programCode, pricingType, sheetData, programConfigs);
     XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
     usedNames.add(sheetName);
+  }
+
+  if ((workbook.SheetNames?.length ?? 0) === 0) {
+    const info = XLSX.utils.aoa_to_sheet([[`No sheetable data for lender ${lender}. Rows: ${data.length}`]]);
+    XLSX.utils.book_append_sheet(workbook, info, 'INFO');
   }
 
   return workbook;
