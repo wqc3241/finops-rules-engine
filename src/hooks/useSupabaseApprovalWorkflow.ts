@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useSupabaseAuth';
 import { ApprovalStatus, ChangeRequest, ChangeDetail, ChangeRequestWithDetails, TableChangesSummary } from '@/types/approval';
 import { TableData } from '@/types/dynamicTable';
-import { toast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 export const useSupabaseApprovalWorkflow = () => {
   const { user } = useAuth();
@@ -11,6 +11,7 @@ export const useSupabaseApprovalWorkflow = () => {
   const [changeDetails, setChangeDetails] = useState<ChangeDetail[]>([]);
   const [lockedTables, setLockedTables] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
   // Load data on mount and set up real-time subscriptions
   useEffect(() => {

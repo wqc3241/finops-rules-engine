@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import TabComponent, { TabItem } from "./TabComponent";
 import DynamicFinancialSection from "./DynamicFinancialSection";
 import ApprovalNotificationBanner from "@/components/approval-workflow/ApprovalNotificationBanner";
@@ -19,6 +19,7 @@ interface FinancialPricingTabsProps {
   onSelectionChange?: (items: string[]) => void;
   selectedItems?: string[];
   onSetBatchDeleteCallback?: (callback: () => void) => void;
+  reviewRequestId?: string | null;
 }
 
 const FinancialPricingTabs = ({
@@ -28,7 +29,8 @@ const FinancialPricingTabs = ({
   setShowAddPricingTypeModal,
   onSelectionChange,
   selectedItems = [],
-  onSetBatchDeleteCallback
+  onSetBatchDeleteCallback,
+  reviewRequestId
 }: FinancialPricingTabsProps) => {
   const [activeTab, setActiveTab] = useState("rules");
   const [showSubmitModal, setShowSubmitModal] = useState(false);
@@ -62,6 +64,14 @@ const FinancialPricingTabs = ({
     setSelectedRequestId(null); // No specific request ID, reviewing all
     setShowReviewModal(true);
   };
+
+  // Auto-open review modal if reviewRequestId is provided
+  useEffect(() => {
+    if (reviewRequestId) {
+      setSelectedRequestId(reviewRequestId);
+      setShowReviewModal(true);
+    }
+  }, [reviewRequestId]);
 
 
   const tabItems: TabItem[] = [

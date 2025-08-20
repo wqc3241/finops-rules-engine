@@ -4,9 +4,10 @@ import TabsSection from "./dashboard/TabsSection";
 
 interface DashboardProps {
   activeSection: string;
+  reviewRequestId?: string | null;
 }
 
-const Dashboard = ({ activeSection }: DashboardProps) => {
+const Dashboard = ({ activeSection, reviewRequestId }: DashboardProps) => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showAddPricingModal, setShowAddPricingModal] = useState(false);
   const [showAddPricingTypeModal, setShowAddPricingTypeModal] = useState(false);
@@ -34,6 +35,7 @@ const Dashboard = ({ activeSection }: DashboardProps) => {
           setShowAddPricingModal={setShowAddPricingModal}
           showAddPricingTypeModal={showAddPricingTypeModal}
           setShowAddPricingTypeModal={setShowAddPricingTypeModal}
+          reviewRequestId={reviewRequestId}
         />
       </div>
     </div>

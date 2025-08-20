@@ -15,14 +15,16 @@ interface TabsSectionProps {
   setShowAddPricingModal: (show: boolean) => void;
   showAddPricingTypeModal: boolean;
   setShowAddPricingTypeModal: (show: boolean) => void;
+  reviewRequestId?: string | null;
 }
 
-const TabsSection = ({
-  activeSection,
-  showAddPricingModal,
-  setShowAddPricingModal,
-  showAddPricingTypeModal,
-  setShowAddPricingTypeModal
+const TabsSection = ({ 
+  activeSection, 
+  showAddPricingModal, 
+  setShowAddPricingModal, 
+  showAddPricingTypeModal, 
+  setShowAddPricingTypeModal,
+  reviewRequestId
 }: TabsSectionProps) => {
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [showBatchOperations, setShowBatchOperations] = useState(false);
@@ -89,6 +91,7 @@ const TabsSection = ({
               onSelectionChange={handleSelectionChange}
               selectedItems={selectedItems}
               onSetBatchDeleteCallback={handleSetBatchDeleteCallback}
+              reviewRequestId={reviewRequestId}
             />
           </ChangeTrackingProvider>
         </div>
