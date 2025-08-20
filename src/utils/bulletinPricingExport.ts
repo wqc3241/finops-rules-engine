@@ -88,6 +88,15 @@ export async function exportBulletinPricing(selectedProgramCodes?: string[]) {
       const workbook = createWorkbookForLender(lender, lenderData, programConfigs || []);
       const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
       
+      // Debug: list sheets created per lender
+      try {
+        console.info('Bulletin Export Debug:workbookSheets', {
+          lender,
+          sheetCount: workbook.SheetNames?.length ?? 0,
+          sheets: workbook.SheetNames?.slice(0, 50)
+        });
+      } catch {}
+      
       let filename: string;
       const uniquePrograms = Array.from(new Set(lenderData.map(row => row.financial_program_code).filter(Boolean)));
       
@@ -179,23 +188,42 @@ function createWorkbookForLender(
     });
   }
 
+  // Extra debug for NL programs under this lender
+  const nlSheets = Object.keys(sheetGroups).filter((k) => k.startsWith('NL|'));
+  if (nlSheets.length > 0) {
+    console.info('Bulletin Export Debug:NL group presence', { lender, nlSheets });
+  }
+
+  // Ensure unique, Excel-safe sheet names
+  const usedNames = new Set<string>();
+
   for (const [sheetKey, sheetData] of Object.entries(sheetGroups)) {
     const [programCode, pricingType] = sheetKey.split('|');
-    const sheetName = truncateSheetName(`${programCode}_${pricingType}`);
-    
+    const desiredName = `${programCode}_${pricingType}`;
+    const sheetName = makeUniqueSheetName(desiredName, usedNames);
+
     const worksheet = createWorksheet(lender, programCode, pricingType, sheetData, programConfigs);
     XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+    usedNames.add(sheetName);
   }
 
   return workbook;
 }
 
 function groupDataForSheets(data: BulletinPricingRow[]): Record<string, BulletinPricingRow[]> {
+  // Normalize to avoid subtle mismatches (case, spaces, zero-width chars)
+  const norm = (s?: string | null) =>
+    (s ?? '')
+      .replace(/[\u200B\u00A0]/g, '')
+      .trim()
+      .replace(/\s+/g, ' ')
+      .toUpperCase();
+
   return data.reduce((groups, row) => {
-    const key = `${row.financial_program_code || 'Unknown'}|${row.pricing_type || 'Unknown'}`;
-    if (!groups[key]) {
-      groups[key] = [];
-    }
+    const programCode = norm(row.financial_program_code) || 'UNKNOWN';
+    const pricingType = norm(row.pricing_type) || 'UNKNOWN';
+    const key = `${programCode}|${pricingType}`;
+    if (!groups[key]) groups[key] = [];
     groups[key].push(row);
     return groups;
   }, {} as Record<string, BulletinPricingRow[]>);
@@ -400,6 +428,35 @@ function applyWorksheetFormatting(
   }
 }
 
+function sanitizeSheetName(name: string): string {
+  // Remove invalid Excel sheet name characters and normalize spaces
+  let cleaned = String(name)
+    .replace(/[\u200B\u00A0]/g, '') // hidden spaces
+    .replace(/[\\\/:\?\*\[\]]/g, '-') // invalid chars: \ / : ? * [ ]
+    .replace(/'/g, '') // remove apostrophes
+    .trim()
+    .replace(/\s+/g, ' ');
+  if (!cleaned) cleaned = 'Sheet';
+  return cleaned;
+}
+
+function makeUniqueSheetName(desired: string, usedNames: Set<string>): string {
+  const baseRaw = sanitizeSheetName(desired);
+  // initial truncate
+  let base = baseRaw.length > 31 ? baseRaw.slice(0, 31) : baseRaw;
+  let name = base;
+  let counter = 2;
+  while (usedNames.has(name)) {
+    const suffix = ` (${counter})`;
+    const maxBaseLen = 31 - suffix.length;
+    const trimmedBase = base.slice(0, Math.max(1, maxBaseLen));
+    name = `${trimmedBase}${suffix}`;
+    counter++;
+  }
+  return name;
+}
+
+// Backward-compatible helper if used elsewhere
 function truncateSheetName(name: string): string {
-  return name.length > 31 ? name.substring(0, 31) : name;
+  return sanitizeSheetName(name).slice(0, 31);
 }
