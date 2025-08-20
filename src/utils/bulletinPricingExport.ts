@@ -65,6 +65,22 @@ export async function exportBulletinPricing(selectedProgramCodes?: string[]) {
     // Step 3: Group data by lender
     const lenderGroups = groupByLender(bulletinData);
 
+    // Debug: summarize lenders and row counts
+    const lenderCounts: Record<string, number> = {};
+    for (const row of bulletinData) {
+      const lenders = (row.lender_list ?? 'Unknown')
+        .split(',')
+        .map(l => l.trim())
+        .filter(Boolean);
+      if (lenders.length === 0) lenders.push('Unknown');
+      for (const l of lenders) lenderCounts[l] = (lenderCounts[l] ?? 0) + 1;
+    }
+    console.info('Bulletin Export Debug:lenderSummary', {
+      distinctLenders: Object.keys(lenderCounts).sort(),
+      counts: lenderCounts,
+      totalRows: bulletinData.length
+    });
+
     // Step 4: Generate workbooks
     const workbooks: { filename: string; workbook: XLSX.WorkBook }[] = [];
 
@@ -152,6 +168,16 @@ function createWorkbookForLender(
 
   // Group by program and pricing type combinations
   const sheetGroups = groupDataForSheets(data);
+  const sheetCount = Object.keys(sheetGroups).length;
+  if (sheetCount === 0) {
+    console.warn('Bulletin Export Debug:noSheetsForLender', { lender, rows: data.length });
+  } else {
+    console.info('Bulletin Export Debug:createWorkbookForLender', {
+      lender,
+      sheetCount,
+      sampleSheets: Object.keys(sheetGroups).slice(0, 10)
+    });
+  }
 
   for (const [sheetKey, sheetData] of Object.entries(sheetGroups)) {
     const [programCode, pricingType] = sheetKey.split('|');
