@@ -35,4 +35,9 @@ export interface DynamicTableProps {
   selectedItems?: string[];
   allowColumnManagement?: boolean;
   onEditRow?: (rowId: string, rowData: TableData) => void;
+  // Pagination props
+  totalCount?: number;
+  pageSize?: number;
+  currentPage?: number;
+  onPageChange?: (page: number, pageSize: number) => void;
 }

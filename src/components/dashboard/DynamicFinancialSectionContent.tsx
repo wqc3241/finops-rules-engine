@@ -10,6 +10,11 @@ interface DynamicFinancialSectionContentProps {
   onSelectionChange?: (items: string[]) => void;
   selectedItems: string[];
   onEditRow?: (rowId: string, rowData: TableData) => void;
+  // Pagination props
+  totalCount?: number;
+  pageSize?: number;
+  currentPage?: number;
+  onPageChange?: (page: number, pageSize: number) => void;
 }
 
 const DynamicFinancialSectionContent = ({
@@ -19,7 +24,11 @@ const DynamicFinancialSectionContent = ({
   onSchemaChange,
   onSelectionChange,
   selectedItems,
-  onEditRow
+  onEditRow,
+  totalCount,
+  pageSize,
+  currentPage,
+  onPageChange
 }: DynamicFinancialSectionContentProps) => {
   console.log('Rendering component with data:', data, 'schema:', schema);
 
@@ -35,6 +44,10 @@ const DynamicFinancialSectionContent = ({
           selectedItems={selectedItems}
           allowColumnManagement={true}
           onEditRow={onEditRow}
+          totalCount={totalCount}
+          pageSize={pageSize}
+          currentPage={currentPage}
+          onPageChange={onPageChange}
         />
       </div>
     </div>

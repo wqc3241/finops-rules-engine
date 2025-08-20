@@ -36,12 +36,24 @@ const DynamicFinancialSection = ({
   const [editData, setEditData] = useState<any>(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [showVersionHistory, setShowVersionHistory] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(100);
+  
   const { getSchema, getSyncSchema, updateSchema, loading: schemaLoading } = useDynamicTableSchemas();
-  const { data, setData, handleAddNew, loading, isLocked } = useDynamicFinancialData({
+  const { 
+    data, 
+    setData, 
+    handleAddNew, 
+    loading, 
+    isLocked,
+    totalCount 
+  } = useDynamicFinancialData({
     schemaId,
     selectedItems,
     onSelectionChange,
-    onSetBatchDeleteCallback
+    onSetBatchDeleteCallback,
+    currentPage,
+    pageSize
   });
   const { isTableLocked } = useSupabaseApprovalWorkflow();
 
@@ -296,6 +308,11 @@ const DynamicFinancialSection = ({
   // Determine if this section should have upload/download buttons
   const shouldShowUploadDownload = schemaId === 'fee-rules' || schemaId === 'tax-rules' || schemaId === 'bulletin-pricing';
 
+  const handlePageChange = (page: number, newPageSize: number) => {
+    setCurrentPage(page);
+    setPageSize(newPageSize);
+  };
+
   if (!schema) {
     return (
       <div className="p-6 bg-white rounded-lg shadow-sm">
@@ -349,6 +366,10 @@ const DynamicFinancialSection = ({
               onSelectionChange={onSelectionChange}
               selectedItems={selectedItems}
               onEditRow={isLocked ? undefined : handleEditRow}
+              totalCount={totalCount}
+              pageSize={pageSize}
+              currentPage={currentPage}
+              onPageChange={handlePageChange}
             />
           )}
         </>

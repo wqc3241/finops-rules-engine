@@ -22,10 +22,15 @@ const BulletinPricingTable = ({
   const { getSchema, getSyncSchema, updateSchema } = useDynamicTableSchemas();
   const schema = getSyncSchema('bulletin-pricing');
   
-  const { data, setData } = useDynamicFinancialData({
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(100);
+  
+  const { data, setData, totalCount } = useDynamicFinancialData({
     schemaId: 'bulletin-pricing',
     selectedItems,
-    onSelectionChange
+    onSelectionChange,
+    currentPage,
+    pageSize
   });
 
   if (!schema) {
@@ -40,6 +45,11 @@ const BulletinPricingTable = ({
     updateSchema('bulletin-pricing', newSchema);
   };
 
+  const handlePageChange = (page: number, newPageSize: number) => {
+    setCurrentPage(page);
+    setPageSize(newPageSize);
+  };
+
   return (
     <DynamicTable
       schema={schema}
@@ -49,6 +59,10 @@ const BulletinPricingTable = ({
       onSelectionChange={onSelectionChange}
       selectedItems={selectedItems}
       allowColumnManagement={true}
+      totalCount={totalCount}
+      pageSize={pageSize}
+      currentPage={currentPage}
+      onPageChange={handlePageChange}
     />
   );
 };

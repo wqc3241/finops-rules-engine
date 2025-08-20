@@ -13,16 +13,22 @@ interface UseDynamicFinancialDataProps {
   selectedItems: string[];
   onSelectionChange?: (items: string[]) => void;
   onSetBatchDeleteCallback?: (callback: () => void) => void;
+  // Pagination props
+  pageSize?: number;
+  currentPage?: number;
 }
 
 export const useDynamicFinancialData = ({
   schemaId,
   selectedItems,
   onSelectionChange,
-  onSetBatchDeleteCallback
+  onSetBatchDeleteCallback,
+  pageSize = 100,
+  currentPage = 1
 }: UseDynamicFinancialDataProps) => {
   const [data, setData] = useState<TableData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [totalCount, setTotalCount] = useState(0);
   const { isTableLocked } = useSupabaseApprovalWorkflow();
   const { startTracking, updateTracking } = useChangeTracking();
   const { user, profile } = useAuth();
@@ -107,17 +113,35 @@ export const useDynamicFinancialData = ({
     return fallbacks[tableName] || 'id';
   }, []);
 
-  // Load data from Supabase
+  // Load data from Supabase with pagination
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
       const tableName = getTableName(schemaId);
       const orderByColumn = await getOrderByColumn(tableName);
       
+      // Calculate range for pagination
+      const startIndex = (currentPage - 1) * pageSize;
+      const endIndex = startIndex + pageSize - 1;
+      
+      // Get total count
+      const { count, error: countError } = await supabase
+        .from(tableName as any)
+        .select('*', { count: 'exact', head: true });
+
+      if (countError) {
+        console.error('Error getting count:', countError);
+        setTotalCount(0);
+      } else {
+        setTotalCount(count || 0);
+      }
+
+      // Get paginated data
       const { data: supabaseData, error } = await supabase
         .from(tableName as any)
         .select('*')
-        .order(orderByColumn, { ascending: false });
+        .order(orderByColumn, { ascending: false })
+        .range(startIndex, endIndex);
 
       if (error) {
         console.error('Error loading data from Supabase:', error);
@@ -125,7 +149,7 @@ export const useDynamicFinancialData = ({
         setData([]);
         startTracking(schemaId, []);
       } else {
-        console.log('Loaded data from Supabase:', supabaseData);
+        console.log('Loaded paginated data from Supabase:', supabaseData);
         const formattedData = supabaseData || [];
         setData(formattedData);
         const pk = await getPrimaryKey(schemaId);
@@ -139,7 +163,7 @@ export const useDynamicFinancialData = ({
     } finally {
       setLoading(false);
     }
-  }, [schemaId, startTracking, getOrderByColumn]);
+  }, [schemaId, startTracking, getOrderByColumn, currentPage, pageSize]);
 
   useEffect(() => {
     loadData();
@@ -397,6 +421,9 @@ export const useDynamicFinancialData = ({
     handleAddNew: handleAddNewSupabase,
     loading,
     isLocked: isTableLocked(schemaId),
-    refetch: loadData
+    refetch: loadData,
+    totalCount,
+    pageSize,
+    currentPage
   };
 };

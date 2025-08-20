@@ -10,6 +10,7 @@ import TableCellRenderer from "./TableCellRenderer";
 import TableRowActions from "./TableRowActions";
 import TableHeaderComponent from "./TableHeader";
 import { getNextFPCId } from "./utils/tableUtils";
+import { TablePagination } from "@/components/ui/table-pagination";
 
 // Helper to determine the primary key column for any schema
 const getPrimaryKey = (schema: { columns: ColumnDefinition[] }, data: TableData[]): string => {
@@ -38,7 +39,12 @@ const DynamicTable = ({
   onSelectionChange,
   selectedItems = [],
   allowColumnManagement = true,
-  onEditRow
+  onEditRow,
+  // Pagination props
+  totalCount = 0,
+  pageSize = 100,
+  currentPage = 1,
+  onPageChange
 }: DynamicTableProps) => {
   const [showColumnManagement, setShowColumnManagement] = useState(false);
   const [showAddColumn, setShowAddColumn] = useState(false);
@@ -272,6 +278,16 @@ const DynamicTable = ({
           </TableBody>
         </Table>
       </div>
+
+      {/* Pagination Controls */}
+      {totalCount > 0 && onPageChange && (
+        <TablePagination
+          totalCount={totalCount}
+          pageSize={pageSize}
+          currentPage={currentPage}
+          onPageChange={onPageChange}
+        />
+      )}
 
       <ColumnManagementModal
         open={showColumnManagement}
