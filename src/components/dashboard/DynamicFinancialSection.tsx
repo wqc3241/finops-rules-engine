@@ -14,6 +14,7 @@ import { Lock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import * as XLSX from 'xlsx';
 import { toast } from "sonner";
+import { exportBulletinPricing } from "@/utils/bulletinPricingExport";
 
 interface DynamicFinancialSectionProps {
   schemaId: string;
@@ -279,6 +280,10 @@ const DynamicFinancialSection = ({
         // Download the file
         XLSX.writeFile(workbook, fileName);
         toast.success(`Downloaded ${exportData.length} fee rules to ${fileName}`);
+      } else if (schemaId === 'bulletin-pricing') {
+        toast.info("Exporting bulletin pricing...");
+        const result = await exportBulletinPricing();
+        toast.success(`Export complete! Generated ${result.fileCount} file(s).`);
       } else {
         toast.success(`Download ${title} functionality will be implemented`);
       }
