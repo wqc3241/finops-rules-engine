@@ -32,7 +32,7 @@ interface FinancialProgramWizardProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onComplete: (data: WizardData) => void;
-  editData?: WizardData; // For editing existing programs
+  editData?: any; // Table row data has different structure than WizardData
   isEditMode?: boolean;
 }
 
@@ -55,7 +55,20 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
   useEffect(() => {
     if (open) {
       if (isEditMode && editData) {
-        setWizardData(editData);
+        // Convert editData from table row format to WizardData format
+        setWizardData({
+          vehicleStyleId: editData.vehicleStyleId || "",
+          vehicleCondition: editData.financingVehicleCondition || "",
+          financialProduct: editData.financialProductId || "",
+          pricingTypes: Array.isArray(editData.pricingTypes) ? editData.pricingTypes : [],
+          creditProfiles: Array.isArray(editData.creditProfiles) ? editData.creditProfiles : [],
+          pricingConfigs: Array.isArray(editData.pricingConfigs) ? editData.pricingConfigs : [],
+          programStartDate: editData.programStartDate || "",
+          programEndDate: editData.programEndDate || "",
+          lenders: Array.isArray(editData.lenders) ? editData.lenders : [],
+          geoCodes: Array.isArray(editData.geoCodes) ? editData.geoCodes : [],
+          programCode: editData.programCode || ""
+        });
       } else {
         setWizardData({
           vehicleStyleId: "",
