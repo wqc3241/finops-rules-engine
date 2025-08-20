@@ -1,5 +1,4 @@
 import { useState, useCallback } from 'react';
-import { useAuth } from './useAuth';
 import { toast } from 'sonner';
 
 export interface TableVersion {
@@ -12,8 +11,25 @@ export interface TableVersion {
   description?: string;
 }
 
+// Safe auth hook that uses the actual Supabase auth system
+const useSafeAuth = () => {
+  try {
+    const { useAuth } = require('./useSupabaseAuth');
+    const auth = useAuth();
+    return {
+      user: auth.user ? { name: auth.profile?.first_name || auth.user.email || 'System User' } : { name: 'System User' },
+      isFSAdmin: auth.isFSAdmin || (() => false)
+    };
+  } catch {
+    return {
+      user: { name: 'System User' },
+      isFSAdmin: () => false
+    };
+  }
+};
+
 export const useTableVersions = (tableId: string) => {
-  const { user, isFSAdmin } = useAuth();
+  const { user, isFSAdmin } = useSafeAuth();
   const [versions, setVersions] = useState<TableVersion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -49,7 +65,8 @@ export const useTableVersions = (tableId: string) => {
   }, [tableId]);
 
   const restoreVersion = useCallback(async (versionId: string): Promise<{ data: any[], schema: any } | null> => {
-    if (!isFSAdmin()) {
+    const canRestore = typeof isFSAdmin === 'function' ? isFSAdmin() : false;
+    if (!canRestore) {
       toast.error('Only FS_Admin users can restore versions');
       return null;
     }
@@ -82,7 +99,7 @@ export const useTableVersions = (tableId: string) => {
     saveVersion,
     loadVersions,
     restoreVersion,
-    canRestore: isFSAdmin(),
+    canRestore: typeof isFSAdmin === 'function' ? isFSAdmin() : false,
     persistVersions
   };
 };
