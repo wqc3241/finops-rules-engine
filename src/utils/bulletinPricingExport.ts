@@ -182,65 +182,101 @@ function createWorksheet(
   data: BulletinPricingRow[],
   programConfigs: any[]
 ): XLSX.WorkSheet {
-// Find program config for metadata
-const programConfig = programConfigs.find(config => config.program_code === programCode);
+  // Normalize helper (trim, collapse spaces, remove zero-width, uppercase)
+  const norm = (s?: string | null) =>
+    (s ?? '')
+      .replace(/\u200B/g, '')
+      .trim()
+      .replace(/\s+/g, ' ')
+      .toUpperCase();
 
-// Get unique values for headers and rows (trim to avoid mismatches)
-const geoCodes = Array.from(
-  new Set(data.map(row => row.geo_code?.trim()).filter((v): v is string => !!v))
-).sort();
-const creditProfiles = Array.from(
-  new Set(data.map(row => row.credit_profile?.trim()).filter((v): v is string => !!v))
-).sort();
-const pricingConfigs = Array.from(
-  new Set(data.map(row => row.pricing_config?.trim()).filter((v): v is string => !!v))
-);
+  // Find program config for metadata
+  const programConfig = programConfigs.find((config) => config.program_code === programCode);
 
-// Create data matrix
-const worksheet: any[][] = [];
+  // Build unique, normalized headers/axes
+  const geoCodes = Array.from(
+    new Set(data.map((row) => norm(row.geo_code)).filter((v) => !!v))
+  ).sort();
+  const creditProfiles = Array.from(
+    new Set(data.map((row) => norm(row.credit_profile)).filter((v) => !!v))
+  ).sort();
+  const pricingConfigs = Array.from(
+    new Set(data.map((row) => norm(row.pricing_config)).filter((v) => !!v))
+  );
 
-// A1: Metadata
-const metadata = `Program: ${programCode} | Lender: ${lender} | Product: ${programConfig?.financial_product_id || 'N/A'} | Vehicle: ${programConfig?.vehicle_style_id || 'N/A'}/${programConfig?.financing_vehicle_condition || 'N/A'} | Dates: ${programConfig?.program_start_date || 'N/A'}–${programConfig?.program_end_date || 'N/A'}`;
-worksheet[0] = [metadata];
+  // Debug overview
+  console.info('Bulletin Export Debug:createWorksheet', {
+    lender,
+    programCode,
+    pricingType,
+    rows: data.length,
+    geoCodes: geoCodes.length,
+    creditProfiles: creditProfiles.length,
+    pricingConfigs: pricingConfigs.length,
+  });
 
-// Row 1: Credit Profile headers (starting from B1)
-const row1: any[] = [''];
-for (const creditProfile of creditProfiles) {
-  for (let j = 0; j < pricingConfigs.length; j++) {
-    row1.push(creditProfile);
+  // Index data for fast, robust lookup
+  const index = new Map<string, BulletinPricingRow[]>();
+  for (const row of data) {
+    const key = `${norm(row.geo_code)}|${norm(row.credit_profile)}|${norm(row.pricing_config)}`;
+    if (!index.has(key)) index.set(key, []);
+    index.get(key)!.push(row);
   }
-}
-worksheet[1] = row1;
 
-// Row 2: Pricing Config headers (under each Credit Profile)
-const row2: any[] = [''];
-for (let i = 0; i < creditProfiles.length; i++) {
-  for (const pricingConfig of pricingConfigs) {
-    row2.push(pricingConfig);
+  // Create data matrix
+  const worksheet: any[][] = [];
+
+  // A1: Metadata
+  const metadata = `Program: ${programCode} | Lender: ${lender} | Product: ${
+    programConfig?.financial_product_id || 'N/A'
+  } | Vehicle: ${programConfig?.vehicle_style_id || 'N/A'}/${
+    programConfig?.financing_vehicle_condition || 'N/A'
+  } | Dates: ${programConfig?.program_start_date || 'N/A'}–${
+    programConfig?.program_end_date || 'N/A'
+  }`;
+  worksheet[0] = [metadata];
+
+  // Row 1: Credit Profile headers (starting from B1)
+  const row1: any[] = [''];
+  for (const creditProfile of creditProfiles) {
+    for (let j = 0; j < pricingConfigs.length; j++) {
+      row1.push(creditProfile);
+    }
   }
-}
-worksheet[2] = row2;
+  worksheet[1] = row1;
+
+  // Row 2: Pricing Config headers (under each Credit Profile)
+  const row2: any[] = [''];
+  for (let i = 0; i < creditProfiles.length; i++) {
+    for (const pricingConfig of pricingConfigs) {
+      row2.push(pricingConfig);
+    }
+  }
+  worksheet[2] = row2;
 
   // Data rows (starting from row 3, A3 down)
+  let missingCount = 0;
+  const sampleMisses: Array<{ geo: string; profile: string; config: string }> = [];
+
   for (let rowIndex = 0; rowIndex < geoCodes.length; rowIndex++) {
     const geoCode = geoCodes[rowIndex];
     const dataRow: any[] = [geoCode];
 
     for (const creditProfile of creditProfiles) {
       for (const pricingConfig of pricingConfigs) {
-        // Find matching data point
-        const matchingRows = data.filter(row => 
-          row.geo_code?.trim() === geoCode && 
-          row.credit_profile?.trim() === creditProfile && 
-          row.pricing_config?.trim() === pricingConfig
-        );
+        const key = `${geoCode}|${creditProfile}|${pricingConfig}`;
+        const matchingRows = index.get(key) || [];
 
         let cellValue: any = '';
-        
+
         if (matchingRows.length === 0) {
+          missingCount++;
+          if (sampleMisses.length < 10) {
+            sampleMisses.push({ geo: geoCode, profile: creditProfile, config: pricingConfig });
+          }
           cellValue = 'N/A';
         } else if (matchingRows.length === 1) {
-          cellValue = matchingRows[0].pricing_value;
+          cellValue = matchingRows[0].pricing_value as any;
         } else {
           // Multiple matches - use most recent
           const sorted = matchingRows.sort((a, b) => {
@@ -248,7 +284,12 @@ worksheet[2] = row2;
             const bDate = new Date(b.upload_date || b.updated_date || 0);
             return bDate.getTime() - aDate.getTime();
           });
-          cellValue = sorted[0].pricing_value;
+          cellValue = sorted[0].pricing_value as any;
+        }
+
+        // Coerce numeric strings to numbers for proper Excel formatting
+        if (typeof cellValue === 'string' && cellValue.trim() !== '' && !isNaN(Number(cellValue))) {
+          cellValue = Number(cellValue);
         }
 
         dataRow.push(cellValue);
@@ -258,11 +299,26 @@ worksheet[2] = row2;
     worksheet[rowIndex + 3] = dataRow;
   }
 
+  if (missingCount > 0) {
+    console.warn('Bulletin Export Debug: missing combinations', {
+      lender,
+      programCode,
+      pricingType,
+      missingCount,
+      sampleMisses,
+    });
+  }
+
   // Convert to worksheet
   const ws = XLSX.utils.aoa_to_sheet(worksheet);
 
   // Apply formatting
-  applyWorksheetFormatting(ws, pricingType, geoCodes.length + 3, creditProfiles.length * pricingConfigs.length + 1);
+  applyWorksheetFormatting(
+    ws,
+    pricingType,
+    geoCodes.length + 3,
+    creditProfiles.length * pricingConfigs.length + 1
+  );
 
   return ws;
 }
