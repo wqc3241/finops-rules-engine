@@ -3,9 +3,11 @@ import { useState, useEffect } from "react";
 import SectionHeader from "./SectionHeader";
 import DynamicFinancialSectionContent from "./DynamicFinancialSectionContent";
 import FinancialProgramWizard, { WizardData } from "./FinancialProgramWizard";
+import TableVersionHistory from "@/components/version-management/TableVersionHistory";
 import { useDynamicTableSchemas } from "@/hooks/useDynamicTableSchemas";
 import { useDynamicFinancialData } from "@/hooks/useDynamicFinancialData";
 import { useUndoRedo } from "@/hooks/useUndoRedo";
+import { useTableVersions } from "@/hooks/useTableVersions";
 import { useSupabaseApprovalWorkflow } from "@/hooks/useSupabaseApprovalWorkflow";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Lock } from "lucide-react";
@@ -30,6 +32,7 @@ const DynamicFinancialSection = ({
 }: DynamicFinancialSectionProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showWizard, setShowWizard] = useState(false);
+  const [showVersionHistory, setShowVersionHistory] = useState(false);
   const { getSchema, getSyncSchema, updateSchema, loading: schemaLoading } = useDynamicTableSchemas();
   const { data, setData, handleAddNew, loading, isLocked } = useDynamicFinancialData({
     schemaId,
@@ -42,6 +45,17 @@ const DynamicFinancialSection = ({
   // Load schema dynamically
   const [schema, setSchema] = useState(getSyncSchema(schemaId));
   
+  // Version management
+  const {
+    versions,
+    isLoading: versionsLoading,
+    saveVersion,
+    loadVersions,
+    restoreVersion,
+    canRestore,
+    persistVersions
+  } = useTableVersions(schemaId);
+  
   useEffect(() => {
     const loadSchema = async () => {
       const loadedSchema = await getSchema(schemaId);
@@ -52,11 +66,23 @@ const DynamicFinancialSection = ({
       loadSchema();
     }
   }, [schemaId, getSchema, schema]);
+
+  useEffect(() => {
+    loadVersions();
+  }, [loadVersions]);
+
+  useEffect(() => {
+    if (versions.length > 0) {
+      persistVersions(versions);
+    }
+  }, [versions, persistVersions]);
   const { saveState, undo, redo, canUndo, canRedo } = useUndoRedo(data, schema || { id: '', name: '', columns: [] });
 
   const handleDataChange = (newData: any) => {
     if (schema) {
       saveState(data, schema, 'data_change');
+      // Auto-save version on significant changes
+      saveVersion(newData, schema, 'Data modification');
     }
     setData(newData);
   };
@@ -64,6 +90,8 @@ const DynamicFinancialSection = ({
   const handleSchemaChange = (newSchema: any) => {
     if (schema) {
       saveState(data, schema, 'schema_change');
+      // Auto-save version on schema changes
+      saveVersion(data, newSchema, 'Schema modification');
     }
     updateSchema(schemaId, newSchema);
   };
@@ -95,8 +123,24 @@ const DynamicFinancialSection = ({
     } else {
       if (schema) {
         saveState(data, schema, 'add_record');
+        // Save version when adding new record
+        const newData = [...data];
+        saveVersion(newData, schema, 'Added new record');
       }
       handleAddNew(schema);
+    }
+  };
+
+  const handleVersionHistory = () => {
+    setShowVersionHistory(true);
+  };
+
+  const handleRestoreVersion = async (versionId: string) => {
+    const restoredData = await restoreVersion(versionId);
+    if (restoredData) {
+      setData(restoredData.data);
+      updateSchema(schemaId, restoredData.schema);
+      setShowVersionHistory(false);
     }
   };
 
@@ -126,6 +170,11 @@ const DynamicFinancialSection = ({
     // Add the new record to the data
     const newData = [...data, newRecord];
     setData(newData);
+    
+    // Save version for wizard completion
+    if (schema) {
+      saveVersion(newData, schema, 'Financial program created via wizard');
+    }
     
     console.log('Financial program created:', newRecord);
     console.log('Full wizard data:', wizardData);
@@ -229,6 +278,8 @@ const DynamicFinancialSection = ({
         onDownload={shouldShowUploadDownload ? handleDownload : undefined}
         uploadLabel={`Upload ${title}`}
         downloadLabel={`Download ${title}`}
+        onVersionHistory={handleVersionHistory}
+        showVersionHistory={true}
       />
       {!isCollapsed && (
         <>
@@ -257,6 +308,16 @@ const DynamicFinancialSection = ({
           onComplete={handleWizardComplete}
         />
       )}
+
+      {/* Version History Modal */}
+      <TableVersionHistory
+        open={showVersionHistory}
+        onOpenChange={setShowVersionHistory}
+        versions={versions}
+        onRestore={handleRestoreVersion}
+        canRestore={canRestore}
+        isLoading={versionsLoading}
+      />
     </div>
   );
 };

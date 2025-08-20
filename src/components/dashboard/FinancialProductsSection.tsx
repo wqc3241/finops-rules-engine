@@ -1,8 +1,10 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import FinancialProductsTable from "./FinancialProductsTable";
 import SectionHeader from "./SectionHeader";
+import TableVersionHistory from "@/components/version-management/TableVersionHistory";
+import { useTableVersions } from "@/hooks/useTableVersions";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -31,11 +33,33 @@ const FinancialProductsSection = ({
 }: FinancialProductsSectionProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [internalShowAddModal, setInternalShowAddModal] = useState(false);
+  const [showVersionHistory, setShowVersionHistory] = useState(false);
   const [newProduct, setNewProduct] = useState({
     name: "",
     productType: "",
     description: ""
   });
+
+  // Version management for financial products
+  const {
+    versions,
+    isLoading: versionsLoading,
+    saveVersion,
+    loadVersions,
+    restoreVersion,
+    canRestore,
+    persistVersions
+  } = useTableVersions('financial-products');
+
+  useEffect(() => {
+    loadVersions();
+  }, [loadVersions]);
+
+  useEffect(() => {
+    if (versions.length > 0) {
+      persistVersions(versions);
+    }
+  }, [versions, persistVersions]);
 
   // Use either external state (if provided) or internal state
   const showAddModal = externalShowAddModal !== undefined ? externalShowAddModal : internalShowAddModal;
@@ -48,8 +72,26 @@ const FinancialProductsSection = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     toast.success(`New financial product added: ${newProduct.name}`);
+    
+    // Save version when adding new product
+    const mockData = [{ id: Date.now(), ...newProduct }];
+    const mockSchema = { id: 'financial-products', name: 'Financial Products', columns: [] };
+    saveVersion(mockData, mockSchema, `Added new product: ${newProduct.name}`);
+    
     setNewProduct({ name: "", productType: "", description: "" });
     setShowAddModal(false);
+  };
+
+  const handleVersionHistory = () => {
+    setShowVersionHistory(true);
+  };
+
+  const handleRestoreVersion = async (versionId: string) => {
+    const restoredData = await restoreVersion(versionId);
+    if (restoredData) {
+      toast.success('Table restored to selected version');
+      setShowVersionHistory(false);
+    }
   };
   
   const handleEditClick = (id: string) => {
@@ -70,6 +112,8 @@ const FinancialProductsSection = ({
         title={title}
         isCollapsed={isCollapsed}
         setIsCollapsed={setIsCollapsed}
+        onVersionHistory={handleVersionHistory}
+        showVersionHistory={true}
       >
         <Button onClick={handleAddClick}>Add New Record</Button>
       </SectionHeader>
@@ -125,6 +169,16 @@ const FinancialProductsSection = ({
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Version History Modal */}
+      <TableVersionHistory
+        open={showVersionHistory}
+        onOpenChange={setShowVersionHistory}
+        versions={versions}
+        onRestore={handleRestoreVersion}
+        canRestore={canRestore}
+        isLoading={versionsLoading}
+      />
     </div>
   );
 };

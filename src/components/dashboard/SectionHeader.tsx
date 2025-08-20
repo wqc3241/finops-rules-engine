@@ -1,7 +1,7 @@
 
 import { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
-import { Undo, Redo, Upload, Download } from "lucide-react";
+import { Undo, Redo, Upload, Download, History } from "lucide-react";
 
 interface SectionHeaderProps {
   title: string;
@@ -16,6 +16,8 @@ interface SectionHeaderProps {
   onDownload?: () => void;
   uploadLabel?: string;
   downloadLabel?: string;
+  onVersionHistory?: () => void;
+  showVersionHistory?: boolean;
   children?: ReactNode;
 }
 
@@ -32,6 +34,8 @@ const SectionHeader = ({
   onDownload,
   uploadLabel = "Upload",
   downloadLabel = "Download",
+  onVersionHistory,
+  showVersionHistory = true,
   children 
 }: SectionHeaderProps) => {
   return (
@@ -89,6 +93,17 @@ const SectionHeader = ({
               <Redo className="h-4 w-4" />
             </Button>
           </>
+        )}
+        {showVersionHistory && onVersionHistory && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onVersionHistory}
+            className="mr-2"
+          >
+            <History className="h-4 w-4 mr-1" />
+            Versions
+          </Button>
         )}
         {onAddNew && (
           <button
