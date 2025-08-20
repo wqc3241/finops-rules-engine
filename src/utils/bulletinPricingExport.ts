@@ -1,0 +1,290 @@
+import { supabase } from "@/integrations/supabase/client";
+import * as XLSX from 'xlsx';
+import JSZip from 'jszip';
+
+interface BulletinPricingRow {
+  bulletin_id: string;
+  financial_program_code: string | null;
+  pricing_config: string | null;
+  geo_code: string | null;
+  lender_list: string | null;
+  advertised: boolean | null;
+  pricing_type: string | null;
+  pricing_value: number | null;
+  upload_date: string | null;
+  updated_date: string | null;
+  credit_profile: string | null;
+}
+
+interface ProgramConfig {
+  financial_program_code: string;
+  financial_product_id: string;
+  vehicle_style_id: string;
+  financing_vehicle_condition: string;
+  program_start_date: string;
+  program_end_date: string;
+  credit_profiles: string[];
+  pricing_configs: string[];
+  geo_codes: string[];
+  pricing_types: string[];
+}
+
+export async function exportBulletinPricing(selectedProgramCodes?: string[]) {
+  try {
+    // Step 1: Fetch bulletin pricing data
+    let query = supabase
+      .from('bulletin_pricing')
+      .select('*');
+
+    if (selectedProgramCodes && selectedProgramCodes.length > 0) {
+      query = query.in('financial_program_code', selectedProgramCodes);
+    }
+
+    const { data: bulletinData, error } = await query;
+
+    if (error) {
+      throw new Error(`Failed to fetch bulletin pricing data: ${error.message}`);
+    }
+
+    if (!bulletinData || bulletinData.length === 0) {
+      throw new Error('No bulletin pricing data found');
+    }
+
+    // Step 2: Get unique program codes and fetch their configurations
+    const programCodes = Array.from(new Set(bulletinData.map(row => row.financial_program_code).filter(Boolean))) as string[];
+    
+    const { data: programConfigs, error: configError } = await supabase
+      .from('financial_program_configs')
+      .select('*')
+      .in('program_code', programCodes);
+
+    if (configError) {
+      throw new Error(`Failed to fetch program configurations: ${configError.message}`);
+    }
+
+    // Step 3: Group data by lender
+    const lenderGroups = groupByLender(bulletinData);
+
+    // Step 4: Generate workbooks
+    const workbooks: { filename: string; workbook: XLSX.WorkBook }[] = [];
+
+    for (const [lender, lenderData] of Object.entries(lenderGroups)) {
+      const workbook = createWorkbookForLender(lender, lenderData, programConfigs || []);
+      const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+      
+      let filename: string;
+      const uniquePrograms = Array.from(new Set(lenderData.map(row => row.financial_program_code).filter(Boolean)));
+      
+      if (uniquePrograms.length === 1) {
+        filename = `bulletin_${uniquePrograms[0]}_${lender}_${dateStr}.xlsx`;
+      } else {
+        filename = `bulletin_multi_${lender}_${dateStr}.xlsx`;
+      }
+      
+      workbooks.push({ filename, workbook });
+    }
+
+    // Step 5: Download files
+    if (workbooks.length === 1) {
+      // Single workbook - direct download
+      const { filename, workbook } = workbooks[0];
+      XLSX.writeFile(workbook, filename);
+    } else {
+      // Multiple workbooks - zip them
+      const zip = new JSZip();
+      
+      for (const { filename, workbook } of workbooks) {
+        const buffer = XLSX.write(workbook, { type: 'array', bookType: 'xlsx' });
+        zip.file(filename, buffer);
+      }
+      
+      const zipBlob = await zip.generateAsync({ type: 'blob' });
+      const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+      const zipFilename = `bulletin_pricing_export_${dateStr}.zip`;
+      
+      const url = URL.createObjectURL(zipBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = zipFilename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    return { success: true, fileCount: workbooks.length };
+  } catch (error) {
+    console.error('Export failed:', error);
+    throw error;
+  }
+}
+
+function groupByLender(data: BulletinPricingRow[]): Record<string, BulletinPricingRow[]> {
+  return data.reduce((groups, row) => {
+    const lender = row.lender_list || 'Unknown';
+    if (!groups[lender]) {
+      groups[lender] = [];
+    }
+    groups[lender].push(row);
+    return groups;
+  }, {} as Record<string, BulletinPricingRow[]>);
+}
+
+function createWorkbookForLender(
+  lender: string, 
+  data: BulletinPricingRow[], 
+  programConfigs: any[]
+): XLSX.WorkBook {
+  const workbook = XLSX.utils.book_new();
+
+  // Group by program and pricing type combinations
+  const sheetGroups = groupDataForSheets(data);
+
+  for (const [sheetKey, sheetData] of Object.entries(sheetGroups)) {
+    const [programCode, pricingType] = sheetKey.split('|');
+    const sheetName = truncateSheetName(`${programCode}_${pricingType}`);
+    
+    const worksheet = createWorksheet(lender, programCode, pricingType, sheetData, programConfigs);
+    XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+  }
+
+  return workbook;
+}
+
+function groupDataForSheets(data: BulletinPricingRow[]): Record<string, BulletinPricingRow[]> {
+  return data.reduce((groups, row) => {
+    const key = `${row.financial_program_code || 'Unknown'}|${row.pricing_type || 'Unknown'}`;
+    if (!groups[key]) {
+      groups[key] = [];
+    }
+    groups[key].push(row);
+    return groups;
+  }, {} as Record<string, BulletinPricingRow[]>);
+}
+
+function createWorksheet(
+  lender: string,
+  programCode: string,
+  pricingType: string,
+  data: BulletinPricingRow[],
+  programConfigs: any[]
+): XLSX.WorkSheet {
+  // Find program config for metadata
+  const programConfig = programConfigs.find(config => config.program_code === programCode);
+  
+  // Get unique values for headers and rows
+  const geoCodes = Array.from(new Set(data.map(row => row.geo_code).filter(Boolean))).sort();
+  const creditProfiles = Array.from(new Set(data.map(row => row.credit_profile).filter(Boolean)));
+  const pricingConfigs = Array.from(new Set(data.map(row => row.pricing_config).filter(Boolean)));
+
+  // Create data matrix
+  const worksheet: any[][] = [];
+
+  // A1: Metadata
+  const metadata = `Program: ${programCode} | Lender: ${lender} | Product: ${programConfig?.financial_product_id || 'N/A'} | Vehicle: ${programConfig?.vehicle_style_id || 'N/A'}/${programConfig?.financing_vehicle_condition || 'N/A'} | Dates: ${programConfig?.program_start_date || 'N/A'}–${programConfig?.program_end_date || 'N/A'}`;
+  worksheet[0] = [metadata];
+
+  // Row 1: Credit Profile headers (starting from B1)
+  const row1: any[] = [''];
+  for (const creditProfile of creditProfiles) {
+    for (let j = 0; j < pricingConfigs.length; j++) {
+      row1.push(creditProfile);
+    }
+  }
+  worksheet[1] = row1;
+
+  // Row 2: Pricing Config headers (under each Credit Profile)
+  const row2: any[] = [''];
+  for (let i = 0; i < creditProfiles.length; i++) {
+    for (const pricingConfig of pricingConfigs) {
+      row2.push(pricingConfig);
+    }
+  }
+  worksheet[2] = row2;
+
+  // Data rows (starting from row 3, A3 down)
+  for (let rowIndex = 0; rowIndex < geoCodes.length; rowIndex++) {
+    const geoCode = geoCodes[rowIndex];
+    const dataRow: any[] = [geoCode];
+
+    for (const creditProfile of creditProfiles) {
+      for (const pricingConfig of pricingConfigs) {
+        // Find matching data point
+        const matchingRows = data.filter(row => 
+          row.geo_code === geoCode && 
+          row.credit_profile === creditProfile && 
+          row.pricing_config === pricingConfig
+        );
+
+        let cellValue: any = '';
+        
+        if (matchingRows.length === 0) {
+          cellValue = 'N/A';
+        } else if (matchingRows.length === 1) {
+          cellValue = matchingRows[0].pricing_value;
+        } else {
+          // Multiple matches - use most recent
+          const sorted = matchingRows.sort((a, b) => {
+            const aDate = new Date(a.upload_date || a.updated_date || 0);
+            const bDate = new Date(b.upload_date || b.updated_date || 0);
+            return bDate.getTime() - aDate.getTime();
+          });
+          cellValue = sorted[0].pricing_value;
+        }
+
+        dataRow.push(cellValue);
+      }
+    }
+
+    worksheet[rowIndex + 3] = dataRow;
+  }
+
+  // Convert to worksheet
+  const ws = XLSX.utils.aoa_to_sheet(worksheet);
+
+  // Apply formatting
+  applyWorksheetFormatting(ws, pricingType, geoCodes.length + 3, creditProfiles.length * pricingConfigs.length + 1);
+
+  return ws;
+}
+
+function applyWorksheetFormatting(
+  ws: XLSX.WorkSheet, 
+  pricingType: string, 
+  numRows: number, 
+  numCols: number
+) {
+  // Set column widths
+  const colWidths = [];
+  for (let i = 0; i < numCols; i++) {
+    colWidths.push({ width: i === 0 ? 15 : 12 });
+  }
+  ws['!cols'] = colWidths;
+
+  // Freeze panes at A3
+  ws['!freeze'] = { xSplit: 1, ySplit: 3 };
+
+  // Apply number formatting based on pricing type
+  let numFmt = '0.000';
+  if (pricingType?.toLowerCase().includes('apr') || pricingType?.toLowerCase().includes('rate')) {
+    numFmt = '0.000%';
+  } else if (pricingType?.toLowerCase().includes('money')) {
+    numFmt = '0.000000';
+  } else if (pricingType?.toLowerCase().includes('rv')) {
+    numFmt = '0.0%';
+  }
+
+  // Apply formatting to data cells
+  for (let row = 3; row < numRows; row++) {
+    for (let col = 1; col < numCols; col++) {
+      const cellAddr = XLSX.utils.encode_cell({ r: row, c: col });
+      if (ws[cellAddr] && typeof ws[cellAddr].v === 'number') {
+        ws[cellAddr].z = numFmt;
+      }
+    }
+  }
+}
+
+function truncateSheetName(name: string): string {
+  return name.length > 31 ? name.substring(0, 31) : name;
+}

@@ -3,6 +3,7 @@ import { useState } from "react";
 import BulletinPricingTable from "../BulletinPricingTable";
 import SectionHeader from "./SectionHeader";
 import { toast } from "sonner";
+import { exportBulletinPricing } from "@/utils/bulletinPricingExport";
 
 interface BulletinPricingSectionProps {
   title: string;
@@ -37,13 +38,26 @@ const BulletinPricingSection = ({
     toast.info(`Remove bulletin pricing with ID: ${id}`);
   };
 
+  const handleDownload = async () => {
+    try {
+      toast.info("Exporting bulletin pricing...");
+      const result = await exportBulletinPricing();
+      toast.success(`Export complete! Generated ${result.fileCount} file(s).`);
+    } catch (error) {
+      console.error('Export failed:', error);
+      toast.error("Export failed. Please try again.");
+    }
+  };
+
   return (
     <div className="p-6 bg-white rounded-lg shadow-sm">
       <SectionHeader 
         title={title} 
         isCollapsed={isCollapsed} 
         setIsCollapsed={setIsCollapsed} 
-        onAddNew={handleAddNew} 
+        onAddNew={handleAddNew}
+        onDownload={handleDownload}
+        downloadLabel="Download Bulletin Pricing"
       />
       {!isCollapsed && (
         <div className="mt-4">
