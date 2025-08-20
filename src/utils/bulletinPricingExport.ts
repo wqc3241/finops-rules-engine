@@ -75,10 +75,13 @@ export async function exportBulletinPricing(selectedProgramCodes?: string[]) {
       let filename: string;
       const uniquePrograms = Array.from(new Set(lenderData.map(row => row.financial_program_code).filter(Boolean)));
       
+      const lenderSafe = String(lender).replace(/[^\w.-]+/g, '_');
+      
       if (uniquePrograms.length === 1) {
-        filename = `bulletin_${uniquePrograms[0]}_${lender}_${dateStr}.xlsx`;
+        const progSafe = String(uniquePrograms[0]).replace(/[^\w.-]+/g, '_');
+        filename = `bulletin_${progSafe}_${lenderSafe}_${dateStr}.xlsx`;
       } else {
-        filename = `bulletin_multi_${lender}_${dateStr}.xlsx`;
+        filename = `bulletin_multi_${lenderSafe}_${dateStr}.xlsx`;
       }
       
       workbooks.push({ filename, workbook });
@@ -121,11 +124,21 @@ export async function exportBulletinPricing(selectedProgramCodes?: string[]) {
 
 function groupByLender(data: BulletinPricingRow[]): Record<string, BulletinPricingRow[]> {
   return data.reduce((groups, row) => {
-    const lender = row.lender_list || 'Unknown';
-    if (!groups[lender]) {
-      groups[lender] = [];
+    const lendersRaw = row.lender_list ?? 'Unknown';
+    const lenders = lendersRaw
+      .split(',')
+      .map(l => l.trim())
+      .filter(Boolean);
+
+    // If no lenders after split (e.g., empty string), put under Unknown
+    const effectiveLenders = lenders.length > 0 ? lenders : ['Unknown'];
+
+    for (const lender of effectiveLenders) {
+      if (!groups[lender]) {
+        groups[lender] = [];
+      }
+      groups[lender].push(row);
     }
-    groups[lender].push(row);
     return groups;
   }, {} as Record<string, BulletinPricingRow[]>);
 }
@@ -169,38 +182,44 @@ function createWorksheet(
   data: BulletinPricingRow[],
   programConfigs: any[]
 ): XLSX.WorkSheet {
-  // Find program config for metadata
-  const programConfig = programConfigs.find(config => config.program_code === programCode);
-  
-  // Get unique values for headers and rows
-  const geoCodes = Array.from(new Set(data.map(row => row.geo_code).filter(Boolean))).sort();
-  const creditProfiles = Array.from(new Set(data.map(row => row.credit_profile).filter(Boolean)));
-  const pricingConfigs = Array.from(new Set(data.map(row => row.pricing_config).filter(Boolean)));
+// Find program config for metadata
+const programConfig = programConfigs.find(config => config.program_code === programCode);
 
-  // Create data matrix
-  const worksheet: any[][] = [];
+// Get unique values for headers and rows (trim to avoid mismatches)
+const geoCodes = Array.from(
+  new Set(data.map(row => row.geo_code?.trim()).filter((v): v is string => !!v))
+).sort();
+const creditProfiles = Array.from(
+  new Set(data.map(row => row.credit_profile?.trim()).filter((v): v is string => !!v))
+).sort();
+const pricingConfigs = Array.from(
+  new Set(data.map(row => row.pricing_config?.trim()).filter((v): v is string => !!v))
+);
 
-  // A1: Metadata
-  const metadata = `Program: ${programCode} | Lender: ${lender} | Product: ${programConfig?.financial_product_id || 'N/A'} | Vehicle: ${programConfig?.vehicle_style_id || 'N/A'}/${programConfig?.financing_vehicle_condition || 'N/A'} | Dates: ${programConfig?.program_start_date || 'N/A'}–${programConfig?.program_end_date || 'N/A'}`;
-  worksheet[0] = [metadata];
+// Create data matrix
+const worksheet: any[][] = [];
 
-  // Row 1: Credit Profile headers (starting from B1)
-  const row1: any[] = [''];
-  for (const creditProfile of creditProfiles) {
-    for (let j = 0; j < pricingConfigs.length; j++) {
-      row1.push(creditProfile);
-    }
+// A1: Metadata
+const metadata = `Program: ${programCode} | Lender: ${lender} | Product: ${programConfig?.financial_product_id || 'N/A'} | Vehicle: ${programConfig?.vehicle_style_id || 'N/A'}/${programConfig?.financing_vehicle_condition || 'N/A'} | Dates: ${programConfig?.program_start_date || 'N/A'}–${programConfig?.program_end_date || 'N/A'}`;
+worksheet[0] = [metadata];
+
+// Row 1: Credit Profile headers (starting from B1)
+const row1: any[] = [''];
+for (const creditProfile of creditProfiles) {
+  for (let j = 0; j < pricingConfigs.length; j++) {
+    row1.push(creditProfile);
   }
-  worksheet[1] = row1;
+}
+worksheet[1] = row1;
 
-  // Row 2: Pricing Config headers (under each Credit Profile)
-  const row2: any[] = [''];
-  for (let i = 0; i < creditProfiles.length; i++) {
-    for (const pricingConfig of pricingConfigs) {
-      row2.push(pricingConfig);
-    }
+// Row 2: Pricing Config headers (under each Credit Profile)
+const row2: any[] = [''];
+for (let i = 0; i < creditProfiles.length; i++) {
+  for (const pricingConfig of pricingConfigs) {
+    row2.push(pricingConfig);
   }
-  worksheet[2] = row2;
+}
+worksheet[2] = row2;
 
   // Data rows (starting from row 3, A3 down)
   for (let rowIndex = 0; rowIndex < geoCodes.length; rowIndex++) {
@@ -211,9 +230,9 @@ function createWorksheet(
       for (const pricingConfig of pricingConfigs) {
         // Find matching data point
         const matchingRows = data.filter(row => 
-          row.geo_code === geoCode && 
-          row.credit_profile === creditProfile && 
-          row.pricing_config === pricingConfig
+          row.geo_code?.trim() === geoCode && 
+          row.credit_profile?.trim() === creditProfile && 
+          row.pricing_config?.trim() === pricingConfig
         );
 
         let cellValue: any = '';
