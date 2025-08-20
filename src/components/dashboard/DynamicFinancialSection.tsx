@@ -19,6 +19,7 @@ interface DynamicFinancialSectionProps {
   onSelectionChange?: (items: string[]) => void;
   selectedItems?: string[];
   onSetBatchDeleteCallback?: (callback: () => void) => void;
+  hideTitle?: boolean;
 }
 
 const DynamicFinancialSection = ({ 
@@ -26,7 +27,8 @@ const DynamicFinancialSection = ({
   title,
   onSelectionChange,
   selectedItems = [],
-  onSetBatchDeleteCallback
+  onSetBatchDeleteCallback,
+  hideTitle = false
 }: DynamicFinancialSectionProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showWizard, setShowWizard] = useState(false);
@@ -216,20 +218,22 @@ const DynamicFinancialSection = ({
         </Alert>
       )}
 
-      <SectionHeader 
-        title={title} 
-        isCollapsed={isCollapsed} 
-        setIsCollapsed={setIsCollapsed} 
-        onAddNew={isLocked ? undefined : handleAddNewRecord}
-        onUndo={isLocked ? undefined : handleUndo}
-        onRedo={isLocked ? undefined : handleRedo}
-        canUndo={canUndo && !isLocked}
-        canRedo={canRedo && !isLocked}
-        onUpload={shouldShowUploadDownload && !isLocked ? handleUpload : undefined}
-        onDownload={shouldShowUploadDownload ? handleDownload : undefined}
-        uploadLabel={`Upload ${title}`}
-        downloadLabel={`Download ${title}`}
-      />
+      {!hideTitle && (
+        <SectionHeader 
+          title={title} 
+          isCollapsed={isCollapsed} 
+          setIsCollapsed={setIsCollapsed} 
+          onAddNew={isLocked ? undefined : handleAddNewRecord}
+          onUndo={isLocked ? undefined : handleUndo}
+          onRedo={isLocked ? undefined : handleRedo}
+          canUndo={canUndo && !isLocked}
+          canRedo={canRedo && !isLocked}
+          onUpload={shouldShowUploadDownload && !isLocked ? handleUpload : undefined}
+          onDownload={shouldShowUploadDownload ? handleDownload : undefined}
+          uploadLabel={`Upload ${title}`}
+          downloadLabel={`Download ${title}`}
+        />
+      )}
       {!isCollapsed && (
         <>
           {loading ? (
