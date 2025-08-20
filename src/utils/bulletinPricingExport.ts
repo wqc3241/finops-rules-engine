@@ -202,7 +202,7 @@ function createWorksheet(
   ).sort();
   const pricingConfigs = Array.from(
     new Set(data.map((row) => norm(row.pricing_config)).filter((v) => !!v))
-  );
+  ).sort(); // Explicit sorting for consistent column ordering
 
   // Debug overview
   console.info('Bulletin Export Debug:createWorksheet', {
@@ -213,7 +213,21 @@ function createWorksheet(
     geoCodes: geoCodes.length,
     creditProfiles: creditProfiles.length,
     pricingConfigs: pricingConfigs.length,
+    pricingConfigsList: pricingConfigs,
+    expectedColumns: creditProfiles.length * pricingConfigs.length
   });
+
+  // Validation: Log warning if pricing configs seem too few
+  if (pricingConfigs.length < 4 && lender === 'BAC') {
+    console.warn('BAC Pricing Configs Warning:', {
+      found: pricingConfigs.length,
+      configs: pricingConfigs,
+      sampleData: data.slice(0, 3).map(row => ({
+        pricing_config: row.pricing_config,
+        normalized: norm(row.pricing_config)
+      }))
+    });
+  }
 
   // Index data for fast, robust lookup
   const index = new Map<string, BulletinPricingRow[]>();
