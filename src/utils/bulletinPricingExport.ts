@@ -158,19 +158,19 @@ function groupByLender(data: BulletinPricingRow[]): Record<string, BulletinPrici
     (s ?? '')
       .replace(/[\u200B\u00A0]/g, '')
       .trim()
+      .replace(/[()\[\]{}"']/g, '') // strip brackets/quotes
       .replace(/\s+/g, ' ')
       .toUpperCase();
 
   const splitLenders = (s: string) =>
     s
-      .split(/[,;|\n]+/)
+      .split(/[,;|\/\n]+/) // broader delimiters: comma, semicolon, pipe, slash, newline
       .map((l) => normLender(l))
       .filter(Boolean)
       .map((l) => {
-        // More aggressive LFS matching - match any occurrence of LFS
-        if (l.includes('LFS')) {
-          return 'LFS';
-        }
+        // Canonicalize known lender aliases
+        const compact = l.replace(/\s+/g, '');
+        if (compact.includes('LFS')) return 'LFS';
         return l;
       });
 
@@ -184,6 +184,18 @@ function groupByLender(data: BulletinPricingRow[]): Record<string, BulletinPrici
     for (const lender of effectiveLenders) {
       if (!groups[lender]) groups[lender] = [];
       groups[lender].push(row);
+    }
+  }
+
+  // Safety backfill: ensure LFS group exists if any row mentions LFS
+  if (!groups['LFS']) {
+    const lfsRows = data.filter((r) => {
+      const ln = normLender(r.lender_list);
+      return ln.includes('LFS');
+    });
+    if (lfsRows.length > 0) {
+      groups['LFS'] = lfsRows;
+      console.info('Bulletin Export Debug:backfillLFS', { added: lfsRows.length });
     }
   }
 
