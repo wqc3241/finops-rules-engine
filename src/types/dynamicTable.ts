@@ -34,4 +34,5 @@ export interface DynamicTableProps {
   onSelectionChange?: (selectedIds: string[]) => void;
   selectedItems?: string[];
   allowColumnManagement?: boolean;
+  onEditRow?: (rowId: string, rowData: TableData) => void;
 }

@@ -37,7 +37,8 @@ const DynamicTable = ({
   onSchemaChange, 
   onSelectionChange,
   selectedItems = [],
-  allowColumnManagement = true
+  allowColumnManagement = true,
+  onEditRow
 }: DynamicTableProps) => {
   const [showColumnManagement, setShowColumnManagement] = useState(false);
   const [showAddColumn, setShowAddColumn] = useState(false);
@@ -261,7 +262,7 @@ const DynamicTable = ({
                 <TableCell className="text-right">
                   <TableRowActions
                     rowId={(row as any)[primaryKey]}
-                    onEdit={() => toast.info("Edit functionality integrated in cell editing")}
+                    onEdit={() => onEditRow ? onEditRow((row as any)[primaryKey], row) : toast.info("Edit functionality integrated in cell editing")}
                     onCopy={handleCopyRow}
                     onDelete={handleDeleteRow}
                   />

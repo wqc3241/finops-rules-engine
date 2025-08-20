@@ -32,6 +32,8 @@ const DynamicFinancialSection = ({
 }: DynamicFinancialSectionProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showWizard, setShowWizard] = useState(false);
+  const [editData, setEditData] = useState<any>(null);
+  const [isEditMode, setIsEditMode] = useState(false);
   const [showVersionHistory, setShowVersionHistory] = useState(false);
   const { getSchema, getSyncSchema, updateSchema, loading: schemaLoading } = useDynamicTableSchemas();
   const { data, setData, handleAddNew, loading, isLocked } = useDynamicFinancialData({
@@ -145,39 +147,85 @@ const DynamicFinancialSection = ({
   };
 
   const handleWizardComplete = (wizardData: WizardData) => {
-    // Convert wizard data to financial program config record
-    const newRecord = {
-      id: `FPC${Date.now()}`,
-      programCode: wizardData.programCode || "",
-      cloneFrom: null,
-      priority: wizardData.creditProfiles.length > 0 ? 1 : 1, // Use default priority since we have multiple profiles
-      financialProductId: wizardData.financialProduct || "",
-      productType: null,
-      vehicleStyleId: wizardData.vehicleStyleId,
-      financingVehicleCondition: wizardData.vehicleCondition,
-      programStartDate: new Date(wizardData.programStartDate).toLocaleDateString(),
-      programEndDate: new Date(wizardData.programEndDate).toLocaleDateString(),
-      isActive: true,
-      orderTypes: "INV, CON",
-      version: 1
-    };
+    if (isEditMode && editData) {
+      // Update existing record
+      const updatedRecord = {
+        ...editData,
+        programCode: wizardData.programCode || editData.programCode,
+        financialProductId: wizardData.financialProduct || editData.financialProductId,
+        vehicleStyleId: wizardData.vehicleStyleId || editData.vehicleStyleId,
+        financingVehicleCondition: wizardData.vehicleCondition || editData.financingVehicleCondition,
+        programStartDate: wizardData.programStartDate ? new Date(wizardData.programStartDate).toLocaleDateString() : editData.programStartDate,
+        programEndDate: wizardData.programEndDate ? new Date(wizardData.programEndDate).toLocaleDateString() : editData.programEndDate,
+        version: (editData.version || 1) + 1
+      };
 
-    // Save state for undo/redo
-    if (schema) {
-      saveState(data, schema, 'wizard_add');
-    }
+      // Save state for undo/redo
+      if (schema) {
+        saveState(data, schema, 'wizard_edit');
+      }
 
-    // Add the new record to the data
-    const newData = [...data, newRecord];
-    setData(newData);
-    
-    // Save version for wizard completion
-    if (schema) {
-      saveVersion(newData, schema, 'Financial program created via wizard');
+      // Update the existing record in the data
+      const newData = data.map(item => 
+        (item as any).id === editData.id ? updatedRecord : item
+      );
+      setData(newData);
+      
+      // Save version for wizard completion
+      if (schema) {
+        saveVersion(newData, schema, 'Financial program updated via wizard');
+      }
+      
+      toast.success("Financial program updated successfully");
+      console.log('Financial program updated:', updatedRecord);
+    } else {
+      // Create new record
+      const newRecord = {
+        id: `FPC${Date.now()}`,
+        programCode: wizardData.programCode || "",
+        cloneFrom: null,
+        priority: wizardData.creditProfiles.length > 0 ? 1 : 1,
+        financialProductId: wizardData.financialProduct || "",
+        productType: null,
+        vehicleStyleId: wizardData.vehicleStyleId,
+        financingVehicleCondition: wizardData.vehicleCondition,
+        programStartDate: new Date(wizardData.programStartDate).toLocaleDateString(),
+        programEndDate: new Date(wizardData.programEndDate).toLocaleDateString(),
+        isActive: true,
+        orderTypes: "INV, CON",
+        version: 1
+      };
+
+      // Save state for undo/redo
+      if (schema) {
+        saveState(data, schema, 'wizard_add');
+      }
+
+      // Add the new record to the data
+      const newData = [...data, newRecord];
+      setData(newData);
+      
+      // Save version for wizard completion
+      if (schema) {
+        saveVersion(newData, schema, 'Financial program created via wizard');
+      }
+      
+      toast.success("Financial program created successfully");
+      console.log('Financial program created:', newRecord);
     }
     
-    console.log('Financial program created:', newRecord);
+    // Reset wizard state
+    setEditData(null);
+    setIsEditMode(false);
     console.log('Full wizard data:', wizardData);
+  };
+
+  const handleEditRow = (rowId: string, rowData: any) => {
+    if (schemaId === 'financial-program-config') {
+      setEditData(rowData);
+      setIsEditMode(true);
+      setShowWizard(true);
+    }
   };
 
   const handleUpload = () => {
@@ -295,6 +343,7 @@ const DynamicFinancialSection = ({
               onSchemaChange={isLocked ? () => {} : handleSchemaChange}
               onSelectionChange={onSelectionChange}
               selectedItems={selectedItems}
+              onEditRow={isLocked ? undefined : handleEditRow}
             />
           )}
         </>
@@ -304,8 +353,16 @@ const DynamicFinancialSection = ({
       {schemaId === 'financial-program-config' && (
         <FinancialProgramWizard
           open={showWizard}
-          onOpenChange={setShowWizard}
+          onOpenChange={(open) => {
+            setShowWizard(open);
+            if (!open) {
+              setEditData(null);
+              setIsEditMode(false);
+            }
+          }}
           onComplete={handleWizardComplete}
+          editData={editData}
+          isEditMode={isEditMode}
         />
       )}
 

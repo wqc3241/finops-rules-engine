@@ -9,6 +9,7 @@ interface DynamicFinancialSectionContentProps {
   onSchemaChange: (updatedSchema: DynamicTableSchema) => void;
   onSelectionChange?: (items: string[]) => void;
   selectedItems: string[];
+  onEditRow?: (rowId: string, rowData: TableData) => void;
 }
 
 const DynamicFinancialSectionContent = ({
@@ -17,7 +18,8 @@ const DynamicFinancialSectionContent = ({
   onDataChange,
   onSchemaChange,
   onSelectionChange,
-  selectedItems
+  selectedItems,
+  onEditRow
 }: DynamicFinancialSectionContentProps) => {
   console.log('Rendering component with data:', data, 'schema:', schema);
 
@@ -32,6 +34,7 @@ const DynamicFinancialSectionContent = ({
           onSelectionChange={onSelectionChange}
           selectedItems={selectedItems}
           allowColumnManagement={true}
+          onEditRow={onEditRow}
         />
       </div>
     </div>
