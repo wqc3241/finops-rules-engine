@@ -1,7 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.53.0';
-import * as XLSX from 'https://deno.land/x/xlsx@0.18.5/mod.ts';
+import XLSX from 'https://esm.sh/xlsx@0.18.5';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -72,7 +72,7 @@ serve(async (req) => {
 
     // Read and parse Excel file
     const buffer = await file.arrayBuffer();
-    const workbook = XLSX.read(buffer);
+    const workbook = XLSX.read(buffer, { type: 'array' });
 
     // Get program configuration
     const { data: programConfig, error: configError } = await supabase

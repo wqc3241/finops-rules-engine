@@ -1,7 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.53.0';
-import * as XLSX from 'https://deno.land/x/xlsx@0.18.5/mod.ts';
+import XLSX from 'https://esm.sh/xlsx@0.18.5';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -74,8 +74,8 @@ serve(async (req) => {
       XLSX.utils.book_append_sheet(workbook, worksheet, sanitizeSheetName(sheetName));
     }
 
-    // Generate Excel file buffer
-    const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+    // Generate Excel file ArrayBuffer
+    const arrayBuffer = XLSX.write(workbook, { type: 'array', bookType: 'xlsx' });
 
     // Update program config with template metadata
     const templateMetadata = {
@@ -94,7 +94,7 @@ serve(async (req) => {
     // Return Excel file
     const filename = `${programCode}_Bulletin_Pricing_Template.xlsx`;
     
-    return new Response(buffer, {
+    return new Response(arrayBuffer, {
       headers: {
         ...corsHeaders,
         'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',

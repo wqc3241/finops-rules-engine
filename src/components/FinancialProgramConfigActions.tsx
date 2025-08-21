@@ -24,27 +24,36 @@ const FinancialProgramConfigActions = ({
     try {
       toast.info("Generating template...");
       
-      const { data, error } = await supabase.functions.invoke('generate-bulletin-template', {
-        body: { programCode }
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData?.session?.access_token;
+      const url = `https://izxgyxqpgpcqvyzlwcgl.supabase.co/functions/v1/generate-bulletin-template`;
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(accessToken ? { 'Authorization': `Bearer ${accessToken}` } : {})
+        },
+        body: JSON.stringify({ programCode })
       });
 
-      if (error) {
-        throw new Error(error.message);
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.error || `Failed with status ${response.status}`);
       }
 
-      // The edge function returns the Excel file directly
-      const blob = new Blob([data], { 
+      const arrayBuffer = await response.arrayBuffer();
+
+      const blob = new Blob([arrayBuffer], { 
         type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
       });
       
-      const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
-      link.href = url;
+      link.href = window.URL.createObjectURL(blob);
       link.download = `${programCode}_Bulletin_Pricing_Template.xlsx`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
 
       toast.success("Template downloaded successfully!");
     } catch (error) {
