@@ -33,6 +33,8 @@ serve(async (req) => {
     const buffer = await file.arrayBuffer();
     const workbook = XLSX.read(buffer, { type: 'array' });
     
+    console.log(`Excel file parsed. Sheet names: ${JSON.stringify(workbook.SheetNames)}`);
+    
     if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
       return new Response(
         JSON.stringify({ error: 'Excel file must contain at least one sheet' }),
@@ -42,16 +44,20 @@ serve(async (req) => {
 
     // Extract program code from first sheet name (format: PROGRAMCODE_PRICINGTYPE)
     const firstSheetName = workbook.SheetNames[0];
+    console.log(`First sheet name: ${firstSheetName}`);
+    
     const underscoreIndex = firstSheetName.indexOf('_');
+    console.log(`Underscore index: ${underscoreIndex}`);
     
     if (underscoreIndex === -1) {
       return new Response(
-        JSON.stringify({ error: 'Sheet names must follow format: PROGRAMCODE_PRICINGTYPE' }),
+        JSON.stringify({ error: `Sheet names must follow format: PROGRAMCODE_PRICINGTYPE. Found sheet: ${firstSheetName}` }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     const programCode = firstSheetName.substring(0, underscoreIndex);
+    console.log(`Extracted program code: ${programCode}`);
     
     // Validate all sheets use the same program code
     for (const sheetName of workbook.SheetNames) {
