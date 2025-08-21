@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import TabComponent, { TabItem } from "./TabComponent";
 import DynamicFinancialSection from "./DynamicFinancialSection";
+import BulletinPricingSection from "./BulletinPricingSection";
 import ApprovalNotificationBanner from "@/components/approval-workflow/ApprovalNotificationBanner";
 import SubmitForReviewModal from "@/components/approval-workflow/SubmitForReviewModal";
 import ChangeRequestSummary from "@/components/approval-workflow/ChangeRequestSummary";
@@ -36,6 +37,7 @@ const FinancialPricingTabs = ({
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
+  const [showAddBulletinPricingModal, setShowAddBulletinPricingModal] = useState(false);
   
   const { isFSOps } = useAuth();
   const { submitForReview, getPendingRequestsForAdmin } = useSupabaseApprovalWorkflow();
@@ -110,12 +112,12 @@ const FinancialPricingTabs = ({
       value: "bulletin-pricing",
       label: "Bulletin Pricing",
       content: (
-        <DynamicFinancialSection 
-          schemaId="bulletin-pricing"
+        <BulletinPricingSection 
           title="Bulletin Pricing"
+          showAddModal={showAddBulletinPricingModal}
+          setShowAddModal={setShowAddBulletinPricingModal}
           onSelectionChange={onSelectionChange}
           selectedItems={selectedItems}
-          onSetBatchDeleteCallback={onSetBatchDeleteCallback}
         />
       )
     },
