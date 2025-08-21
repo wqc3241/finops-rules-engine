@@ -70,8 +70,21 @@ export async function exportBulletinPricing(selectedProgramCodes?: string[]) {
 
     // Debug: summarize lenders and row counts
     const lenderCounts: Record<string, number> = {};
-    const norm = (s?: string | null) => (s ?? '').replace(/[\u200B\u00A0]/g, '').trim().replace(/\s+/g, ' ').toUpperCase();
-    const splitLenders = (s: string) => s.split(/[,;|\n]+/).map((l) => norm(l)).filter(Boolean).map((l) => (/(^|\s)LFS(\s|$)/.test(l) ? 'LFS' : l));
+    const norm = (s?: string | null) => (s ?? '')
+      .replace(/[\u200B\u00A0]/g, '')
+      .trim()
+      .replace(/[()\[\]{}"']/g, '')
+      .replace(/\s+/g, ' ')
+      .toUpperCase();
+    const splitLenders = (s: string) => {
+      const raw = (s ?? '').replace(/[\u200B\u00A0]/g, '').trim();
+      if (!raw) return [];
+      const parts = raw.includes(',') ? raw.split(',') : [raw];
+      return parts
+        .map((l) => norm(l))
+        .filter(Boolean)
+        .map((l) => (l.replace(/\s+/g, '').includes('LFS') ? 'LFS' : l));
+    };
     for (const row of bulletinData) {
       const lenders = splitLenders(row.lender_list ?? 'UNKNOWN');
       const effective = lenders.length ? lenders : ['UNKNOWN'];
@@ -162,17 +175,15 @@ function groupByLender(data: BulletinPricingRow[]): Record<string, BulletinPrici
       .replace(/\s+/g, ' ')
       .toUpperCase();
 
-  const splitLenders = (s: string) =>
-    s
-      .split(/[,;|\/\n]+/) // broader delimiters: comma, semicolon, pipe, slash, newline
+  const splitLenders = (s: string) => {
+    const raw = (s ?? '').replace(/[\u200B\u00A0]/g, '').trim();
+    if (!raw) return [];
+    const parts = raw.includes(',') ? raw.split(',') : [raw];
+    return parts
       .map((l) => normLender(l))
       .filter(Boolean)
-      .map((l) => {
-        // Canonicalize known lender aliases
-        const compact = l.replace(/\s+/g, '');
-        if (compact.includes('LFS')) return 'LFS';
-        return l;
-      });
+      .map((l) => (l.replace(/\s+/g, '').includes('LFS') ? 'LFS' : l));
+  };
 
   const groups: Record<string, BulletinPricingRow[]> = {};
   
@@ -187,17 +198,6 @@ function groupByLender(data: BulletinPricingRow[]): Record<string, BulletinPrici
     }
   }
 
-  // Safety backfill: ensure LFS group exists if any row mentions LFS
-  if (!groups['LFS']) {
-    const lfsRows = data.filter((r) => {
-      const ln = normLender(r.lender_list);
-      return ln.includes('LFS');
-    });
-    if (lfsRows.length > 0) {
-      groups['LFS'] = lfsRows;
-      console.info('Bulletin Export Debug:backfillLFS', { added: lfsRows.length });
-    }
-  }
 
   // Debug: Log all lenders found
   console.info('Bulletin Export Debug:groupByLender', {
