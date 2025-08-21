@@ -344,11 +344,28 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader className="pb-2">
-          <DialogTitle className="text-xl">{isEditMode ? 'Edit Financial Program' : 'Create New Financial Program'}</DialogTitle>
-          <p className="text-xs text-muted-foreground">
-            {isEditMode ? 'Update the program configuration below' : 'Complete all sections below to create your financial program'}
-          </p>
+        <DialogHeader className="pb-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <DialogTitle className="text-xl">
+                {isEditMode ? 'Edit Financial Program' : 'Create New Financial Program'}
+              </DialogTitle>
+              <p className="text-xs text-muted-foreground mt-1">
+                {currentStep === 'wizard' 
+                  ? (isEditMode ? 'Update the program configuration below' : 'Complete all sections below to create your financial program')
+                  : 'Review and confirm your program configuration'
+                }
+              </p>
+            </div>
+            <div className="text-right">
+              <div className="text-sm font-medium text-muted-foreground">
+                Step {currentStep === 'wizard' ? '1' : '2'} of 2
+              </div>
+              <div className="text-xs text-muted-foreground">
+                {currentStep === 'wizard' ? 'Program Setup' : 'Confirmation'}
+              </div>
+            </div>
+          </div>
         </DialogHeader>
 
         <div className="space-y-3 py-2">
@@ -621,7 +638,7 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
               {isFormValid() ? "✓ All required fields completed" : "Complete all required fields to continue"}
             </div>
             <Button onClick={handleNext} disabled={!isFormValid()}>
-              Next: Review Programs
+              Create Financial Program
             </Button>
           </div>
         ) : (
