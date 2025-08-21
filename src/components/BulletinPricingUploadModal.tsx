@@ -39,7 +39,6 @@ const BulletinPricingUploadModal = ({
   onUploadComplete
 }: BulletinPricingUploadModalProps) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [programCode, setProgramCode] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadResult, setUploadResult] = useState<UploadResult | null>(null);
@@ -74,8 +73,8 @@ const BulletinPricingUploadModal = ({
   };
 
   const handleUpload = async () => {
-    if (!selectedFile || !programCode.trim()) {
-      toast.error("Please select a file and enter a program code");
+    if (!selectedFile) {
+      toast.error("Please select a file");
       return;
     }
 
@@ -86,7 +85,6 @@ const BulletinPricingUploadModal = ({
     try {
       const formData = new FormData();
       formData.append('file', selectedFile);
-      formData.append('programCode', programCode.trim());
 
       // Simulate progress
       const progressInterval = setInterval(() => {
@@ -131,7 +129,6 @@ const BulletinPricingUploadModal = ({
 
   const handleClose = () => {
     setSelectedFile(null);
-    setProgramCode("");
     setUploadProgress(0);
     setUploadResult(null);
     setIsUploading(false);
@@ -190,18 +187,6 @@ const BulletinPricingUploadModal = ({
         </DialogHeader>
 
         <div className="space-y-6">
-          {/* Program Code Input */}
-          <div className="space-y-2">
-            <Label htmlFor="programCode">Program Code *</Label>
-            <Input
-              id="programCode"
-              value={programCode}
-              onChange={(e) => setProgramCode(e.target.value)}
-              placeholder="Enter financial program code"
-              disabled={isUploading}
-            />
-          </div>
-
           {/* File Upload Area */}
           <div className="space-y-2">
             <Label>Excel File *</Label>
@@ -242,7 +227,7 @@ const BulletinPricingUploadModal = ({
                       </label>
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Only .xlsx files are supported
+                      Excel sheets must be named as PROGRAMCODE_PRICINGTYPE (e.g., PROG001_LEASE)
                     </p>
                   </div>
                 </div>
@@ -305,7 +290,7 @@ const BulletinPricingUploadModal = ({
             </Button>
             <Button 
               onClick={handleUpload} 
-              disabled={!selectedFile || !programCode.trim() || isUploading}
+              disabled={!selectedFile || isUploading}
             >
               {isUploading ? "Uploading..." : "Upload"}
             </Button>

@@ -21,13 +21,46 @@ serve(async (req) => {
   try {
     const formData = await req.formData();
     const file = formData.get('file') as File;
-    const programCode = formData.get('programCode') as string;
 
-    if (!file || !programCode) {
+    if (!file) {
       return new Response(
-        JSON.stringify({ error: 'File and program code are required' }),
+        JSON.stringify({ error: 'File is required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
+    }
+
+    // Read and parse Excel file to extract program code
+    const buffer = await file.arrayBuffer();
+    const workbook = XLSX.read(buffer, { type: 'array' });
+    
+    if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
+      return new Response(
+        JSON.stringify({ error: 'Excel file must contain at least one sheet' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Extract program code from first sheet name (format: PROGRAMCODE_PRICINGTYPE)
+    const firstSheetName = workbook.SheetNames[0];
+    const underscoreIndex = firstSheetName.indexOf('_');
+    
+    if (underscoreIndex === -1) {
+      return new Response(
+        JSON.stringify({ error: 'Sheet names must follow format: PROGRAMCODE_PRICINGTYPE' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const programCode = firstSheetName.substring(0, underscoreIndex);
+    
+    // Validate all sheets use the same program code
+    for (const sheetName of workbook.SheetNames) {
+      if (!sheetName.startsWith(`${programCode}_`)) {
+        return new Response(
+          JSON.stringify({ error: `All sheet names must start with the same program code: ${programCode}` }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
     }
 
     console.log(`Processing upload for program: ${programCode}, file: ${file.name}`);
@@ -70,9 +103,7 @@ serve(async (req) => {
       );
     }
 
-    // Read and parse Excel file
-    const buffer = await file.arrayBuffer();
-    const workbook = XLSX.read(buffer, { type: 'array' });
+    // Excel file already parsed above for program code extraction
 
     // Get program configuration
     const { data: programConfig, error: configError } = await supabase
