@@ -38,13 +38,14 @@ export const generateProgramCode = (
   // Get financial product code (first letter)
   const productCode = getFinancialProductCode(params.financialProduct);
   
-  // Compute style token from vehicle style record (Model + Trim initials)
+  // Compute style token from vehicle style record (Model + Trim + Year)
   const styleToken = params.vehicleStyleRecord
     ? (() => {
         const model = (params.vehicleStyleRecord.model || '').toString().trim();
         const trim = (params.vehicleStyleRecord.trim || '').toString().trim();
-        const styleName = (params.vehicleStyleRecord.style_name || '').toString().trim();
-        const variant = (params.vehicleStyleRecord.variant || '').toString().trim();
+        const modelYear = params.vehicleStyleRecord.model_year 
+          ? String(params.vehicleStyleRecord.model_year).slice(-2)
+          : new Date().getFullYear().toString().slice(-2);
 
         const modelInitial = model ? model.charAt(0).toUpperCase() : '';
         const modelLower = model.toLowerCase();
@@ -55,31 +56,26 @@ export const generateProgramCode = (
           'lucid', modelLower
         ]);
 
-        // Prefer trim; fall back to style_name, then variant
-        const source = trim || styleName || variant || '';
-        const words = source
+        // Get trim initials, filtering out excluded words
+        const trimWords = trim
           .replace(/[^A-Za-z\s]/g, ' ')
           .split(/\s+/)
-          .filter(w => w.length > 0);
+          .filter(w => w.length > 0 && !excluded.has(w.toLowerCase()));
 
-        const filtered = words.filter(w => !excluded.has(w.toLowerCase()))
-          .slice(0, 2); // take at most first two significant words
+        const trimInitials = trimWords.map(w => w.charAt(0).toUpperCase()).join('');
 
-        const trimInitials = filtered.map(w => w.charAt(0).toUpperCase()).join('');
-
-        const token = `${modelInitial}${trimInitials}` || 'XX';
-        return token.toUpperCase();
+        // Format: ModelInitial + TrimInitials + Year (e.g., AGT25 for Air Grand Touring 2025)
+        const token = `${modelInitial}${trimInitials}${modelYear}`;
+        return token || 'XX25';
       })()
     : (() => {
-        // Fallback: derive simple token from vehicleStyleId (first 2 letters)
+        // Fallback: derive simple token from vehicleStyleId
         const clean = params.vehicleStyleId.replace(/[^A-Za-z]/g, '').toUpperCase();
-        return clean.slice(0, 2) || 'XX';
+        const year = new Date().getFullYear().toString().slice(-2);
+        return `${clean.slice(0, 2) || 'XX'}${year}`;
       })();
   
-  // Get model year (last 2 digits)
-  const modelYear = params.vehicleStyleRecord?.model_year 
-    ? String(params.vehicleStyleRecord.model_year).slice(-2)
-    : new Date().getFullYear().toString().slice(-2);
+  // Model year is now included in styleToken, so we don't need it separately
   
   // Get date codes from program start date
   const startDate = new Date(params.programStartDate);
@@ -87,7 +83,7 @@ export const generateProgramCode = (
   const yearCode = startDate.getFullYear().toString().slice(-2);
   
   // Build base code without version
-  const baseCode = `${conditionCode}${productCode}_${styleToken}${modelYear}_${monthCode}${yearCode}`;
+  const baseCode = `${conditionCode}${productCode}_${styleToken}_${monthCode}${yearCode}`;
   
   // Find next available version number
   let version = 1;

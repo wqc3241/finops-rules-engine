@@ -223,7 +223,7 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
           const { data: vehicleStyleData } = await supabase
             .from('vehicle_style_coding')
             .select('*')
-            .or(`style_code.eq.${vehicleStyleId},vehicle_style_id.eq.${vehicleStyleId},id.eq.${vehicleStyleId}`)
+            .eq('vehicle_style_id', vehicleStyleId)
             .single();
 
           const programCode = generateProgramCode({
@@ -289,7 +289,7 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
           const { data: vehicleStyleData } = await supabase
             .from('vehicle_style_coding')
             .select('*')
-            .or(`style_code.eq.${vehicleStyleId},vehicle_style_id.eq.${vehicleStyleId},id.eq.${vehicleStyleId}`)
+            .eq('vehicle_style_id', vehicleStyleId)
             .single();
 
           const vehicleStyleOption = vehicleStyleOptions.find(v => v.id === vehicleStyleId);
