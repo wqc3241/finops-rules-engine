@@ -43,18 +43,30 @@ export const generateProgramCode = (
     ? (() => {
         const model = (params.vehicleStyleRecord.model || '').toString().trim();
         const trim = (params.vehicleStyleRecord.trim || '').toString().trim();
+        const styleName = (params.vehicleStyleRecord.style_name || '').toString().trim();
+        const variant = (params.vehicleStyleRecord.variant || '').toString().trim();
+
         const modelInitial = model ? model.charAt(0).toUpperCase() : '';
-        // Exclude drivetrain and generic tokens
-        const excluded = new Set(['awd','fwd','rwd','4wd','2wd','4x4','ev','phev','hybrid']);
-        const trimInitials = trim
-          ? trim
-              .replace(/[^A-Za-z\s]/g, ' ')
-              .split(/\s+/)
-              .filter(w => w.length > 0 && !excluded.has(w.toLowerCase()))
-              .slice(0, 2) // take at most first two significant words
-              .map(w => w.charAt(0).toUpperCase())
-              .join('')
-          : '';
+        const modelLower = model.toLowerCase();
+
+        // Exclude drivetrain/generic tokens and the model/brand words
+        const excluded = new Set([
+          'awd','fwd','rwd','4wd','2wd','4x4','ev','phev','hybrid',
+          'lucid', modelLower
+        ]);
+
+        // Prefer trim; fall back to style_name, then variant
+        const source = trim || styleName || variant || '';
+        const words = source
+          .replace(/[^A-Za-z\s]/g, ' ')
+          .split(/\s+/)
+          .filter(w => w.length > 0);
+
+        const filtered = words.filter(w => !excluded.has(w.toLowerCase()))
+          .slice(0, 2); // take at most first two significant words
+
+        const trimInitials = filtered.map(w => w.charAt(0).toUpperCase()).join('');
+
         const token = `${modelInitial}${trimInitials}` || 'XX';
         return token.toUpperCase();
       })()
