@@ -496,9 +496,9 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
                     <div className="space-y-3">
                       <div className="space-y-2">
                         <Label className="text-sm font-medium">Credit Profiles * ({wizardData.creditProfiles.length} selected)</Label>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-32 overflow-y-auto">
+                        <div className="space-y-2">
                           {creditProfiles.map((profile) => (
-                            <div key={profile.id} className="flex items-start space-x-2 p-2 border rounded-lg hover:bg-accent/50 transition-colors">
+                            <div key={profile.id} className="flex items-center space-x-2 p-2 border rounded-lg hover:bg-accent/50 transition-colors">
                               <Checkbox
                                 id={`credit-${profile.id}`}
                                 checked={wizardData.creditProfiles.includes(profile.id)}
@@ -508,14 +508,12 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
                                     : wizardData.creditProfiles.filter(id => id !== profile.id);
                                   updateWizardData({ creditProfiles: updated });
                                 }}
-                                className="mt-0.5 scale-75"
+                                className="scale-75"
                               />
-                              <Label htmlFor={`credit-${profile.id}`} className="text-xs cursor-pointer flex-1 min-w-0">
+                              <Label htmlFor={`credit-${profile.id}`} className="text-xs cursor-pointer flex-1">
                                 <div className="font-medium">Profile {profile.id}</div>
-                                <div className="text-[10px] text-muted-foreground space-y-0.5">
-                                  <div>Credit: {profile.minCreditScore || '–'}–{profile.maxCreditScore || '–'}</div>
-                                  <div>Income: {profile.minIncome ? `$${profile.minIncome}` : '–'}–{profile.maxIncome ? `$${profile.maxIncome}` : '–'}</div>
-                                  <div>Priority: {profile.priority} | {profile.employmentType || 'Any Employment'}</div>
+                                <div className="text-[10px] text-muted-foreground">
+                                  Priority: {profile.priority} | Credit Score: {profile.minCreditScore || '–'}–{profile.maxCreditScore || '–'} | Income: {profile.minIncome ? `$${profile.minIncome}` : '–'}–{profile.maxIncome ? `$${profile.maxIncome}` : '–'} | Employment: {profile.employmentType || 'Any Employment'}
                                 </div>
                               </Label>
                             </div>
@@ -527,9 +525,9 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
 
                       <div className="space-y-2">
                         <Label className="text-sm font-medium">Pricing Configurations * ({wizardData.pricingConfigs.length} selected)</Label>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-32 overflow-y-auto">
+                        <div className="space-y-2">
                           {pricingConfigs.map((config) => (
-                            <div key={config.id} className="flex items-start space-x-2 p-2 border rounded-lg hover:bg-accent/50 transition-colors">
+                            <div key={config.id} className="flex items-center space-x-2 p-2 border rounded-lg hover:bg-accent/50 transition-colors">
                               <Checkbox
                                 id={`config-${config.id}`}
                                 checked={wizardData.pricingConfigs.includes(config.id)}
@@ -539,14 +537,12 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
                                     : wizardData.pricingConfigs.filter(id => id !== config.id);
                                   updateWizardData({ pricingConfigs: updated });
                                 }}
-                                className="mt-0.5 scale-75"
+                                className="scale-75"
                               />
-                              <Label htmlFor={`config-${config.id}`} className="text-xs cursor-pointer flex-1 min-w-0">
+                              <Label htmlFor={`config-${config.id}`} className="text-xs cursor-pointer flex-1">
                                 <div className="font-medium">Config {config.id}</div>
-                                <div className="text-[10px] text-muted-foreground space-y-0.5">
-                                  <div>LTV: {config.minLTV || '–'}–{config.maxLTV || '–'}%</div>
-                                  <div>Term: {config.minTerm || '–'}–{config.maxTerm || '–'} months</div>
-                                  <div>Priority: {config.priority}</div>
+                                <div className="text-[10px] text-muted-foreground">
+                                  Priority: {config.priority} | LTV: {config.minLTV || '–'}–{config.maxLTV || '–'}% | Term: {config.minTerm || '–'}–{config.maxTerm || '–'} months
                                 </div>
                               </Label>
                             </div>
