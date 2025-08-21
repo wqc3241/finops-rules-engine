@@ -553,16 +553,21 @@ function truncateSheetName(name: string): string {
 
 // Fetch all bulletin_pricing rows in batches to bypass range limits
 async function fetchAllBulletinPricing(selectedProgramCodes?: string[]): Promise<BulletinPricingRow[]> {
-  const batchSize = 2000;
+  // Supabase enforces a 1000 row per request cap. Page through all rows.
+  const batchSize = 1000;
   let offset = 0;
+  let page = 1;
   const all: BulletinPricingRow[] = [];
   let total: number | null = null;
 
   while (true) {
+    const from = offset;
+    const to = offset + batchSize - 1;
+
     let q = supabase
       .from('bulletin_pricing')
       .select('*', { count: 'exact' })
-      .range(offset, offset + batchSize - 1);
+      .range(from, to);
 
     if (selectedProgramCodes && selectedProgramCodes.length > 0) {
       q = q.in('financial_program_code', selectedProgramCodes);
@@ -570,19 +575,36 @@ async function fetchAllBulletinPricing(selectedProgramCodes?: string[]): Promise
 
     const { data, error, count } = await q;
     if (error) throw new Error(`Failed to fetch bulletin pricing data: ${error.message}`);
+
     const chunk = (data as any as BulletinPricingRow[]) ?? [];
     all.push(...chunk);
     if (total === null && typeof count === 'number') total = count;
 
-    if (chunk.length < batchSize) break;
-    offset += batchSize;
+    // Per-page debug for visibility
+    console.debug('Bulletin Export Debug:fetchPage', {
+      page,
+      from,
+      to,
+      returned: chunk.length,
+      cumulative: all.length,
+      total: total ?? undefined,
+    });
+
+    if (chunk.length === 0) break; // no more rows
+
+    // Advance by actual rows returned to avoid gaps with server-side caps
+    offset += chunk.length;
+    page += 1;
+
+    // Stop when we reached the known total
+    if (total !== null && all.length >= total) break;
   }
 
   console.info('Bulletin Export Debug:fetchAll', {
     batchSize,
     fetched: all.length,
     total: total ?? all.length,
-    pages: Math.ceil(all.length / batchSize)
+    pages: page - 1,
   });
 
   return all;
