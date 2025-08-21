@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ColumnDefinition } from "@/types/dynamicTable";
@@ -164,7 +164,7 @@ const AddColumnModal = ({ open, onOpenChange, onAddColumn, existingColumns }: Ad
   const availableTables = Object.values(schemas);
   const selectedTableColumns = selectedTable ? schemas[selectedTable]?.columns || [] : [];
 
-  console.log("Available tables for selection:", availableTables.map(t => ({ id: t.id, name: t.name })));
+  
 
   return (
     <Dialog open={open} onOpenChange={(open) => {
