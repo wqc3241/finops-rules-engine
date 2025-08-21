@@ -18,20 +18,6 @@ const ApprovalNotificationBanner = ({ onOpenReview }: ApprovalNotificationBanner
   
   const pendingRequests = getPendingRequestsForAdmin();
 
-  // Debug logging
-  useEffect(() => {
-    console.log("ApprovalNotificationBanner Debug:", {
-      isFSAdmin: isFSAdmin(),
-      pendingRequestsCount: pendingRequests.length,
-      pendingRequests: pendingRequests.map(req => ({
-        id: req.id,
-        status: req.status,
-        totalChanges: req.totalChanges,
-        createdBy: req.createdBy
-      }))
-    });
-  }, [pendingRequests, isFSAdmin]);
-
   const handleRefresh = async () => {
     setIsRefreshing(true);
     try {

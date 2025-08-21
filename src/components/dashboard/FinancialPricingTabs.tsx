@@ -43,14 +43,6 @@ const FinancialPricingTabs = ({
   
   // Check if there are any changes
   const hasChanges = getChangedTables().length > 0;
-  
-  // Debug logging
-  console.log('FinancialPricingTabs Debug:', {
-    isFSOps,
-    hasChanges,
-    changedTablesCount: getChangedTables().length,
-    changedTables: getChangedTables()
-  });
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
