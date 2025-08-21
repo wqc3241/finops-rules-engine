@@ -232,23 +232,23 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{isEditMode ? 'Edit Financial Program' : 'Create New Financial Program'}</DialogTitle>
-          <p className="text-sm text-muted-foreground">
+        <DialogHeader className="pb-2">
+          <DialogTitle className="text-xl">{isEditMode ? 'Edit Financial Program' : 'Create New Financial Program'}</DialogTitle>
+          <p className="text-xs text-muted-foreground">
             {isEditMode ? 'Update the program configuration below' : 'Complete all sections below to create your financial program'}
           </p>
         </DialogHeader>
 
-        <div className="space-y-6 py-6">
+        <div className="space-y-3 py-2">
           {/* Vehicle Selection */}
           <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Vehicle Selection</CardTitle>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Vehicle Selection</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="vehicleStyle">Vehicle Style *</Label>
+            <CardContent className="space-y-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label htmlFor="vehicleStyle" className="text-sm">Vehicle Style *</Label>
                   <Select value={wizardData.vehicleStyleId} onValueChange={(value) => updateWizardData({ vehicleStyleId: value })}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select vehicle style" />
@@ -262,8 +262,8 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="vehicleCondition">Vehicle Condition *</Label>
+                <div className="space-y-1">
+                  <Label htmlFor="vehicleCondition" className="text-sm">Vehicle Condition *</Label>
                   <Select value={wizardData.vehicleCondition} onValueChange={(value) => updateWizardData({ vehicleCondition: value })}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select condition" />
@@ -283,12 +283,12 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
 
           {/* Financial Product & Pricing */}
           <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Financial Product & Pricing</CardTitle>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Financial Product & Pricing</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-4">
-                <div className="space-y-3">
+            <CardContent className="space-y-4">
+              <div className="space-y-3">
+                <div className="space-y-2">
                   <Label className="text-sm font-medium">Financial Product *</Label>
                   <RadioGroup
                     value={wizardData.financialProduct}
@@ -311,7 +311,7 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
 
                 <Separator />
 
-                <div className="space-y-3">
+                <div className="space-y-2">
                   <Label className="text-sm font-medium">Available Pricing Types *</Label>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
                     {[...pricingTypes].sort((a, b) => a.typeName.localeCompare(b.typeName)).map((type) => (
@@ -341,14 +341,14 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
 
           {/* Configuration */}
           <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg">Configuration</CardTitle>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Configuration</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-6">
-                <div className="space-y-3">
-                  <Label className="font-medium">Credit Profiles *</Label>
-                  <div className="space-y-2 max-h-64 overflow-y-auto border rounded-lg p-3">
+            <CardContent className="space-y-4">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label className="font-medium text-sm">Credit Profiles *</Label>
+                  <div className="space-y-1 max-h-64 overflow-y-auto border rounded-lg p-2">
                     {creditProfiles.map((profile) => (
                       <div key={profile.id} className="flex items-center space-x-2">
                         <Checkbox
@@ -375,9 +375,9 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
                   </div>
                 </div>
 
-                <div className="space-y-3">
-                  <Label className="font-medium">Pricing Configurations *</Label>
-                  <div className="space-y-2 max-h-64 overflow-y-auto border rounded-lg p-3">
+                <div className="space-y-2">
+                  <Label className="font-medium text-sm">Pricing Configurations *</Label>
+                  <div className="space-y-1 max-h-64 overflow-y-auto border rounded-lg p-2">
                     {pricingConfigs.map((config) => (
                       <div key={config.id} className="flex items-center space-x-2">
                         <Checkbox
@@ -408,13 +408,13 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
 
           {/* Program Dates */}
           <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Program Dates</CardTitle>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Program Dates</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="startDate">Program Start Date *</Label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label htmlFor="startDate" className="text-sm">Program Start Date *</Label>
                   <Input
                     id="startDate"
                     type="date"
@@ -423,8 +423,8 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="endDate">Program End Date *</Label>
+                <div className="space-y-1">
+                  <Label htmlFor="endDate" className="text-sm">Program End Date *</Label>
                   <Input
                     id="endDate"
                     type="date"
@@ -438,14 +438,14 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
 
           {/* Lenders & Geography */}
           <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Lenders & Geography</CardTitle>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Lenders & Geography</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="space-y-3">
-                  <Label className="font-medium">Lenders *</Label>
-                  <div className="space-y-2 max-h-40 overflow-y-auto border rounded-lg p-3">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="font-medium text-sm">Lenders *</Label>
+                  <div className="space-y-1 max-h-40 overflow-y-auto border rounded-lg p-2">
                     {lenders.map((lender) => (
                       <div key={lender.id} className="flex items-center space-x-2">
                         <Checkbox
@@ -467,9 +467,9 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
                   </div>
                 </div>
 
-                <div className="space-y-3">
-                  <Label className="font-medium">Geographic Regions *</Label>
-                  <div className="space-y-2 max-h-40 overflow-y-auto border rounded-lg p-3">
+                <div className="space-y-2">
+                  <Label className="font-medium text-sm">Geographic Regions *</Label>
+                  <div className="space-y-1 max-h-40 overflow-y-auto border rounded-lg p-2">
                     {geos.map((geo) => (
                       <div key={geo.id} className="flex items-center space-x-2">
                         <Checkbox
@@ -495,8 +495,8 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
           </Card>
         </div>
 
-        <div className="flex justify-between items-center pt-4 border-t">
-          <div className="text-sm text-muted-foreground">
+        <div className="flex justify-between items-center pt-2 border-t">
+          <div className="text-xs text-muted-foreground">
             {isFormValid() ? "✓ All required fields completed" : "Complete all required fields to create program"}
           </div>
           <Button onClick={handleComplete} disabled={!isFormValid()}>
