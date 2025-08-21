@@ -118,6 +118,7 @@ const FinancialPricingTabs = ({
           setShowAddModal={setShowAddBulletinPricingModal}
           onSelectionChange={onSelectionChange}
           selectedItems={selectedItems}
+          onSetBatchDeleteCallback={onSetBatchDeleteCallback}
         />
       )
     },
