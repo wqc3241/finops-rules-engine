@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import Dashboard from "@/components/Dashboard";
@@ -9,22 +9,11 @@ const FinancialPricingPage = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeItem, setActiveItem] = useState('Financial Pricing');
   const location = useLocation();
-  const navigate = useNavigate();
 
   // Ensure that the activeItem is correctly set on page load
   useEffect(() => {
     setActiveItem('Financial Pricing');
   }, []);
-
-  // Check if we need to reopen wizard with data from confirmation page
-  useEffect(() => {
-    if (location.state?.reopenWizard && location.state?.wizardData) {
-      // Store the wizard data for reopening
-      sessionStorage.setItem('reopenWizardData', JSON.stringify(location.state.wizardData));
-      // Clear the navigation state
-      navigate(location.pathname, { replace: true });
-    }
-  }, [location.state, navigate, location.pathname]);
 
   // Extract review parameter from URL
   const searchParams = new URLSearchParams(location.search);
