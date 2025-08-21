@@ -15,6 +15,7 @@ import DashboardPage from "./pages/DashboardPage";
 import Report from "./pages/Report";
 import Tasks from "./pages/Tasks";
 import FinancialPricingPage from "./pages/FinancialPricingPage";
+import FinancialProgramConfirmation from "./pages/FinancialProgramConfirmation";
 import LFSSetupPage from "./pages/LFSSetupPage";
 import FinancingDataTablePage from "./pages/FinancingDataTablePage";
 import SalesPricingRulesPage from "./pages/SalesPricingRulesPage";
@@ -66,6 +67,7 @@ const App = () => (
               <Route path="/report" element={<ProtectedRoute><Report /></ProtectedRoute>} />
               <Route path="/tasks" element={<ProtectedRoute><Tasks /></ProtectedRoute>} />
               <Route path="/financial-pricing" element={<ProtectedRoute><FinancialPricingPage /></ProtectedRoute>} />
+              <Route path="/financial-pricing/confirmation" element={<ProtectedRoute><FinancialProgramConfirmation /></ProtectedRoute>} />
               <Route path="/financing-data-table" element={<ProtectedRoute><FinancingDataTablePage /></ProtectedRoute>} />
               <Route path="/lfs-setup" element={<ProtectedRoute><LFSSetupPage /></ProtectedRoute>} />
               <Route path="/sales-pricing-rules" element={<ProtectedRoute><SalesPricingRulesPage /></ProtectedRoute>} />

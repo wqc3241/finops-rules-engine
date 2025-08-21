@@ -1,5 +1,6 @@
 
 import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -14,7 +15,6 @@ import { supabase } from "@/integrations/supabase/client";
 
 import { usePricingTypes } from "@/hooks/usePricingTypes";
 import { generateProgramCode } from "@/utils/programCodeGenerator";
-import ConfirmationStep from "./WizardSteps/ConfirmationStep";
 import { FinancialProgramRecord } from "@/types/financialProgram";
 
 export interface WizardData {
@@ -40,7 +40,7 @@ interface FinancialProgramWizardProps {
 
 
 const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEditMode = false }: FinancialProgramWizardProps) => {
-  const [currentStep, setCurrentStep] = useState<'wizard' | 'confirmation'>('wizard');
+  const navigate = useNavigate();
   const [wizardData, setWizardData] = useState<WizardData>({
     vehicleStyleIds: [],
     vehicleCondition: "",
@@ -57,7 +57,6 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
   // Reset wizard data when modal opens or edit data changes
   useEffect(() => {
     if (open) {
-      setCurrentStep('wizard');
       if (isEditMode && editData) {
         setWizardData({
           vehicleStyleIds: Array.isArray(editData.vehicleStyleIds) ? editData.vehicleStyleIds : [editData.vehicleStyleId || ""],
@@ -200,131 +199,63 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
       toast.error("Please complete all required fields.");
       return;
     }
-    setCurrentStep('confirmation');
-  };
+    
+    // Generate program previews
+    const { data: existingPrograms } = await supabase
+      .from('financial_program_configs')
+      .select('program_code');
+    
+    const existingCodes = existingPrograms?.map(p => p.program_code) || [];
+    
+    const programPreviews = await Promise.all(
+      wizardData.vehicleStyleIds.map(async (vehicleStyleId) => {
+        const { data: vehicleStyleData } = await supabase
+          .from('vehicle_style_coding')
+          .select('*')
+          .eq('vehicle_style_id', vehicleStyleId)
+          .single();
 
-  const handleBack = () => {
-    setCurrentStep('wizard');
-  };
+        const vehicleStyleOption = vehicleStyleOptions.find(v => v.id === vehicleStyleId);
+        
+        const programCode = generateProgramCode({
+          vehicleCondition: wizardData.vehicleCondition,
+          financialProduct: (financialProducts.find(p => p.id === wizardData.financialProduct)?.productType || wizardData.financialProduct),
+          vehicleStyleId,
+          vehicleStyleRecord: vehicleStyleData,
+          programStartDate: wizardData.programStartDate
+        }, existingCodes);
 
-  const handleCreatePrograms = async () => {
-    try {
-      // Get existing program codes to avoid conflicts
-      const { data: existingPrograms } = await supabase
-        .from('financial_program_configs')
-        .select('program_code');
-      
-      const existingCodes = existingPrograms?.map(p => p.program_code) || [];
-      
-      // Generate program data for each vehicle style
-      const programsToCreate: FinancialProgramRecord[] = await Promise.all(
-        wizardData.vehicleStyleIds.map(async (vehicleStyleId) => {
-          // Get vehicle style record for model year
-          const { data: vehicleStyleData } = await supabase
-            .from('vehicle_style_coding')
-            .select('*')
-            .eq('vehicle_style_id', vehicleStyleId)
-            .single();
+        existingCodes.push(programCode);
 
-          const programCode = generateProgramCode({
-            vehicleCondition: wizardData.vehicleCondition,
-            financialProduct: (financialProducts.find(p => p.id === wizardData.financialProduct)?.productType || wizardData.financialProduct),
-            vehicleStyleId,
-            vehicleStyleRecord: vehicleStyleData,
-            programStartDate: wizardData.programStartDate
-          }, existingCodes);
-
-          // Add this code to existing codes for next iterations
-          existingCodes.push(programCode);
-
-          return {
-            program_code: programCode,
-            vehicle_style_id: vehicleStyleId,
-            financing_vehicle_condition: wizardData.vehicleCondition,
-            financial_product_id: wizardData.financialProduct,
-            program_start_date: wizardData.programStartDate,
-            program_end_date: wizardData.programEndDate,
-            is_active: 'Active',
-            advertised: 'Yes',
-            version: 1,
-            priority: 1
-          };
-        })
-      );
-
-      // Insert all programs
-      const { error } = await supabase
-        .from('financial_program_configs')
-        .insert(programsToCreate);
-
-      if (error) throw error;
-
-      onComplete(programsToCreate);
-      onOpenChange(false);
-      toast.success(`${programsToCreate.length} financial program${programsToCreate.length > 1 ? 's' : ''} created successfully!`);
-    } catch (error) {
-      console.error('Error creating programs:', error);
-      toast.error("Failed to create financial programs. Please try again.");
-    }
-  };
-
-  // Generate program previews for confirmation
-  const [programPreviews, setProgramPreviews] = useState<any[]>([]);
-
-  useEffect(() => {
-    const generatePreviews = async () => {
-      if (currentStep !== 'confirmation' || !isFormValid()) {
-        setProgramPreviews([]);
-        return;
+        return {
+          programCode,
+          vehicleStyleId,
+          vehicleStyleLabel: vehicleStyleOption?.label || vehicleStyleId,
+          financingVehicleCondition: wizardData.vehicleCondition,
+          financialProductId: wizardData.financialProduct,
+          programStartDate: wizardData.programStartDate,
+          programEndDate: wizardData.programEndDate,
+          isActive: 'Active',
+          advertised: 'Yes',
+          version: 1,
+          priority: 1
+        };
+      })
+    );
+    
+    // Close wizard and navigate to confirmation page
+    onOpenChange(false);
+    navigate("/financial-pricing/confirmation", {
+      state: {
+        wizardData,
+        vehicleStyleOptions,
+        financialProducts,
+        programPreviews
       }
-      
-      const { data: existingPrograms } = await supabase
-        .from('financial_program_configs')
-        .select('program_code');
-      
-      const existingCodes = existingPrograms?.map(p => p.program_code) || [];
-      
-      const previews = await Promise.all(
-        wizardData.vehicleStyleIds.map(async (vehicleStyleId) => {
-          const { data: vehicleStyleData } = await supabase
-            .from('vehicle_style_coding')
-            .select('*')
-            .eq('vehicle_style_id', vehicleStyleId)
-            .single();
+    });
+  };
 
-          const vehicleStyleOption = vehicleStyleOptions.find(v => v.id === vehicleStyleId);
-          
-          const programCode = generateProgramCode({
-            vehicleCondition: wizardData.vehicleCondition,
-            financialProduct: (financialProducts.find(p => p.id === wizardData.financialProduct)?.productType || wizardData.financialProduct),
-            vehicleStyleId,
-            vehicleStyleRecord: vehicleStyleData,
-            programStartDate: wizardData.programStartDate
-          }, existingCodes);
 
-          existingCodes.push(programCode);
-
-          return {
-            programCode,
-            vehicleStyleId,
-            vehicleStyleLabel: vehicleStyleOption?.label || vehicleStyleId,
-            financingVehicleCondition: wizardData.vehicleCondition,
-            financialProductId: wizardData.financialProduct,
-            programStartDate: wizardData.programStartDate,
-            programEndDate: wizardData.programEndDate,
-            isActive: 'Active',
-            advertised: 'Yes',
-            version: 1,
-            priority: 1
-          };
-        })
-      );
-      
-      setProgramPreviews(previews);
-    };
-
-    generatePreviews();
-  }, [currentStep, wizardData, vehicleStyleOptions]);
 
   if (loading) {
     return (
@@ -615,33 +546,14 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
           </Card>
         </div>
 
-        {currentStep === 'wizard' ? (
-          <div className="flex justify-between items-center pt-2 border-t">
-            <div className="text-xs text-muted-foreground">
-              {isFormValid() ? "✓ All required fields completed" : "Complete all required fields to continue"}
-            </div>
-            <Button onClick={handleNext} disabled={!isFormValid()}>
-              Next: Review Programs
-            </Button>
+        <div className="flex justify-between items-center pt-2 border-t">
+          <div className="text-xs text-muted-foreground">
+            {isFormValid() ? "✓ All required fields completed" : "Complete all required fields to continue"}
           </div>
-        ) : (
-          <>
-            <ConfirmationStep 
-              data={wizardData}
-              vehicleStyleOptions={vehicleStyleOptions}
-              financialProducts={financialProducts}
-              programPreviews={programPreviews}
-            />
-            <div className="flex justify-between items-center pt-2 border-t">
-              <Button variant="outline" onClick={handleBack}>
-                Back to Edit
-              </Button>
-              <Button onClick={handleCreatePrograms}>
-                Create {wizardData.vehicleStyleIds.length} Program{wizardData.vehicleStyleIds.length > 1 ? 's' : ''}
-              </Button>
-            </div>
-          </>
-        )}
+          <Button onClick={handleNext} disabled={!isFormValid()}>
+            Next: Review Programs
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );
