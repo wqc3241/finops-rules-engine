@@ -228,7 +228,7 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
 
           const programCode = generateProgramCode({
             vehicleCondition: wizardData.vehicleCondition,
-            financialProduct: wizardData.financialProduct,
+            financialProduct: (financialProducts.find(p => p.id === wizardData.financialProduct)?.productType || wizardData.financialProduct),
             vehicleStyleId,
             vehicleStyleRecord: vehicleStyleData,
             programStartDate: wizardData.programStartDate
@@ -296,7 +296,7 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
           
           const programCode = generateProgramCode({
             vehicleCondition: wizardData.vehicleCondition,
-            financialProduct: wizardData.financialProduct,
+            financialProduct: (financialProducts.find(p => p.id === wizardData.financialProduct)?.productType || wizardData.financialProduct),
             vehicleStyleId,
             vehicleStyleRecord: vehicleStyleData,
             programStartDate: wizardData.programStartDate

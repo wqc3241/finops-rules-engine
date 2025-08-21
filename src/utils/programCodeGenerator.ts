@@ -38,8 +38,31 @@ export const generateProgramCode = (
   // Get financial product code (first letter)
   const productCode = getFinancialProductCode(params.financialProduct);
   
-  // Extract style codes from vehicle_style_id
-  const { styleCodeA, styleCodeP } = parseVehicleStyleId(params.vehicleStyleId);
+  // Compute style token from vehicle style record (Model + Trim initials)
+  const styleToken = params.vehicleStyleRecord
+    ? (() => {
+        const model = (params.vehicleStyleRecord.model || '').toString().trim();
+        const trim = (params.vehicleStyleRecord.trim || '').toString().trim();
+        const modelInitial = model ? model.charAt(0).toUpperCase() : '';
+        // Exclude drivetrain and generic tokens
+        const excluded = new Set(['awd','fwd','rwd','4wd','2wd','4x4','ev','phev','hybrid']);
+        const trimInitials = trim
+          ? trim
+              .replace(/[^A-Za-z\s]/g, ' ')
+              .split(/\s+/)
+              .filter(w => w.length > 0 && !excluded.has(w.toLowerCase()))
+              .slice(0, 2) // take at most first two significant words
+              .map(w => w.charAt(0).toUpperCase())
+              .join('')
+          : '';
+        const token = `${modelInitial}${trimInitials}` || 'XX';
+        return token.toUpperCase();
+      })()
+    : (() => {
+        // Fallback: derive simple token from vehicleStyleId (first 2 letters)
+        const clean = params.vehicleStyleId.replace(/[^A-Za-z]/g, '').toUpperCase();
+        return clean.slice(0, 2) || 'XX';
+      })();
   
   // Get model year (last 2 digits)
   const modelYear = params.vehicleStyleRecord?.model_year 
@@ -52,7 +75,7 @@ export const generateProgramCode = (
   const yearCode = startDate.getFullYear().toString().slice(-2);
   
   // Build base code without version
-  const baseCode = `${conditionCode}${productCode}_${styleCodeA}${styleCodeP}${modelYear}_${monthCode}${yearCode}`;
+  const baseCode = `${conditionCode}${productCode}_${styleToken}${modelYear}_${monthCode}${yearCode}`;
   
   // Find next available version number
   let version = 1;
