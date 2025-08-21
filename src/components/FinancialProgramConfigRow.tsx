@@ -135,6 +135,7 @@ const FinancialProgramConfigRow = ({
       <TableCell>
         <FinancialProgramConfigActions
           programId={program.id}
+          programCode={program.programCode}
           onEdit={onEdit}
           onCopy={onCopy}
           onDelete={onDelete}

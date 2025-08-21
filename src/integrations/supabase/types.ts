@@ -330,7 +330,11 @@ export type Database = {
       bulletin_pricing: {
         Row: {
           advertised: boolean | null
+          approval_status: string | null
+          approved_at: string | null
+          approved_by: string | null
           bulletin_id: string
+          created_by: string | null
           credit_profile: string | null
           financial_program_code: string | null
           geo_code: string | null
@@ -340,10 +344,15 @@ export type Database = {
           pricing_value: number | null
           updated_date: string | null
           upload_date: string | null
+          upload_session_id: string | null
         }
         Insert: {
           advertised?: boolean | null
+          approval_status?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
           bulletin_id: string
+          created_by?: string | null
           credit_profile?: string | null
           financial_program_code?: string | null
           geo_code?: string | null
@@ -353,10 +362,15 @@ export type Database = {
           pricing_value?: number | null
           updated_date?: string | null
           upload_date?: string | null
+          upload_session_id?: string | null
         }
         Update: {
           advertised?: boolean | null
+          approval_status?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
           bulletin_id?: string
+          created_by?: string | null
           credit_profile?: string | null
           financial_program_code?: string | null
           geo_code?: string | null
@@ -366,6 +380,113 @@ export type Database = {
           pricing_value?: number | null
           updated_date?: string | null
           upload_date?: string | null
+          upload_session_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bulletin_pricing_upload_session_id_fkey"
+            columns: ["upload_session_id"]
+            isOneToOne: false
+            referencedRelation: "bulletin_upload_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bulletin_upload_errors: {
+        Row: {
+          column_name: string | null
+          created_at: string
+          error_message: string
+          error_type: string
+          field_value: string | null
+          id: string
+          row_number: number | null
+          session_id: string
+          sheet_name: string
+        }
+        Insert: {
+          column_name?: string | null
+          created_at?: string
+          error_message: string
+          error_type: string
+          field_value?: string | null
+          id?: string
+          row_number?: number | null
+          session_id: string
+          sheet_name: string
+        }
+        Update: {
+          column_name?: string | null
+          created_at?: string
+          error_message?: string
+          error_type?: string
+          field_value?: string | null
+          id?: string
+          row_number?: number | null
+          session_id?: string
+          sheet_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bulletin_upload_errors_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "bulletin_upload_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bulletin_upload_sessions: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          file_size: number
+          filename: string
+          id: string
+          invalid_records: number | null
+          program_code: string
+          total_records: number | null
+          updated_at: string
+          upload_status: string
+          uploaded_by: string | null
+          valid_records: number | null
+          validation_completed_at: string | null
+          validation_status: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          file_size: number
+          filename: string
+          id?: string
+          invalid_records?: number | null
+          program_code: string
+          total_records?: number | null
+          updated_at?: string
+          upload_status?: string
+          uploaded_by?: string | null
+          valid_records?: number | null
+          validation_completed_at?: string | null
+          validation_status?: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          file_size?: number
+          filename?: string
+          id?: string
+          invalid_records?: number | null
+          program_code?: string
+          total_records?: number | null
+          updated_at?: string
+          upload_status?: string
+          uploaded_by?: string | null
+          valid_records?: number | null
+          validation_completed_at?: string | null
+          validation_status?: string
         }
         Relationships: []
       }
@@ -1062,6 +1183,7 @@ export type Database = {
           program_end_date: string | null
           program_id: string | null
           program_start_date: string | null
+          template_metadata: Json | null
           updated: string | null
           vehicle_style_id: string | null
           version: number | null
@@ -1082,6 +1204,7 @@ export type Database = {
           program_end_date?: string | null
           program_id?: string | null
           program_start_date?: string | null
+          template_metadata?: Json | null
           updated?: string | null
           vehicle_style_id?: string | null
           version?: number | null
@@ -1102,6 +1225,7 @@ export type Database = {
           program_end_date?: string | null
           program_id?: string | null
           program_start_date?: string | null
+          template_metadata?: Json | null
           updated?: string | null
           vehicle_style_id?: string | null
           version?: number | null

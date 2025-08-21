@@ -2,6 +2,7 @@
 import { useState } from "react";
 import BulletinPricingTable from "../BulletinPricingTable";
 import SectionHeader from "./SectionHeader";
+import BulletinPricingUploadModal from "../BulletinPricingUploadModal";
 import { toast } from "sonner";
 import { exportBulletinPricing } from "@/utils/bulletinPricingExport";
 
@@ -21,6 +22,7 @@ const BulletinPricingSection = ({
   selectedItems
 }: BulletinPricingSectionProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [showUploadModal, setShowUploadModal] = useState(false);
   
   const handleAddNew = () => {
     setShowAddModal(true);
@@ -49,6 +51,15 @@ const BulletinPricingSection = ({
     }
   };
 
+  const handleUpload = () => {
+    setShowUploadModal(true);
+  };
+
+  const handleUploadComplete = () => {
+    toast.success("Upload completed successfully!");
+    // Refresh the table data if needed
+  };
+
   return (
     <div className="p-6 bg-white rounded-lg shadow-sm">
       <SectionHeader 
@@ -58,6 +69,8 @@ const BulletinPricingSection = ({
         onAddNew={handleAddNew}
         onDownload={handleDownload}
         downloadLabel="Download Bulletin Pricing"
+        onUpload={handleUpload}
+        uploadLabel="Upload Bulletin Pricing"
       />
       {!isCollapsed && (
         <div className="mt-4">
@@ -70,6 +83,12 @@ const BulletinPricingSection = ({
           />
         </div>
       )}
+      
+      <BulletinPricingUploadModal
+        isOpen={showUploadModal}
+        onClose={() => setShowUploadModal(false)}
+        onUploadComplete={handleUploadComplete}
+      />
     </div>
   );
 };
