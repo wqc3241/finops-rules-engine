@@ -13,33 +13,35 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
 import { usePricingTypes } from "@/hooks/usePricingTypes";
+import { generateProgramCode } from "@/utils/programCodeGenerator";
+import ConfirmationStep from "./WizardSteps/ConfirmationStep";
 
 export interface WizardData {
-  vehicleStyleId: string;
+  vehicleStyleIds: string[];
   vehicleCondition: string;
-  financialProduct: string; // single string now
+  financialProduct: string;
   pricingTypes: string[];
-  creditProfiles: string[]; // Changed to array
-  pricingConfigs: string[]; // Changed to array
+  creditProfiles: string[];
+  pricingConfigs: string[];
   programStartDate: string;
   programEndDate: string;
   lenders: string[];
   geoCodes: string[];
-  programCode?: string;
 }
 
 interface FinancialProgramWizardProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onComplete: (data: WizardData) => void;
-  editData?: any; // Table row data has different structure than WizardData
+  onComplete: (data: WizardData[]) => void;
+  editData?: any;
   isEditMode?: boolean;
 }
 
 
 const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEditMode = false }: FinancialProgramWizardProps) => {
+  const [currentStep, setCurrentStep] = useState<'wizard' | 'confirmation'>('wizard');
   const [wizardData, setWizardData] = useState<WizardData>({
-    vehicleStyleId: "",
+    vehicleStyleIds: [],
     vehicleCondition: "",
     financialProduct: "",
     pricingTypes: [],
@@ -54,10 +56,10 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
   // Reset wizard data when modal opens or edit data changes
   useEffect(() => {
     if (open) {
+      setCurrentStep('wizard');
       if (isEditMode && editData) {
-        // Convert editData from table row format to WizardData format
         setWizardData({
-          vehicleStyleId: editData.vehicleStyleId || "",
+          vehicleStyleIds: Array.isArray(editData.vehicleStyleIds) ? editData.vehicleStyleIds : [editData.vehicleStyleId || ""],
           vehicleCondition: editData.financingVehicleCondition || "",
           financialProduct: editData.financialProductId || "",
           pricingTypes: Array.isArray(editData.pricingTypes) ? editData.pricingTypes : [],
@@ -66,12 +68,11 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
           programStartDate: editData.programStartDate || "",
           programEndDate: editData.programEndDate || "",
           lenders: Array.isArray(editData.lenders) ? editData.lenders : [],
-          geoCodes: Array.isArray(editData.geoCodes) ? editData.geoCodes : [],
-          programCode: editData.programCode || ""
+          geoCodes: Array.isArray(editData.geoCodes) ? editData.geoCodes : []
         });
       } else {
         setWizardData({
-          vehicleStyleId: "",
+          vehicleStyleIds: [],
           vehicleCondition: "",
           financialProduct: "",
           pricingTypes: [],
@@ -181,7 +182,7 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
   ];
 
   const isFormValid = () => {
-    return wizardData.vehicleStyleId && 
+    return wizardData.vehicleStyleIds.length > 0 && 
            wizardData.vehicleCondition && 
            wizardData.financialProduct && 
            wizardData.pricingTypes.length > 0 && 
@@ -193,26 +194,136 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
            wizardData.geoCodes.length > 0;
   };
 
-  const handleComplete = () => {
+  const handleNext = async () => {
     if (!isFormValid()) {
       toast.error("Please complete all required fields.");
       return;
     }
-    
-    const programCode = isEditMode ? wizardData.programCode : generateProgramCode(wizardData);
-    const finalData = { ...wizardData, programCode };
-    onComplete(finalData);
-    onOpenChange(false);
-    toast.success(isEditMode ? "Financial program updated successfully!" : "Financial program created successfully!");
+    setCurrentStep('confirmation');
   };
 
-  const generateProgramCode = (data: WizardData): string => {
-    const productCode = data.financialProduct?.substring(0, 3) || "FIN";
-    const vehicleCode = data.vehicleStyleId.substring(0, 3) || "VEH";
-    const dateCode = new Date().getFullYear().toString().substring(2);
-    const randomSuffix = Math.random().toString(36).substring(2, 5).toUpperCase();
-    return `${productCode}${vehicleCode}${dateCode}${randomSuffix}`;
+  const handleBack = () => {
+    setCurrentStep('wizard');
   };
+
+  const handleCreatePrograms = async () => {
+    try {
+      // Get existing program codes to avoid conflicts
+      const { data: existingPrograms } = await supabase
+        .from('financial_program_configs')
+        .select('program_code');
+      
+      const existingCodes = existingPrograms?.map(p => p.program_code) || [];
+      
+      // Generate program data for each vehicle style
+      const programsToCreate = await Promise.all(
+        wizardData.vehicleStyleIds.map(async (vehicleStyleId) => {
+          // Get vehicle style record for model year
+          const { data: vehicleStyleData } = await supabase
+            .from('vehicle_style_coding')
+            .select('*')
+            .or(`style_code.eq.${vehicleStyleId},vehicle_style_id.eq.${vehicleStyleId},id.eq.${vehicleStyleId}`)
+            .single();
+
+          const programCode = generateProgramCode({
+            vehicleCondition: wizardData.vehicleCondition,
+            financialProduct: wizardData.financialProduct,
+            vehicleStyleId,
+            vehicleStyleRecord: vehicleStyleData,
+            programStartDate: wizardData.programStartDate
+          }, existingCodes);
+
+          // Add this code to existing codes for next iterations
+          existingCodes.push(programCode);
+
+          return {
+            program_code: programCode,
+            vehicle_style_id: vehicleStyleId,
+            financing_vehicle_condition: wizardData.vehicleCondition,
+            financial_product_id: wizardData.financialProduct,
+            program_start_date: wizardData.programStartDate,
+            program_end_date: wizardData.programEndDate,
+            is_active: 'Active',
+            advertised: 'Yes',
+            version: 1,
+            priority: 1
+          };
+        })
+      );
+
+      // Insert all programs
+      const { error } = await supabase
+        .from('financial_program_configs')
+        .insert(programsToCreate);
+
+      if (error) throw error;
+
+      onComplete(programsToCreate);
+      onOpenChange(false);
+      toast.success(`${programsToCreate.length} financial program${programsToCreate.length > 1 ? 's' : ''} created successfully!`);
+    } catch (error) {
+      console.error('Error creating programs:', error);
+      toast.error("Failed to create financial programs. Please try again.");
+    }
+  };
+
+  // Generate program previews for confirmation
+  const [programPreviews, setProgramPreviews] = useState<any[]>([]);
+
+  useEffect(() => {
+    const generatePreviews = async () => {
+      if (currentStep !== 'confirmation' || !isFormValid()) {
+        setProgramPreviews([]);
+        return;
+      }
+      
+      const { data: existingPrograms } = await supabase
+        .from('financial_program_configs')
+        .select('program_code');
+      
+      const existingCodes = existingPrograms?.map(p => p.program_code) || [];
+      
+      const previews = await Promise.all(
+        wizardData.vehicleStyleIds.map(async (vehicleStyleId) => {
+          const { data: vehicleStyleData } = await supabase
+            .from('vehicle_style_coding')
+            .select('*')
+            .or(`style_code.eq.${vehicleStyleId},vehicle_style_id.eq.${vehicleStyleId},id.eq.${vehicleStyleId}`)
+            .single();
+
+          const vehicleStyleOption = vehicleStyleOptions.find(v => v.id === vehicleStyleId);
+          
+          const programCode = generateProgramCode({
+            vehicleCondition: wizardData.vehicleCondition,
+            financialProduct: wizardData.financialProduct,
+            vehicleStyleId,
+            vehicleStyleRecord: vehicleStyleData,
+            programStartDate: wizardData.programStartDate
+          }, existingCodes);
+
+          existingCodes.push(programCode);
+
+          return {
+            programCode,
+            vehicleStyleId,
+            vehicleStyleLabel: vehicleStyleOption?.label || vehicleStyleId,
+            financingVehicleCondition: wizardData.vehicleCondition,
+            financialProductId: wizardData.financialProduct,
+            programStartDate: wizardData.programStartDate,
+            programEndDate: wizardData.programEndDate,
+            isActive: 'Active',
+            advertised: 'Yes',
+            version: 1,
+            priority: 1
+          };
+        })
+      );
+      
+      setProgramPreviews(previews);
+    };
+
+    generatePreviews();
+  }, [currentStep, wizardData, vehicleStyleOptions]);
 
   if (loading) {
     return (
@@ -248,19 +359,27 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
             <CardContent className="space-y-3">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <Label htmlFor="vehicleStyle" className="text-sm">Vehicle Style *</Label>
-                  <Select value={wizardData.vehicleStyleId} onValueChange={(value) => updateWizardData({ vehicleStyleId: value })}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select vehicle style" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {vehicleStyleOptions.map((style) => (
-                        <SelectItem key={style.id} value={style.id}>
+                  <Label className="text-sm">Vehicle Styles * ({wizardData.vehicleStyleIds.length} selected)</Label>
+                  <div className="space-y-1 max-h-48 overflow-y-auto border rounded-lg p-2">
+                    {vehicleStyleOptions.map((style) => (
+                      <div key={style.id} className="flex items-start space-x-2">
+                        <Checkbox
+                          id={`vehicle-${style.id}`}
+                          checked={wizardData.vehicleStyleIds.includes(style.id)}
+                          onCheckedChange={(checked) => {
+                            const updated = checked
+                              ? [...wizardData.vehicleStyleIds, style.id]
+                              : wizardData.vehicleStyleIds.filter(id => id !== style.id);
+                            updateWizardData({ vehicleStyleIds: updated });
+                          }}
+                          className="mt-0.5 scale-75"
+                        />
+                        <Label htmlFor={`vehicle-${style.id}`} className="text-xs cursor-pointer flex-1 min-w-0">
                           {style.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
                 </div>
                 <div className="space-y-1">
                   <Label htmlFor="vehicleCondition" className="text-sm">Vehicle Condition *</Label>
@@ -495,14 +614,33 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
           </Card>
         </div>
 
-        <div className="flex justify-between items-center pt-2 border-t">
-          <div className="text-xs text-muted-foreground">
-            {isFormValid() ? "✓ All required fields completed" : "Complete all required fields to create program"}
+        {currentStep === 'wizard' ? (
+          <div className="flex justify-between items-center pt-2 border-t">
+            <div className="text-xs text-muted-foreground">
+              {isFormValid() ? "✓ All required fields completed" : "Complete all required fields to continue"}
+            </div>
+            <Button onClick={handleNext} disabled={!isFormValid()}>
+              Next: Review Programs
+            </Button>
           </div>
-          <Button onClick={handleComplete} disabled={!isFormValid()}>
-            {isEditMode ? 'Update Financial Program' : 'Create Financial Program'}
-          </Button>
-        </div>
+        ) : (
+          <>
+            <ConfirmationStep 
+              data={wizardData}
+              vehicleStyleOptions={vehicleStyleOptions}
+              financialProducts={financialProducts}
+              programPreviews={programPreviews}
+            />
+            <div className="flex justify-between items-center pt-2 border-t">
+              <Button variant="outline" onClick={handleBack}>
+                Back to Edit
+              </Button>
+              <Button onClick={handleCreatePrograms}>
+                Create {wizardData.vehicleStyleIds.length} Program{wizardData.vehicleStyleIds.length > 1 ? 's' : ''}
+              </Button>
+            </div>
+          </>
+        )}
       </DialogContent>
     </Dialog>
   );

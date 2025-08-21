@@ -159,78 +159,51 @@ const DynamicFinancialSection = ({
     }
   };
 
-  const handleWizardComplete = (wizardData: WizardData) => {
+  const handleWizardComplete = (programData: any[]) => {
+    // programData is now an array of created database records
     if (isEditMode && editData) {
-      // Update existing record
-      const updatedRecord = {
-        ...editData,
-        programCode: wizardData.programCode || editData.programCode,
-        financialProductId: wizardData.financialProduct || editData.financialProductId,
-        vehicleStyleId: wizardData.vehicleStyleId || editData.vehicleStyleId,
-        financingVehicleCondition: wizardData.vehicleCondition || editData.financingVehicleCondition,
-        programStartDate: wizardData.programStartDate ? new Date(wizardData.programStartDate).toLocaleDateString() : editData.programStartDate,
-        programEndDate: wizardData.programEndDate ? new Date(wizardData.programEndDate).toLocaleDateString() : editData.programEndDate,
-        version: (editData.version || 1) + 1
-      };
-
-      // Save state for undo/redo
-      if (schema) {
-        saveState(data, schema, 'wizard_edit');
-      }
-
-      // Update the existing record in the data
-      const newData = data.map(item => 
-        (item as any).id === editData.id ? updatedRecord : item
-      );
-      setData(newData);
-      
-      // Save version for wizard completion
-      if (schema) {
-        saveVersion(newData, schema, 'Financial program updated via wizard');
-      }
-      
-      toast.success("Financial program updated successfully");
-      console.log('Financial program updated:', updatedRecord);
+      // Edit mode - update existing record (not implemented for multi-select)
+      toast.error("Edit mode not supported for multi-select programs yet");
+      return;
     } else {
-      // Create new record
-      const newRecord = {
-        id: `FPC${Date.now()}`,
-        programCode: wizardData.programCode || "",
+      // Create new records - convert database records to display format
+      const newRecords = programData.map((dbRecord, index) => ({
+        id: `FPC${Date.now()}_${index}`,
+        programCode: dbRecord.program_code || "",
         cloneFrom: null,
-        priority: wizardData.creditProfiles.length > 0 ? 1 : 1,
-        financialProductId: wizardData.financialProduct || "",
+        priority: 1,
+        financialProductId: dbRecord.financial_product_id || "",
         productType: null,
-        vehicleStyleId: wizardData.vehicleStyleId,
-        financingVehicleCondition: wizardData.vehicleCondition,
-        programStartDate: new Date(wizardData.programStartDate).toLocaleDateString(),
-        programEndDate: new Date(wizardData.programEndDate).toLocaleDateString(),
-        isActive: true,
+        vehicleStyleId: dbRecord.vehicle_style_id,
+        financingVehicleCondition: dbRecord.financing_vehicle_condition,
+        programStartDate: new Date(dbRecord.program_start_date).toLocaleDateString(),
+        programEndDate: new Date(dbRecord.program_end_date).toLocaleDateString(),
+        isActive: dbRecord.is_active === 'Active',
         orderTypes: "INV, CON",
-        version: 1
-      };
+        version: dbRecord.version || 1
+      }));
 
       // Save state for undo/redo
       if (schema) {
-        saveState(data, schema, 'wizard_add');
+        saveState(data, schema, 'wizard_create');
       }
 
-      // Add the new record to the data
-      const newData = [...data, newRecord];
+      // Add the new records to the data
+      const newData = [...data, ...newRecords];
       setData(newData);
       
       // Save version for wizard completion
       if (schema) {
-        saveVersion(newData, schema, 'Financial program created via wizard');
+        saveVersion(newData, schema, `${newRecords.length} financial program${newRecords.length > 1 ? 's' : ''} created via wizard`);
       }
       
-      toast.success("Financial program created successfully");
-      console.log('Financial program created:', newRecord);
+      toast.success(`${newRecords.length} financial program${newRecords.length > 1 ? 's' : ''} created successfully`);
+      console.log('Financial programs created:', newRecords);
     }
     
     // Reset wizard state
     setEditData(null);
     setIsEditMode(false);
-    console.log('Full wizard data:', wizardData);
   };
 
   const handleEditRow = (rowId: string, rowData: any) => {

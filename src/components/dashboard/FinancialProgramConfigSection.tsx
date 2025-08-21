@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import FinancialProgramConfigTable from "../FinancialProgramConfigTable";
@@ -60,13 +59,8 @@ const FinancialProgramConfigSection = ({
     setShowWizard(true);
   };
 
-  const handleWizardComplete = (data: WizardData) => {
-    if (editingProgram) {
-      toast.success(`Program ${editingProgram} updated successfully`);
-      setEditingProgram(null);
-    } else {
-      toast.success("New program created successfully");
-    }
+  const handleWizardComplete = (programData: any[]) => {
+    toast.success(`${programData.length} financial program${programData.length > 1 ? 's' : ''} created successfully!`);
     setShowWizard(false);
   };
 
@@ -74,7 +68,7 @@ const FinancialProgramConfigSection = ({
   const getEditData = (programId: string): WizardData => {
     // In a real app, this would fetch the actual program data
     return {
-      vehicleStyleId: "L25A1",
+      vehicleStyleIds: ["L25A1"],
       vehicleCondition: "New",
       financialProduct: "USLN",
       pricingTypes: ["RATE", "MARKUP"],
@@ -83,8 +77,7 @@ const FinancialProgramConfigSection = ({
       programStartDate: "2025-02-01",
       programEndDate: "2025-02-28",
       lenders: ["LENDER1"],
-      geoCodes: ["US"],
-      programCode: programId
+      geoCodes: ["US"]
     };
   };
 
