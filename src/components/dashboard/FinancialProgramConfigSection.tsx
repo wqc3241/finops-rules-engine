@@ -13,6 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import FinancialProgramWizard, { WizardData } from "./FinancialProgramWizard";
+import { FinancialProgramRecord } from "@/types/financialProgram";
 
 interface FinancialProgramConfigSectionProps {
   title: string;
@@ -59,7 +60,7 @@ const FinancialProgramConfigSection = ({
     setShowWizard(true);
   };
 
-  const handleWizardComplete = (programData: any[]) => {
+  const handleWizardComplete = (programData: FinancialProgramRecord[]) => {
     toast.success(`${programData.length} financial program${programData.length > 1 ? 's' : ''} created successfully!`);
     setShowWizard(false);
   };

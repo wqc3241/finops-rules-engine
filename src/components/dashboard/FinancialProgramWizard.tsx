@@ -15,6 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { usePricingTypes } from "@/hooks/usePricingTypes";
 import { generateProgramCode } from "@/utils/programCodeGenerator";
 import ConfirmationStep from "./WizardSteps/ConfirmationStep";
+import { FinancialProgramRecord } from "@/types/financialProgram";
 
 export interface WizardData {
   vehicleStyleIds: string[];
@@ -32,7 +33,7 @@ export interface WizardData {
 interface FinancialProgramWizardProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onComplete: (data: WizardData[]) => void;
+  onComplete: (data: FinancialProgramRecord[]) => void;
   editData?: any;
   isEditMode?: boolean;
 }
@@ -216,7 +217,7 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
       const existingCodes = existingPrograms?.map(p => p.program_code) || [];
       
       // Generate program data for each vehicle style
-      const programsToCreate = await Promise.all(
+      const programsToCreate: FinancialProgramRecord[] = await Promise.all(
         wizardData.vehicleStyleIds.map(async (vehicleStyleId) => {
           // Get vehicle style record for model year
           const { data: vehicleStyleData } = await supabase

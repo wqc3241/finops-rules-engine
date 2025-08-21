@@ -11,6 +11,7 @@ import { useTableVersions } from "@/hooks/useTableVersions";
 import { useSupabaseApprovalWorkflow } from "@/hooks/useSupabaseApprovalWorkflow";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Lock } from "lucide-react";
+import { FinancialProgramRecord } from "@/types/financialProgram";
 import { supabase } from "@/integrations/supabase/client";
 import * as XLSX from 'xlsx';
 import { toast } from "sonner";
@@ -159,7 +160,7 @@ const DynamicFinancialSection = ({
     }
   };
 
-  const handleWizardComplete = (programData: any[]) => {
+  const handleWizardComplete = (programData: FinancialProgramRecord[]) => {
     // programData is now an array of created database records
     if (isEditMode && editData) {
       // Edit mode - update existing record (not implemented for multi-select)
