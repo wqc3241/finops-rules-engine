@@ -30,7 +30,7 @@ const DynamicFinancialSectionContent = ({
   currentPage,
   onPageChange
 }: DynamicFinancialSectionContentProps) => {
-  console.log('Rendering component with data:', data, 'schema:', schema);
+/*   console.log('Rendering component with data:', data, 'schema:', schema); */
 
   return (
     <div className="mt-4 overflow-x-auto">
