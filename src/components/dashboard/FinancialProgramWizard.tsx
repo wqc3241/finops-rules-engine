@@ -20,6 +20,7 @@ import { FinancialProgramRecord } from "@/types/financialProgram";
 export interface WizardData {
   vehicleStyleIds: string[];
   vehicleCondition: string;
+  orderTypes: string[];
   financialProduct: string;
   pricingTypes: string[];
   creditProfiles: string[];
@@ -44,6 +45,7 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
   const [wizardData, setWizardData] = useState<WizardData>({
     vehicleStyleIds: [],
     vehicleCondition: "",
+    orderTypes: [],
     financialProduct: "",
     pricingTypes: [],
     creditProfiles: [],
@@ -62,6 +64,7 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
         setWizardData({
           vehicleStyleIds: Array.isArray(editData.vehicleStyleIds) ? editData.vehicleStyleIds : [editData.vehicleStyleId || ""],
           vehicleCondition: editData.financingVehicleCondition || "",
+          orderTypes: editData.orderTypes ? editData.orderTypes.split(', ').filter(Boolean) : [],
           financialProduct: editData.financialProductId || "",
           pricingTypes: Array.isArray(editData.pricingTypes) ? editData.pricingTypes : [],
           creditProfiles: Array.isArray(editData.creditProfiles) ? editData.creditProfiles : [],
@@ -75,6 +78,7 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
         setWizardData({
           vehicleStyleIds: [],
           vehicleCondition: "",
+          orderTypes: [],
           financialProduct: "",
           pricingTypes: [],
           creditProfiles: [],
@@ -182,9 +186,15 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
     { id: "CPO", label: "Certified Pre-Owned" },
   ];
 
+  const orderTypes = [
+    { id: "INV", label: "Inventory (INV)" },
+    { id: "CON", label: "Contract (CON)" }
+  ];
+
   const isFormValid = () => {
     return wizardData.vehicleStyleIds.length > 0 && 
            wizardData.vehicleCondition && 
+           wizardData.orderTypes.length > 0 && 
            wizardData.financialProduct && 
            wizardData.pricingTypes.length > 0 && 
            wizardData.creditProfiles.length > 0 && 
@@ -247,7 +257,8 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
             is_active: 'Active',
             advertised: 'Yes',
             version: 1,
-            priority: 1
+            priority: 1,
+            order_types: wizardData.orderTypes.join(', ')
           };
         })
       );
@@ -375,7 +386,7 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
               <CardTitle className="text-base">Vehicle Selection</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <div className="space-y-1">
                   <Label className="text-sm">Vehicle Styles * ({wizardData.vehicleStyleIds.length} selected)</Label>
                   <div className="space-y-1 max-h-48 overflow-y-auto border rounded-lg p-2">
@@ -413,6 +424,29 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
                       ))}
                     </SelectContent>
                   </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-sm">Order Types * ({wizardData.orderTypes.length} selected)</Label>
+                  <div className="space-y-1 border rounded-lg p-2">
+                    {orderTypes.map((orderType) => (
+                      <div key={orderType.id} className="flex items-start space-x-2">
+                        <Checkbox
+                          id={`order-${orderType.id}`}
+                          checked={wizardData.orderTypes.includes(orderType.id)}
+                          onCheckedChange={(checked) => {
+                            const updated = checked
+                              ? [...wizardData.orderTypes, orderType.id]
+                              : wizardData.orderTypes.filter(id => id !== orderType.id);
+                            updateWizardData({ orderTypes: updated });
+                          }}
+                          className="mt-0.5 scale-75"
+                        />
+                        <Label htmlFor={`order-${orderType.id}`} className="text-xs cursor-pointer flex-1 min-w-0">
+                          {orderType.label}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </CardContent>

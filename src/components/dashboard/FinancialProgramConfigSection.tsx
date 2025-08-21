@@ -71,6 +71,7 @@ const FinancialProgramConfigSection = ({
     return {
       vehicleStyleIds: ["L25A1"],
       vehicleCondition: "New",
+      orderTypes: ["INV"],
       financialProduct: "USLN",
       pricingTypes: ["RATE", "MARKUP"],
       creditProfiles: ["PROFILE1"],
