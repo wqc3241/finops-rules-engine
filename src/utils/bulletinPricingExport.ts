@@ -31,6 +31,7 @@ interface ProgramConfig {
 
 export async function exportBulletinPricing(selectedProgramCodes?: string[]) {
   try {
+    console.info('Bulletin Export Debug:start', { selectedProgramCodes, targetProgramCodes: ['NL_GDE26_0825_1_SUBRV','NL_GDE26_0825_1_SUBMF'] });
     // Step 1: Fetch bulletin pricing data in batches to avoid row limits
     const bulletinData = await fetchAllBulletinPricing(selectedProgramCodes);
 
@@ -64,9 +65,15 @@ export async function exportBulletinPricing(selectedProgramCodes?: string[]) {
     if (configError) {
       throw new Error(`Failed to fetch program configurations: ${configError.message}`);
     }
+    console.info('Bulletin Export Debug:programConfigs', {
+      count: programConfigs?.length ?? 0,
+      sampleCodes: (programConfigs || []).map((c: any) => c.program_code).slice(0, 20),
+      includesTargets: ['NL_GDE26_0825_1_SUBRV', 'NL_GDE26_0825_1_SUBMF'].map(code => (programConfigs || []).some((c: any) => c.program_code === code))
+    });
 
     // Step 3: Group data by lender
     const lenderGroups = groupByLender(bulletinData);
+    console.info('Bulletin Export Debug:lenderGroupsKeys', { keys: Object.keys(lenderGroups).sort(), hasLFS: !!lenderGroups['LFS'] });
 
     // Debug: summarize lenders and row counts
     const lenderCounts: Record<string, number> = {};
@@ -126,6 +133,18 @@ export async function exportBulletinPricing(selectedProgramCodes?: string[]) {
       
       workbooks.push({ filename, workbook });
     }
+
+    // LFS verification before download
+    try {
+      const lfsWB = workbooks.find(w => /_LFS_/.test(w.filename));
+      console.info('Bulletin Export Debug:postBuildLFS', {
+        hasWorkbook: !!lfsWB,
+        sheetCount: lfsWB?.workbook?.SheetNames?.length ?? 0,
+        sheets: lfsWB?.workbook?.SheetNames?.slice(0, 50),
+        hasSUBRV: !!lfsWB?.workbook?.SheetNames?.some(n => n.includes('NL_GDE26_0825_1_SUBRV')),
+        hasSUBMF: !!lfsWB?.workbook?.SheetNames?.some(n => n.includes('NL_GDE26_0825_1_SUBMF')),
+      });
+    } catch {}
 
     // Step 5: Download files
     if (workbooks.length === 1) {
@@ -250,6 +269,19 @@ function createWorkbookForLender(
     usedNames.add(sheetName);
   }
 
+  if (lender === 'LFS') {
+    const names = workbook.SheetNames || [];
+    const hasSUBRV = names.some(n => n.includes('NL_GDE26_0825_1_SUBRV'));
+    const hasSUBMF = names.some(n => n.includes('NL_GDE26_0825_1_SUBMF'));
+    console.info('Bulletin Export Debug:LFS workbook check', {
+      lender,
+      sheetCount: names.length,
+      names: names.slice(0, 50),
+      hasSUBRV,
+      hasSUBMF,
+    });
+  }
+
   if ((workbook.SheetNames?.length ?? 0) === 0) {
     const info = XLSX.utils.aoa_to_sheet([[`No sheetable data for lender ${lender}. Rows: ${data.length}`]]);
     XLSX.utils.book_append_sheet(workbook, info, 'INFO');
@@ -318,6 +350,16 @@ function createWorksheet(
     pricingConfigsList: pricingConfigs,
     expectedColumns: creditProfiles.length * pricingConfigs.length
   });
+  if (programCode === 'NL_GDE26_0825_1_SUBRV' || programCode === 'NL_GDE26_0825_1_SUBMF') {
+    console.info('Bulletin Export Debug:targetSheetHeaders', {
+      lender,
+      programCode,
+      pricingType,
+      geoCodes,
+      creditProfiles,
+      pricingConfigs,
+    });
+  }
 
   // Validation: Log warning if pricing configs seem too few
   if (pricingConfigs.length < 4 && lender === 'BAC') {
