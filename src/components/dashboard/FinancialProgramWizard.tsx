@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { useFinancialProducts } from "@/hooks/useFinancialProducts";
+
 import { usePricingTypes } from "@/hooks/usePricingTypes";
 
 export interface WizardData {
@@ -92,9 +92,8 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
   const [pricingConfigs, setPricingConfigs] = useState<any[]>([]);
   const [lenders, setLenders] = useState<any[]>([]);
   const [geos, setGeos] = useState<any[]>([]);
+  const [financialProducts, setFinancialProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-
-  const financialProducts = useFinancialProducts();
   const { pricingTypes } = usePricingTypes();
 
   // Load all data on mount
@@ -102,12 +101,13 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
     const loadData = async () => {
       setLoading(true);
       try {
-        const [vehicleRes, creditRes, pricingRes, lenderRes, geoRes] = await Promise.all([
+        const [vehicleRes, creditRes, pricingRes, lenderRes, geoRes, financialRes] = await Promise.all([
           supabase.from("vehicle_style_coding").select("*"),
           supabase.from('credit_profiles').select('*'),
           supabase.from('pricing_configs').select('*'),
           supabase.from("lenders").select('"Gateway lender ID", lender_name'),
-          supabase.from("geo_location").select("geo_code, location_name")
+          supabase.from("geo_location").select("geo_code, location_name"),
+          supabase.from("financial_products").select("product_id, product_type, product_subtype, geo_code, category, is_active")
         ]);
 
         setVehicleStyles(vehicleRes.data || []);
@@ -136,6 +136,15 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
           id: r.geo_code,
           name: r.location_name,
         })));
+        setFinancialProducts((financialRes.data || [])
+          .filter((r: any) => r.is_active !== false)
+          .map((r: any) => ({
+            id: r.product_id,
+            productType: r.product_type,
+            productSubtype: r.product_subtype,
+            geoCode: r.geo_code,
+            category: r.category,
+          })));
       } catch (error) {
         console.error('Error loading data:', error);
       } finally {
