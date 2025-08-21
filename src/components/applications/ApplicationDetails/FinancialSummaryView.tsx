@@ -23,7 +23,7 @@ const FinancialSummaryView: React.FC<FinancialSummaryViewProps> = ({
   const [expanded, setExpanded] = useState(true);
   
   // Add debug logging to ensure we're getting the right data
-  console.log('FinancialSummaryView - financialSummary:', financialSummary);
+  /* console.log('FinancialSummaryView - financialSummary:', financialSummary); */
   
   const {
     tabs,
@@ -37,8 +37,8 @@ const FinancialSummaryView: React.FC<FinancialSummaryViewProps> = ({
   });
 
   // Add debug logging for the processed data
-  console.log('FinancialSummaryView - processed data:', { tabs, activeTab, data, currentTypeIsLoan });
-
+/*   console.log('FinancialSummaryView - processed data:', { tabs, activeTab, data, currentTypeIsLoan });
+ */
   const toggleExpanded = () => {
     setExpanded(!expanded);
   };
