@@ -344,338 +344,297 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader className="pb-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <DialogTitle className="text-xl">
-                {isEditMode ? 'Edit Financial Program' : 'Create New Financial Program'}
-              </DialogTitle>
-              <p className="text-xs text-muted-foreground mt-1">
-                {currentStep === 'wizard' 
-                  ? (isEditMode ? 'Update the program configuration below' : 'Complete all sections below to create your financial program')
-                  : 'Review and confirm your program configuration'
-                }
-              </p>
-            </div>
-            <div className="text-right">
-              <div className="text-xs font-medium text-muted-foreground">
-                Page {currentStep === 'wizard' ? '1' : '2'} of 2
-              </div>
-              <div className="text-[10px] text-muted-foreground mt-1">
-                {currentStep === 'wizard' ? 'Setup' : 'Confirmation'}
-              </div>
-            </div>
-          </div>
+        <DialogHeader className="pb-2">
+          <DialogTitle className="text-xl">{isEditMode ? 'Edit Financial Program' : 'Create New Financial Program'}</DialogTitle>
+          <p className="text-xs text-muted-foreground">
+            {isEditMode ? 'Update the program configuration below' : 'Complete all sections below to create your financial program'}
+          </p>
         </DialogHeader>
 
-        {currentStep === 'wizard' ? (
-          <>
-            {/* Page 1: Setup */}
-            <div className="space-y-4">
-              <div className="bg-muted/30 rounded-lg p-4 border-l-4 border-l-primary">
-                <h3 className="font-semibold text-sm text-foreground mb-1">Page 1: Program Setup</h3>
-                <p className="text-xs text-muted-foreground">Configure your financial program details</p>
+        <div className="space-y-3 py-2">
+          {/* Vehicle Selection */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Vehicle Selection</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label className="text-sm">Vehicle Styles * ({wizardData.vehicleStyleIds.length} selected)</Label>
+                  <div className="space-y-1 max-h-48 overflow-y-auto border rounded-lg p-2">
+                    {vehicleStyleOptions.map((style) => (
+                      <div key={style.id} className="flex items-start space-x-2">
+                        <Checkbox
+                          id={`vehicle-${style.id}`}
+                          checked={wizardData.vehicleStyleIds.includes(style.id)}
+                          onCheckedChange={(checked) => {
+                            const updated = checked
+                              ? [...wizardData.vehicleStyleIds, style.id]
+                              : wizardData.vehicleStyleIds.filter(id => id !== style.id);
+                            updateWizardData({ vehicleStyleIds: updated });
+                          }}
+                          className="mt-0.5 scale-75"
+                        />
+                        <Label htmlFor={`vehicle-${style.id}`} className="text-xs cursor-pointer flex-1 min-w-0">
+                          {style.label}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="vehicleCondition" className="text-sm">Vehicle Condition *</Label>
+                  <Select value={wizardData.vehicleCondition} onValueChange={(value) => updateWizardData({ vehicleCondition: value })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select condition" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {vehicleConditions.map((condition) => (
+                        <SelectItem key={condition.id} value={condition.id}>
+                          {condition.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
+            </CardContent>
+          </Card>
 
+          {/* Financial Product & Pricing */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Financial Product & Pricing</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
               <div className="space-y-3">
-                {/* Vehicle Selection */}
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-base">Vehicle Selection</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <div className="space-y-1">
-                        <Label className="text-sm">Vehicle Styles * ({wizardData.vehicleStyleIds.length} selected)</Label>
-                        <div className="space-y-1 max-h-48 overflow-y-auto border rounded-lg p-2">
-                          {vehicleStyleOptions.map((style) => (
-                            <div key={style.id} className="flex items-start space-x-2">
-                              <Checkbox
-                                id={`vehicle-${style.id}`}
-                                checked={wizardData.vehicleStyleIds.includes(style.id)}
-                                onCheckedChange={(checked) => {
-                                  const updated = checked
-                                    ? [...wizardData.vehicleStyleIds, style.id]
-                                    : wizardData.vehicleStyleIds.filter(id => id !== style.id);
-                                  updateWizardData({ vehicleStyleIds: updated });
-                                }}
-                                className="mt-0.5 scale-75"
-                              />
-                              <Label htmlFor={`vehicle-${style.id}`} className="text-xs cursor-pointer flex-1 min-w-0">
-                                {style.label}
-                              </Label>
-                            </div>
-                          ))}
-                        </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Financial Product *</Label>
+                  <RadioGroup
+                    value={wizardData.financialProduct}
+                    onValueChange={(value) => updateWizardData({ financialProduct: value })}
+                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2"
+                  >
+                    {financialProducts.map((product) => (
+                      <div key={product.id} className="flex items-start space-x-3 p-2 border rounded-lg hover:bg-accent/50 transition-colors h-10">
+                        <RadioGroupItem value={product.id} id={product.id} className="mt-0.5 scale-75" />
+                        <Label htmlFor={product.id} className="text-xs cursor-pointer flex-1 min-w-0">
+                          <div className="font-medium leading-tight">
+                            {product.productType}{product.productSubtype ? ` - ${product.productSubtype}` : ''}
+                          </div>
+                          <div className="text-[10px] text-muted-foreground">{product.geoCode} | {product.category}</div>
+                        </Label>
                       </div>
-                      <div className="space-y-1">
-                        <Label htmlFor="vehicleCondition" className="text-sm">Vehicle Condition *</Label>
-                        <Select value={wizardData.vehicleCondition} onValueChange={(value) => updateWizardData({ vehicleCondition: value })}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select condition" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {vehicleConditions.map((condition) => (
-                              <SelectItem key={condition.id} value={condition.id}>
-                                {condition.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                    ))}
+                  </RadioGroup>
+                </div>
 
-                {/* Financial Product & Pricing */}
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-base">Financial Product & Pricing</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-3">
-                      <div className="space-y-2">
-                        <Label className="text-sm font-medium">Financial Product *</Label>
-                        <RadioGroup
-                          value={wizardData.financialProduct}
-                          onValueChange={(value) => updateWizardData({ financialProduct: value })}
-                          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2"
-                        >
-                          {financialProducts.map((product) => (
-                            <div key={product.id} className="flex items-start space-x-3 p-2 border rounded-lg hover:bg-accent/50 transition-colors h-10">
-                              <RadioGroupItem value={product.id} id={product.id} className="mt-0.5 scale-75" />
-                              <Label htmlFor={product.id} className="text-xs cursor-pointer flex-1 min-w-0">
-                                <div className="font-medium leading-tight">
-                                  {product.productType}{product.productSubtype ? ` - ${product.productSubtype}` : ''}
-                                </div>
-                                <div className="text-[10px] text-muted-foreground">{product.geoCode} | {product.category}</div>
-                              </Label>
-                            </div>
-                          ))}
-                        </RadioGroup>
-                      </div>
+                <Separator />
 
-                      <Separator />
-
-                      <div className="space-y-2">
-                        <Label className="text-sm font-medium">Available Pricing Types *</Label>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
-                          {[...pricingTypes].sort((a, b) => a.typeName.localeCompare(b.typeName)).map((type) => (
-                            <div key={type.id} className="flex items-center space-x-2 p-2 border rounded-lg hover:bg-accent/50 transition-colors">
-                              <Checkbox
-                                id={`pricing-${type.id}`}
-                                checked={wizardData.pricingTypes.includes(type.id)}
-                                onCheckedChange={(checked) => {
-                                  const updated = checked
-                                    ? [...wizardData.pricingTypes, type.id]
-                                    : wizardData.pricingTypes.filter(id => id !== type.id);
-                                  updateWizardData({ pricingTypes: updated });
-                                }}
-                                className="scale-75"
-                              />
-                              <Label htmlFor={`pricing-${type.id}`} className="text-xs cursor-pointer flex-1">
-                                <div className="font-medium">{type.typeName}</div>
-                                <div className="text-[10px] text-muted-foreground">
-                                  Code: {type.typeCode}
-                                </div>
-                              </Label>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Configuration */}
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-base">Configuration</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-3">
-                      <div className="space-y-2">
-                        <Label className="text-sm font-medium">Credit Profiles * ({wizardData.creditProfiles.length} selected)</Label>
-                        <div className="space-y-2">
-                          {creditProfiles.map((profile) => (
-                            <div key={profile.id} className="flex items-center space-x-2 p-2 border rounded-lg hover:bg-accent/50 transition-colors">
-                              <Checkbox
-                                id={`credit-${profile.id}`}
-                                checked={wizardData.creditProfiles.includes(profile.id)}
-                                onCheckedChange={(checked) => {
-                                  const updated = checked
-                                    ? [...wizardData.creditProfiles, profile.id]
-                                    : wizardData.creditProfiles.filter(id => id !== profile.id);
-                                  updateWizardData({ creditProfiles: updated });
-                                }}
-                                className="scale-75"
-                              />
-                              <Label htmlFor={`credit-${profile.id}`} className="text-xs cursor-pointer flex-1">
-                                <div className="font-medium">Profile {profile.id}</div>
-                                <div className="text-[10px] text-muted-foreground">
-                                  Priority: {profile.priority} | Credit Score: {profile.minCreditScore || '–'}–{profile.maxCreditScore || '–'} | Income: {profile.minIncome ? `$${profile.minIncome}` : '–'}–{profile.maxIncome ? `$${profile.maxIncome}` : '–'} | Employment: {profile.employmentType || 'Any Employment'}
-                                </div>
-                              </Label>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      <Separator />
-
-                      <div className="space-y-2">
-                        <Label className="text-sm font-medium">Pricing Configurations * ({wizardData.pricingConfigs.length} selected)</Label>
-                        <div className="space-y-2">
-                          {pricingConfigs.map((config) => (
-                            <div key={config.id} className="flex items-center space-x-2 p-2 border rounded-lg hover:bg-accent/50 transition-colors">
-                              <Checkbox
-                                id={`config-${config.id}`}
-                                checked={wizardData.pricingConfigs.includes(config.id)}
-                                onCheckedChange={(checked) => {
-                                  const updated = checked
-                                    ? [...wizardData.pricingConfigs, config.id]
-                                    : wizardData.pricingConfigs.filter(id => id !== config.id);
-                                  updateWizardData({ pricingConfigs: updated });
-                                }}
-                                className="scale-75"
-                              />
-                              <Label htmlFor={`config-${config.id}`} className="text-xs cursor-pointer flex-1">
-                                <div className="font-medium">Config {config.id}</div>
-                                <div className="text-[10px] text-muted-foreground">
-                                  Priority: {config.priority} | LTV: {config.minLTV || '–'}–{config.maxLTV || '–'}% | Term: {config.minTerm || '–'}–{config.maxTerm || '–'} months
-                                </div>
-                              </Label>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Program Dates */}
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-base">Program Dates</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <div className="space-y-1">
-                        <Label htmlFor="startDate" className="text-sm">Program Start Date *</Label>
-                        <Input
-                          id="startDate"
-                          type="date"
-                          value={wizardData.programStartDate}
-                          onChange={(e) => updateWizardData({ programStartDate: e.target.value })}
-                          className="text-xs"
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Available Pricing Types *</Label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
+                    {[...pricingTypes].sort((a, b) => a.typeName.localeCompare(b.typeName)).map((type) => (
+                      <div key={type.typeCode} className="flex items-start space-x-3 p-2 border rounded-lg hover:bg-accent/50 transition-colors h-10">
+                        <Checkbox
+                          id={type.typeCode}
+                          checked={wizardData.pricingTypes.includes(type.typeCode)}
+                          onCheckedChange={(checked) => {
+                            const updated = checked
+                              ? [...wizardData.pricingTypes, type.typeCode]
+                              : wizardData.pricingTypes.filter(code => code !== type.typeCode);
+                            updateWizardData({ pricingTypes: updated });
+                          }}
+                          className="mt-0.5 scale-75"
                         />
+                        <Label htmlFor={type.typeCode} className="text-xs cursor-pointer flex-1 min-w-0">
+                          <div className="font-medium leading-tight">{type.typeName}</div>
+                          <div className="text-[10px] text-muted-foreground">{type.typeCode}</div>
+                        </Label>
                       </div>
-                      <div className="space-y-1">
-                        <Label htmlFor="endDate" className="text-sm">Program End Date *</Label>
-                        <Input
-                          id="endDate"
-                          type="date"
-                          value={wizardData.programEndDate}
-                          onChange={(e) => updateWizardData({ programEndDate: e.target.value })}
-                          className="text-xs"
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Configuration */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Configuration</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label className="font-medium text-sm">Credit Profiles *</Label>
+                  <div className="space-y-1 max-h-64 overflow-y-auto border rounded-lg p-2">
+                    {creditProfiles.map((profile) => (
+                      <div key={profile.id} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`credit-${profile.id}`}
+                          checked={wizardData.creditProfiles.includes(profile.id)}
+                          onCheckedChange={(checked) => {
+                            const updated = checked
+                              ? [...wizardData.creditProfiles, profile.id]
+                              : wizardData.creditProfiles.filter(id => id !== profile.id);
+                            updateWizardData({ creditProfiles: updated });
+                          }}
                         />
+                        <Label htmlFor={`credit-${profile.id}`} className="text-sm cursor-pointer">
+                          {profile.id}
+                          <div className="text-xs text-muted-foreground flex flex-wrap gap-x-4 gap-y-1 mt-1">
+                            <span>Priority: {profile.priority}</span>
+                            <span>Credit Score: {profile.minCreditScore} - {profile.maxCreditScore}</span>
+                            <span>Income: ${profile.minIncome?.toLocaleString()} - ${profile.maxIncome?.toLocaleString()}</span>
+                            <span>Employment: {profile.employmentType}</span>
+                          </div>
+                        </Label>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                    ))}
+                  </div>
+                </div>
 
-                {/* Lenders & Geography */}
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-base">Lenders & Geography</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-3">
-                      <div className="space-y-2">
-                        <Label className="font-medium text-sm">Lenders * ({wizardData.lenders.length} selected)</Label>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 max-h-32 overflow-y-auto">
-                          {lenders.map((lender) => (
-                            <div key={lender.id} className="flex items-start space-x-2 p-2 border rounded-lg hover:bg-accent/50 transition-colors">
-                              <Checkbox
-                                id={`lender-${lender.id}`}
-                                checked={wizardData.lenders.includes(lender.id)}
-                                onCheckedChange={(checked) => {
-                                  const updated = checked
-                                    ? [...wizardData.lenders, lender.id]
-                                    : wizardData.lenders.filter(id => id !== lender.id);
-                                  updateWizardData({ lenders: updated });
-                                }}
-                                className="mt-0.5 scale-75"
-                              />
-                              <Label htmlFor={`lender-${lender.id}`} className="text-sm cursor-pointer">
-                                {lender.id}
-                                <div className="text-xs text-muted-foreground">{lender.name}</div>
-                              </Label>
-                            </div>
-                          ))}
-                        </div>
+                <div className="space-y-2">
+                  <Label className="font-medium text-sm">Pricing Configurations *</Label>
+                  <div className="space-y-1 max-h-64 overflow-y-auto border rounded-lg p-2">
+                    {pricingConfigs.map((config) => (
+                      <div key={config.id} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`pricing-${config.id}`}
+                          checked={wizardData.pricingConfigs.includes(config.id)}
+                          onCheckedChange={(checked) => {
+                            const updated = checked
+                              ? [...wizardData.pricingConfigs, config.id]
+                              : wizardData.pricingConfigs.filter(id => id !== config.id);
+                            updateWizardData({ pricingConfigs: updated });
+                          }}
+                        />
+                        <Label htmlFor={`pricing-${config.id}`} className="text-sm cursor-pointer">
+                          {config.id}
+                          <div className="text-xs text-muted-foreground flex flex-wrap gap-x-4 gap-y-1 mt-1">
+                            <span>Priority: {config.priority}</span>
+                            <span>LTV: {config.minLTV}% - {config.maxLTV}%</span>
+                            <span>Term: {config.minTerm} - {config.maxTerm} months</span>
+                          </div>
+                        </Label>
                       </div>
-
-                      <div className="space-y-2">
-                        <Label className="font-medium text-sm">Geographic Regions *</Label>
-                        <div className="space-y-1 max-h-40 overflow-y-auto border rounded-lg p-2">
-                          {geos.map((geo) => (
-                            <div key={geo.id} className="flex items-center space-x-2">
-                              <Checkbox
-                                id={`geo-${geo.id}`}
-                                checked={wizardData.geoCodes.includes(geo.id)}
-                                onCheckedChange={(checked) => {
-                                  const updated = checked
-                                    ? [...wizardData.geoCodes, geo.id]
-                                    : wizardData.geoCodes.filter(id => id !== geo.id);
-                                  updateWizardData({ geoCodes: updated });
-                                }}
-                              />
-                              <Label htmlFor={`geo-${geo.id}`} className="text-sm cursor-pointer">
-                                {geo.id}
-                                <div className="text-xs text-muted-foreground">{geo.name}</div>
-                              </Label>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                    ))}
+                  </div>
+                </div>
               </div>
-            </div>
+            </CardContent>
+          </Card>
 
-            {/* Page 1 Navigation */}
-            <div className="flex justify-between items-center pt-4 border-t">
-              <div className="text-xs text-muted-foreground">
-                {isFormValid() ? "✓ All required fields completed" : "Complete all required fields to continue"}
+          {/* Program Dates */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Program Dates</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label htmlFor="startDate" className="text-sm">Program Start Date *</Label>
+                  <Input
+                    id="startDate"
+                    type="date"
+                    value={wizardData.programStartDate}
+                    onChange={(e) => updateWizardData({ programStartDate: e.target.value })}
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <Label htmlFor="endDate" className="text-sm">Program End Date *</Label>
+                  <Input
+                    id="endDate"
+                    type="date"
+                    value={wizardData.programEndDate}
+                    onChange={(e) => updateWizardData({ programEndDate: e.target.value })}
+                  />
+                </div>
               </div>
-              <Button onClick={handleNext} disabled={!isFormValid()}>
-                Create Financial Program →
-              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Lenders & Geography */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Lenders & Geography</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="font-medium text-sm">Lenders *</Label>
+                  <div className="space-y-1 max-h-40 overflow-y-auto border rounded-lg p-2">
+                    {lenders.map((lender) => (
+                      <div key={lender.id} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`lender-${lender.id}`}
+                          checked={wizardData.lenders.includes(lender.id)}
+                          onCheckedChange={(checked) => {
+                            const updated = checked
+                              ? [...wizardData.lenders, lender.id]
+                              : wizardData.lenders.filter(id => id !== lender.id);
+                            updateWizardData({ lenders: updated });
+                          }}
+                        />
+                        <Label htmlFor={`lender-${lender.id}`} className="text-sm cursor-pointer">
+                          {lender.id}
+                          <div className="text-xs text-muted-foreground">{lender.name}</div>
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="font-medium text-sm">Geographic Regions *</Label>
+                  <div className="space-y-1 max-h-40 overflow-y-auto border rounded-lg p-2">
+                    {geos.map((geo) => (
+                      <div key={geo.id} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`geo-${geo.id}`}
+                          checked={wizardData.geoCodes.includes(geo.id)}
+                          onCheckedChange={(checked) => {
+                            const updated = checked
+                              ? [...wizardData.geoCodes, geo.id]
+                              : wizardData.geoCodes.filter(id => id !== geo.id);
+                            updateWizardData({ geoCodes: updated });
+                          }}
+                        />
+                        <Label htmlFor={`geo-${geo.id}`} className="text-sm cursor-pointer">
+                          {geo.id}
+                          <div className="text-xs text-muted-foreground">{geo.name}</div>
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {currentStep === 'wizard' ? (
+          <div className="flex justify-between items-center pt-2 border-t">
+            <div className="text-xs text-muted-foreground">
+              {isFormValid() ? "✓ All required fields completed" : "Complete all required fields to continue"}
             </div>
-          </>
+            <Button onClick={handleNext} disabled={!isFormValid()}>
+              Next: Review Programs
+            </Button>
+          </div>
         ) : (
           <>
-            {/* Page 2: Confirmation */}
-            <div className="space-y-4">
-              <div className="bg-muted/30 rounded-lg p-4 border-l-4 border-l-primary">
-                <h3 className="font-semibold text-sm text-foreground mb-1">Page 2: Confirmation</h3>
-                <p className="text-xs text-muted-foreground">Review your program configuration and create the programs</p>
-              </div>
-
-              <ConfirmationStep 
-                data={wizardData}
-                vehicleStyleOptions={vehicleStyleOptions}
-                financialProducts={financialProducts}
-                programPreviews={programPreviews}
-              />
-            </div>
-
-            {/* Page 2 Navigation */}
-            <div className="flex justify-between items-center pt-4 border-t">
+            <ConfirmationStep 
+              data={wizardData}
+              vehicleStyleOptions={vehicleStyleOptions}
+              financialProducts={financialProducts}
+              programPreviews={programPreviews}
+            />
+            <div className="flex justify-between items-center pt-2 border-t">
               <Button variant="outline" onClick={handleBack}>
-                ← Back to Edit
+                Back to Edit
               </Button>
               <Button onClick={handleCreatePrograms}>
                 Create {wizardData.vehicleStyleIds.length} Program{wizardData.vehicleStyleIds.length > 1 ? 's' : ''}
