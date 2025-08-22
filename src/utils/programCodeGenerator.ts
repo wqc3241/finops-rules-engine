@@ -78,9 +78,18 @@ export const generateProgramCode = (
   // Model year is now included in styleToken, so we don't need it separately
   
   // Get date codes from program start date
-  const startDate = new Date(params.programStartDate);
+  // Parse date in YYYY-MM-DD format and ensure consistent timezone handling
+  const startDate = new Date(params.programStartDate + 'T00:00:00');
+  console.log('Program start date input:', params.programStartDate);
+  console.log('Parsed start date:', startDate);
+  console.log('Month (0-indexed):', startDate.getMonth());
+  console.log('Month (1-indexed):', startDate.getMonth() + 1);
+  
   const monthCode = String(startDate.getMonth() + 1).padStart(2, '0');
   const yearCode = startDate.getFullYear().toString().slice(-2);
+  
+  console.log('Generated month code:', monthCode);
+  console.log('Generated year code:', yearCode);
   
   // Build base code without version
   const baseCode = `${conditionCode}${productCode}_${styleToken}_${monthCode}${yearCode}`;
