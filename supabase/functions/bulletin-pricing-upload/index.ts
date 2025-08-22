@@ -13,6 +13,11 @@ const supabase = createClient(
   Deno.env.get('SUPABASE_ANON_KEY') ?? '',
 );
 
+const adminSupabase = createClient(
+  Deno.env.get('SUPABASE_URL') ?? '',
+  Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+);
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -93,7 +98,7 @@ serve(async (req) => {
     }
 
     // Create upload session
-    const { data: session, error: sessionError } = await supabase
+    const { data: session, error: sessionError } = await adminSupabase
       .from('bulletin_upload_sessions')
       .insert({
         filename: file.name,
@@ -159,7 +164,7 @@ serve(async (req) => {
       
       // Insert valid records with pending approval status
       if (bulletinRecords.length > 0) {
-        const { error: insertError } = await supabase
+        const { error: insertError } = await adminSupabase
           .from('bulletin_pricing')
           .insert(bulletinRecords);
 
@@ -367,7 +372,7 @@ async function parseWorkbookData(workbook: any, programCode: string, sessionId: 
 }
 
 async function logError(sessionId: string, sheetName: string, rowNumber: number | null, columnName: string | null, errorType: string, errorMessage: string, fieldValue?: string) {
-  await supabase
+  await adminSupabase
     .from('bulletin_upload_errors')
     .insert({
       session_id: sessionId,
@@ -395,7 +400,7 @@ async function updateSessionStatus(sessionId: string, uploadStatus: string, vali
     updates.validation_completed_at = new Date().toISOString();
   }
 
-  await supabase
+  await adminSupabase
     .from('bulletin_upload_sessions')
     .update(updates)
     .eq('id', sessionId);
