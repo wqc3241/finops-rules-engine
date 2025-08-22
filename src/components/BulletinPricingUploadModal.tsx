@@ -1,11 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Upload, FileText, AlertCircle, CheckCircle, X } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
+import { Upload, FileText, AlertCircle, CheckCircle, X, ChevronDown, ChevronRight, Search } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -16,11 +19,14 @@ interface BulletinPricingUploadModalProps {
 }
 
 interface UploadError {
+  id: string;
   sheet_name: string;
   row_number?: number;
   column_name?: string;
   error_type: string;
   error_message: string;
+  field_value?: string;
+  created_at: string;
 }
 
 interface UploadResult {
@@ -42,6 +48,10 @@ const BulletinPricingUploadModal = ({
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadResult, setUploadResult] = useState<UploadResult | null>(null);
+  const [detailedErrors, setDetailedErrors] = useState<UploadError[]>([]);
+  const [isLoadingErrors, setIsLoadingErrors] = useState(false);
+  const [showErrorDetails, setShowErrorDetails] = useState(false);
+  const [errorSearchTerm, setErrorSearchTerm] = useState("");
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -122,6 +132,10 @@ const BulletinPricingUploadModal = ({
         onUploadComplete?.();
       } else {
         toast.error(data.message);
+        // Fetch detailed errors if validation failed
+        if (data.sessionId && data.invalidRecords > 0) {
+          fetchDetailedErrors(data.sessionId);
+        }
       }
 
     } catch (error) {
@@ -140,10 +154,35 @@ const BulletinPricingUploadModal = ({
     }
   };
 
+  const fetchDetailedErrors = async (sessionId: string) => {
+    setIsLoadingErrors(true);
+    try {
+      const { data: errors } = await supabase
+        .from('bulletin_upload_errors')
+        .select('*')
+        .eq('session_id', sessionId)
+        .order('sheet_name', { ascending: true })
+        .order('row_number', { ascending: true });
+
+      if (errors) {
+        setDetailedErrors(errors);
+        setShowErrorDetails(true);
+      }
+    } catch (error) {
+      console.error('Error fetching detailed errors:', error);
+      toast.error("Failed to load error details");
+    } finally {
+      setIsLoadingErrors(false);
+    }
+  };
+
   const handleClose = () => {
     setSelectedFile(null);
     setUploadProgress(0);
     setUploadResult(null);
+    setDetailedErrors([]);
+    setShowErrorDetails(false);
+    setErrorSearchTerm("");
     setIsUploading(false);
     onClose();
   };
@@ -285,13 +324,41 @@ const BulletinPricingUploadModal = ({
               </Alert>
 
               {!uploadResult.success && uploadResult.invalidRecords > 0 && (
-                <Button
-                  variant="outline"
-                  onClick={downloadErrorReport}
-                  className="w-full"
-                >
-                  Download Error Report
-                </Button>
+                <div className="space-y-4">
+                  {/* Error Details Section */}
+                  <Collapsible open={showErrorDetails} onOpenChange={setShowErrorDetails}>
+                    <CollapsibleTrigger asChild>
+                      <Button variant="outline" className="w-full justify-between">
+                        <span className="flex items-center gap-2">
+                          <AlertCircle className="h-4 w-4" />
+                          View Error Details ({detailedErrors.length} errors)
+                        </span>
+                        {showErrorDetails ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                      </Button>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="space-y-4 mt-4">
+                      {isLoadingErrors ? (
+                        <div className="text-center py-4 text-muted-foreground">
+                          Loading error details...
+                        </div>
+                      ) : (
+                        <ErrorDetailsDisplay 
+                          errors={detailedErrors} 
+                          searchTerm={errorSearchTerm}
+                          onSearchChange={setErrorSearchTerm}
+                        />
+                      )}
+                    </CollapsibleContent>
+                  </Collapsible>
+
+                  <Button
+                    variant="outline"
+                    onClick={downloadErrorReport}
+                    className="w-full"
+                  >
+                    Download Error Report (CSV)
+                  </Button>
+                </div>
               )}
             </div>
           )}
@@ -311,6 +378,130 @@ const BulletinPricingUploadModal = ({
         </div>
       </DialogContent>
     </Dialog>
+  );
+};
+
+// Error Details Display Component
+interface ErrorDetailsDisplayProps {
+  errors: UploadError[];
+  searchTerm: string;
+  onSearchChange: (term: string) => void;
+}
+
+const ErrorDetailsDisplay = ({ errors, searchTerm, onSearchChange }: ErrorDetailsDisplayProps) => {
+  // Filter errors based on search term
+  const filteredErrors = errors.filter(error => 
+    error.error_message.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    error.sheet_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    error.error_type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (error.column_name?.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (error.field_value?.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
+  // Group errors by type for summary
+  const errorsByType = filteredErrors.reduce((acc, error) => {
+    acc[error.error_type] = (acc[error.error_type] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  // Group errors by sheet for display
+  const errorsBySheet = filteredErrors.reduce((acc, error) => {
+    if (!acc[error.sheet_name]) {
+      acc[error.sheet_name] = [];
+    }
+    acc[error.sheet_name].push(error);
+    return acc;
+  }, {} as Record<string, UploadError[]>);
+
+  const getErrorTypeColor = (errorType: string) => {
+    switch (errorType.toUpperCase()) {
+      case 'INVALID_CREDIT_PROFILE':
+        return 'destructive';
+      case 'INVALID_PRICING_CONFIG':
+        return 'destructive';
+      case 'INVALID_PRICING_VALUE':
+        return 'secondary';
+      case 'PROGRAM_NOT_FOUND':
+        return 'destructive';
+      default:
+        return 'outline';
+    }
+  };
+
+  return (
+    <div className="space-y-4 border rounded-lg p-4 bg-muted/20">
+      {/* Search and Summary */}
+      <div className="space-y-3">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search errors by message, sheet, column, or value..."
+            value={searchTerm}
+            onChange={(e) => onSearchChange(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+        
+        {/* Error Type Summary */}
+        <div className="flex flex-wrap gap-2">
+          {Object.entries(errorsByType).map(([type, count]) => (
+            <Badge key={type} variant={getErrorTypeColor(type)} className="text-xs">
+              {type.replace(/_/g, ' ')}: {count}
+            </Badge>
+          ))}
+        </div>
+        
+        <div className="text-sm text-muted-foreground">
+          Showing {filteredErrors.length} of {errors.length} errors
+        </div>
+      </div>
+
+      {/* Error List */}
+      <ScrollArea className="h-64 w-full">
+        <div className="space-y-4">
+          {Object.entries(errorsBySheet).map(([sheetName, sheetErrors]) => (
+            <div key={sheetName} className="space-y-2">
+              <h4 className="font-medium text-sm bg-muted px-2 py-1 rounded">
+                Sheet: {sheetName} ({sheetErrors.length} errors)
+              </h4>
+              <div className="space-y-2">
+                {sheetErrors.map((error) => (
+                  <div 
+                    key={error.id} 
+                    className="border rounded p-3 bg-background space-y-2 text-sm"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <Badge variant={getErrorTypeColor(error.error_type)} className="text-xs">
+                        {error.error_type.replace(/_/g, ' ')}
+                      </Badge>
+                      {error.row_number && (
+                        <span className="text-xs text-muted-foreground">
+                          Row {error.row_number}
+                          {error.column_name && `, Column ${error.column_name}`}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-foreground">{error.error_message}</p>
+                    {error.field_value && (
+                      <div className="text-xs">
+                        <span className="text-muted-foreground">Value: </span>
+                        <span className="font-mono bg-muted px-1 rounded">{error.field_value}</span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </ScrollArea>
+
+      {filteredErrors.length === 0 && searchTerm && (
+        <div className="text-center py-4 text-muted-foreground">
+          No errors match your search criteria.
+        </div>
+      )}
+    </div>
   );
 };
 
