@@ -91,16 +91,29 @@ const BulletinPricingUploadModal = ({
         setUploadProgress(prev => Math.min(prev + 10, 90));
       }, 200);
 
-      const { data, error } = await supabase.functions.invoke('bulletin-pricing-upload', {
+      // Use direct fetch instead of supabase.functions.invoke for FormData
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('Authentication required');
+      }
+
+      const response = await fetch(`https://izxgyxqpgpcqvyzlwcgl.supabase.co/functions/v1/bulletin-pricing-upload`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+        },
         body: formData,
       });
 
       clearInterval(progressInterval);
       setUploadProgress(100);
 
-      if (error) {
-        throw new Error(error.message || 'Upload failed');
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || `HTTP ${response.status}`);
       }
+
+      const data = await response.json();
 
       setUploadResult(data);
 
