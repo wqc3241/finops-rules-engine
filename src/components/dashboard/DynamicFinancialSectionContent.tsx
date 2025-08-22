@@ -1,5 +1,6 @@
 
 import DynamicTable from "@/components/dynamic-table/DynamicTable";
+import FinancialProgramConfigTable from "@/components/FinancialProgramConfigTable";
 import { DynamicTableSchema, TableData } from "@/types/dynamicTable";
 
 interface DynamicFinancialSectionContentProps {
@@ -31,6 +32,20 @@ const DynamicFinancialSectionContent = ({
   onPageChange
 }: DynamicFinancialSectionContentProps) => {
 /*   console.log('Rendering component with data:', data, 'schema:', schema); */
+
+  // For financial program config, use the specific table component
+  if (schema.id === 'financial-program-config') {
+    return (
+      <div className="mt-4 overflow-x-auto">
+        <FinancialProgramConfigTable 
+          onEditProgram={onEditRow ? (id: string) => {
+            const rowData = data.find(row => row.id === id);
+            if (rowData) onEditRow(id, rowData);
+          } : undefined}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="mt-4 overflow-x-auto">
