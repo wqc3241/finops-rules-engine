@@ -61,8 +61,8 @@ serve(async (req) => {
       );
     }
 
-    const programCode = firstSheetName.substring(0, lastUnderscoreIndex);
-    const pricingType = firstSheetName.substring(lastUnderscoreIndex + 1);
+    const programCode = firstSheetName.substring(0, lastUnderscoreIndex).trim();
+    const pricingType = firstSheetName.substring(lastUnderscoreIndex + 1).trim();
     console.log(`Extracted program code: ${programCode}, pricing type: ${pricingType}`);
     
     // Validate all sheets use the same program code (everything before the last underscore)
@@ -120,12 +120,16 @@ serve(async (req) => {
 
     // Excel file already parsed above for program code extraction
 
-    // Get program configuration
+    // Get program configuration (pick the most recent if multiple exist)
     const { data: programConfig, error: configError } = await supabase
       .from('financial_program_configs')
-      .select('*')
-      .eq('program_code', programCode)
-      .single();
+      .select('id, program_code, created_at, is_active, program_start_date, program_end_date')
+      .eq('program_code', programCode.trim())
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    console.log('Program lookup result:', { programCode, found: !!programConfig, error: configError?.message });
 
     if (configError || !programConfig) {
       await logError(session.id, 'General', null, null, 'PROGRAM_NOT_FOUND', `Program code ${programCode} not found`);
