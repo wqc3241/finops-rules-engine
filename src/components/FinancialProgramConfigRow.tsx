@@ -4,7 +4,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import FinancialProgramConfigActions from "./FinancialProgramConfigActions";
+import TableRowActions from "@/components/dynamic-table/TableRowActions";
 import { useFinancialProducts } from "@/hooks/useFinancialProducts";
 import { useVehicleStyles } from "@/hooks/useVehicleStyles";
 import { useVehicleConditions } from "@/hooks/useVehicleConditions";
@@ -147,10 +147,10 @@ const FinancialProgramConfigRow = ({
         )}
       </TableCell>
       <TableCell>
-        <FinancialProgramConfigActions
-          programId={program.id}
+        <TableRowActions
+          rowId={program.id}
           programCode={program.programCode}
-          onEdit={onEdit}
+          onEdit={() => onEdit(program.id)}
           onCopy={onCopy}
           onDelete={onDelete}
         />
