@@ -62,15 +62,16 @@ const FinancialProgramConfigActions = ({
     }
   };
   return (
-    <div className="text-right space-x-2">
+    <div className="text-right space-x-1">
       <Button 
-        variant="ghost" 
-        size="icon"
+        variant="outline" 
+        size="sm"
         onClick={handleDownloadTemplate}
-        className="h-8 w-8"
+        className="h-8 px-2 text-xs"
         title="Download Template"
       >
-        <Download className="h-4 w-4" />
+        <Download className="h-3 w-3 mr-1" />
+        Template
       </Button>
       <Button 
         variant="ghost" 
@@ -79,7 +80,7 @@ const FinancialProgramConfigActions = ({
         className="h-8 w-8"
         title="Edit"
       >
-        <Pencil className="h-4 w-4" />
+        <Pencil className="h-3 w-3" />
       </Button>
       <Button 
         variant="ghost" 
@@ -88,7 +89,7 @@ const FinancialProgramConfigActions = ({
         className="h-8 w-8"
         title="Duplicate"
       >
-        <Copy className="h-4 w-4" />
+        <Copy className="h-3 w-3" />
       </Button>
       <Button 
         variant="ghost" 
@@ -97,7 +98,7 @@ const FinancialProgramConfigActions = ({
         className="h-8 w-8 text-destructive"
         title="Delete"
       >
-        <Trash2 className="h-4 w-4" />
+        <Trash2 className="h-3 w-3" />
       </Button>
     </div>
   );

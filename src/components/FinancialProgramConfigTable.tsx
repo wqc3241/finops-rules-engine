@@ -20,6 +20,7 @@ interface FinancialProgramConfig {
   isActive: boolean;
   orderTypes: string;
   version: number;
+  templateMetadata: Record<string, any>;
   created?: string;
   updated?: string;
 }
@@ -39,6 +40,7 @@ const initialFinancialProgramConfigs: FinancialProgramConfig[] = [
     isActive: true,
     orderTypes: "INV, CON",
     version: 1,
+    templateMetadata: { pricingTypes: ["RATE", "MARKUP"], creditProfiles: ["PROFILE1", "PROFILE2"] },
   },
   {
     id: "FPC02",
@@ -54,6 +56,7 @@ const initialFinancialProgramConfigs: FinancialProgramConfig[] = [
     isActive: true,
     orderTypes: "INV, CON",
     version: 1,
+    templateMetadata: {},
   },
   {
     id: "FPKSA01",
@@ -69,6 +72,7 @@ const initialFinancialProgramConfigs: FinancialProgramConfig[] = [
     isActive: true,
     orderTypes: "INV, CON",
     version: 1,
+    templateMetadata: { pricingTypes: ["RATE"], geoCodes: ["US", "CA"] },
   },
   {
     id: "FPKSA02",
@@ -84,6 +88,7 @@ const initialFinancialProgramConfigs: FinancialProgramConfig[] = [
     isActive: true,
     orderTypes: "INV, CON",
     version: 1,
+    templateMetadata: { pricingTypes: ["MARKUP", "DISCOUNT"], creditProfiles: ["PROFILE3"] },
   },
   {
     id: "FPKSA03",
@@ -99,6 +104,7 @@ const initialFinancialProgramConfigs: FinancialProgramConfig[] = [
     isActive: true,
     orderTypes: "INV, CON",
     version: 1,
+    templateMetadata: {},
   }
 ];
 
@@ -209,6 +215,7 @@ const FinancialProgramConfigTable = ({ onEditProgram }: FinancialProgramConfigTa
             <TableHead>Status</TableHead>
             <TableHead>Order Types</TableHead>
             <TableHead>Version</TableHead>
+            <TableHead>Template Metadata</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>

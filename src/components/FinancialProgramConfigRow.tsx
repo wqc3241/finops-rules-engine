@@ -23,6 +23,7 @@ interface FinancialProgramConfig {
   isActive: boolean;
   orderTypes: string;
   version: number;
+  templateMetadata: Record<string, any>;
   created?: string;
   updated?: string;
 }
@@ -132,6 +133,19 @@ const FinancialProgramConfigRow = ({
       </TableCell>
       <TableCell>{program.orderTypes}</TableCell>
       <TableCell>{program.version}</TableCell>
+      <TableCell>
+        {Object.keys(program.templateMetadata).length > 0 ? (
+          <div className="text-xs space-y-1">
+            {Object.entries(program.templateMetadata).map(([key, value]) => (
+              <div key={key} className="bg-muted/50 px-2 py-1 rounded">
+                <span className="font-medium">{key}:</span> {Array.isArray(value) ? value.join(", ") : String(value)}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <span className="text-muted-foreground text-xs">Empty</span>
+        )}
+      </TableCell>
       <TableCell>
         <FinancialProgramConfigActions
           programId={program.id}
