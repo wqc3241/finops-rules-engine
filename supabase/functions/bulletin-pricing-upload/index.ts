@@ -42,28 +42,32 @@ serve(async (req) => {
       );
     }
 
-    // Extract program code from first sheet name (format: PROGRAMCODE_PRICINGTYPE)
+    // Extract program code from first sheet name (format: PROGRAM_CODE_SEGMENTS_PRICINGTYPE)
     const firstSheetName = workbook.SheetNames[0];
     console.log(`First sheet name: ${firstSheetName}`);
     
-    const underscoreIndex = firstSheetName.indexOf('_');
-    console.log(`Underscore index: ${underscoreIndex}`);
+    const lastUnderscoreIndex = firstSheetName.lastIndexOf('_');
+    console.log(`Last underscore index: ${lastUnderscoreIndex}`);
     
-    if (underscoreIndex === -1) {
+    if (lastUnderscoreIndex === -1) {
       return new Response(
-        JSON.stringify({ error: `Sheet names must follow format: PROGRAMCODE_PRICINGTYPE. Found sheet: ${firstSheetName}` }),
+        JSON.stringify({ error: `Sheet names must follow format: PROGRAM_CODE_PRICINGTYPE. Found sheet: ${firstSheetName}` }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    const programCode = firstSheetName.substring(0, underscoreIndex);
-    console.log(`Extracted program code: ${programCode}`);
+    const programCode = firstSheetName.substring(0, lastUnderscoreIndex);
+    const pricingType = firstSheetName.substring(lastUnderscoreIndex + 1);
+    console.log(`Extracted program code: ${programCode}, pricing type: ${pricingType}`);
     
-    // Validate all sheets use the same program code
+    // Validate all sheets use the same program code (everything before the last underscore)
     for (const sheetName of workbook.SheetNames) {
-      if (!sheetName.startsWith(`${programCode}_`)) {
+      const lastUnderscore = sheetName.lastIndexOf('_');
+      const sheetProgramCode = lastUnderscore > -1 ? sheetName.substring(0, lastUnderscore) : sheetName;
+      
+      if (sheetProgramCode !== programCode) {
         return new Response(
-          JSON.stringify({ error: `All sheet names must start with the same program code: ${programCode}` }),
+          JSON.stringify({ error: `All sheet names must use the same program code. Expected: ${programCode}, Found: ${sheetProgramCode} in sheet: ${sheetName}` }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
@@ -220,15 +224,22 @@ async function validateWorkbook(workbook: any, sessionId: string, programCode: s
   for (const sheetName of workbook.SheetNames) {
     const worksheet = workbook.Sheets[sheetName];
     
-    // Validate tab naming convention: {Program Code}_{Pricing Type}
-    const expectedPrefix = `${programCode}_`;
-    if (!sheetName.startsWith(expectedPrefix)) {
-      await logError(sessionId, sheetName, null, null, 'TAB_NAMING', `Tab name should start with ${expectedPrefix}`);
+    // Validate tab naming convention: {Program Code}_{Pricing Type} where pricing type is after last underscore
+    const lastUnderscoreIndex = sheetName.lastIndexOf('_');
+    if (lastUnderscoreIndex === -1) {
+      await logError(sessionId, sheetName, null, null, 'TAB_NAMING', `Tab name should follow format PROGRAM_CODE_PRICINGTYPE`);
       invalidRecords++;
       continue;
     }
 
-    const pricingType = sheetName.substring(expectedPrefix.length);
+    const sheetProgramCode = sheetName.substring(0, lastUnderscoreIndex);
+    const pricingType = sheetName.substring(lastUnderscoreIndex + 1);
+    
+    if (sheetProgramCode !== programCode) {
+      await logError(sessionId, sheetName, null, null, 'TAB_NAMING', `Tab program code ${sheetProgramCode} does not match expected ${programCode}`);
+      invalidRecords++;
+      continue;
+    }
     if (!validPricingTypes.includes(pricingType)) {
       await logError(sessionId, sheetName, null, null, 'INVALID_PRICING_TYPE', `Pricing type ${pricingType} not found in system`);
       invalidRecords++;
@@ -317,7 +328,8 @@ async function parseWorkbookData(workbook: any, programCode: string, sessionId: 
     
     if (data.length < 4) continue;
 
-    const pricingType = sheetName.substring(`${programCode}_`.length);
+    const lastUnderscoreIndex = sheetName.lastIndexOf('_');
+    const pricingType = sheetName.substring(lastUnderscoreIndex + 1);
     const creditProfileRow = data[1] as any[];
     const pricingConfigRow = data[2] as any[];
 
