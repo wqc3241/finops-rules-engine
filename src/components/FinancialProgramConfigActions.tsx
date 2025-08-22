@@ -62,16 +62,16 @@ const FinancialProgramConfigActions = ({
     }
   };
   return (
-    <div className="text-right space-x-1">
+    <div className="flex items-center gap-1 justify-end min-w-max">
       <Button 
-        variant="outline" 
+        variant="default" 
         size="sm"
         onClick={handleDownloadTemplate}
-        className="h-8 px-2 text-xs"
+        className="h-8 px-3 text-xs bg-blue-600 hover:bg-blue-700 text-white"
         title="Download Template"
       >
         <Download className="h-3 w-3 mr-1" />
-        Template
+        Download
       </Button>
       <Button 
         variant="ghost" 
