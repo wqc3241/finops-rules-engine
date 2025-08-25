@@ -63,13 +63,13 @@ const TableRowActions = ({
     }
   };
   return (
-    <div className="flex justify-end space-x-2">
+    <div className="flex justify-end space-x-1 min-w-fit">
       {programCode && (
         <Button 
           variant="outline" 
           size="sm"
           onClick={handleDownloadTemplate}
-          className="h-8 px-3 text-xs"
+          className="h-8 px-2 text-xs shrink-0"
           title="Download Template"
         >
           <Download className="h-3 w-3 mr-1" />
@@ -80,6 +80,7 @@ const TableRowActions = ({
         variant="ghost"
         size="icon"
         onClick={onEdit}
+        className="h-8 w-8 shrink-0"
       >
         <Edit className="h-4 w-4" />
       </Button>
@@ -87,6 +88,7 @@ const TableRowActions = ({
         variant="ghost"
         size="icon"
         onClick={() => onCopy(rowId)}
+        className="h-8 w-8 shrink-0"
       >
         <Copy className="h-4 w-4" />
       </Button>
@@ -94,7 +96,7 @@ const TableRowActions = ({
         variant="ghost"
         size="icon"
         onClick={() => onDelete(rowId)}
-        className="text-destructive"
+        className="text-destructive h-8 w-8 shrink-0"
       >
         <Trash2 className="h-4 w-4" />
       </Button>

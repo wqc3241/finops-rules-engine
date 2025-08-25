@@ -265,7 +265,7 @@ const DynamicTable = ({
                     />
                   </TableCell>
                 ))}
-                <TableCell className="text-right">
+                <TableCell className="text-right w-48 min-w-48">
                   <TableRowActions
                     rowId={(row as any)[primaryKey]}
                     programCode={(row as any).programCode}

@@ -70,7 +70,7 @@ const TableHeaderComponent = ({
           )}
         </TableHead>
       ))}
-      <TableHead className="text-right">Actions</TableHead>
+      <TableHead className="text-right w-48 min-w-48">Actions</TableHead>
     </>
   );
 };
