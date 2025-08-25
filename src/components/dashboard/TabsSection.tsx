@@ -29,6 +29,7 @@ const TabsSection = ({
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [showBatchOperations, setShowBatchOperations] = useState(false);
   const [batchDeleteCallback, setBatchDeleteCallback] = useState<(() => void) | null>(null);
+  const [batchDuplicateCallback, setBatchDuplicateCallback] = useState<(() => void) | null>(null);
   
   const handleSelectionChange = (items: string[]) => {
     setSelectedItems(items);
@@ -49,8 +50,21 @@ const TabsSection = ({
     setShowBatchOperations(false);
   };
 
+  const handleBatchDuplicate = () => {
+    if (batchDuplicateCallback) {
+      batchDuplicateCallback();
+      toast.success(`${selectedItems.length} items duplicated successfully`);
+    }
+    setSelectedItems([]);
+    setShowBatchOperations(false);
+  };
+
   const handleSetBatchDeleteCallback = (callback: () => void) => {
     setBatchDeleteCallback(() => callback);
+  };
+
+  const handleSetBatchDuplicateCallback = (callback: () => void) => {
+    setBatchDuplicateCallback(() => callback);
   };
 
   // Use the appropriate tabs component based on activeSection
@@ -80,6 +94,7 @@ const TabsSection = ({
               selectedItems={selectedItems}
               onClearSelection={handleClearSelection}
               onBatchDelete={handleBatchDelete}
+              onBatchDuplicate={handleBatchDuplicate}
             />
           )}
           <ChangeTrackingProvider>
@@ -90,8 +105,9 @@ const TabsSection = ({
               setShowAddPricingTypeModal={setShowAddPricingTypeModal}
               onSelectionChange={handleSelectionChange}
               selectedItems={selectedItems}
-              onSetBatchDeleteCallback={handleSetBatchDeleteCallback}
-              reviewRequestId={reviewRequestId}
+               onSetBatchDeleteCallback={handleSetBatchDeleteCallback}
+               onSetBatchDuplicateCallback={handleSetBatchDuplicateCallback}
+               reviewRequestId={reviewRequestId}
             />
           </ChangeTrackingProvider>
         </div>

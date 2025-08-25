@@ -20,6 +20,7 @@ interface FinancialPricingTabsProps {
   onSelectionChange?: (items: string[]) => void;
   selectedItems?: string[];
   onSetBatchDeleteCallback?: (callback: () => void) => void;
+  onSetBatchDuplicateCallback?: (callback: () => void) => void;
   reviewRequestId?: string | null;
 }
 
@@ -31,6 +32,7 @@ const FinancialPricingTabs = ({
   onSelectionChange,
   selectedItems = [],
   onSetBatchDeleteCallback,
+  onSetBatchDuplicateCallback,
   reviewRequestId
 }: FinancialPricingTabsProps) => {
   const [activeTab, setActiveTab] = useState("rules");
@@ -105,6 +107,7 @@ const FinancialPricingTabs = ({
           onSelectionChange={onSelectionChange}
           selectedItems={selectedItems}
           onSetBatchDeleteCallback={onSetBatchDeleteCallback}
+          onSetBatchDuplicateCallback={onSetBatchDuplicateCallback}
         />
       )
     },

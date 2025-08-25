@@ -13,6 +13,7 @@ interface UseDynamicFinancialDataProps {
   selectedItems: string[];
   onSelectionChange?: (items: string[]) => void;
   onSetBatchDeleteCallback?: (callback: () => void) => void;
+  onSetBatchDuplicateCallback?: (callback: () => void) => void;
   // Pagination props
   pageSize?: number;
   currentPage?: number;
@@ -23,6 +24,7 @@ export const useDynamicFinancialData = ({
   selectedItems,
   onSelectionChange,
   onSetBatchDeleteCallback,
+  onSetBatchDuplicateCallback,
   pageSize = 100,
   currentPage = 1
 }: UseDynamicFinancialDataProps) => {
@@ -240,9 +242,84 @@ export const useDynamicFinancialData = ({
     }
   }, [selectedItems, onSelectionChange, schemaId, getPrimaryKey]);
 
+  // Batch duplicate function for Supabase data
+  const supabaseBatchDuplicateFunction = useCallback(async () => {
+    if (selectedItems.length === 0) return;
+    
+    try {
+      const tableName = getTableName(schemaId);
+      const primaryKey = await getPrimaryKey(schemaId);
+      
+      // Get the selected items to duplicate
+      const itemsToDuplicate = data.filter(item => selectedItems.includes(item[primaryKey]));
+      
+      if (itemsToDuplicate.length === 0) {
+        toast.error('No items found to duplicate');
+        return;
+      }
+
+      // Create new records by duplicating the selected ones
+      const duplicatedItems = itemsToDuplicate.map(item => {
+        const newItem = { ...item };
+        delete newItem[primaryKey]; // Remove primary key so it auto-generates
+        
+        // Special handling for financial-program-config
+        if (schemaId === 'financial-program-config') {
+          // Import getNextFPCId function logic directly since we can't import from utils
+          const fpIds = data
+            .map(row => typeof row.id === "string" && row.id.match(/^FPC(\d{2})$/) ? Number(row.id.slice(3)) : null)
+            .filter((v): v is number => v !== null);
+          const nextNumber = fpIds.length > 0 ? Math.max(...fpIds) + 1 : 1;
+          const newId = `FPC${String(nextNumber).padStart(2, "0")}`;
+          
+          newItem.id = newId;
+          newItem.version = ((item.version || 1) + 1);
+          newItem.cloneFrom = item.programCode || item.program_code || null;
+        } else {
+          // For other tables, increment version if it exists
+          if (item.version) {
+            newItem.version = item.version + 1;
+          }
+        }
+        
+        return newItem;
+      });
+
+      // Insert duplicated items into Supabase
+      const { data: insertedData, error } = await supabase
+        .from(tableName as any)
+        .insert(duplicatedItems)
+        .select();
+
+      if (error) {
+        console.error('Error duplicating items in Supabase:', error);
+        toast.error('Failed to duplicate items');
+        return;
+      }
+
+      console.log('Batch duplicated items in Supabase:', insertedData);
+      
+      // Update local state with the new duplicated items
+      setData(prevData => [...(insertedData || []), ...prevData]);
+      
+      if (onSelectionChange) {
+        onSelectionChange([]);
+      }
+      
+      toast.success(`${selectedItems.length} item(s) duplicated successfully`);
+    } catch (error) {
+      console.error('Error in batch duplicate:', error);
+      toast.error('Failed to duplicate items');
+    }
+  }, [selectedItems, onSelectionChange, schemaId, getPrimaryKey, data]);
+
   // Store the latest batch delete function in a ref for Supabase data
   const batchDeleteRef = useRef<(() => void) | null>(null);
   batchDeleteRef.current = supabaseBatchDeleteFunction;
+
+  // Store the latest batch duplicate function in a ref for Supabase data
+  const batchDuplicateRef = useRef<(() => void) | null>(null);
+  batchDuplicateRef.current = supabaseBatchDuplicateFunction;
 
   // Set up the batch delete callback
   useEffect(() => {
@@ -255,6 +332,18 @@ export const useDynamicFinancialData = ({
       onSetBatchDeleteCallback(callback);
     }
   }, [onSetBatchDeleteCallback]);
+
+  // Set up the batch duplicate callback
+  useEffect(() => {
+    if (onSetBatchDuplicateCallback) {
+      const callback = () => {
+        if (batchDuplicateRef.current) {
+          batchDuplicateRef.current();
+        }
+      };
+      onSetBatchDuplicateCallback(callback);
+    }
+  }, [onSetBatchDuplicateCallback]);
 
   // Function to add new record to Supabase
   const handleAddNewSupabase = useCallback(async (schema: any) => {

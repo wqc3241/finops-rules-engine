@@ -22,6 +22,7 @@ interface DynamicFinancialSectionProps {
   onSelectionChange?: (items: string[]) => void;
   selectedItems?: string[];
   onSetBatchDeleteCallback?: (callback: () => void) => void;
+  onSetBatchDuplicateCallback?: (callback: () => void) => void;
 }
 
 const DynamicFinancialSection = ({ 
@@ -29,7 +30,8 @@ const DynamicFinancialSection = ({
   title,
   onSelectionChange,
   selectedItems = [],
-  onSetBatchDeleteCallback
+  onSetBatchDeleteCallback,
+  onSetBatchDuplicateCallback
 }: DynamicFinancialSectionProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showWizard, setShowWizard] = useState(false);
@@ -52,6 +54,7 @@ const DynamicFinancialSection = ({
     selectedItems,
     onSelectionChange,
     onSetBatchDeleteCallback,
+    onSetBatchDuplicateCallback,
     currentPage,
     pageSize
   });

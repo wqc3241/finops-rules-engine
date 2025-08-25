@@ -19,8 +19,6 @@ const TableRowActions = ({
   onDelete,
 }: TableRowActionsProps) => {
   
-  console.log('TableRowActions - programCode:', programCode, 'rowId:', rowId);
-  
   const handleDownloadTemplate = async () => {
     if (!programCode) return;
     
