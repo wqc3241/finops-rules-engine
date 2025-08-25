@@ -2,7 +2,10 @@
 import { TableHead } from "@/components/ui/table";
 import { Trash2, Plus } from "lucide-react";
 import { ColumnDefinition } from "@/types/dynamicTable";
+import { TableFilter, TableSort } from "@/types/tableFilters";
 import { getHeaderClassName } from "./utils/tableUtils";
+import TableFilters from "./TableFilters";
+import TableSortComponent from "./TableSort";
 
 interface TableHeaderProps {
   columns: ColumnDefinition[];
@@ -13,6 +16,11 @@ interface TableHeaderProps {
   setHoveredDivider: (index: number | null) => void;
   onRemoveColumn: (columnId: string) => void;
   onDividerClick: (index: number) => void;
+  // New filter/sort props
+  filters: TableFilter[];
+  sorts: TableSort[];
+  onFilterChange: (columnKey: string, filter: TableFilter | null) => void;
+  onSortChange: (columnKey: string) => void;
 }
 
 const TableHeaderComponent = ({
@@ -23,7 +31,11 @@ const TableHeaderComponent = ({
   hoveredDivider,
   setHoveredDivider,
   onRemoveColumn,
-  onDividerClick
+  onDividerClick,
+  filters,
+  sorts,
+  onFilterChange,
+  onSortChange
 }: TableHeaderProps) => {
   return (
     <>
@@ -32,7 +44,28 @@ const TableHeaderComponent = ({
       </TableHead>
       {columns.map((column, index) => (
         <TableHead key={column.id} className={`${getHeaderClassName(column)} relative overflow-visible`}>
-          <span>{column.name}</span>
+          <div className="flex items-center justify-between min-h-[2rem]">
+            <span className="font-medium">{column.name}</span>
+            
+            <div className="flex items-center gap-1">
+              {/* Sort Control */}
+              <TableSortComponent
+                columnKey={column.key}
+                sort={sorts.find(s => s.columnKey === column.key)}
+                onSortChange={onSortChange}
+                sortIndex={sorts.findIndex(s => s.columnKey === column.key)}
+              />
+              
+              {/* Filter Control */}
+              {(column.filterable !== false) && (
+                <TableFilters
+                  column={column}
+                  filter={filters.find(f => f.columnKey === column.key)}
+                  onFilterChange={(filter) => onFilterChange(column.key, filter)}
+                />
+              )}
+            </div>
+          </div>
           
           {/* Delete button at top edge with better positioning */}
           {allowColumnManagement && column.key !== 'id' && (

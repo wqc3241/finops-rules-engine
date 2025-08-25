@@ -1,7 +1,9 @@
-
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { X, FilterX } from "lucide-react";
 import { DynamicTableProps, TableData, ColumnDefinition } from "@/types/dynamicTable";
 import { toast } from "sonner";
 import ColumnManagementModal from "./ColumnManagementModal";
@@ -11,6 +13,8 @@ import TableRowActions from "./TableRowActions";
 import TableHeaderComponent from "./TableHeader";
 import { getNextFPCId } from "./utils/tableUtils";
 import { TablePagination } from "@/components/ui/table-pagination";
+import { useTableFilters } from "@/hooks/useTableFilters";
+import { useTableSort } from "@/hooks/useTableSort";
 
 // Helper to determine the primary key column for any schema
 const getPrimaryKey = (schema: { columns: ColumnDefinition[] }, data: TableData[]): string => {
@@ -31,58 +35,76 @@ const getPrimaryKey = (schema: { columns: ColumnDefinition[] }, data: TableData[
   return 'id';
 };
 
-const DynamicTable = ({ 
-  schema, 
-  data, 
-  onDataChange, 
-  onSchemaChange, 
+const DynamicTable = ({
+  schema,
+  data,
+  onDataChange,
+  onSchemaChange,
   onSelectionChange,
   selectedItems = [],
-  allowColumnManagement = true,
+  allowColumnManagement = false,
   onEditRow,
-  // Pagination props
-  totalCount = 0,
-  pageSize = 100,
-  currentPage = 1,
+  totalCount,
+  pageSize,
+  currentPage,
   onPageChange
 }: DynamicTableProps) => {
+  const [editingCell, setEditingCell] = useState<{ rowId: string, columnKey: string } | null>(null);
+  const [editValue, setEditValue] = useState<string>("");
   const [showColumnManagement, setShowColumnManagement] = useState(false);
   const [showAddColumn, setShowAddColumn] = useState(false);
-  const [insertPosition, setInsertPosition] = useState<number>(0);
-  const [editingCell, setEditingCell] = useState<{rowId: string, columnKey: string} | null>(null);
-  const [editValue, setEditValue] = useState<any>("");
-  const [hoveredDivider, setHoveredDivider] = useState<number | null>(null);
+  const [insertPosition, setInsertPosition] = useState(0);
   const [hoveredDeleteButton, setHoveredDeleteButton] = useState<string | null>(null);
+  const [hoveredDivider, setHoveredDivider] = useState<number | null>(null);
+  
+  // Initialize filter and sort hooks
+  const { 
+    filters, 
+    filteredData, 
+    addFilter, 
+    removeFilter, 
+    clearAllFilters, 
+    getFilter, 
+    hasFilters 
+  } = useTableFilters(data);
+  
+  const { 
+    sorts, 
+    sortedData, 
+    toggleSort, 
+    clearAllSorts, 
+    getSort, 
+    hasSorts 
+  } = useTableSort(filteredData);
 
-  // Demo options for program config dropdowns (should be fetched in a real app)
-  const programConfigOptions = {
-    financialProducts: [
-      { id: "USLN", label: "USLN - US Loan" },
-      { id: "USLE", label: "USLE - US Lease" },
-      { id: "KSABM", label: "KSABM - KSA Balloon Mortgage" },
-      { id: "KSABA5050", label: "KSABA5050 - KSA Balloon 50/50" }
-    ],
-    vehicleStyles: [
-      { id: "L25A1", label: "L25A1 - 2025 Lucid Air Grand Touring" },
-      { id: "L25A2", label: "L25A2 - 2025 Lucid Air Pure" },
-      { id: "L25A3", label: "L25A3 - 2025 Lucid Air Pure" },
-      { id: "KSA25A1", label: "KSA25A1 - 2025 Lucid Air Pure (KSA)" }
-    ],
-    vehicleConditions: [
-      { id: "New", label: "New" },
-      { id: "Used", label: "Used" },
-      { id: "Demo", label: "Demo" },
-      { id: "CPO", label: "Certified Pre-Owned" }
-    ]
-  };
+  // Use sorted and filtered data for display
+  const displayData = sortedData;
+
+  // Update selected items when data changes due to filtering
+  useEffect(() => {
+    if (onSelectionChange && selectedItems.length > 0) {
+      const primaryKey = getPrimaryKey(schema, data);
+      const validSelectedItems = selectedItems.filter(id => 
+        displayData.some(item => (item as any)[primaryKey] === id)
+      );
+      if (validSelectedItems.length !== selectedItems.length) {
+        onSelectionChange(validSelectedItems);
+      }
+    }
+  }, [displayData, selectedItems, onSelectionChange, schema, data]);
+
+  // Prepare program config options for select dropdowns
+  const programConfigOptions = schema.columns.reduce((acc, column) => {
+    if (column.sourceTable) {
+      acc[column.key] = [];
+    }
+    return acc;
+  }, {} as any);
 
   const primaryKey = useMemo(() => getPrimaryKey(schema, data), [schema, data]);
   const visibleColumns = useMemo(() => {
-    const cols = schema.columns.filter(c => c.key !== 'id');
-    const rest = cols.filter(c => !(c.key === 'created_at' || c.name.toLowerCase() === 'created at'));
-    const created = cols.filter(c => (c.key === 'created_at' || c.name.toLowerCase() === 'created at'));
-    return [...rest, ...created];
-  }, [schema.columns]);
+    return schema.columns.filter(c => c.key !== primaryKey);
+  }, [schema.columns, primaryKey]);
 
   const handleSelectRow = (id: string) => {
     const updatedSelection = selectedItems.includes(id)
@@ -90,6 +112,7 @@ const DynamicTable = ({
       : [...selectedItems, id];
     onSelectionChange?.(updatedSelection);
   };
+
   const handleCellEdit = (rowId: string, columnKey: string, currentValue: any) => {
     setEditingCell({ rowId, columnKey });
     setEditValue(currentValue);
@@ -210,6 +233,18 @@ const DynamicTable = ({
     toast.success("Row deleted successfully");
   };
 
+  const handleFilterChange = (columnKey: string, filter: any) => {
+    if (filter) {
+      addFilter(filter);
+    } else {
+      removeFilter(columnKey);
+    }
+  };
+
+  const handleSortChange = (columnKey: string) => {
+    toggleSort(columnKey);
+  };
+
   const handleDividerClick = (index: number) => {
     setInsertPosition(index);
     setShowAddColumn(true);
@@ -217,6 +252,64 @@ const DynamicTable = ({
 
   return (
     <div className="space-y-4">
+      {/* Filter and Sort Status Bar */}
+      {(hasFilters || hasSorts) && (
+        <div className="flex items-center gap-2 p-2 bg-muted/50 rounded-md">
+          <div className="flex items-center gap-2 flex-wrap">
+            {filters.map((filter) => (
+              <Badge key={filter.columnKey} variant="secondary" className="gap-1">
+                {schema.columns.find(col => col.key === filter.columnKey)?.name}: {String(filter.value)}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-4 w-4 p-0 hover:bg-transparent"
+                  onClick={() => removeFilter(filter.columnKey)}
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              </Badge>
+            ))}
+            {sorts.map((sort, index) => (
+              <Badge key={sort.columnKey} variant="outline" className="gap-1">
+                {schema.columns.find(col => col.key === sort.columnKey)?.name}: {sort.direction.toUpperCase()}
+                {index > 0 && ` (${index + 1})`}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-4 w-4 p-0 hover:bg-transparent"
+                  onClick={() => toggleSort(sort.columnKey)}
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              </Badge>
+            ))}
+          </div>
+          <div className="flex gap-1 ml-auto">
+            {hasFilters && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={clearAllFilters}
+                className="h-7"
+              >
+                <FilterX className="h-3 w-3 mr-1" />
+                Clear Filters
+              </Button>
+            )}
+            {hasSorts && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={clearAllSorts}
+                className="h-7"
+              >
+                Clear Sorts
+              </Button>
+            )}
+          </div>
+        </div>
+      )}
+
       <div className="overflow-x-auto border rounded-md">
         <Table>
           <TableHeader>
@@ -230,11 +323,15 @@ const DynamicTable = ({
                 setHoveredDivider={setHoveredDivider}
                 onRemoveColumn={handleRemoveColumn}
                 onDividerClick={handleDividerClick}
+                filters={filters}
+                sorts={sorts}
+                onFilterChange={handleFilterChange}
+                onSortChange={handleSortChange}
               />
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data.map((row) => (
+            {displayData.map((row) => (
               <TableRow key={String((row as any)[primaryKey] ?? (row as any).id)} className="hover:bg-gray-50">
                 <TableCell>
                   <Checkbox
@@ -281,7 +378,7 @@ const DynamicTable = ({
       </div>
 
       {/* Pagination Controls */}
-      {totalCount > 0 && onPageChange && (
+      {totalCount && totalCount > 0 && onPageChange && (
         <TablePagination
           totalCount={totalCount}
           pageSize={pageSize}

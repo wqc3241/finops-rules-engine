@@ -7,6 +7,7 @@ export interface ColumnDefinition {
   inputType: 'Input' | 'Output';
   isRequired: boolean;
   sortable: boolean;
+  filterable?: boolean; // NEW: allow filtering on column
   editable: boolean;
   width?: number;
   // New fields for table dependencies
