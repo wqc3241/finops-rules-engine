@@ -1,5 +1,6 @@
 
 import DynamicTable from "@/components/dynamic-table/DynamicTable";
+import FinancialProgramConfigTable from "@/components/FinancialProgramConfigTable";
 import { DynamicTableSchema, TableData } from "@/types/dynamicTable";
 
 interface DynamicFinancialSectionContentProps {
@@ -31,6 +32,19 @@ const DynamicFinancialSectionContent = ({
   onPageChange
 }: DynamicFinancialSectionContentProps) => {
 /*   console.log('Rendering component with data:', data, 'schema:', schema); */
+
+  // Use specific table for Financial Program Config to show download button
+  if (schema.id === 'financial-program-config') {
+    return (
+      <div className="mt-4 overflow-x-auto">
+        <div className="min-w-max">
+          <FinancialProgramConfigTable
+            onEditProgram={(id) => onEditRow?.(id, data.find(item => item.id === id))}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mt-4 overflow-x-auto">
