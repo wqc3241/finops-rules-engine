@@ -58,24 +58,28 @@ const DynamicTable = ({
   const [hoveredDivider, setHoveredDivider] = useState<number | null>(null);
   
   // Initialize filter and sort hooks
+  const filterHook = useTableFilters(data);
+  const sortHook = useTableSort(filterHook.filteredData);
+  
+  // Safely destructure with fallbacks
   const { 
-    filters, 
-    filteredData, 
-    addFilter, 
-    removeFilter, 
-    clearAllFilters, 
-    getFilter, 
-    hasFilters 
-  } = useTableFilters(data);
+    filters = [], 
+    filteredData = data, 
+    addFilter = () => {}, 
+    removeFilter = () => {}, 
+    clearAllFilters = () => {}, 
+    getFilter = () => undefined, 
+    hasFilters = false 
+  } = filterHook || {};
   
   const { 
-    sorts, 
-    sortedData, 
-    toggleSort, 
-    clearAllSorts, 
-    getSort, 
-    hasSorts 
-  } = useTableSort(filteredData);
+    sorts = [], 
+    sortedData = filteredData, 
+    toggleSort = () => {}, 
+    clearAllSorts = () => {}, 
+    getSort = () => undefined, 
+    hasSorts = false 
+  } = sortHook || {};
 
   // Use sorted and filtered data for display
   const displayData = sortedData;
