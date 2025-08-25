@@ -268,6 +268,7 @@ const DynamicTable = ({
                 <TableCell className="text-right">
                   <TableRowActions
                     rowId={(row as any)[primaryKey]}
+                    programCode={(row as any).programCode}
                     onEdit={() => onEditRow ? onEditRow((row as any)[primaryKey], row) : toast.info("Edit functionality integrated in cell editing")}
                     onCopy={handleCopyRow}
                     onDelete={handleDeleteRow}
