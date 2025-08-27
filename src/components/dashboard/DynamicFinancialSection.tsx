@@ -25,6 +25,7 @@ interface DynamicFinancialSectionProps {
   selectedItems?: string[];
   onSetBatchDeleteCallback?: (callback: () => void) => void;
   onSetBatchDuplicateCallback?: (callback: () => void) => void;
+  onSetBatchDownloadBulletinPricingCallback?: (callback: () => void) => void;
 }
 
 const DynamicFinancialSection = ({ 
@@ -33,7 +34,8 @@ const DynamicFinancialSection = ({
   onSelectionChange,
   selectedItems = [],
   onSetBatchDeleteCallback,
-  onSetBatchDuplicateCallback
+  onSetBatchDuplicateCallback,
+  onSetBatchDownloadBulletinPricingCallback
 }: DynamicFinancialSectionProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showWizard, setShowWizard] = useState(false);
@@ -99,6 +101,13 @@ const DynamicFinancialSection = ({
       persistVersions(versions);
     }
   }, [versions, persistVersions]);
+
+  // Set up batch download callback for financial-program-config
+  useEffect(() => {
+    if (schemaId === 'financial-program-config' && onSetBatchDownloadBulletinPricingCallback) {
+      onSetBatchDownloadBulletinPricingCallback(handleSelectedBulletinPricingDownload);
+    }
+  }, [schemaId, onSetBatchDownloadBulletinPricingCallback]);
   const { saveState, undo, redo, canUndo, canRedo } = useUndoRedo(data, schema || { id: '', name: '', columns: [] });
 
   const handleDataChange = (newData: any) => {
@@ -283,6 +292,10 @@ const DynamicFinancialSection = ({
         XLSX.writeFile(workbook, fileName);
         toast.success(`Downloaded ${exportData.length} fee rules to ${fileName}`);
       } else if (schemaId === 'bulletin-pricing') {
+        toast.info("Exporting bulletin pricing...");
+        const result = await exportBulletinPricing();
+        toast.success(`Export complete! Generated ${result.fileCount} file(s).`);
+      } else if (schemaId === 'financial-program-config') {
         toast.info("Exporting bulletin pricing...");
         const result = await exportBulletinPricing();
         toast.success(`Export complete! Generated ${result.fileCount} file(s).`);

@@ -6,9 +6,10 @@ interface LFSSetupTabsProps {
   onSelectionChange?: (items: string[], schemaId?: string) => void;
   selectedItems?: string[];
   onSetBatchDeleteCallback?: (callback: () => void) => void;
+  onSetBatchDownloadBulletinPricingCallback?: (callback: () => void) => void;
 }
 
-const LFSSetupTabs = ({ onSelectionChange, selectedItems = [], onSetBatchDeleteCallback }: LFSSetupTabsProps) => {
+const LFSSetupTabs = ({ onSelectionChange, selectedItems = [], onSetBatchDeleteCallback, onSetBatchDownloadBulletinPricingCallback }: LFSSetupTabsProps) => {
   const [activeTab, setActiveTab] = useState("financial-program-config");
 
   const handleTabChange = (value: string) => {
@@ -30,6 +31,7 @@ const LFSSetupTabs = ({ onSelectionChange, selectedItems = [], onSetBatchDeleteC
           onSelectionChange={(items) => onSelectionChange?.(items, "financial-program-config")}
           selectedItems={selectedItems}
           onSetBatchDeleteCallback={onSetBatchDeleteCallback}
+          onSetBatchDownloadBulletinPricingCallback={onSetBatchDownloadBulletinPricingCallback}
         />
       )
     },

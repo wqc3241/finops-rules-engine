@@ -31,6 +31,7 @@ const TabsSection = ({
   const [showBatchOperations, setShowBatchOperations] = useState(false);
   const [batchDeleteCallback, setBatchDeleteCallback] = useState<(() => void) | null>(null);
   const [batchDuplicateCallback, setBatchDuplicateCallback] = useState<(() => void) | null>(null);
+  const [batchDownloadBulletinPricingCallback, setBatchDownloadBulletinPricingCallback] = useState<(() => void) | null>(null);
   const [currentSchemaId, setCurrentSchemaId] = useState<string>("");
   
   const handleSelectionChange = (items: string[]) => {
@@ -69,19 +70,13 @@ const TabsSection = ({
     setBatchDuplicateCallback(() => callback);
   };
 
-  const handleBatchDownloadBulletinPricing = async () => {
-    if (selectedItems.length === 0) {
-      toast.error("No items selected for download");
-      return;
-    }
+  const handleSetBatchDownloadBulletinPricingCallback = (callback: () => void) => {
+    setBatchDownloadBulletinPricingCallback(() => callback);
+  };
 
-    try {
-      // For financial program config, we need to extract program codes from selected items
-      // This assumes the selected items contain program codes or we can derive them
-      await exportSelectedProgramsBulletinPricing(selectedItems);
-    } catch (error) {
-      console.error('Batch bulletin pricing download failed:', error);
-      toast.error("Batch download failed. Please try again.");
+  const handleBatchDownloadBulletinPricing = async () => {
+    if (batchDownloadBulletinPricingCallback) {
+      batchDownloadBulletinPricingCallback();
     }
   };
 
@@ -107,6 +102,7 @@ const TabsSection = ({
             }}
             selectedItems={selectedItems}
             onSetBatchDeleteCallback={handleSetBatchDeleteCallback}
+            onSetBatchDownloadBulletinPricingCallback={handleSetBatchDownloadBulletinPricingCallback}
           />
         </div>
       );
