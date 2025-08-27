@@ -85,21 +85,27 @@ const TabsSection = ({
     case "Financing Config": 
       return (
         <div className="relative">
-          {showBatchOperations && (
-            <BatchOperations
-              selectedItems={selectedItems}
-              onClearSelection={handleClearSelection}
-              onBatchDelete={handleBatchDelete}
-              onBatchDuplicate={batchDuplicateCallback ? handleBatchDuplicate : undefined}
-              onBatchDownloadBulletinPricing={currentSchemaId === 'financial-program-config' ? handleBatchDownloadBulletinPricing : undefined}
-              showBulletinPricingDownload={currentSchemaId === 'financial-program-config'}
-            />
-          )}
+          {showBatchOperations && (() => {
+            const showDownload = currentSchemaId === 'financial-program-config';
+            console.log('TabsSection Financing Config - currentSchemaId:', currentSchemaId, 'showDownload:', showDownload);
+            console.log('batchDownloadBulletinPricingCallback exists:', !!batchDownloadBulletinPricingCallback);
+            return (
+              <BatchOperations
+                selectedItems={selectedItems}
+                onClearSelection={handleClearSelection}
+                onBatchDelete={handleBatchDelete}
+                onBatchDuplicate={batchDuplicateCallback ? handleBatchDuplicate : undefined}
+                onBatchDownloadBulletinPricing={showDownload ? handleBatchDownloadBulletinPricing : undefined}
+                showBulletinPricingDownload={showDownload}
+              />
+            );
+          })()}
           <LFSSetupTabs 
             onSelectionChange={(items, schemaId) => {
               console.log('TabsSection - Selection changed:', items, 'Schema:', schemaId);
               handleSelectionChange(items);
               setCurrentSchemaId(schemaId || "");
+              console.log('TabsSection - currentSchemaId set to:', schemaId || "");
             }}
             selectedItems={selectedItems}
             onSetBatchDeleteCallback={handleSetBatchDeleteCallback}
