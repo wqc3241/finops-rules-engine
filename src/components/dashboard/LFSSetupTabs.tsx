@@ -6,10 +6,11 @@ interface LFSSetupTabsProps {
   onSelectionChange?: (items: string[], schemaId?: string) => void;
   selectedItems?: string[];
   onSetBatchDeleteCallback?: (callback: () => void) => void;
+  onSetBatchDuplicateCallback?: (callback: () => void) => void;
   onSetBatchDownloadBulletinPricingCallback?: (callback: () => void) => void;
 }
 
-const LFSSetupTabs = ({ onSelectionChange, selectedItems = [], onSetBatchDeleteCallback, onSetBatchDownloadBulletinPricingCallback }: LFSSetupTabsProps) => {
+const LFSSetupTabs = ({ onSelectionChange, selectedItems = [], onSetBatchDeleteCallback, onSetBatchDuplicateCallback, onSetBatchDownloadBulletinPricingCallback }: LFSSetupTabsProps) => {
   const [activeTab, setActiveTab] = useState("financial-program-config");
 
   const handleTabChange = (value: string) => {
@@ -28,9 +29,13 @@ const LFSSetupTabs = ({ onSelectionChange, selectedItems = [], onSetBatchDeleteC
         <DynamicFinancialSection 
           schemaId="financial-program-config"
           title="Financial Program Config Rules"
-          onSelectionChange={(items) => onSelectionChange?.(items, "financial-program-config")}
+          onSelectionChange={(items) => {
+            console.log('Financial Program Config - Selection changed:', items);
+            onSelectionChange?.(items, "financial-program-config");
+          }}
           selectedItems={selectedItems}
           onSetBatchDeleteCallback={onSetBatchDeleteCallback}
+          onSetBatchDuplicateCallback={onSetBatchDuplicateCallback}
           onSetBatchDownloadBulletinPricingCallback={onSetBatchDownloadBulletinPricingCallback}
         />
       )

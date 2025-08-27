@@ -97,11 +97,13 @@ const TabsSection = ({
           )}
           <LFSSetupTabs 
             onSelectionChange={(items, schemaId) => {
+              console.log('TabsSection - Selection changed:', items, 'Schema:', schemaId);
               handleSelectionChange(items);
               setCurrentSchemaId(schemaId || "");
             }}
             selectedItems={selectedItems}
             onSetBatchDeleteCallback={handleSetBatchDeleteCallback}
+            onSetBatchDuplicateCallback={handleSetBatchDuplicateCallback}
             onSetBatchDownloadBulletinPricingCallback={handleSetBatchDownloadBulletinPricingCallback}
           />
         </div>
