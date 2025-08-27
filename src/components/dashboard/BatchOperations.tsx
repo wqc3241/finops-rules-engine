@@ -17,7 +17,7 @@ const BatchOperations = ({
   onBatchDelete,
   onBatchDuplicate,
   onBatchDownloadBulletinPricing,
-  showBulletinPricingDownload = false
+  showBulletinPricingDownload = true
 }: BatchOperationsProps) => {
   return (
     <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 bg-white rounded-lg shadow-lg border p-2 flex items-center gap-2">
