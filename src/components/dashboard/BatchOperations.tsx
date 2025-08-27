@@ -19,11 +19,6 @@ const BatchOperations = ({
   onBatchDownloadBulletinPricing,
   showBulletinPricingDownload = false
 }: BatchOperationsProps) => {
-  console.log('BatchOperations props:', { 
-    selectedItemsCount: selectedItems.length,
-    showBulletinPricingDownload,
-    hasBulletinCallback: !!onBatchDownloadBulletinPricing
-  });
   return (
     <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 bg-white rounded-lg shadow-lg border p-2 flex items-center gap-2">
       <span className="text-xs font-medium">{selectedItems.length} item{selectedItems.length !== 1 ? 's' : ''} selected</span>

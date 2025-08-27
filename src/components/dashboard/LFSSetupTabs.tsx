@@ -3,7 +3,7 @@ import TabComponent, { TabItem } from "./TabComponent";
 import DynamicFinancialSection from "./DynamicFinancialSection";
 
 interface LFSSetupTabsProps {
-  onSelectionChange?: (items: string[], schemaId?: string) => void;
+  onSelectionChange?: (items: string[], schemaId: string) => void;
   selectedItems?: string[];
   onSetBatchDeleteCallback?: (callback: () => void) => void;
   onSetBatchDuplicateCallback?: (callback: () => void) => void;

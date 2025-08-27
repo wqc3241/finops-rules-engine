@@ -11,7 +11,7 @@ import { toast } from "sonner";
 interface UseDynamicFinancialDataProps {
   schemaId: string;
   selectedItems: string[];
-  onSelectionChange?: (items: string[]) => void;
+  onSelectionChange?: (items: string[], schemaId: string) => void;
   onSetBatchDeleteCallback?: (callback: () => void) => void;
   onSetBatchDuplicateCallback?: (callback: () => void) => void;
   // Pagination props
@@ -232,7 +232,7 @@ export const useDynamicFinancialData = ({
       setData(prevData => prevData.filter(item => !selectedItems.includes(item[primaryKey])));
       
       if (onSelectionChange) {
-        onSelectionChange([]);
+        onSelectionChange([], schemaId);
       }
       
       toast.success(`${selectedItems.length} item(s) deleted successfully`);
@@ -303,7 +303,7 @@ export const useDynamicFinancialData = ({
       setData(prevData => [...(insertedData || []), ...prevData]);
       
       if (onSelectionChange) {
-        onSelectionChange([]);
+        onSelectionChange([], schemaId);
       }
       
       toast.success(`${selectedItems.length} item(s) duplicated successfully`);

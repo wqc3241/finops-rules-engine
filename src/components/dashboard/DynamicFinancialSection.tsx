@@ -21,7 +21,7 @@ import BulletinPricingUploadModal from "../BulletinPricingUploadModal";
 interface DynamicFinancialSectionProps {
   schemaId: string;
   title: string;
-  onSelectionChange?: (items: string[]) => void;
+  onSelectionChange?: (items: string[], schemaId: string) => void;
   selectedItems?: string[];
   onSetBatchDeleteCallback?: (callback: () => void) => void;
   onSetBatchDuplicateCallback?: (callback: () => void) => void;
@@ -389,7 +389,7 @@ const DynamicFinancialSection = ({
               data={data}
               onDataChange={isLocked ? () => {} : handleDataChange}
               onSchemaChange={isLocked ? () => {} : handleSchemaChange}
-              onSelectionChange={onSelectionChange}
+              onSelectionChange={onSelectionChange ? (items: string[]) => onSelectionChange(items, schemaId) : undefined}
               selectedItems={selectedItems}
               onEditRow={isLocked ? undefined : handleEditRow}
               totalCount={totalCount}
