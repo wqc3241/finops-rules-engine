@@ -116,6 +116,8 @@ const TabsSection = ({
               onClearSelection={handleClearSelection}
               onBatchDelete={handleBatchDelete}
               onBatchDuplicate={handleBatchDuplicate}
+              onBatchDownloadBulletinPricing={currentSchemaId === 'financial-program-config' ? handleBatchDownloadBulletinPricing : undefined}
+              showBulletinPricingDownload={currentSchemaId === 'financial-program-config'}
             />
           )}
           <ChangeTrackingProvider>
@@ -124,10 +126,14 @@ const TabsSection = ({
               setShowAddPricingModal={setShowAddPricingModal}
               showAddPricingTypeModal={showAddPricingTypeModal}
               setShowAddPricingTypeModal={setShowAddPricingTypeModal}
-              onSelectionChange={handleSelectionChange}
+              onSelectionChange={(items, schemaId) => {
+                handleSelectionChange(items);
+                setCurrentSchemaId(schemaId || "");
+              }}
               selectedItems={selectedItems}
                onSetBatchDeleteCallback={handleSetBatchDeleteCallback}
                onSetBatchDuplicateCallback={handleSetBatchDuplicateCallback}
+               onSetBatchDownloadBulletinPricingCallback={handleSetBatchDownloadBulletinPricingCallback}
                reviewRequestId={reviewRequestId}
             />
           </ChangeTrackingProvider>

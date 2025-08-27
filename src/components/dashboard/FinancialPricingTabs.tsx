@@ -17,10 +17,11 @@ interface FinancialPricingTabsProps {
   setShowAddPricingModal: (show: boolean) => void;
   showAddPricingTypeModal: boolean;
   setShowAddPricingTypeModal: (show: boolean) => void;
-  onSelectionChange?: (items: string[]) => void;
+  onSelectionChange?: (items: string[], schemaId?: string) => void;
   selectedItems?: string[];
   onSetBatchDeleteCallback?: (callback: () => void) => void;
   onSetBatchDuplicateCallback?: (callback: () => void) => void;
+  onSetBatchDownloadBulletinPricingCallback?: (callback: () => void) => void;
   reviewRequestId?: string | null;
 }
 
@@ -33,6 +34,7 @@ const FinancialPricingTabs = ({
   selectedItems = [],
   onSetBatchDeleteCallback,
   onSetBatchDuplicateCallback,
+  onSetBatchDownloadBulletinPricingCallback,
   reviewRequestId
 }: FinancialPricingTabsProps) => {
   const [activeTab, setActiveTab] = useState("rules");
@@ -52,7 +54,7 @@ const FinancialPricingTabs = ({
     setActiveTab(value);
     // Reset selections when changing tabs to prevent issues
     if (onSelectionChange) {
-      onSelectionChange([]);
+      onSelectionChange([], value);
     }
   };
 
@@ -78,7 +80,7 @@ const FinancialPricingTabs = ({
         <DynamicFinancialSection 
           schemaId="credit-profile"
           title="Credit Profile"
-          onSelectionChange={onSelectionChange}
+          onSelectionChange={(items) => onSelectionChange?.(items, "credit-profile")}
           selectedItems={selectedItems}
           onSetBatchDeleteCallback={onSetBatchDeleteCallback}
         />
@@ -91,7 +93,7 @@ const FinancialPricingTabs = ({
         <DynamicFinancialSection 
           schemaId="pricing-config"
           title="Pricing Config"
-          onSelectionChange={onSelectionChange}
+          onSelectionChange={(items) => onSelectionChange?.(items, "pricing-config")}
           selectedItems={selectedItems}
           onSetBatchDeleteCallback={onSetBatchDeleteCallback}
         />
@@ -104,10 +106,11 @@ const FinancialPricingTabs = ({
         <DynamicFinancialSection 
           schemaId="financial-program-config"
           title="Financial Program Config"
-          onSelectionChange={onSelectionChange}
+          onSelectionChange={(items) => onSelectionChange?.(items, "financial-program-config")}
           selectedItems={selectedItems}
           onSetBatchDeleteCallback={onSetBatchDeleteCallback}
           onSetBatchDuplicateCallback={onSetBatchDuplicateCallback}
+          onSetBatchDownloadBulletinPricingCallback={onSetBatchDownloadBulletinPricingCallback}
         />
       )
     },
@@ -119,7 +122,7 @@ const FinancialPricingTabs = ({
           title="Bulletin Pricing"
           showAddModal={showAddBulletinPricingModal}
           setShowAddModal={setShowAddBulletinPricingModal}
-          onSelectionChange={onSelectionChange}
+          onSelectionChange={(items) => onSelectionChange?.(items, "bulletin-pricing")}
           selectedItems={selectedItems}
           onSetBatchDeleteCallback={onSetBatchDeleteCallback}
         />
@@ -132,7 +135,7 @@ const FinancialPricingTabs = ({
         <DynamicFinancialSection 
           schemaId="advertised-offers"
           title="Advertised Offers"
-          onSelectionChange={onSelectionChange}
+          onSelectionChange={(items) => onSelectionChange?.(items, "advertised-offers")}
           selectedItems={selectedItems}
           onSetBatchDeleteCallback={onSetBatchDeleteCallback}
         />
