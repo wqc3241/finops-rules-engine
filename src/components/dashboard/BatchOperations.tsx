@@ -35,7 +35,7 @@ const BatchOperations = ({
         </Button>
       )}
       
-      {showBulletinPricingDownload && onBatchDownloadBulletinPricing && (
+      {onBatchDownloadBulletinPricing && (
         <Button 
           onClick={onBatchDownloadBulletinPricing}
           size="sm"
