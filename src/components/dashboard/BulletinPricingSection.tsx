@@ -203,6 +203,7 @@ const BulletinPricingSection = ({
         </Alert>
       )}
 
+      {/* Remove bulletin pricing buttons from BulletinPricingSection since they moved to Financial Program Config */}
       <SectionHeader 
         title={title} 
         isCollapsed={isCollapsed} 
@@ -212,10 +213,6 @@ const BulletinPricingSection = ({
         onRedo={isLocked ? undefined : handleRedo}
         canUndo={canUndo && !isLocked}
         canRedo={canRedo && !isLocked}
-        onUpload={!isLocked ? handleUpload : undefined}
-        onDownload={handleDownload}
-        uploadLabel="Upload Bulletin Pricing"
-        downloadLabel="Download Bulletin Pricing"
         onVersionHistory={handleVersionHistory}
         showVersionHistory={true}
       />

@@ -1,25 +1,38 @@
-
 import { useState } from "react";
 import TabComponent, { TabItem } from "./TabComponent";
 import DynamicFinancialSection from "./DynamicFinancialSection";
 
 interface LFSSetupTabsProps {
-  onSelectionChange?: (items: string[]) => void;
+  onSelectionChange?: (items: string[], schemaId?: string) => void;
   selectedItems?: string[];
+  onSetBatchDeleteCallback?: (callback: () => void) => void;
 }
 
-const LFSSetupTabs = ({ onSelectionChange, selectedItems = [] }: LFSSetupTabsProps) => {
-  const [activeTab, setActiveTab] = useState("geo-location");
+const LFSSetupTabs = ({ onSelectionChange, selectedItems = [], onSetBatchDeleteCallback }: LFSSetupTabsProps) => {
+  const [activeTab, setActiveTab] = useState("financial-program-config");
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
-    // Reset selections when changing tabs
+    // Reset selections when changing tabs and notify parent with schemaId
     if (onSelectionChange) {
-      onSelectionChange([]);
+      onSelectionChange([], value);
     }
   };
 
   const tabItems: TabItem[] = [
+    {
+      value: "financial-program-config",
+      label: "Financial Program Config",
+      content: (
+        <DynamicFinancialSection 
+          schemaId="financial-program-config"
+          title="Financial Program Config Rules"
+          onSelectionChange={(items) => onSelectionChange?.(items, "financial-program-config")}
+          selectedItems={selectedItems}
+          onSetBatchDeleteCallback={onSetBatchDeleteCallback}
+        />
+      )
+    },
     {
       value: "geo-location",
       label: "Geo",
@@ -27,7 +40,7 @@ const LFSSetupTabs = ({ onSelectionChange, selectedItems = [] }: LFSSetupTabsPro
         <DynamicFinancialSection 
           schemaId="geo-location"
           title="Geo Rules"
-          onSelectionChange={onSelectionChange}
+          onSelectionChange={(items) => onSelectionChange?.(items, "geo-location")}
           selectedItems={selectedItems}
         />
       )
@@ -39,7 +52,7 @@ const LFSSetupTabs = ({ onSelectionChange, selectedItems = [] }: LFSSetupTabsPro
         <DynamicFinancialSection 
           schemaId="lease-config"
           title="Lease Config Rules"
-          onSelectionChange={onSelectionChange}
+          onSelectionChange={(items) => onSelectionChange?.(items, "lease-config")}
           selectedItems={selectedItems}
         />
       )
@@ -51,7 +64,7 @@ const LFSSetupTabs = ({ onSelectionChange, selectedItems = [] }: LFSSetupTabsPro
         <DynamicFinancialSection 
           schemaId="vehicle-condition"
           title="Vehicle Condition Rules"
-          onSelectionChange={onSelectionChange}
+          onSelectionChange={(items) => onSelectionChange?.(items, "vehicle-condition")}
           selectedItems={selectedItems}
         />
       )
@@ -63,7 +76,7 @@ const LFSSetupTabs = ({ onSelectionChange, selectedItems = [] }: LFSSetupTabsPro
         <DynamicFinancialSection 
           schemaId="order-type"
           title="Order Type Rules"
-          onSelectionChange={onSelectionChange}
+          onSelectionChange={(items) => onSelectionChange?.(items, "order-type")}
           selectedItems={selectedItems}
         />
       )
@@ -75,7 +88,7 @@ const LFSSetupTabs = ({ onSelectionChange, selectedItems = [] }: LFSSetupTabsPro
         <DynamicFinancialSection 
           schemaId="vehicle-options"
           title="Vehicle Options Rules"
-          onSelectionChange={onSelectionChange}
+          onSelectionChange={(items) => onSelectionChange?.(items, "vehicle-options")}
           selectedItems={selectedItems}
         />
       )
@@ -87,7 +100,7 @@ const LFSSetupTabs = ({ onSelectionChange, selectedItems = [] }: LFSSetupTabsPro
         <DynamicFinancialSection 
           schemaId="routing-rule"
           title="Routing Rules"
-          onSelectionChange={onSelectionChange}
+          onSelectionChange={(items) => onSelectionChange?.(items, "routing-rule")}
           selectedItems={selectedItems}
         />
       )
@@ -99,7 +112,7 @@ const LFSSetupTabs = ({ onSelectionChange, selectedItems = [] }: LFSSetupTabsPro
         <DynamicFinancialSection 
           schemaId="stipulation"
           title="Stipulation Rules"
-          onSelectionChange={onSelectionChange}
+          onSelectionChange={(items) => onSelectionChange?.(items, "stipulation")}
           selectedItems={selectedItems}
         />
       )
@@ -111,14 +124,14 @@ const LFSSetupTabs = ({ onSelectionChange, selectedItems = [] }: LFSSetupTabsPro
         <DynamicFinancialSection 
           schemaId="vehicle-style-coding"
           title="Vehicle Style Coding Rules"
-          onSelectionChange={onSelectionChange}
+          onSelectionChange={(items) => onSelectionChange?.(items, "vehicle-style-coding")}
           selectedItems={selectedItems}
         />
       )
     }
   ];
 
-  return <TabComponent defaultValue="geo-location" items={tabItems} onValueChange={handleTabChange} />;
+  return <TabComponent defaultValue="financial-program-config" items={tabItems} onValueChange={handleTabChange} />;
 };
 
 export default LFSSetupTabs;

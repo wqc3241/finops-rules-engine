@@ -1,13 +1,14 @@
 
+import { useState } from "react";
+import { toast } from "sonner";
+import DashboardTabs from "./DashboardTabs";
 import LFSSetupTabs from "./LFSSetupTabs";
 import FinancialPricingTabs from "./FinancialPricingTabs";
-import DashboardTabs from "./DashboardTabs";
-import SalesPricingRulesTabs from "./SalesPricingRulesTabs";
 import FinancingDataTableTabs from "./FinancingDataTableTabs";
-import { useState } from "react";
+import SalesPricingRulesTabs from "./SalesPricingRulesTabs";
 import { BatchOperations } from "./BatchOperations";
-import { toast } from "sonner";
 import { ChangeTrackingProvider } from "@/hooks/useChangeTracking";
+import { exportSelectedProgramsBulletinPricing } from "@/utils/selectedProgramsBulletinExport";
 
 interface TabsSectionProps {
   activeSection: string;
@@ -30,6 +31,7 @@ const TabsSection = ({
   const [showBatchOperations, setShowBatchOperations] = useState(false);
   const [batchDeleteCallback, setBatchDeleteCallback] = useState<(() => void) | null>(null);
   const [batchDuplicateCallback, setBatchDuplicateCallback] = useState<(() => void) | null>(null);
+  const [currentSchemaId, setCurrentSchemaId] = useState<string>("");
   
   const handleSelectionChange = (items: string[]) => {
     setSelectedItems(items);
@@ -67,21 +69,44 @@ const TabsSection = ({
     setBatchDuplicateCallback(() => callback);
   };
 
+  const handleBatchDownloadBulletinPricing = async () => {
+    if (selectedItems.length === 0) {
+      toast.error("No items selected for download");
+      return;
+    }
+
+    try {
+      // For financial program config, we need to extract program codes from selected items
+      // This assumes the selected items contain program codes or we can derive them
+      await exportSelectedProgramsBulletinPricing(selectedItems);
+    } catch (error) {
+      console.error('Batch bulletin pricing download failed:', error);
+      toast.error("Batch download failed. Please try again.");
+    }
+  };
+
   // Use the appropriate tabs component based on activeSection
   switch(activeSection) {
     case "Financing Config": 
       return (
         <div className="relative">
           {showBatchOperations && (
-            <BatchOperations 
+            <BatchOperations
               selectedItems={selectedItems}
               onClearSelection={handleClearSelection}
               onBatchDelete={handleBatchDelete}
+              onBatchDuplicate={batchDuplicateCallback ? handleBatchDuplicate : undefined}
+              onBatchDownloadBulletinPricing={currentSchemaId === 'financial-program-config' ? handleBatchDownloadBulletinPricing : undefined}
+              showBulletinPricingDownload={currentSchemaId === 'financial-program-config'}
             />
           )}
           <LFSSetupTabs 
-            onSelectionChange={handleSelectionChange} 
+            onSelectionChange={(items, schemaId) => {
+              handleSelectionChange(items);
+              setCurrentSchemaId(schemaId || "");
+            }}
             selectedItems={selectedItems}
+            onSetBatchDeleteCallback={handleSetBatchDeleteCallback}
           />
         </div>
       );

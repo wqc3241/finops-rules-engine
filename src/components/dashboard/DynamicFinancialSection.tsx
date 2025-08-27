@@ -15,6 +15,8 @@ import { supabase } from "@/integrations/supabase/client";
 import * as XLSX from 'xlsx';
 import { toast } from "sonner";
 import { exportBulletinPricing } from "@/utils/bulletinPricingExport";
+import { exportSelectedProgramsBulletinPricing } from "@/utils/selectedProgramsBulletinExport";
+import BulletinPricingUploadModal from "../BulletinPricingUploadModal";
 
 interface DynamicFinancialSectionProps {
   schemaId: string;
@@ -38,6 +40,7 @@ const DynamicFinancialSection = ({
   const [editData, setEditData] = useState<any>(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [showVersionHistory, setShowVersionHistory] = useState(false);
+  const [showUploadModal, setShowUploadModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(100);
   
@@ -220,8 +223,17 @@ const DynamicFinancialSection = ({
   };
 
   const handleUpload = () => {
-    console.log(`Upload ${title} clicked`);
-    toast.success(`Upload ${title} functionality will be implemented`);
+    if (schemaId === 'financial-program-config') {
+      setShowUploadModal(true);
+    } else {
+      console.log(`Upload ${title} clicked`);
+      toast.success(`Upload ${title} functionality will be implemented`);
+    }
+  };
+  
+  const handleUploadComplete = () => {
+    toast.success("Upload completed successfully!");
+    // Refresh the table data if needed
   };
 
   const handleDownload = async () => {
@@ -283,8 +295,31 @@ const DynamicFinancialSection = ({
     }
   };
 
+  // Handle download for selected bulletin pricing
+  const handleSelectedBulletinPricingDownload = async () => {
+    try {
+      // Get program codes from selected items (assuming selectedItems contains row IDs)
+      const selectedProgramCodes = selectedItems
+        .map(itemId => {
+          const row = data.find((d: any) => d.id === itemId);
+          return row?.programCode || row?.program_code;
+        })
+        .filter(Boolean);
+      
+      if (selectedProgramCodes.length === 0) {
+        toast.error("No valid program codes found in selection");
+        return;
+      }
+      
+      await exportSelectedProgramsBulletinPricing(selectedProgramCodes);
+    } catch (error) {
+      console.error('Selected bulletin pricing export failed:', error);
+      toast.error("Export failed. Please try again.");
+    }
+  };
+
   // Determine if this section should have upload/download buttons
-  const shouldShowUploadDownload = schemaId === 'fee-rules' || schemaId === 'tax-rules' || schemaId === 'bulletin-pricing';
+  const shouldShowUploadDownload = schemaId === 'fee-rules' || schemaId === 'tax-rules' || schemaId === 'bulletin-pricing' || schemaId === 'financial-program-config';
 
   const handlePageChange = (page: number, newPageSize: number) => {
     setCurrentPage(page);
@@ -324,8 +359,8 @@ const DynamicFinancialSection = ({
         canRedo={canRedo && !isLocked}
         onUpload={shouldShowUploadDownload && !isLocked ? handleUpload : undefined}
         onDownload={shouldShowUploadDownload ? handleDownload : undefined}
-        uploadLabel={`Upload ${title}`}
-        downloadLabel={`Download ${title}`}
+        uploadLabel={schemaId === 'financial-program-config' ? 'Upload Bulletin Pricing' : `Upload ${title}`}
+        downloadLabel={schemaId === 'financial-program-config' ? 'Download Bulletin Pricing' : `Download ${title}`}
         onVersionHistory={handleVersionHistory}
         showVersionHistory={true}
       />
@@ -351,6 +386,15 @@ const DynamicFinancialSection = ({
             />
           )}
         </>
+      )}
+
+      {/* Bulletin Pricing Upload Modal for Financial Program Config */}
+      {schemaId === 'financial-program-config' && (
+        <BulletinPricingUploadModal
+          isOpen={showUploadModal}
+          onClose={() => setShowUploadModal(false)}
+          onUploadComplete={handleUploadComplete}
+        />
       )}
 
       {/* Financial Program Wizard */}
