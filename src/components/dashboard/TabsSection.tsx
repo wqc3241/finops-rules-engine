@@ -103,7 +103,6 @@ const TabsSection = ({
             selectedItems={selectedItems}
             onSetBatchDeleteCallback={handleSetBatchDeleteCallback}
             onSetBatchDuplicateCallback={handleSetBatchDuplicateCallback}
-            onSetBatchDownloadBulletinPricingCallback={handleSetBatchDownloadBulletinPricingCallback}
           />
         </div>
       );

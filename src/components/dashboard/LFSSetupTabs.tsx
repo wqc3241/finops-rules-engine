@@ -7,11 +7,10 @@ interface LFSSetupTabsProps {
   selectedItems?: string[];
   onSetBatchDeleteCallback?: (callback: () => void) => void;
   onSetBatchDuplicateCallback?: (callback: () => void) => void;
-  onSetBatchDownloadBulletinPricingCallback?: (callback: () => void) => void;
 }
 
-const LFSSetupTabs = ({ onSelectionChange, selectedItems = [], onSetBatchDeleteCallback, onSetBatchDuplicateCallback, onSetBatchDownloadBulletinPricingCallback }: LFSSetupTabsProps) => {
-  const [activeTab, setActiveTab] = useState("financial-program-config");
+const LFSSetupTabs = ({ onSelectionChange, selectedItems = [], onSetBatchDeleteCallback, onSetBatchDuplicateCallback }: LFSSetupTabsProps) => {
+  const [activeTab, setActiveTab] = useState("geo-location");
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
@@ -22,24 +21,6 @@ const LFSSetupTabs = ({ onSelectionChange, selectedItems = [], onSetBatchDeleteC
   };
 
   const tabItems: TabItem[] = [
-    {
-      value: "financial-program-config",
-      label: "Financial Program Config",
-      content: (
-        <DynamicFinancialSection 
-          schemaId="financial-program-config"
-          title="Financial Program Config Rules"
-          onSelectionChange={(items) => {
-            console.log('Financial Program Config - Selection changed:', items);
-            onSelectionChange?.(items, "financial-program-config");
-          }}
-          selectedItems={selectedItems}
-          onSetBatchDeleteCallback={onSetBatchDeleteCallback}
-          onSetBatchDuplicateCallback={onSetBatchDuplicateCallback}
-          onSetBatchDownloadBulletinPricingCallback={onSetBatchDownloadBulletinPricingCallback}
-        />
-      )
-    },
     {
       value: "geo-location",
       label: "Geo",
@@ -138,7 +119,7 @@ const LFSSetupTabs = ({ onSelectionChange, selectedItems = [], onSetBatchDeleteC
     }
   ];
 
-  return <TabComponent defaultValue="financial-program-config" items={tabItems} onValueChange={handleTabChange} />;
+  return <TabComponent defaultValue="geo-location" items={tabItems} onValueChange={handleTabChange} />;
 };
 
 export default LFSSetupTabs;
