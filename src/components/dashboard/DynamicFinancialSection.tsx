@@ -107,7 +107,7 @@ const DynamicFinancialSection = ({
     if (schemaId === 'financial-program-config' && onSetBatchDownloadBulletinPricingCallback) {
       onSetBatchDownloadBulletinPricingCallback(handleSelectedBulletinPricingDownload);
     }
-  }, [schemaId, onSetBatchDownloadBulletinPricingCallback]);
+  }, [schemaId, onSetBatchDownloadBulletinPricingCallback, selectedItems, data]);
   const { saveState, undo, redo, canUndo, canRedo } = useUndoRedo(data, schema || { id: '', name: '', columns: [] });
 
   const handleDataChange = (newData: any) => {
