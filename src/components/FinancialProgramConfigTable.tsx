@@ -109,7 +109,7 @@ const initialFinancialProgramConfigs: FinancialProgramConfig[] = [
 ];
 
 interface FinancialProgramConfigTableProps {
-  onEditProgram?: (id: string) => void;
+  onEditProgram?: (program: FinancialProgramConfig) => void;
 }
 
 const FinancialProgramConfigTable = ({ onEditProgram }: FinancialProgramConfigTableProps) => {
@@ -148,8 +148,10 @@ const FinancialProgramConfigTable = ({ onEditProgram }: FinancialProgramConfigTa
   };
 
   const handleEditClick = (id: string) => {
-    // This will be handled by the parent component
-    onEditProgram?.(id);
+    const program = programs.find(p => p.id === id);
+    if (program) {
+      onEditProgram?.(program);
+    }
   };
 
   const handleCopy = (id: string) => {

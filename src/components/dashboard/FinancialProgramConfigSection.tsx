@@ -33,7 +33,7 @@ const FinancialProgramConfigSection = ({
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [internalShowAddModal, setInternalShowAddModal] = useState(false);
   const [showWizard, setShowWizard] = useState(false);
-  const [editingProgram, setEditingProgram] = useState<string | null>(null);
+  const [editingProgramData, setEditingProgramData] = useState<any>(null);
   const [newConfig, setNewConfig] = useState({
     programName: "",
     programType: "",
@@ -55,8 +55,8 @@ const FinancialProgramConfigSection = ({
     setShowAddModal(false);
   };
 
-  const handleEditProgram = (programId: string) => {
-    setEditingProgram(programId);
+  const handleEditProgram = (program: any) => {
+    setEditingProgramData(program);
     setShowWizard(true);
   };
 
@@ -65,23 +65,32 @@ const FinancialProgramConfigSection = ({
     setShowWizard(false);
   };
 
-  // Mock function to get program data for editing
-  const getEditData = (programId: string): WizardData => {
-    // In a real app, this would fetch the actual program data
+  // Transform program data to wizard format
+  const getEditData = (program: any): WizardData => {
+    const templateMetadata = program.templateMetadata || {};
+    
+    // Convert date format from "2/1/2025" to "2025-02-01"
+    const formatDateForInput = (dateStr: string) => {
+      if (!dateStr) return "";
+      try {
+        const date = new Date(dateStr);
+        return date.toISOString().split('T')[0];
+      } catch {
+        return dateStr;
+      }
+    };
+
     return {
-      vehicleStyleIds: ["L25A1"],
-      vehicleCondition: "New",
-      orderTypes: ["INV"],
-      financialProduct: "USLN",
-      pricingTypes: ["RATE", "MARKUP"],
-      pricingTypeConfigs: {
-        "RATE": { creditProfiles: ["PROFILE1"], pricingConfigs: ["CONFIG1"] },
-        "MARKUP": { creditProfiles: ["PROFILE2"], pricingConfigs: ["CONFIG2"] }
-      },
-      programStartDate: "2025-02-01",
-      programEndDate: "2025-02-28",
-      lenders: ["LENDER1"],
-      geoCodes: ["US"]
+      vehicleStyleIds: [program.vehicleStyleId].filter(Boolean),
+      vehicleCondition: program.financingVehicleCondition || "New",
+      orderTypes: program.orderTypes ? program.orderTypes.split(', ').filter(Boolean) : ["INV"],
+      financialProduct: program.financialProductId || "",
+      pricingTypes: templateMetadata.pricingTypes || [],
+      pricingTypeConfigs: templateMetadata.pricingTypeConfigs || {},
+      programStartDate: formatDateForInput(program.programStartDate),
+      programEndDate: formatDateForInput(program.programEndDate),
+      lenders: templateMetadata.lenders || [],
+      geoCodes: templateMetadata.geoCodes || []
     };
   };
 
@@ -143,8 +152,8 @@ const FinancialProgramConfigSection = ({
         open={showWizard}
         onOpenChange={setShowWizard}
         onComplete={handleWizardComplete}
-        editData={editingProgram ? getEditData(editingProgram) : undefined}
-        isEditMode={!!editingProgram}
+        editData={editingProgramData ? getEditData(editingProgramData) : undefined}
+        isEditMode={!!editingProgramData}
       />
     </div>
   );

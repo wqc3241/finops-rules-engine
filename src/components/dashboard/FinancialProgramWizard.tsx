@@ -355,7 +355,13 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
             advertised: 'Yes',
             version: 1,
             priority: 1,
-            order_types: wizardData.orderTypes.join(', ')
+            order_types: wizardData.orderTypes.join(', '),
+            template_metadata: {
+              pricingTypes: wizardData.pricingTypes,
+              pricingTypeConfigs: wizardData.pricingTypeConfigs,
+              lenders: wizardData.lenders,
+              geoCodes: wizardData.geoCodes
+            }
           };
         })
       );
