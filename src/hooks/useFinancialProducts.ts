@@ -1,5 +1,6 @@
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 export type FinancialProduct = {
   id: string;
@@ -10,59 +11,40 @@ export type FinancialProduct = {
   isActive: boolean;
 };
 
-const initialFinancialProducts: FinancialProduct[] = [
-  {
-    id: "USLN",
-    productType: "Loan",
-    productSubtype: null,
-    geoCode: "NA-US",
-    category: "Personal",
-    isActive: true
-  },
-  {
-    id: "USLE",
-    productType: "Lease",
-    productSubtype: null,
-    geoCode: "NA-US",
-    category: "Personal",
-    isActive: true
-  },
-  {
-    id: "DEL",
-    productType: "Loan",
-    productSubtype: null,
-    geoCode: "EU-DE",
-    category: "Personal",
-    isActive: true
-  },
-  {
-    id: "DELC",
-    productType: "Loan",
-    productSubtype: null,
-    geoCode: "EU-DE",
-    category: "Commercial",
-    isActive: true
-  },
-  {
-    id: "KSABM",
-    productType: "Balloon",
-    productSubtype: "Monthly",
-    geoCode: "ME-KSA",
-    category: "Personal",
-    isActive: true
-  },
-  {
-    id: "KSABA",
-    productType: "Balloon",
-    productSubtype: "Annual",
-    geoCode: "ME-KSA",
-    category: "Personal",
-    isActive: true
-  }
-];
-
 export function useFinancialProducts() {
-  // In real app, this could fetch and update from state
-  const [products] = useState(initialFinancialProducts);
+  const [products, setProducts] = useState<FinancialProduct[]>([]);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchProducts = async () => {
+      const { data, error } = await supabase
+        .from("financial_products")
+        .select("product_id, product_type, product_subtype, geo_code, category, is_active")
+        .eq("is_active", true)
+        .order("product_id", { ascending: true });
+
+      if (error) {
+        console.error("Failed to load financial products:", error);
+        return;
+      }
+
+      if (!isMounted) return;
+      const mapped: FinancialProduct[] = (data || []).map((r: any) => ({
+        id: r.product_id,
+        productType: r.product_type,
+        productSubtype: r.product_subtype ?? null,
+        geoCode: r.geo_code ?? "",
+        category: r.category ?? "",
+        isActive: r.is_active ?? true,
+      }));
+      setProducts(mapped);
+    };
+
+    fetchProducts();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   return products;
 }
