@@ -503,17 +503,40 @@ export const useDynamicFinancialData = ({
       const tableName = getTableName(schemaId);
       const primaryKey = await getPrimaryKey(schemaId);
 
-      // Normalize arrays to comma-separated strings for text columns
-      const sanitizedValue = Array.isArray(value)
-        ? value.map((v) => (typeof v === 'string' ? v.trim() : String(v))).filter(Boolean).join(',')
-        : value;
+      // Determine column type (array vs scalar) from DB metadata when possible
+      let isArrayColumn = false;
+      try {
+        const { data: columnData } = await supabase.rpc('get_table_columns', {
+          table_name_param: tableName,
+        }) as { data: Array<{ column_name: string; data_type: string }> | null };
+        const colInfo = columnData?.find((c) => c.column_name === columnKey);
+        if (colInfo && typeof colInfo.data_type === 'string') {
+          isArrayColumn = colInfo.data_type.toLowerCase().includes('array');
+        }
+      } catch (metaErr) {
+        console.warn('Could not load column metadata, proceeding with best-effort handling:', metaErr);
+      }
 
-      const { data: updatedRow, error } = await supabase
+      // Normalize value based on detected type
+      const normalizeToArray = (v: any) =>
+        Array.isArray(v)
+          ? v.map((x) => (typeof x === 'string' ? x.trim() : String(x))).filter(Boolean)
+          : typeof v === 'string'
+            ? v.split(',').map((x) => x.trim()).filter(Boolean)
+            : [String(v)];
+
+      let preparedValue: any = value;
+      if (isArrayColumn) {
+        preparedValue = normalizeToArray(value);
+      } else if (Array.isArray(value)) {
+        // For scalar text columns that use multi-select UI, store as comma-separated string
+        preparedValue = normalizeToArray(value).join(',');
+      }
+
+      const { error } = await supabase
         .from(tableName as any)
-        .update({ [columnKey]: sanitizedValue })
-        .eq(primaryKey, rowId)
-        .select()
-        .maybeSingle();
+        .update({ [columnKey]: preparedValue })
+        .eq(primaryKey, rowId);
 
       if (error) {
         console.error('Supabase update error:', error);
@@ -522,10 +545,10 @@ export const useDynamicFinancialData = ({
       }
 
       // Merge into local state optimistically
-      setData((prev) => prev.map((r) => (r[primaryKey] === rowId ? { ...r, [columnKey]: sanitizedValue } : r)));
+      setData((prev) => prev.map((r) => (r[primaryKey] === rowId ? { ...r, [columnKey]: preparedValue } : r)));
       // no return to satisfy void
     } catch (err) {
-      // Already toasted above
+      // Already toasted above if Supabase error
       throw err;
     }
   }, [schemaId, getPrimaryKey]);
