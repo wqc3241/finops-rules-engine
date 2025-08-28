@@ -61,9 +61,9 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
       if (isEditMode && editData) {
         setWizardData({
           vehicleStyleIds: Array.isArray(editData.vehicleStyleIds) ? editData.vehicleStyleIds : [editData.vehicleStyleId || ""],
-          vehicleCondition: editData.financingVehicleCondition || "",
-          orderTypes: editData.orderTypes ? editData.orderTypes.split(', ').filter(Boolean) : [],
-          financialProduct: editData.financialProductId || "",
+          vehicleCondition: editData.vehicleCondition || "",
+          orderTypes: Array.isArray(editData.orderTypes) ? editData.orderTypes : [],
+          financialProduct: editData.financialProduct || "",
           pricingTypes: Array.isArray(editData.pricingTypes) ? editData.pricingTypes : [],
           pricingTypeConfigs: editData.pricingTypeConfigs || {},
           programStartDate: editData.programStartDate || "",
