@@ -139,17 +139,17 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
           name: r.lender_name,
         })));
         setGeos((geoRes.data || []).map((r: any) => ({
-          id: r.geo_code,
-          name: r.location_name,
+          id: (r.geo_code ?? '').toString().trim(),
+          name: (r.location_name ?? '').toString().trim(),
         })));
         setFinancialProducts((financialRes.data || [])
           .filter((r: any) => r.is_active !== false)
           .map((r: any) => ({
-            id: r.product_id,
-            productType: r.product_type,
-            productSubtype: r.product_subtype,
-            geoCode: r.geo_code,
-            category: r.category,
+            id: (r.product_id ?? '').toString().trim(),
+            productType: (r.product_type ?? '').toString().trim(),
+            productSubtype: r.product_subtype != null ? r.product_subtype.toString().trim() : null,
+            geoCode: (r.geo_code ?? '').toString().trim(),
+            category: (r.category ?? '').toString().trim(),
           })));
       } catch (error) {
         console.error('Error loading data:', error);
@@ -241,12 +241,13 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
 
   // Filter pricing types based on selected financial product
   const filteredPricingTypes = useMemo(() => {
-    if (!wizardData.financialProduct) {
+    const selectedId = wizardData.financialProduct?.trim();
+    if (!selectedId) {
       return pricingTypes;
     }
     
     return pricingTypes.filter(type => 
-      type.financialProducts.includes(wizardData.financialProduct)
+      (type.financialProducts || []).some(fp => (fp || '').trim() === selectedId)
     );
   }, [pricingTypes, wizardData.financialProduct]);
 
