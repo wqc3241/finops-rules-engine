@@ -15,8 +15,8 @@ import { supabase } from "@/integrations/supabase/client";
 import * as XLSX from 'xlsx';
 import { toast } from "sonner";
 import { exportBulletinPricing } from "@/utils/bulletinPricingExport";
-
 import BulletinPricingUploadModal from "../BulletinPricingUploadModal";
+import { exportSelectedProgramsBulletinPricing } from "@/utils/selectedProgramsBulletinExport";
 
 interface DynamicFinancialSectionProps {
   schemaId: string;
@@ -311,25 +311,34 @@ const {
 
   // Handle download for selected bulletin pricing
   const handleSelectedBulletinPricingDownload = async () => {
+    // Get program codes from selected items (assuming selectedItems contains row IDs)
+    const selectedProgramCodes = selectedItems
+      .map(itemId => {
+        const row = data.find((d: any) => d.id === itemId);
+        return row?.programCode || row?.program_code;
+      })
+      .filter(Boolean) as string[];
+
+    if (selectedProgramCodes.length === 0) {
+      toast.error("No valid program codes found in selection");
+      return;
+    }
+
     try {
-      // Get program codes from selected items (assuming selectedItems contains row IDs)
-      const selectedProgramCodes = selectedItems
-        .map(itemId => {
-          const row = data.find((d: any) => d.id === itemId);
-          return row?.programCode || row?.program_code;
-        })
-        .filter(Boolean);
-      
-      if (selectedProgramCodes.length === 0) {
-        toast.error("No valid program codes found in selection");
-        return;
-      }
-      
+      toast.info("Exporting bulletin pricing...");
       const result = await exportBulletinPricing(selectedProgramCodes);
       toast.success(`Export complete! Generated ${result.fileCount} file(s).`);
-    } catch (error) {
-      console.error('Selected bulletin pricing export failed:', error);
-      toast.error("Export failed. Please try again.");
+    } catch (error: any) {
+      console.error('Selected bulletin pricing export failed (primary):', error);
+      const msg = typeof error?.message === 'string' ? error.message : '';
+      if (msg.includes('No bulletin pricing data')) {
+        // Fallback: create data + template workbook for the selection
+        toast.info("No pricing data found for selection. Generating templates...");
+        await exportSelectedProgramsBulletinPricing(selectedProgramCodes);
+        toast.success("Template export complete.");
+      } else {
+        toast.error("Export failed. Please try again.");
+      }
     }
   };
 
