@@ -195,15 +195,48 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
     });
   }, [vehicleStyles]);
 
-  // Filter financial products based on selected geo codes
+  // Hierarchical geo matching function
+  const isGeoMatch = (selectedGeoCodes: string[], productGeoCode: string | null) => {
+    if (!productGeoCode) return false;
+    
+    return selectedGeoCodes.some(selectedGeo => {
+      // Exact match
+      if (selectedGeo === productGeoCode) return true;
+      
+      // Parent-to-child: selected geo is parent of product geo  
+      // (e.g., selected "NA-US", product has "NA-US-CA")
+      if (productGeoCode.startsWith(selectedGeo + '-')) return true;
+      
+      // Child-to-parent: selected geo is child of product geo
+      // (e.g., selected "NA-US-CA", product has "NA-US") 
+      if (selectedGeo.startsWith(productGeoCode + '-')) return true;
+      
+      return false;
+    });
+  };
+
+  // Filter financial products based on selected geo codes with hierarchical matching
   const filteredFinancialProducts = useMemo(() => {
+    console.log('🔍 Filtering financial products:', {
+      geoCodes: wizardData.geoCodes,
+      totalProducts: financialProducts.length,
+      productsWithGeoCodes: financialProducts.map(p => ({ id: p.id, geoCode: p.geoCode }))
+    });
+
     if (wizardData.geoCodes.length === 0) {
       return financialProducts;
     }
     
-    return financialProducts.filter(product => 
-      wizardData.geoCodes.includes(product.geoCode)
+    const filtered = financialProducts.filter(product => 
+      isGeoMatch(wizardData.geoCodes, product.geoCode)
     );
+
+    console.log('✅ Filtered products:', {
+      matchedProducts: filtered.map(p => ({ id: p.id, geoCode: p.geoCode })),
+      count: filtered.length
+    });
+
+    return filtered;
   }, [financialProducts, wizardData.geoCodes]);
 
   // Filter pricing types based on selected financial product
