@@ -11,20 +11,20 @@ import { useVehicleConditions } from "@/hooks/useVehicleConditions";
 
 interface FinancialProgramConfig {
   id: string;
-  programCode: string;
-  cloneFrom: string | null;
+  program_code: string;
+  clone_from: string | null;
   priority: number;
-  financialProductId: string;
-  productType: string | null;
-  vehicleStyleId: string;
-  financingVehicleCondition: string;
-  programStartDate: string;
-  programEndDate: string;
-  isActive: boolean;
-  orderTypes: string;
+  financial_product_id: string;
+  product_type: string | null;
+  vehicle_style_id: string;
+  financing_vehicle_condition: string;
+  program_start_date: string;
+  program_end_date: string;
+  is_active: string;
+  order_types: string;
   version: number;
-  templateMetadata: Record<string, any>;
-  created?: string;
+  template_metadata: Record<string, any>;
+  created_at?: string;
   updated?: string;
 }
 
@@ -61,14 +61,14 @@ const FinancialProgramConfigRow = ({
         />
       </TableCell>
       <TableCell>{program.id}</TableCell>
-      <TableCell>{program.programCode}</TableCell>
-      <TableCell>{program.cloneFrom || "-"}</TableCell>
+      <TableCell>{program.program_code}</TableCell>
+      <TableCell>{program.clone_from || "-"}</TableCell>
       <TableCell>{program.priority}</TableCell>
       <TableCell>
         <Select
-          value={program.financialProductId}
+          value={program.financial_product_id}
           onValueChange={(value) => {
-            onUpdate(program.id, 'financialProductId', value);
+            onUpdate(program.id, 'financial_product_id', value);
             toast.success("Updated Financial Product ID");
           }}
         >
@@ -86,9 +86,9 @@ const FinancialProgramConfigRow = ({
       </TableCell>
       <TableCell>
         <Select
-          value={program.vehicleStyleId}
+          value={program.vehicle_style_id}
           onValueChange={(value) => {
-            onUpdate(program.id, 'vehicleStyleId', value);
+            onUpdate(program.id, 'vehicle_style_id', value);
             toast.success("Updated Vehicle Style ID");
           }}
         >
@@ -106,9 +106,9 @@ const FinancialProgramConfigRow = ({
       </TableCell>
       <TableCell>
         <Select
-          value={program.financingVehicleCondition}
+          value={program.financing_vehicle_condition}
           onValueChange={(value) => {
-            onUpdate(program.id, 'financingVehicleCondition', value);
+            onUpdate(program.id, 'financing_vehicle_condition', value);
             toast.success("Updated Vehicle Condition");
           }}
         >
@@ -124,19 +124,19 @@ const FinancialProgramConfigRow = ({
           </SelectContent>
         </Select>
       </TableCell>
-      <TableCell>{program.programStartDate}</TableCell>
-      <TableCell>{program.programEndDate}</TableCell>
+      <TableCell>{program.program_start_date}</TableCell>
+      <TableCell>{program.program_end_date}</TableCell>
       <TableCell>
-        <Badge className={program.isActive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}>
-          {program.isActive ? "Active" : "Inactive"}
+        <Badge className={program.is_active === 'Yes' ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}>
+          {program.is_active === 'Yes' ? "Active" : "Inactive"}
         </Badge>
       </TableCell>
-      <TableCell>{program.orderTypes}</TableCell>
+      <TableCell>{program.order_types}</TableCell>
       <TableCell>{program.version}</TableCell>
       <TableCell>
-        {Object.keys(program.templateMetadata).length > 0 ? (
+        {Object.keys(program.template_metadata || {}).length > 0 ? (
           <div className="text-xs space-y-1">
-            {Object.entries(program.templateMetadata).map(([key, value]) => (
+            {Object.entries(program.template_metadata || {}).map(([key, value]) => (
               <div key={key} className="bg-muted/50 px-2 py-1 rounded">
                 <span className="font-medium">{key}:</span> {Array.isArray(value) ? value.join(", ") : String(value)}
               </div>
@@ -149,7 +149,7 @@ const FinancialProgramConfigRow = ({
       <TableCell>
         <TableRowActions
           rowId={program.id}
-          programCode={program.programCode}
+          programCode={program.program_code}
           onEdit={() => onEdit(program.id)}
           onCopy={onCopy}
           onDelete={onDelete}

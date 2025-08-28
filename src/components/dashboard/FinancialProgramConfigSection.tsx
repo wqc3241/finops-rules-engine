@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import FinancialProgramWizard, { WizardData } from "./FinancialProgramWizard";
 import { FinancialProgramRecord } from "@/types/financialProgram";
+import { useDynamicFinancialData } from "@/hooks/useDynamicFinancialData";
 
 interface FinancialProgramConfigSectionProps {
   title: string;
@@ -38,6 +39,13 @@ const FinancialProgramConfigSection = ({
     programName: "",
     programType: "",
     description: ""
+  });
+
+  // Use real database connection
+  const { data: programsData, loading } = useDynamicFinancialData({
+    schemaId: 'financial-program-config',
+    selectedItems: selectedItems,
+    onSelectionChange: onSelectionChange
   });
 
   // Use either external state (if provided) or internal state
@@ -67,7 +75,8 @@ const FinancialProgramConfigSection = ({
 
   // Transform program data to wizard format
   const getEditData = (program: any): WizardData => {
-    const templateMetadata = program.templateMetadata || {};
+    // Use template_metadata from Supabase schema
+    const templateMetadata = program.template_metadata || {};
     
     // Convert date format from "2/1/2025" to "2025-02-01"
     const formatDateForInput = (dateStr: string) => {
@@ -81,14 +90,14 @@ const FinancialProgramConfigSection = ({
     };
 
     return {
-      vehicleStyleIds: [program.vehicleStyleId].filter(Boolean),
-      vehicleCondition: program.financingVehicleCondition || "New",
-      orderTypes: program.orderTypes ? program.orderTypes.split(', ').filter(Boolean) : ["INV"],
-      financialProduct: program.financialProductId || "",
+      vehicleStyleIds: [program.vehicle_style_id].filter(Boolean),
+      vehicleCondition: program.financing_vehicle_condition || "New",
+      orderTypes: program.order_types ? program.order_types.split(', ').filter(Boolean) : ["INV"],
+      financialProduct: program.financial_product_id || "",
       pricingTypes: templateMetadata.pricingTypes || [],
       pricingTypeConfigs: templateMetadata.pricingTypeConfigs || {},
-      programStartDate: formatDateForInput(program.programStartDate),
-      programEndDate: formatDateForInput(program.programEndDate),
+      programStartDate: formatDateForInput(program.program_start_date),
+      programEndDate: formatDateForInput(program.program_end_date),
       lenders: templateMetadata.lenders || [],
       geoCodes: templateMetadata.geoCodes || []
     };
@@ -104,7 +113,13 @@ const FinancialProgramConfigSection = ({
         <Button onClick={handleAddClick}>Add New Record</Button>
       </SectionHeader>
 
-      {!isCollapsed && <FinancialProgramConfigTable onEditProgram={handleEditProgram} />}
+      {!isCollapsed && (
+        <FinancialProgramConfigTable 
+          programs={programsData} 
+          loading={loading}
+          onEditProgram={handleEditProgram} 
+        />
+      )}
 
       <Dialog open={showAddModal} onOpenChange={setShowAddModal}>
         <DialogContent>
