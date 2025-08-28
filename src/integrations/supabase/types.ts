@@ -330,9 +330,6 @@ export type Database = {
       bulletin_pricing: {
         Row: {
           advertised: boolean | null
-          approval_status: string | null
-          approved_at: string | null
-          approved_by: string | null
           bulletin_id: string
           created_by: string | null
           credit_profile: string | null
@@ -344,13 +341,9 @@ export type Database = {
           pricing_value: number | null
           updated_date: string | null
           upload_date: string | null
-          upload_session_id: string | null
         }
         Insert: {
           advertised?: boolean | null
-          approval_status?: string | null
-          approved_at?: string | null
-          approved_by?: string | null
           bulletin_id: string
           created_by?: string | null
           credit_profile?: string | null
@@ -362,13 +355,9 @@ export type Database = {
           pricing_value?: number | null
           updated_date?: string | null
           upload_date?: string | null
-          upload_session_id?: string | null
         }
         Update: {
           advertised?: boolean | null
-          approval_status?: string | null
-          approved_at?: string | null
-          approved_by?: string | null
           bulletin_id?: string
           created_by?: string | null
           credit_profile?: string | null
@@ -380,17 +369,8 @@ export type Database = {
           pricing_value?: number | null
           updated_date?: string | null
           upload_date?: string | null
-          upload_session_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "bulletin_pricing_upload_session_id_fkey"
-            columns: ["upload_session_id"]
-            isOneToOne: false
-            referencedRelation: "bulletin_upload_sessions"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       bulletin_upload_errors: {
         Row: {
@@ -1682,18 +1662,21 @@ export type Database = {
       pricing_types: {
         Row: {
           created_at: string | null
+          financial_products_list: string[] | null
           id: string
           type_code: string
           type_name: string
         }
         Insert: {
           created_at?: string | null
+          financial_products_list?: string[] | null
           id?: string
           type_code: string
           type_name: string
         }
         Update: {
           created_at?: string | null
+          financial_products_list?: string[] | null
           id?: string
           type_code?: string
           type_name?: string

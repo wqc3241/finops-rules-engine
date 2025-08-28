@@ -164,7 +164,23 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
   }, [open]);
 
   const updateWizardData = (updates: Partial<WizardData>) => {
-    setWizardData(prev => ({ ...prev, ...updates }));
+    setWizardData(prev => {
+      const newData = { ...prev, ...updates };
+      
+      // Clear dependent selections when parent selections change
+      if (updates.geoCodes !== undefined || updates.lenders !== undefined) {
+        // Clear financial product and pricing types when geo codes change
+        newData.financialProduct = "";
+        newData.pricingTypes = [];
+      }
+      
+      if (updates.financialProduct !== undefined && updates.financialProduct !== prev.financialProduct) {
+        // Clear pricing types when financial product changes
+        newData.pricingTypes = [];
+      }
+      
+      return newData;
+    });
   };
 
   // Computed values
@@ -178,6 +194,28 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
       return { id: String(id), label };
     });
   }, [vehicleStyles]);
+
+  // Filter financial products based on selected geo codes
+  const filteredFinancialProducts = useMemo(() => {
+    if (wizardData.geoCodes.length === 0) {
+      return financialProducts;
+    }
+    
+    return financialProducts.filter(product => 
+      wizardData.geoCodes.includes(product.geoCode)
+    );
+  }, [financialProducts, wizardData.geoCodes]);
+
+  // Filter pricing types based on selected financial product
+  const filteredPricingTypes = useMemo(() => {
+    if (!wizardData.financialProduct) {
+      return pricingTypes;
+    }
+    
+    return pricingTypes.filter(type => 
+      type.financialProducts.includes(wizardData.financialProduct)
+    );
+  }, [pricingTypes, wizardData.financialProduct]);
 
   const vehicleConditions = [
     { id: "New", label: "New" },
@@ -452,131 +490,6 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
             </CardContent>
           </Card>
 
-          {/* Financial Product & Pricing */}
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base">Financial Product & Pricing</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-3">
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Financial Product *</Label>
-                  <RadioGroup
-                    value={wizardData.financialProduct}
-                    onValueChange={(value) => updateWizardData({ financialProduct: value })}
-                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2"
-                  >
-                    {financialProducts.map((product) => (
-                      <div key={product.id} className="flex items-start space-x-3 p-2 border rounded-lg hover:bg-accent/50 transition-colors h-10">
-                        <RadioGroupItem value={product.id} id={product.id} className="mt-0.5 scale-75" />
-                        <Label htmlFor={product.id} className="text-xs cursor-pointer flex-1 min-w-0">
-                          <div className="font-medium leading-tight">
-                            {product.productType}{product.productSubtype ? ` - ${product.productSubtype}` : ''}
-                          </div>
-                          <div className="text-[10px] text-muted-foreground">{product.geoCode} | {product.category}</div>
-                        </Label>
-                      </div>
-                    ))}
-                  </RadioGroup>
-                </div>
-
-                <Separator />
-
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Available Pricing Types *</Label>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
-                    {[...pricingTypes].sort((a, b) => a.typeName.localeCompare(b.typeName)).map((type) => (
-                      <div key={type.typeCode} className="flex items-start space-x-3 p-2 border rounded-lg hover:bg-accent/50 transition-colors h-10">
-                        <Checkbox
-                          id={type.typeCode}
-                          checked={wizardData.pricingTypes.includes(type.typeCode)}
-                          onCheckedChange={(checked) => {
-                            const updated = checked
-                              ? [...wizardData.pricingTypes, type.typeCode]
-                              : wizardData.pricingTypes.filter(code => code !== type.typeCode);
-                            updateWizardData({ pricingTypes: updated });
-                          }}
-                          className="mt-0.5 scale-75"
-                        />
-                        <Label htmlFor={type.typeCode} className="text-xs cursor-pointer flex-1 min-w-0">
-                          <div className="font-medium leading-tight">{type.typeName}</div>
-                          <div className="text-[10px] text-muted-foreground">{type.typeCode}</div>
-                        </Label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Configuration */}
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base">Configuration</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label className="font-medium text-sm">Credit Profiles *</Label>
-                  <div className="space-y-1 max-h-64 overflow-y-auto border rounded-lg p-2">
-                    {creditProfiles.map((profile) => (
-                      <div key={profile.id} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`credit-${profile.id}`}
-                          checked={wizardData.creditProfiles.includes(profile.id)}
-                          onCheckedChange={(checked) => {
-                            const updated = checked
-                              ? [...wizardData.creditProfiles, profile.id]
-                              : wizardData.creditProfiles.filter(id => id !== profile.id);
-                            updateWizardData({ creditProfiles: updated });
-                          }}
-                        />
-                        <Label htmlFor={`credit-${profile.id}`} className="text-sm cursor-pointer">
-                          {profile.id}
-                          <div className="text-xs text-muted-foreground flex flex-wrap gap-x-4 gap-y-1 mt-1">
-                            <span>Priority: {profile.priority}</span>
-                            <span>Credit Score: {profile.minCreditScore} - {profile.maxCreditScore}</span>
-                            <span>Income: ${profile.minIncome?.toLocaleString()} - ${profile.maxIncome?.toLocaleString()}</span>
-                            <span>Employment: {profile.employmentType}</span>
-                          </div>
-                        </Label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="font-medium text-sm">Pricing Configurations *</Label>
-                  <div className="space-y-1 max-h-64 overflow-y-auto border rounded-lg p-2">
-                    {pricingConfigs.map((config) => (
-                      <div key={config.id} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`pricing-${config.id}`}
-                          checked={wizardData.pricingConfigs.includes(config.id)}
-                          onCheckedChange={(checked) => {
-                            const updated = checked
-                              ? [...wizardData.pricingConfigs, config.id]
-                              : wizardData.pricingConfigs.filter(id => id !== config.id);
-                            updateWizardData({ pricingConfigs: updated });
-                          }}
-                        />
-                        <Label htmlFor={`pricing-${config.id}`} className="text-sm cursor-pointer">
-                          {config.id}
-                          <div className="text-xs text-muted-foreground flex flex-wrap gap-x-4 gap-y-1 mt-1">
-                            <span>Priority: {config.priority}</span>
-                            <span>LTV: {config.minLTV}% - {config.maxLTV}%</span>
-                            <span>Term: {config.minTerm} - {config.maxTerm} months</span>
-                          </div>
-                        </Label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
           {/* Program Dates */}
           <Card>
             <CardHeader className="pb-2">
@@ -656,6 +569,151 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
                         <Label htmlFor={`geo-${geo.id}`} className="text-sm cursor-pointer">
                           {geo.id}
                           <div className="text-xs text-muted-foreground">{geo.name}</div>
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Financial Product & Pricing */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Financial Product & Pricing</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-3">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Financial Product *</Label>
+                  {wizardData.geoCodes.length === 0 ? (
+                    <div className="text-sm text-muted-foreground p-2 bg-muted rounded-lg">
+                      Please select Geographic Regions first to see available Financial Products.
+                    </div>
+                  ) : filteredFinancialProducts.length === 0 ? (
+                    <div className="text-sm text-muted-foreground p-2 bg-muted rounded-lg">
+                      No financial products available for the selected geographic regions.
+                    </div>
+                  ) : (
+                    <RadioGroup
+                      value={wizardData.financialProduct}
+                      onValueChange={(value) => updateWizardData({ financialProduct: value })}
+                      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2"
+                    >
+                      {filteredFinancialProducts.map((product) => (
+                        <div key={product.id} className="flex items-start space-x-3 p-2 border rounded-lg hover:bg-accent/50 transition-colors h-10">
+                          <RadioGroupItem value={product.id} id={product.id} className="mt-0.5 scale-75" />
+                          <Label htmlFor={product.id} className="text-xs cursor-pointer flex-1 min-w-0">
+                            <div className="font-medium leading-tight">
+                              {product.productType}{product.productSubtype ? ` - ${product.productSubtype}` : ''}
+                            </div>
+                            <div className="text-[10px] text-muted-foreground">{product.geoCode} | {product.category}</div>
+                          </Label>
+                        </div>
+                      ))}
+                    </RadioGroup>
+                  )}
+                </div>
+
+                <Separator />
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Available Pricing Types *</Label>
+                  {!wizardData.financialProduct ? (
+                    <div className="text-sm text-muted-foreground p-2 bg-muted rounded-lg">
+                      Please select a Financial Product first to see available Pricing Types.
+                    </div>
+                  ) : filteredPricingTypes.length === 0 ? (
+                    <div className="text-sm text-muted-foreground p-2 bg-muted rounded-lg">
+                      No pricing types available for the selected financial product.
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
+                      {[...filteredPricingTypes].sort((a, b) => a.typeName.localeCompare(b.typeName)).map((type) => (
+                        <div key={type.typeCode} className="flex items-start space-x-3 p-2 border rounded-lg hover:bg-accent/50 transition-colors h-10">
+                          <Checkbox
+                            id={type.typeCode}
+                            checked={wizardData.pricingTypes.includes(type.typeCode)}
+                            onCheckedChange={(checked) => {
+                              const updated = checked
+                                ? [...wizardData.pricingTypes, type.typeCode]
+                                : wizardData.pricingTypes.filter(code => code !== type.typeCode);
+                              updateWizardData({ pricingTypes: updated });
+                            }}
+                            className="mt-0.5 scale-75"
+                          />
+                          <Label htmlFor={type.typeCode} className="text-xs cursor-pointer flex-1 min-w-0">
+                            <div className="font-medium leading-tight">{type.typeName}</div>
+                            <div className="text-[10px] text-muted-foreground">{type.typeCode}</div>
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Configuration */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Configuration</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label className="font-medium text-sm">Credit Profiles *</Label>
+                  <div className="space-y-1 max-h-64 overflow-y-auto border rounded-lg p-2">
+                    {creditProfiles.map((profile) => (
+                      <div key={profile.id} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`credit-${profile.id}`}
+                          checked={wizardData.creditProfiles.includes(profile.id)}
+                          onCheckedChange={(checked) => {
+                            const updated = checked
+                              ? [...wizardData.creditProfiles, profile.id]
+                              : wizardData.creditProfiles.filter(id => id !== profile.id);
+                            updateWizardData({ creditProfiles: updated });
+                          }}
+                        />
+                        <Label htmlFor={`credit-${profile.id}`} className="text-sm cursor-pointer">
+                          {profile.id}
+                          <div className="text-xs text-muted-foreground flex flex-wrap gap-x-4 gap-y-1 mt-1">
+                            <span>Priority: {profile.priority}</span>
+                            <span>Credit Score: {profile.minCreditScore} - {profile.maxCreditScore}</span>
+                            <span>Income: ${profile.minIncome?.toLocaleString()} - ${profile.maxIncome?.toLocaleString()}</span>
+                            <span>Employment: {profile.employmentType}</span>
+                          </div>
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="font-medium text-sm">Pricing Configurations *</Label>
+                  <div className="space-y-1 max-h-64 overflow-y-auto border rounded-lg p-2">
+                    {pricingConfigs.map((config) => (
+                      <div key={config.id} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`pricing-${config.id}`}
+                          checked={wizardData.pricingConfigs.includes(config.id)}
+                          onCheckedChange={(checked) => {
+                            const updated = checked
+                              ? [...wizardData.pricingConfigs, config.id]
+                              : wizardData.pricingConfigs.filter(id => id !== config.id);
+                            updateWizardData({ pricingConfigs: updated });
+                          }}
+                        />
+                        <Label htmlFor={`pricing-${config.id}`} className="text-sm cursor-pointer">
+                          {config.id}
+                          <div className="text-xs text-muted-foreground flex flex-wrap gap-x-4 gap-y-1 mt-1">
+                            <span>Priority: {config.priority}</span>
+                            <span>LTV: {config.minLTV}% - {config.maxLTV}%</span>
+                            <span>Term: {config.minTerm} - {config.maxTerm} months</span>
+                          </div>
                         </Label>
                       </div>
                     ))}
