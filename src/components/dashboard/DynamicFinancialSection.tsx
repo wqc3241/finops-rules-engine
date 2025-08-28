@@ -47,22 +47,23 @@ const DynamicFinancialSection = ({
   const [pageSize, setPageSize] = useState(100);
   
   const { getSchema, getSyncSchema, updateSchema, loading: schemaLoading } = useDynamicTableSchemas();
-  const { 
-    data, 
-    setData, 
-    handleAddNew, 
-    loading, 
-    isLocked,
-    totalCount 
-  } = useDynamicFinancialData({
-    schemaId,
-    selectedItems,
-    onSelectionChange,
-    onSetBatchDeleteCallback,
-    onSetBatchDuplicateCallback,
-    currentPage,
-    pageSize
-  });
+const { 
+  data, 
+  setData, 
+  handleAddNew, 
+  loading, 
+  isLocked,
+  totalCount,
+  updateCell 
+} = useDynamicFinancialData({
+  schemaId,
+  selectedItems,
+  onSelectionChange,
+  onSetBatchDeleteCallback,
+  onSetBatchDuplicateCallback,
+  currentPage,
+  pageSize
+});
 
   // Temporarily disable approval workflow to fix runtime error
   const isTableLocked = (schemaId: string) => false;
@@ -392,6 +393,7 @@ const DynamicFinancialSection = ({
               onSelectionChange={onSelectionChange ? (items: string[]) => onSelectionChange(items, schemaId) : undefined}
               selectedItems={selectedItems}
               onEditRow={isLocked ? undefined : handleEditRow}
+              onSaveCell={isLocked ? undefined : updateCell}
               totalCount={totalCount}
               pageSize={pageSize}
               currentPage={currentPage}

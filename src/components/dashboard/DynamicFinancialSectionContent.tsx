@@ -10,6 +10,7 @@ interface DynamicFinancialSectionContentProps {
   onSelectionChange?: (items: string[]) => void;
   selectedItems: string[];
   onEditRow?: (rowId: string, rowData: TableData) => void;
+  onSaveCell?: (rowId: string, columnKey: string, value: any) => Promise<void> | void;
   // Pagination props
   totalCount?: number;
   pageSize?: number;
@@ -25,6 +26,7 @@ const DynamicFinancialSectionContent = ({
   onSelectionChange,
   selectedItems,
   onEditRow,
+  onSaveCell,
   totalCount,
   pageSize,
   currentPage,
@@ -44,6 +46,7 @@ const DynamicFinancialSectionContent = ({
           selectedItems={selectedItems}
           allowColumnManagement={true}
           onEditRow={onEditRow}
+          onSaveCell={onSaveCell}
           totalCount={totalCount}
           pageSize={pageSize}
           currentPage={currentPage}

@@ -497,6 +497,39 @@ export const useDynamicFinancialData = ({
     }
   }, [schemaId, getPrimaryKey]);
 
+  // Function to update a single cell in Supabase and local state
+  const updateCellSupabase = useCallback(async (rowId: string, columnKey: string, value: any) => {
+    try {
+      const tableName = getTableName(schemaId);
+      const primaryKey = await getPrimaryKey(schemaId);
+
+      // Normalize arrays to comma-separated strings for text columns
+      const sanitizedValue = Array.isArray(value)
+        ? value.map((v) => (typeof v === 'string' ? v.trim() : String(v))).filter(Boolean).join(',')
+        : value;
+
+      const { data: updatedRow, error } = await supabase
+        .from(tableName as any)
+        .update({ [columnKey]: sanitizedValue })
+        .eq(primaryKey, rowId)
+        .select()
+        .maybeSingle();
+
+      if (error) {
+        console.error('Supabase update error:', error);
+        toast.error(`Failed to update: ${error.message}`);
+        throw error;
+      }
+
+      // Merge into local state optimistically
+      setData((prev) => prev.map((r) => (r[primaryKey] === rowId ? { ...r, [columnKey]: sanitizedValue } : r)));
+      // no return to satisfy void
+    } catch (err) {
+      // Already toasted above
+      throw err;
+    }
+  }, [schemaId, getPrimaryKey]);
+
   // Function to update data in Supabase
   const handleDataChange = useCallback(async (newData: TableData[]) => {
     setData(newData);
@@ -513,6 +546,7 @@ export const useDynamicFinancialData = ({
     refetch: loadData,
     totalCount,
     pageSize,
-    currentPage
+    currentPage,
+    updateCell: updateCellSupabase,
   };
 };

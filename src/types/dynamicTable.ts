@@ -38,6 +38,8 @@ export interface DynamicTableProps {
   selectedItems?: string[];
   allowColumnManagement?: boolean;
   onEditRow?: (rowId: string, rowData: TableData) => void;
+  // New: persist single-cell edits
+  onSaveCell?: (rowId: string, columnKey: string, value: any) => Promise<void> | void;
   // Pagination props
   totalCount?: number;
   pageSize?: number;

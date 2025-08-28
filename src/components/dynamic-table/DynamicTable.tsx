@@ -44,13 +44,14 @@ const DynamicTable = ({
   selectedItems = [],
   allowColumnManagement = false,
   onEditRow,
+  onSaveCell,
   totalCount,
   pageSize,
   currentPage,
   onPageChange
 }: DynamicTableProps) => {
   const [editingCell, setEditingCell] = useState<{ rowId: string, columnKey: string } | null>(null);
-  const [editValue, setEditValue] = useState<string>("");
+  const [editValue, setEditValue] = useState<any>("");
   const [showColumnManagement, setShowColumnManagement] = useState(false);
   const [showAddColumn, setShowAddColumn] = useState(false);
   const [insertPosition, setInsertPosition] = useState(0);
@@ -122,21 +123,31 @@ const DynamicTable = ({
     setEditValue(currentValue);
   };
 
-  const handleSaveEdit = () => {
-    if (!editingCell) return;
-    
-    const updatedData = data.map(row => {
-      if ((row as any)[primaryKey] === editingCell.rowId) {
-        return { ...row, [editingCell.columnKey]: editValue };
-      }
-      return row;
-    });
-    
-    onDataChange(updatedData);
+const handleSaveEdit = async () => {
+  if (!editingCell) return;
+
+  const updatedData = data.map(row => {
+    if ((row as any)[primaryKey] === editingCell.rowId) {
+      return { ...row, [editingCell.columnKey]: editValue };
+    }
+    return row;
+  });
+
+  // Optimistic UI update
+  onDataChange(updatedData);
+
+  try {
+    if (onSaveCell) {
+      await onSaveCell(editingCell.rowId, editingCell.columnKey, editValue);
+    }
+    toast.success("Cell updated successfully");
+  } catch (e: any) {
+    toast.error(e?.message || "Failed to save change");
+  } finally {
     setEditingCell(null);
     setEditValue("");
-    toast.success("Cell updated successfully");
-  };
+  }
+};
 
   const handleCancelEdit = () => {
     setEditingCell(null);
