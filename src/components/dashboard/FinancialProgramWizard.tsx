@@ -23,8 +23,7 @@ export interface WizardData {
   orderTypes: string[];
   financialProduct: string;
   pricingTypes: string[];
-  creditProfiles: string[];
-  pricingConfigs: string[];
+  pricingTypeConfigs: Record<string, { creditProfiles: string[]; pricingConfigs: string[] }>;
   programStartDate: string;
   programEndDate: string;
   lenders: string[];
@@ -48,8 +47,7 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
     orderTypes: [],
     financialProduct: "",
     pricingTypes: [],
-    creditProfiles: [],
-    pricingConfigs: [],
+    pricingTypeConfigs: {},
     programStartDate: "",
     programEndDate: "",
     lenders: [],
@@ -67,8 +65,7 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
           orderTypes: editData.orderTypes ? editData.orderTypes.split(', ').filter(Boolean) : [],
           financialProduct: editData.financialProductId || "",
           pricingTypes: Array.isArray(editData.pricingTypes) ? editData.pricingTypes : [],
-          creditProfiles: Array.isArray(editData.creditProfiles) ? editData.creditProfiles : [],
-          pricingConfigs: Array.isArray(editData.pricingConfigs) ? editData.pricingConfigs : [],
+          pricingTypeConfigs: editData.pricingTypeConfigs || {},
           programStartDate: editData.programStartDate || "",
           programEndDate: editData.programEndDate || "",
           lenders: Array.isArray(editData.lenders) ? editData.lenders : [],
@@ -81,8 +78,7 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
           orderTypes: [],
           financialProduct: "",
           pricingTypes: [],
-          creditProfiles: [],
-          pricingConfigs: [],
+          pricingTypeConfigs: {},
           programStartDate: "",
           programEndDate: "",
           lenders: [],
@@ -172,11 +168,34 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
         // Clear financial product and pricing types when geo codes change
         newData.financialProduct = "";
         newData.pricingTypes = [];
+        newData.pricingTypeConfigs = {};
       }
       
       if (updates.financialProduct !== undefined && updates.financialProduct !== prev.financialProduct) {
         // Clear pricing types when financial product changes
         newData.pricingTypes = [];
+        newData.pricingTypeConfigs = {};
+      }
+      
+      if (updates.pricingTypes !== undefined) {
+        // Update pricingTypeConfigs when pricing types change
+        const newConfigs = { ...prev.pricingTypeConfigs };
+        
+        // Remove configurations for unselected pricing types
+        Object.keys(newConfigs).forEach(pricingType => {
+          if (!updates.pricingTypes!.includes(pricingType)) {
+            delete newConfigs[pricingType];
+          }
+        });
+        
+        // Add empty configurations for newly selected pricing types
+        updates.pricingTypes.forEach(pricingType => {
+          if (!newConfigs[pricingType]) {
+            newConfigs[pricingType] = { creditProfiles: [], pricingConfigs: [] };
+          }
+        });
+        
+        newData.pricingTypeConfigs = newConfigs;
       }
       
       return newData;
@@ -264,17 +283,23 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
   ];
 
   const isFormValid = () => {
-    return wizardData.vehicleStyleIds.length > 0 && 
-           wizardData.vehicleCondition && 
-           wizardData.orderTypes.length > 0 && 
-           wizardData.financialProduct && 
-           wizardData.pricingTypes.length > 0 && 
-           wizardData.creditProfiles.length > 0 && 
-           wizardData.pricingConfigs.length > 0 && 
-           wizardData.programStartDate && 
-           wizardData.programEndDate && 
-           wizardData.lenders.length > 0 && 
-           wizardData.geoCodes.length > 0;
+    const basicFieldsValid = wizardData.vehicleStyleIds.length > 0 && 
+                             wizardData.vehicleCondition && 
+                             wizardData.orderTypes.length > 0 && 
+                             wizardData.financialProduct && 
+                             wizardData.pricingTypes.length > 0 && 
+                             wizardData.programStartDate && 
+                             wizardData.programEndDate && 
+                             wizardData.lenders.length > 0 && 
+                             wizardData.geoCodes.length > 0;
+    
+    // Check that each selected pricing type has at least one credit profile and pricing config
+    const configsValid = wizardData.pricingTypes.every(pricingType => {
+      const config = wizardData.pricingTypeConfigs[pricingType];
+      return config && config.creditProfiles.length > 0 && config.pricingConfigs.length > 0;
+    });
+    
+    return basicFieldsValid && configsValid;
   };
 
   const handleNext = async () => {
@@ -696,64 +721,160 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
               <CardTitle className="text-base">Configuration</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label className="font-medium text-sm">Credit Profiles *</Label>
-                  <div className="space-y-1 max-h-64 overflow-y-auto border rounded-lg p-2">
-                    {creditProfiles.map((profile) => (
-                      <div key={profile.id} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`credit-${profile.id}`}
-                          checked={wizardData.creditProfiles.includes(profile.id)}
-                          onCheckedChange={(checked) => {
-                            const updated = checked
-                              ? [...wizardData.creditProfiles, profile.id]
-                              : wizardData.creditProfiles.filter(id => id !== profile.id);
-                            updateWizardData({ creditProfiles: updated });
-                          }}
-                        />
-                        <Label htmlFor={`credit-${profile.id}`} className="text-sm cursor-pointer">
-                          {profile.id}
-                          <div className="text-xs text-muted-foreground flex flex-wrap gap-x-4 gap-y-1 mt-1">
-                            <span>Priority: {profile.priority}</span>
-                            <span>Credit Score: {profile.minCreditScore} - {profile.maxCreditScore}</span>
-                            <span>Income: ${profile.minIncome?.toLocaleString()} - ${profile.maxIncome?.toLocaleString()}</span>
-                            <span>Employment: {profile.employmentType}</span>
-                          </div>
-                        </Label>
-                      </div>
-                    ))}
-                  </div>
+              {wizardData.pricingTypes.length === 0 ? (
+                <div className="text-sm text-muted-foreground p-2 bg-muted rounded-lg">
+                  Please select Pricing Types first to configure Credit Profiles and Pricing Configurations.
                 </div>
+              ) : (
+                <div className="space-y-6">
+                  {/* Credit Profiles Matrix */}
+                  <div className="space-y-3">
+                    <Label className="font-medium text-sm">Credit Profiles *</Label>
+                    <div className="border rounded-lg overflow-hidden">
+                      <div className="bg-muted/50 px-3 py-2 border-b">
+                        <div className="grid gap-2" style={{ gridTemplateColumns: `2fr ${wizardData.pricingTypes.map(() => '1fr').join(' ')}` }}>
+                          <div className="text-xs font-medium">Profile Details</div>
+                          {wizardData.pricingTypes.map((pricingType) => {
+                            const pricingTypeName = filteredPricingTypes.find(pt => pt.typeCode === pricingType)?.typeName || pricingType;
+                            return (
+                              <div key={pricingType} className="text-xs font-medium text-center">
+                                {pricingTypeName}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                      <div className="max-h-64 overflow-y-auto">
+                        {creditProfiles.map((profile) => (
+                          <div key={profile.id} className="px-3 py-2 border-b last:border-b-0 hover:bg-accent/20">
+                            <div className="grid gap-2" style={{ gridTemplateColumns: `2fr ${wizardData.pricingTypes.map(() => '1fr').join(' ')}` }}>
+                              <div className="pr-4">
+                                <div className="font-medium text-sm">{profile.id}</div>
+                                <div className="text-xs text-muted-foreground flex flex-wrap gap-x-3 gap-y-1 mt-1">
+                                  <span>Priority: {profile.priority}</span>
+                                  <span>Credit: {profile.minCreditScore}-{profile.maxCreditScore}</span>
+                                  <span>Income: ${profile.minIncome?.toLocaleString()}-${profile.maxIncome?.toLocaleString()}</span>
+                                  <span>Employment: {profile.employmentType}</span>
+                                </div>
+                              </div>
+                              {wizardData.pricingTypes.map((pricingType) => (
+                                <div key={pricingType} className="flex justify-center">
+                                  <Checkbox
+                                    checked={wizardData.pricingTypeConfigs[pricingType]?.creditProfiles.includes(profile.id) || false}
+                                    onCheckedChange={(checked) => {
+                                      const currentConfig = wizardData.pricingTypeConfigs[pricingType] || { creditProfiles: [], pricingConfigs: [] };
+                                      const updatedProfiles = checked
+                                        ? [...currentConfig.creditProfiles, profile.id]
+                                        : currentConfig.creditProfiles.filter(id => id !== profile.id);
+                                      
+                                      updateWizardData({
+                                        pricingTypeConfigs: {
+                                          ...wizardData.pricingTypeConfigs,
+                                          [pricingType]: {
+                                            ...currentConfig,
+                                            creditProfiles: updatedProfiles
+                                          }
+                                        }
+                                      });
+                                    }}
+                                    className="scale-75"
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
 
-                <div className="space-y-2">
-                  <Label className="font-medium text-sm">Pricing Configurations *</Label>
-                  <div className="space-y-1 max-h-64 overflow-y-auto border rounded-lg p-2">
-                    {pricingConfigs.map((config) => (
-                      <div key={config.id} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`pricing-${config.id}`}
-                          checked={wizardData.pricingConfigs.includes(config.id)}
-                          onCheckedChange={(checked) => {
-                            const updated = checked
-                              ? [...wizardData.pricingConfigs, config.id]
-                              : wizardData.pricingConfigs.filter(id => id !== config.id);
-                            updateWizardData({ pricingConfigs: updated });
-                          }}
-                        />
-                        <Label htmlFor={`pricing-${config.id}`} className="text-sm cursor-pointer">
-                          {config.id}
-                          <div className="text-xs text-muted-foreground flex flex-wrap gap-x-4 gap-y-1 mt-1">
-                            <span>Priority: {config.priority}</span>
-                            <span>LTV: {config.minLTV}% - {config.maxLTV}%</span>
-                            <span>Term: {config.minTerm} - {config.maxTerm} months</span>
-                          </div>
-                        </Label>
+                  {/* Pricing Configurations Matrix */}
+                  <div className="space-y-3">
+                    <Label className="font-medium text-sm">Pricing Configurations *</Label>
+                    <div className="border rounded-lg overflow-hidden">
+                      <div className="bg-muted/50 px-3 py-2 border-b">
+                        <div className="grid gap-2" style={{ gridTemplateColumns: `2fr ${wizardData.pricingTypes.map(() => '1fr').join(' ')}` }}>
+                          <div className="text-xs font-medium">Configuration Details</div>
+                          {wizardData.pricingTypes.map((pricingType) => {
+                            const pricingTypeName = filteredPricingTypes.find(pt => pt.typeCode === pricingType)?.typeName || pricingType;
+                            return (
+                              <div key={pricingType} className="text-xs font-medium text-center">
+                                {pricingTypeName}
+                              </div>
+                            );
+                          })}
+                        </div>
                       </div>
-                    ))}
+                      <div className="max-h-64 overflow-y-auto">
+                        {pricingConfigs.map((config) => (
+                          <div key={config.id} className="px-3 py-2 border-b last:border-b-0 hover:bg-accent/20">
+                            <div className="grid gap-2" style={{ gridTemplateColumns: `2fr ${wizardData.pricingTypes.map(() => '1fr').join(' ')}` }}>
+                              <div className="pr-4">
+                                <div className="font-medium text-sm">{config.id}</div>
+                                <div className="text-xs text-muted-foreground flex flex-wrap gap-x-3 gap-y-1 mt-1">
+                                  <span>Priority: {config.priority}</span>
+                                  <span>LTV: {config.minLTV}%-{config.maxLTV}%</span>
+                                  <span>Term: {config.minTerm}-{config.maxTerm} months</span>
+                                </div>
+                              </div>
+                              {wizardData.pricingTypes.map((pricingType) => (
+                                <div key={pricingType} className="flex justify-center">
+                                  <Checkbox
+                                    checked={wizardData.pricingTypeConfigs[pricingType]?.pricingConfigs.includes(config.id) || false}
+                                    onCheckedChange={(checked) => {
+                                      const currentConfig = wizardData.pricingTypeConfigs[pricingType] || { creditProfiles: [], pricingConfigs: [] };
+                                      const updatedConfigs = checked
+                                        ? [...currentConfig.pricingConfigs, config.id]
+                                        : currentConfig.pricingConfigs.filter(id => id !== config.id);
+                                      
+                                      updateWizardData({
+                                        pricingTypeConfigs: {
+                                          ...wizardData.pricingTypeConfigs,
+                                          [pricingType]: {
+                                            ...currentConfig,
+                                            pricingConfigs: updatedConfigs
+                                          }
+                                        }
+                                      });
+                                    }}
+                                    className="scale-75"
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Configuration Summary */}
+                  <div className="space-y-2">
+                    <Label className="font-medium text-sm">Configuration Status</Label>
+                    <div className="grid gap-2">
+                      {wizardData.pricingTypes.map((pricingType) => {
+                        const pricingTypeName = filteredPricingTypes.find(pt => pt.typeCode === pricingType)?.typeName || pricingType;
+                        const config = wizardData.pricingTypeConfigs[pricingType];
+                        const isComplete = config && config.creditProfiles.length > 0 && config.pricingConfigs.length > 0;
+                        
+                        return (
+                          <div key={pricingType} className={`text-xs p-2 rounded-lg ${isComplete ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-orange-50 text-orange-700 border border-orange-200'}`}>
+                            <span className="font-medium">{pricingTypeName}:</span>
+                            {isComplete ? (
+                              <span className="ml-2">
+                                ✓ {config.creditProfiles.length} credit profile{config.creditProfiles.length !== 1 ? 's' : ''}, 
+                                {config.pricingConfigs.length} pricing config{config.pricingConfigs.length !== 1 ? 's' : ''}
+                              </span>
+                            ) : (
+                              <span className="ml-2">⚠ Incomplete configuration - please select credit profiles and pricing configurations</span>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </CardContent>
           </Card>
         </div>

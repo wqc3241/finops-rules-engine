@@ -83,11 +83,11 @@ const ConfirmationStep = ({ data, vehicleStyleOptions, financialProducts, progra
             <div>
               <div className="text-xs font-medium text-muted-foreground">Credit Profiles</div>
               <div className="flex flex-wrap gap-1 mt-1">
-                {data.creditProfiles.slice(0, 2).map((profile) => (
-                  <Badge key={profile} variant="secondary" className="text-xs">{profile}</Badge>
+                {Object.values(data.pricingTypeConfigs).flatMap(config => config.creditProfiles).slice(0, 2).map((profile, index) => (
+                  <Badge key={`${profile}-${index}`} variant="secondary" className="text-xs">{profile}</Badge>
                 ))}
-                {data.creditProfiles.length > 2 && (
-                  <Badge variant="secondary" className="text-xs">+{data.creditProfiles.length - 2}</Badge>
+                {Object.values(data.pricingTypeConfigs).flatMap(config => config.creditProfiles).length > 2 && (
+                  <Badge variant="secondary" className="text-xs">+{Object.values(data.pricingTypeConfigs).flatMap(config => config.creditProfiles).length - 2}</Badge>
                 )}
               </div>
             </div>

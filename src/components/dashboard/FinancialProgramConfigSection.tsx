@@ -74,8 +74,10 @@ const FinancialProgramConfigSection = ({
       orderTypes: ["INV"],
       financialProduct: "USLN",
       pricingTypes: ["RATE", "MARKUP"],
-      creditProfiles: ["PROFILE1"],
-      pricingConfigs: ["CONFIG1"],
+      pricingTypeConfigs: {
+        "RATE": { creditProfiles: ["PROFILE1"], pricingConfigs: ["CONFIG1"] },
+        "MARKUP": { creditProfiles: ["PROFILE2"], pricingConfigs: ["CONFIG2"] }
+      },
       programStartDate: "2025-02-01",
       programEndDate: "2025-02-28",
       lenders: ["LENDER1"],
