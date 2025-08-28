@@ -82,7 +82,7 @@ export async function exportBulletinPricing(selectedProgramCodes?: string[]) {
       const desiredName = `${programCode}_${pricingType}`;
       const sheetName = makeUniqueSheetName(desiredName, usedNames);
 
-      const worksheet = createWorksheet(programCode, pricingType, rows, programConfigs || []);
+      const worksheet = createUnifiedWorksheet(programCode, pricingType, rows, programConfigs || []);
       XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
       usedNames.add(sheetName);
     }
@@ -393,6 +393,180 @@ function createWorksheet(
     geoCodes.length + 3,
     creditProfiles.length * pricingConfigs.length + 1
   );
+
+  return ws;
+}
+
+function createUnifiedWorksheet(
+  programCode: string,
+  pricingType: string,
+  data: BulletinPricingRow[],
+  programConfigs: any[]
+): XLSX.WorkSheet {
+  const norm = (s?: string | null) =>
+    (s ?? '')
+      .replace(/\u200B/g, '')
+      .trim()
+      .replace(/\s+/g, ' ')
+      .toUpperCase();
+
+  const normLender = (s?: string | null) =>
+    (s ?? '')
+      .replace(/[\u200B\u00A0]/g, '')
+      .trim()
+      .replace(/[()\[\]{}"']/g, '')
+      .replace(/\s+/g, ' ')
+      .toUpperCase();
+
+  const splitLenders = (s?: string | null) => {
+    const raw = (s ?? '').replace(/[\u200B\u00A0]/g, '').trim();
+    if (!raw) return [] as string[];
+    const parts = raw.includes(',') ? raw.split(',') : [raw];
+    return parts
+      .map((l) => normLender(l))
+      .filter(Boolean)
+      .map((l) => (l.replace(/\s+/g, '').includes('LFS') ? 'LFS' : l));
+  };
+
+  const programConfig = programConfigs.find((config) => config.program_code === programCode);
+
+  const geoCodes = Array.from(
+    new Set(data.map((row) => norm(row.geo_code)).filter((v) => !!v))
+  ).sort();
+  const creditProfiles = Array.from(
+    new Set(data.map((row) => norm(row.credit_profile)).filter((v) => !!v))
+  ).sort();
+  const pricingConfigs = Array.from(
+    new Set(data.map((row) => norm(row.pricing_config)).filter((v) => !!v))
+  ).sort();
+
+  // Collect lenders and index data by lender|geo|profile|config
+  const lendersSet = new Set<string>();
+  const index = new Map<string, BulletinPricingRow[]>();
+  for (const row of data) {
+    const lenders = splitLenders(row.lender_list) as string[];
+    const effectiveLenders = lenders.length > 0 ? lenders : ['UNKNOWN'];
+    for (const lender of effectiveLenders) {
+      lendersSet.add(lender);
+      const key = `${lender}|${norm(row.geo_code)}|${norm(row.credit_profile)}|${norm(row.pricing_config)}`;
+      if (!index.has(key)) index.set(key, []);
+      index.get(key)!.push(row);
+    }
+  }
+
+  const lenders = Array.from(lendersSet).sort();
+
+  const worksheet: any[][] = [];
+
+  // Metadata row (A1)
+  const metadata = `Program: ${programCode} | Lenders: ALL | Product: ${
+    programConfig?.financial_product_id || 'N/A'
+  } | Vehicle: ${programConfig?.vehicle_style_id || 'N/A'}/${
+    programConfig?.financing_vehicle_condition || 'N/A'
+  } | Dates: ${programConfig?.program_start_date || 'N/A'}–${
+    programConfig?.program_end_date || 'N/A'
+  }`;
+  worksheet[0] = [metadata];
+
+  // Header rows
+  const row1: any[] = ['', ''];
+  for (const creditProfile of creditProfiles) {
+    for (let j = 0; j < pricingConfigs.length; j++) {
+      row1.push(creditProfile);
+    }
+  }
+  worksheet[1] = row1;
+
+  const row2: any[] = ['LENDER', 'GEO_CODE'];
+  for (let i = 0; i < creditProfiles.length; i++) {
+    for (const pricingConfig of pricingConfigs) {
+      row2.push(pricingConfig);
+    }
+  }
+  worksheet[2] = row2;
+
+  let missingCount = 0;
+  const sampleMisses: Array<{ lender: string; geo: string; profile: string; config: string }> = [];
+
+  let outRowIndex = 3;
+  for (const lender of lenders) {
+    for (const geo of geoCodes) {
+      const rowArr: any[] = [lender, geo];
+
+      for (const creditProfile of creditProfiles) {
+        for (const pricingConfig of pricingConfigs) {
+          const key = `${lender}|${geo}|${creditProfile}|${pricingConfig}`;
+          const matchingRows = index.get(key) || [];
+
+          let cellValue: any = '';
+          if (matchingRows.length === 0) {
+            missingCount++;
+            if (sampleMisses.length < 10) {
+              sampleMisses.push({ lender, geo, profile: creditProfile, config: pricingConfig });
+            }
+            cellValue = 'N/A';
+          } else if (matchingRows.length === 1) {
+            cellValue = matchingRows[0].pricing_value as any;
+          } else {
+            const sorted = matchingRows.sort((a, b) => {
+              const aDate = new Date(a.upload_date || a.updated_date || 0);
+              const bDate = new Date(b.upload_date || b.updated_date || 0);
+              return bDate.getTime() - aDate.getTime();
+            });
+            cellValue = sorted[0].pricing_value as any;
+          }
+
+          if (typeof cellValue === 'string' && cellValue.trim() !== '' && !isNaN(Number(cellValue))) {
+            cellValue = Number(cellValue);
+          }
+          rowArr.push(cellValue);
+        }
+      }
+
+      worksheet[outRowIndex++] = rowArr;
+    }
+  }
+
+  if (missingCount > 0) {
+    console.warn('Bulletin Export Debug: unified missing combinations', {
+      programCode,
+      pricingType,
+      missingCount,
+      sampleMisses,
+    });
+  }
+
+  const ws = XLSX.utils.aoa_to_sheet(worksheet);
+
+  // Column widths (LENDER, GEO_CODE wider)
+  const numCols = 2 + creditProfiles.length * pricingConfigs.length;
+  const colWidths = [] as Array<{ width: number }>;
+  for (let i = 0; i < numCols; i++) {
+    colWidths.push({ width: i === 0 ? 10 : i === 1 ? 16 : 12 });
+  }
+  (ws as any)['!cols'] = colWidths;
+
+  // Freeze top 3 rows and first 2 columns
+  (ws as any)['!freeze'] = { xSplit: 2, ySplit: 3 };
+
+  // Number formats based on pricingType
+  let numFmt = '0.000';
+  if (pricingType?.toLowerCase().includes('apr') || pricingType?.toLowerCase().includes('rate')) {
+    numFmt = '0.000%';
+  } else if (pricingType?.toLowerCase().includes('money')) {
+    numFmt = '0.000000';
+  } else if (pricingType?.toLowerCase().includes('rv')) {
+    numFmt = '0.0%';
+  }
+  const numRows = worksheet.length;
+  for (let r = 3; r < numRows; r++) {
+    for (let c = 2; c < numCols; c++) {
+      const cellAddr = XLSX.utils.encode_cell({ r, c });
+      if ((ws as any)[cellAddr] && typeof (ws as any)[cellAddr].v === 'number') {
+        (ws as any)[cellAddr].z = numFmt;
+      }
+    }
+  }
 
   return ws;
 }
