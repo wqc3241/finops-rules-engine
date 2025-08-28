@@ -92,6 +92,37 @@ class DynamicSchemaService {
     return true;
   };
 
+  // Check if a field is a multi-select field
+  private isMultiSelectField = (tableName: string, columnName: string, value: any): boolean => {
+    // Known multi-select fields
+    if (tableName === 'pricing_types' && columnName === 'financial_products_list') return true;
+    
+    // Check if it's an array
+    if (Array.isArray(value)) return true;
+    
+    return false;
+  };
+
+  // Get source table for a field
+  private getSourceTableForField = (tableName: string, columnName: string): string | undefined => {
+    // Known relationships
+    if (tableName === 'pricing_types' && columnName === 'financial_products_list') {
+      return 'financial-products';
+    }
+    
+    return undefined;
+  };
+
+  // Get display column for a table
+  private getDisplayColumnForTable = (sourceTable: string): string | undefined => {
+    const displayMap: Record<string, string> = {
+      'financial-products': 'productType',
+      'lender': 'lenderName',
+    };
+    
+    return displayMap[sourceTable] || 'id';
+  };
+
   // Get primary key columns dynamically from database schema
   private async getPrimaryKeys(tableName: string): Promise<string[]> {
     try {
@@ -227,6 +258,11 @@ class DynamicSchemaService {
         const dataType = this.inferDataType(value);
         const isEditable = this.isColumnEditable(columnName, dataType, true, null) && !isPrimaryKey;
         
+        // Detect multi-select fields and their dependencies
+        const isArray = Array.isArray(value);
+        const isMultiSelect = this.isMultiSelectField(tableName, columnName, value);
+        const sourceTable = this.getSourceTableForField(tableName, columnName);
+        
         return {
           id: columnName,
           name: this.formatColumnName(columnName),
@@ -235,7 +271,11 @@ class DynamicSchemaService {
           inputType: isPrimaryKey || !isEditable ? 'Output' : 'Input',
           isRequired: isPrimaryKey && isEditable,
           sortable: true,
-          editable: isEditable
+          editable: isEditable,
+          isArray,
+          isMultiSelect,
+          sourceTable,
+          displayColumn: sourceTable ? this.getDisplayColumnForTable(sourceTable) : undefined
         };
       });
 

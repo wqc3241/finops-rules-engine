@@ -5,6 +5,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import ForeignKeySelect from "./ForeignKeySelect";
 import OrderTypeMultiSelect from "./OrderTypeMultiSelect";
+import FinancialProductMultiSelect from "./FinancialProductMultiSelect";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { ColumnDefinition, TableData } from "@/types/dynamicTable";
 
@@ -77,8 +78,19 @@ const TableCellRenderer = ({
     );
   }
 
-  // Special dropdowns (program config)
-  if (isEditing && column.editable) {
+  // Multi-select fields (financial products, order types, etc.)
+  if (isEditing && column.editable && column.isMultiSelect) {
+    // Multi-select for financial products
+    if (column.sourceTable === "financial-products") {
+      return (
+        <FinancialProductMultiSelect
+          value={editValue}
+          onChange={setEditValue}
+          onSave={handleSaveEdit}
+          onCancel={handleCancelEdit}
+        />
+      );
+    }
     // Multi-select for order types
     if (column.key === "orderTypes") {
       return (
@@ -90,6 +102,10 @@ const TableCellRenderer = ({
         />
       );
     }
+  }
+
+  // Special dropdowns (program config)
+  if (isEditing && column.editable) {
     if (column.key === "financialProductId") {
       return (
         <div className="flex items-center space-x-2">
@@ -199,6 +215,25 @@ const TableCellRenderer = ({
 
   if (column.type === 'number' && typeof value === 'number') {
     return value.toLocaleString();
+  }
+
+  // Special display for multi-select fields
+  if (column.isMultiSelect && (Array.isArray(value) || typeof value === 'string')) {
+    const displayValues = Array.isArray(value) 
+      ? value 
+      : typeof value === 'string' 
+        ? value.split(',').map(v => v.trim()).filter(Boolean)
+        : [];
+    
+    return (
+      <div className="flex flex-wrap gap-1">
+        {displayValues.map((val, idx) => (
+          <Badge key={idx} variant="secondary" className="text-xs">
+            {val}
+          </Badge>
+        ))}
+      </div>
+    );
   }
 
   // Safely render arrays/objects (e.g., jsonb columns)

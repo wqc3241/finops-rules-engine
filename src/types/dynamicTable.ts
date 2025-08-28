@@ -15,6 +15,8 @@ export interface ColumnDefinition {
   sourceColumn?: string;
   isForeignKey?: boolean;          // <--- NEW: indicate FK column
   displayColumn?: string;          // <--- NEW: display field for FK relation
+  isMultiSelect?: boolean;         // <--- NEW: indicate multi-select column
+  isArray?: boolean;               // <--- NEW: indicate array type column
 }
 
 export interface DynamicTableSchema {
