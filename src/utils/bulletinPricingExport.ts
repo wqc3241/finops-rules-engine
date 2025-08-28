@@ -82,7 +82,7 @@ export async function exportBulletinPricing(selectedProgramCodes?: string[]) {
       const desiredName = `${programCode}_${pricingType}`;
       const sheetName = makeUniqueSheetName(desiredName, usedNames);
 
-      const worksheet = createUnifiedWorksheet(programCode, pricingType, rows, programConfigs || []);
+      const worksheet = createWorksheet(programCode, pricingType, rows, programConfigs || []);
       XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
       usedNames.add(sheetName);
     }
