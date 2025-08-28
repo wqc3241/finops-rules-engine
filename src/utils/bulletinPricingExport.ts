@@ -71,114 +71,30 @@ export async function exportBulletinPricing(selectedProgramCodes?: string[]) {
       includesTargets: ['NL_GDE26_0825_1_SUBRV', 'NL_GDE26_0825_1_SUBMF'].map(code => (programConfigs || []).some((c: any) => c.program_code === code))
     });
 
-    // Step 3: Group data by lender
-    const lenderGroups = groupByLender(bulletinData);
-    console.info('Bulletin Export Debug:lenderGroupsKeys', { keys: Object.keys(lenderGroups).sort(), hasLFS: !!lenderGroups['LFS'] });
+    // Step 3: Build a single workbook with one sheet per Program Code + Pricing Type
+    const sheetGroups = groupDataForSheets(bulletinData);
 
-    // Debug: summarize lenders and row counts
-    const lenderCounts: Record<string, number> = {};
-    const norm = (s?: string | null) => (s ?? '')
-      .replace(/[\u200B\u00A0]/g, '')
-      .trim()
-      .replace(/[()\[\]{}"']/g, '')
-      .replace(/\s+/g, ' ')
-      .toUpperCase();
-    const splitLenders = (s: string) => {
-      const raw = (s ?? '').replace(/[\u200B\u00A0]/g, '').trim();
-      if (!raw) return [];
-      const parts = raw.includes(',') ? raw.split(',') : [raw];
-      return parts
-        .map((l) => norm(l))
-        .filter(Boolean)
-        .map((l) => (l.replace(/\s+/g, '').includes('LFS') ? 'LFS' : l));
-    };
-    for (const row of bulletinData) {
-      const lenders = splitLenders(row.lender_list ?? 'UNKNOWN');
-      const effective = lenders.length ? lenders : ['UNKNOWN'];
-      for (const l of effective) lenderCounts[l] = (lenderCounts[l] ?? 0) + 1;
-    }
-    console.info('Bulletin Export Debug:lenderSummary', {
-      distinctLenders: Object.keys(lenderCounts).sort(),
-      counts: lenderCounts,
-      totalRows: bulletinData.length
-    });
+    const workbook = XLSX.utils.book_new();
+    const usedNames = new Set<string>();
 
-    // Step 4: Generate workbooks
-    const workbooks: { filename: string; workbook: XLSX.WorkBook }[] = [];
+    for (const [sheetKey, rows] of Object.entries(sheetGroups)) {
+      const [programCode, pricingType] = sheetKey.split('|');
+      const desiredName = `${programCode}_${pricingType}`;
+      const sheetName = makeUniqueSheetName(desiredName, usedNames);
 
-    for (const [lender, lenderData] of Object.entries(lenderGroups)) {
-      const workbook = createWorkbookForLender(lender, lenderData, programConfigs || []);
-      const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-      
-      // Debug: list sheets created per lender
-      try {
-        console.info('Bulletin Export Debug:workbookSheets', {
-          lender,
-          sheetCount: workbook.SheetNames?.length ?? 0,
-          sheets: workbook.SheetNames?.slice(0, 50)
-        });
-      } catch {}
-      
-      let filename: string;
-      const uniquePrograms = Array.from(new Set(lenderData.map(row => row.financial_program_code).filter(Boolean)));
-      
-      const lenderSafe = String(lender).replace(/[^\w.-]+/g, '_');
-      
-      if (uniquePrograms.length === 1) {
-        const progSafe = String(uniquePrograms[0]).replace(/[^\w.-]+/g, '_');
-        filename = `bulletin_${progSafe}_${lenderSafe}_${dateStr}.xlsx`;
-      } else {
-        filename = `bulletin_multi_${lenderSafe}_${dateStr}.xlsx`;
-      }
-      
-      workbooks.push({ filename, workbook });
+      const worksheet = createUnifiedWorksheet(programCode, pricingType, rows, programConfigs || []);
+      XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+      usedNames.add(sheetName);
     }
 
-    // LFS verification before download
-    try {
-      const lfsWB = workbooks.find(w => /_LFS_/.test(w.filename));
-      console.info('Bulletin Export Debug:postBuildLFS', {
-        hasWorkbook: !!lfsWB,
-        sheetCount: lfsWB?.workbook?.SheetNames?.length ?? 0,
-        sheets: lfsWB?.workbook?.SheetNames?.slice(0, 50),
-        hasSUBRV: !!lfsWB?.workbook?.SheetNames?.some(n => n.includes('NL_GDE26_0825_1_SUBRV')),
-        hasSUBMF: !!lfsWB?.workbook?.SheetNames?.some(n => n.includes('NL_GDE26_0825_1_SUBMF')),
-      });
-    } catch {}
+    // Step 4: Download a single Excel file
+    const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+    const filename = `bulletin_pricing_export_${dateStr}.xlsx`;
+    XLSX.writeFile(workbook, filename);
+    console.info('Bulletin Export Debug:downloadFile', { filename, sheetCount: workbook.SheetNames?.length ?? 0 });
 
-    // Step 5: Download files
-    if (workbooks.length === 1) {
-      // Single workbook - direct download
-      const { filename, workbook } = workbooks[0];
-      XLSX.writeFile(workbook, filename);
-      console.info('Bulletin Export Debug:downloadFile', { filename });
-    } else {
-      // Multiple workbooks - zip them
-      const zip = new JSZip();
-      const zipFileNames: string[] = [];
-      
-      for (const { filename, workbook } of workbooks) {
-        const buffer = XLSX.write(workbook, { type: 'array', bookType: 'xlsx' });
-        zip.file(filename, buffer);
-        zipFileNames.push(filename);
-      }
-      
-      const zipBlob = await zip.generateAsync({ type: 'blob' });
-      const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-      const zipFilename = `bulletin_pricing_export_${dateStr}.zip`;
-      console.info('Bulletin Export Debug:zipFiles', { files: zipFileNames, count: zipFileNames.length, zipFilename });
-      
-      const url = URL.createObjectURL(zipBlob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = zipFilename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }
-
-    return { success: true, fileCount: workbooks.length };
+    return { success: true, fileCount: 1 };
+    
   } catch (error) {
     console.error('Export failed:', error);
     throw error;
