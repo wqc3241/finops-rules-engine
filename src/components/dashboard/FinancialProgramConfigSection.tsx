@@ -79,8 +79,7 @@ const FinancialProgramConfigSection = ({
       programStartDate: "2025-02-01",
       programEndDate: "2025-02-28",
       lenders: ["LENDER1"],
-      geoCodes: ["US"],
-      pricingTypeConfigs: {}
+      geoCodes: ["US"]
     };
   };
 
