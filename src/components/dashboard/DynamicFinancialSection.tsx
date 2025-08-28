@@ -15,7 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import * as XLSX from 'xlsx';
 import { toast } from "sonner";
 import { exportBulletinPricing } from "@/utils/bulletinPricingExport";
-import { exportSelectedProgramsBulletinPricing } from "@/utils/selectedProgramsBulletinExport";
+
 import BulletinPricingUploadModal from "../BulletinPricingUploadModal";
 
 interface DynamicFinancialSectionProps {
@@ -325,7 +325,8 @@ const {
         return;
       }
       
-      await exportSelectedProgramsBulletinPricing(selectedProgramCodes);
+      const result = await exportBulletinPricing(selectedProgramCodes);
+      toast.success(`Export complete! Generated ${result.fileCount} file(s).`);
     } catch (error) {
       console.error('Selected bulletin pricing export failed:', error);
       toast.error("Export failed. Please try again.");

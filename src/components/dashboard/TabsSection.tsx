@@ -8,7 +8,7 @@ import FinancingDataTableTabs from "./FinancingDataTableTabs";
 import SalesPricingRulesTabs from "./SalesPricingRulesTabs";
 import { BatchOperations } from "./BatchOperations";
 import { ChangeTrackingProvider } from "@/hooks/useChangeTracking";
-import { exportSelectedProgramsBulletinPricing } from "@/utils/selectedProgramsBulletinExport";
+
 
 interface TabsSectionProps {
   activeSection: string;
