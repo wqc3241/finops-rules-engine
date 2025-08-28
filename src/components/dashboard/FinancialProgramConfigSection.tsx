@@ -64,7 +64,11 @@ const FinancialProgramConfigSection = ({
   };
 
   const handleEditProgram = (program: any) => {
-    setEditingProgramData(program);
+    console.log('🔧 Original program data:', program);
+    const editDataForWizard = getEditData(program);
+    console.log('🔧 Transformed edit data:', editDataForWizard);
+    
+    setEditingProgramData(editDataForWizard);
     setShowWizard(true);
   };
 
@@ -75,8 +79,11 @@ const FinancialProgramConfigSection = ({
 
   // Transform program data to wizard format
   const getEditData = (program: any): WizardData => {
+    console.log('🔧 getEditData input program:', program);
+    
     // Use template_metadata from Supabase schema
     const templateMetadata = program.template_metadata || {};
+    console.log('🔧 Template metadata:', templateMetadata);
     
     // Convert date format from "2/1/2025" to "2025-02-01"
     const formatDateForInput = (dateStr: string) => {
@@ -89,7 +96,7 @@ const FinancialProgramConfigSection = ({
       }
     };
 
-    return {
+    const wizardData = {
       vehicleStyleIds: [program.vehicle_style_id].filter(Boolean),
       vehicleCondition: program.financing_vehicle_condition || "New",
       orderTypes: program.order_types ? program.order_types.split(', ').filter(Boolean) : ["INV"],
@@ -101,6 +108,9 @@ const FinancialProgramConfigSection = ({
       lenders: templateMetadata.lenders || [],
       geoCodes: templateMetadata.geoCodes || []
     };
+    
+    console.log('🔧 getEditData output wizard data:', wizardData);
+    return wizardData;
   };
 
   return (
@@ -167,7 +177,7 @@ const FinancialProgramConfigSection = ({
         open={showWizard}
         onOpenChange={setShowWizard}
         onComplete={handleWizardComplete}
-        editData={editingProgramData ? getEditData(editingProgramData) : undefined}
+        editData={editingProgramData}
         isEditMode={!!editingProgramData}
       />
     </div>
