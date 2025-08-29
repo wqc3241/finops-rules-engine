@@ -54,6 +54,11 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
     geoCodes: []
   });
 
+  // Debug: Monitor wizardData changes
+  useEffect(() => {
+    console.log('🔧 WizardData state changed:', wizardData);
+  }, [wizardData]);
+
   // Reset wizard data when modal opens or edit data changes
   useEffect(() => {
     if (open) {
@@ -62,19 +67,23 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
         console.log('🔧 Wizard received editData:', editData);
         console.log('🔧 Setting wizard data with editData values');
         // Directly set wizard data in edit mode to bypass clearing logic
-        setWizardData((prevData) => ({
-          ...prevData,
-          vehicleStyleIds: Array.isArray(editData.vehicleStyleIds) ? editData.vehicleStyleIds : [editData.vehicleStyleId || ""],
-          vehicleCondition: editData.vehicleCondition || "",
-          orderTypes: Array.isArray(editData.orderTypes) ? editData.orderTypes : [],
-          financialProduct: editData.financialProduct || "",
-          pricingTypes: Array.isArray(editData.pricingTypes) ? editData.pricingTypes : [],
-          pricingTypeConfigs: editData.pricingTypeConfigs || {},
-          programStartDate: editData.programStartDate || "",
-          programEndDate: editData.programEndDate || "",
-          lenders: Array.isArray(editData.lenders) ? editData.lenders : [],
-          geoCodes: Array.isArray(editData.geoCodes) ? editData.geoCodes : []
-        }));
+        setWizardData((prevData) => {
+          const newData = {
+            ...prevData,
+            vehicleStyleIds: Array.isArray(editData.vehicleStyleIds) ? editData.vehicleStyleIds : [editData.vehicleStyleId || ""],
+            vehicleCondition: editData.vehicleCondition || "",
+            orderTypes: Array.isArray(editData.orderTypes) ? editData.orderTypes : [],
+            financialProduct: editData.financialProduct || "",
+            pricingTypes: Array.isArray(editData.pricingTypes) ? editData.pricingTypes : [],
+            pricingTypeConfigs: editData.pricingTypeConfigs || {},
+            programStartDate: editData.programStartDate || "",
+            programEndDate: editData.programEndDate || "",
+            lenders: Array.isArray(editData.lenders) ? editData.lenders : [],
+            geoCodes: Array.isArray(editData.geoCodes) ? editData.geoCodes : []
+          };
+          console.log('🔧 New wizard data being set:', newData);
+          return newData;
+        });
         console.log('✅ Wizard data state updated with edit values');
       } else {
         console.log('🆕 Setting empty wizard data (new mode)');
