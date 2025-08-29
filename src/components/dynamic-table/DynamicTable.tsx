@@ -85,39 +85,31 @@ const DynamicTable = ({
   // Use sorted and filtered data for display
   const displayData = sortedData;
 
-  // Primary key calculation
-  const primaryKey = useMemo(() => getPrimaryKey(schema, data), [schema, data]);
+  // Update selected items when data changes due to filtering
+  useEffect(() => {
+    if (onSelectionChange && selectedItems.length > 0) {
+      const primaryKey = getPrimaryKey(schema, data);
+      const validSelectedItems = selectedItems.filter(id => 
+        displayData.some(item => (item as any)[primaryKey] === id)
+      );
+      if (validSelectedItems.length !== selectedItems.length) {
+        onSelectionChange(validSelectedItems);
+      }
+    }
+  }, [displayData, selectedItems, onSelectionChange, schema, data]);
 
   // Prepare program config options for select dropdowns
-  const programConfigOptions = useMemo(() => {
-    return schema.columns.reduce((acc, column) => {
-      if (column.sourceTable) {
-        acc[column.key] = [];
-      }
-      return acc;
-    }, {} as any);
-  }, [schema.columns]);
-
-  // Filter out template_metadata column for financial-program-config and primary key
-  const visibleColumns = useMemo(() => {
-    return schema.columns.filter(column => {
-      // Hide template_metadata column for financial-program-config
-      if (schema.id === 'financial-program-config' && column.key === 'template_metadata') {
-        return false;
-      }
-      // Don't hide primary key from visible columns - we need it for actions
-      return true;
-    });
-  }, [schema]);
-
-  // Clear cache to ensure fresh schema loading
-  useEffect(() => {
-    if (schema.id === 'financial-program-config') {
-      // Force schema refresh to hide template_metadata column
-      const { clearSchemaCache } = require('@/services/dynamicSchemaService');
-      clearSchemaCache('financial-program-config');
+  const programConfigOptions = schema.columns.reduce((acc, column) => {
+    if (column.sourceTable) {
+      acc[column.key] = [];
     }
-  }, [schema.id]);
+    return acc;
+  }, {} as any);
+
+  const primaryKey = useMemo(() => getPrimaryKey(schema, data), [schema, data]);
+  const visibleColumns = useMemo(() => {
+    return schema.columns.filter(c => c.key !== primaryKey);
+  }, [schema.columns, primaryKey]);
 
   const handleSelectRow = (id: string) => {
     const updatedSelection = selectedItems.includes(id)
