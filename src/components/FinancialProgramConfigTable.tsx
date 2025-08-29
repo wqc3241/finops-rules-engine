@@ -66,9 +66,19 @@ const FinancialProgramConfigTable = ({ programs, loading, onEditProgram }: Finan
   };
 
   const handleEditClick = (id: string) => {
+    console.log('🔍 handleEditClick called with ID:', id);
+    console.log('🔍 Available programs:', programs.length, 'programs');
+    console.log('🔍 Programs array:', programs);
+    
     const program = programs.find(p => p.id === id);
+    console.log('🔍 Found program:', program);
+    
     if (program) {
+      console.log('🔍 Program template_metadata:', program.template_metadata);
+      console.log('🔍 Calling onEditProgram with program data');
       onEditProgram?.(program);
+    } else {
+      console.error('❌ Program not found with ID:', id);
     }
   };
 
