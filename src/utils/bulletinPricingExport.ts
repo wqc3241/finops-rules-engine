@@ -65,9 +65,13 @@ export async function exportBulletinPricing(selectedProgramCodes?: string[]) {
       const programConfig: any = (programConfigs || []).find((c: any) => c.program_code === programCode);
 
       // Determine supported pricing types for this program
+      // Priority 1: template_metadata.pricingTypes (primary source)
+      // Priority 2: Direct pricing_types field (legacy fallback) 
+      // Priority 3: Existing data in bulletin_pricing table
+      // Priority 4: Default pricing types (all available types)
       const supportedTypesRaw: string[] =
-        (programConfig?.pricing_types as string[] | undefined)
-        || (programConfig?.template_metadata?.pricing_types as string[] | undefined)
+        (programConfig?.template_metadata?.pricingTypes as string[] | undefined)
+        || (programConfig?.pricing_types as string[] | undefined)
         || Array.from(new Set((bulletinData || [])
             .filter(r => (r.financial_program_code || '').toUpperCase() === programCode.toUpperCase())
             .map(r => (r.pricing_type || '').toString())
@@ -77,6 +81,8 @@ export async function exportBulletinPricing(selectedProgramCodes?: string[]) {
       const supportedTypes = ((supportedTypesRaw && supportedTypesRaw.filter(Boolean).length > 0)
         ? supportedTypesRaw.filter(Boolean)
         : defaultPricingTypes);
+      
+      console.log(`Program ${programCode}: Found pricing types:`, supportedTypes);
 
       // If there are no explicit types, skip creating empty sheets
       for (const pricingType of supportedTypes) {
