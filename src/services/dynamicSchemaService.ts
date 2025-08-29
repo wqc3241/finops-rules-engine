@@ -287,8 +287,22 @@ class DynamicSchemaService {
         };
       });
 
-      // Sort columns: primary keys first, then editable columns, then read-only
+      // Sort columns: ID columns first, regular columns middle, timestamp columns last
       columnDefinitions.sort((a, b) => {
+        const isIdA = a.key.toLowerCase().includes('id');
+        const isIdB = b.key.toLowerCase().includes('id');
+        const isTimestampA = ['created_at', 'updated_at', 'createdat', 'updatedat'].includes(a.key.toLowerCase());
+        const isTimestampB = ['created_at', 'updated_at', 'createdat', 'updatedat'].includes(b.key.toLowerCase());
+        
+        // First tier: ID columns
+        if (isIdA && !isIdB) return -1;
+        if (!isIdA && isIdB) return 1;
+        
+        // Third tier: Timestamp columns
+        if (isTimestampA && !isTimestampB) return 1;
+        if (!isTimestampA && isTimestampB) return -1;
+        
+        // Within each tier, maintain existing sorting logic
         if (a.inputType === 'Output' && b.inputType === 'Input') return -1;
         if (a.inputType === 'Input' && b.inputType === 'Output') return 1;
         if (a.editable && !b.editable) return 1;
