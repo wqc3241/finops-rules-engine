@@ -65,6 +65,12 @@ const {
   pageSize
 });
 
+// Debug logging for data loading
+console.log('🔍 DynamicFinancialSection data from hook:', data);
+console.log('🔍 DynamicFinancialSection data length:', data?.length);
+console.log('🔍 DynamicFinancialSection loading:', loading);
+console.log('🔍 DynamicFinancialSection schemaId:', schemaId);
+
   // Temporarily disable approval workflow to fix runtime error
   const isTableLocked = (schemaId: string) => false;
 
@@ -225,7 +231,13 @@ const {
   };
 
   const handleEditRow = (rowId: string, rowData: any) => {
+    console.log('🔧 DynamicFinancialSection handleEditRow called');
+    console.log('🔧 rowId:', rowId);
+    console.log('🔧 rowData:', rowData);
+    console.log('🔧 rowData template_metadata:', rowData?.template_metadata);
+    
     if (schemaId === 'financial-program-config') {
+      console.log('🔧 Setting editData and opening wizard');
       setEditData(rowData);
       setIsEditMode(true);
       setShowWizard(true);
