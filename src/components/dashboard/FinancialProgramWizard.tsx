@@ -16,6 +16,7 @@ import { usePricingTypes } from "@/hooks/usePricingTypes";
 import { generateProgramCode } from "@/utils/programCodeGenerator";
 import ConfirmationStep from "./WizardSteps/ConfirmationStep";
 import { FinancialProgramRecord } from "@/types/financialProgram";
+import { transformProgramDataForWizard } from "@/utils/financialProgramUtils";
 
 export interface WizardData {
   vehicleStyleIds: string[];
@@ -54,6 +55,8 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
     geoCodes: []
   });
 
+  const [originalProgram, setOriginalProgram] = useState<any>(null);
+
   // Debug: Monitor wizardData changes
   useEffect(() => {
     console.log('🔧 WizardData state changed:', wizardData);
@@ -65,28 +68,22 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
       setCurrentStep('wizard');
       if (isEditMode && editData) {
         console.log('🔧 Wizard received editData:', editData);
-        console.log('🔧 Setting wizard data with editData values');
-        // Directly set wizard data in edit mode to bypass clearing logic
-        setWizardData((prevData) => {
-          const newData = {
-            ...prevData,
-            vehicleStyleIds: Array.isArray(editData.vehicleStyleIds) ? editData.vehicleStyleIds : [editData.vehicleStyleId || ""],
-            vehicleCondition: editData.vehicleCondition || "",
-            orderTypes: Array.isArray(editData.orderTypes) ? editData.orderTypes : [],
-            financialProduct: editData.financialProduct || "",
-            pricingTypes: Array.isArray(editData.pricingTypes) ? editData.pricingTypes : [],
-            pricingTypeConfigs: editData.pricingTypeConfigs || {},
-            programStartDate: editData.programStartDate || "",
-            programEndDate: editData.programEndDate || "",
-            lenders: Array.isArray(editData.lenders) ? editData.lenders : [],
-            geoCodes: Array.isArray(editData.geoCodes) ? editData.geoCodes : []
-          };
-          console.log('🔧 New wizard data being set:', newData);
-          return newData;
-        });
-        console.log('✅ Wizard data state updated with edit values');
+        setOriginalProgram(editData);
+        const transformed = (editData as any).vehicleStyleIds ? editData : transformProgramDataForWizard(editData);
+        setWizardData((prevData) => ({
+          ...prevData,
+          vehicleStyleIds: Array.isArray(transformed.vehicleStyleIds) ? transformed.vehicleStyleIds : [transformed.vehicleStyleId || ""],
+          vehicleCondition: transformed.vehicleCondition || "",
+          orderTypes: Array.isArray(transformed.orderTypes) ? transformed.orderTypes : [],
+          financialProduct: transformed.financialProduct || "",
+          pricingTypes: Array.isArray(transformed.pricingTypes) ? transformed.pricingTypes : [],
+          pricingTypeConfigs: transformed.pricingTypeConfigs || {},
+          programStartDate: transformed.programStartDate || "",
+          programEndDate: transformed.programEndDate || "",
+          lenders: Array.isArray(transformed.lenders) ? transformed.lenders : [],
+          geoCodes: Array.isArray(transformed.geoCodes) ? transformed.geoCodes : []
+        }));
       } else {
-        console.log('🆕 Setting empty wizard data (new mode)');
         setWizardData({
           vehicleStyleIds: [],
           vehicleCondition: "",
@@ -331,20 +328,43 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
 
   const handleSavePrograms = async () => {
     try {
-      if (isEditMode && editData?.id) {
-        // Update existing program
-        const updatedProgram: FinancialProgramRecord = {
-          program_code: editData.program_code, // Keep existing program code
-          vehicle_style_id: wizardData.vehicleStyleIds[0], // Take first vehicle style for edit mode
+      if (isEditMode && originalProgram) {
+        // In edit mode, create a NEW program as the next version rather than updating existing
+        const { data: existingPrograms } = await supabase
+          .from('financial_program_configs')
+          .select('program_code');
+
+        const existingCodes = existingPrograms?.map(p => p.program_code) || [];
+
+        const vehicleStyleId = wizardData.vehicleStyleIds[0];
+        // Get vehicle style record for better code generation
+        const { data: vehicleStyleData } = await supabase
+          .from('vehicle_style_coding')
+          .select('*')
+          .eq('vehicle_style_id', vehicleStyleId)
+          .single();
+
+        const programCode = generateProgramCode({
+          vehicleCondition: wizardData.vehicleCondition,
+          financialProduct: (financialProducts.find(p => p.id === wizardData.financialProduct)?.productType || wizardData.financialProduct),
+          vehicleStyleId,
+          vehicleStyleRecord: vehicleStyleData,
+          programStartDate: wizardData.programStartDate
+        }, existingCodes);
+
+        const newProgram: FinancialProgramRecord = {
+          program_code: programCode,
+          vehicle_style_id: vehicleStyleId,
           financing_vehicle_condition: wizardData.vehicleCondition,
           financial_product_id: wizardData.financialProduct,
           program_start_date: wizardData.programStartDate,
           program_end_date: wizardData.programEndDate,
-          is_active: editData.is_active || 'Active',
-          advertised: editData.advertised || 'Yes',
-          version: (editData.version || 1) + 1, // Increment version
-          priority: editData.priority || 1,
+          is_active: (originalProgram as any).is_active || 'Active',
+          advertised: (originalProgram as any).advertised || 'Yes',
+          version: ((originalProgram as any).version || 1) + 1,
+          priority: (originalProgram as any).priority || 1,
           order_types: wizardData.orderTypes.join(', '),
+          clone_from: (originalProgram as any).program_code || (originalProgram as any).id,
           template_metadata: {
             pricingTypes: wizardData.pricingTypes,
             pricingTypeConfigs: wizardData.pricingTypeConfigs,
@@ -355,16 +375,15 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
 
         const { error } = await supabase
           .from('financial_program_configs')
-          .update(updatedProgram)
-          .eq('id', editData.id);
+          .insert([newProgram]);
 
         if (error) throw error;
 
-        onComplete([updatedProgram]);
+        onComplete([newProgram]);
         onOpenChange(false);
-        toast.success("Financial program updated successfully!");
+        toast.success("New financial program version created successfully!");
       } else {
-        // Create new programs
+        // Create new programs (from scratch)
         // Get existing program codes to avoid conflicts
         const { data: existingPrograms } = await supabase
           .from('financial_program_configs')
@@ -428,7 +447,7 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
       }
     } catch (error) {
       console.error('Error saving programs:', error);
-      toast.error(`Failed to ${isEditMode ? 'update' : 'create'} financial program${isEditMode ? '' : 's'}. Please try again.`);
+      toast.error(`Failed to ${isEditMode ? 'create' : 'create'} financial program${isEditMode ? '' : 's'}. Please try again.`);
     }
   };
 

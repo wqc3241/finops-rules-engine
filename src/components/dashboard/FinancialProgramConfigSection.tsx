@@ -12,10 +12,9 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import FinancialProgramWizard, { WizardData } from "./FinancialProgramWizard";
+import FinancialProgramWizard from "./FinancialProgramWizard";
 import { FinancialProgramRecord } from "@/types/financialProgram";
 import { useDynamicFinancialData } from "@/hooks/useDynamicFinancialData";
-import { transformProgramDataForWizard } from "@/utils/financialProgramUtils";
 
 interface FinancialProgramConfigSectionProps {
   title: string;
@@ -70,14 +69,10 @@ const FinancialProgramConfigSection = ({
   };
 
   const handleEditProgram = (program: any) => {
-    console.log('🔧 Original program data:', program);
-    const editDataForWizard = transformProgramDataForWizard(program);
-    console.log('🔧 Transformed edit data:', editDataForWizard);
-    
-    setEditingProgramData(editDataForWizard);
+    console.log('🔧 Edit clicked - passing original program to wizard:', program);
+    setEditingProgramData(program);
     setShowWizard(true);
   };
-
   const handleWizardComplete = (programData: FinancialProgramRecord[]) => {
     toast.success(`${programData.length} financial program${programData.length > 1 ? 's' : ''} created successfully!`);
     setShowWizard(false);

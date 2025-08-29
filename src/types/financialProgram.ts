@@ -13,6 +13,7 @@ export interface FinancialProgramRecord {
   priority: number;
   order_types?: string;
   template_metadata?: any;
+  clone_from?: string;
   created_at?: string;
   updated_at?: string;
 }
