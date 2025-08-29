@@ -61,7 +61,9 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
       if (isEditMode && editData) {
         console.log('🔧 Wizard received editData:', editData);
         console.log('🔧 Setting wizard data with editData values');
-        setWizardData({
+        // Directly set wizard data in edit mode to bypass clearing logic
+        setWizardData((prevData) => ({
+          ...prevData,
           vehicleStyleIds: Array.isArray(editData.vehicleStyleIds) ? editData.vehicleStyleIds : [editData.vehicleStyleId || ""],
           vehicleCondition: editData.vehicleCondition || "",
           orderTypes: Array.isArray(editData.orderTypes) ? editData.orderTypes : [],
@@ -72,7 +74,7 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
           programEndDate: editData.programEndDate || "",
           lenders: Array.isArray(editData.lenders) ? editData.lenders : [],
           geoCodes: Array.isArray(editData.geoCodes) ? editData.geoCodes : []
-        });
+        }));
         console.log('✅ Wizard data state updated with edit values');
       } else {
         console.log('🆕 Setting empty wizard data (new mode)');
