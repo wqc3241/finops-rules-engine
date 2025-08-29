@@ -252,7 +252,15 @@ class DynamicSchemaService {
 
       // Convert columns to ColumnDefinition format based on sample data
       const sampleRow = sampleData[0];
-      const columnDefinitions: ColumnDefinition[] = Object.keys(sampleRow).map((columnName) => {
+      const columnDefinitions: ColumnDefinition[] = Object.keys(sampleRow)
+        .filter(columnName => {
+          // Hide template_metadata column for financial-program-config
+          if (schemaId === 'financial-program-config' && columnName === 'template_metadata') {
+            return false;
+          }
+          return true;
+        })
+        .map((columnName) => {
         const value = sampleRow[columnName];
         const isPrimaryKey = primaryKeys.includes(columnName);
         const dataType = this.inferDataType(value);
