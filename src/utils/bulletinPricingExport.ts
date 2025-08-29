@@ -425,11 +425,25 @@ function createUnifiedWorksheet(
       .replace(/\s+/g, ' ')
       .toUpperCase();
 
-  // Program selections (fallback to template_metadata if present)
+  // Program selections using template_metadata.pricingTypeConfigs first
   const tm = (programConfig?.template_metadata || {}) as any;
-  const selCreditProfiles: string[] = (programConfig?.credit_profiles as string[]) || (tm.credit_profiles as string[]) || [];
-  const selPricingConfigs: string[] = (programConfig?.pricing_configs as string[]) || (tm.pricing_configs as string[]) || [];
-  const selGeoCodes: string[] = (programConfig?.geo_codes as string[]) || (tm.geo_codes as string[]) || (tm.sample_geo_codes as string[]) || [];
+  
+  // Priority 1: template_metadata.pricingTypeConfigs[pricingType] (case-insensitive lookup)
+  const ptCfg = tm.pricingTypeConfigs?.[pricingType] 
+    ?? tm.pricingTypeConfigs?.[pricingType.toUpperCase()]
+    ?? tm.pricingTypeConfigs?.[pricingType.toLowerCase()];
+  
+  const selCreditProfiles: string[] = ptCfg?.creditProfiles 
+    || (programConfig?.credit_profiles as string[]) 
+    || (tm.credit_profiles as string[]) 
+    || [];
+  
+  const selPricingConfigs: string[] = ptCfg?.pricingConfigs 
+    || (programConfig?.pricing_configs as string[]) 
+    || (tm.pricing_configs as string[]) 
+    || [];
+  
+  const selGeoCodes: string[] = (tm.geoCodes as string[]) || (programConfig?.geo_codes as string[]) || (tm.geo_codes as string[]) || (tm.sample_geo_codes as string[]) || [];
   const selLenders: string[] = (tm.lenders as string[]) || (tm.lender_list as string[]) || [];
 
   // Collect from data
@@ -469,25 +483,29 @@ function createUnifiedWorksheet(
   // Build worksheet AOA
   const aoa: any[][] = [];
 
-  // Row 1: Metadata + Credit Profile headers (profiles start at C1)
+  // Row 1 (index 0): Only program metadata in A1
   const metadata = `Program: ${programCode} | Pricing Type: ${pricingType} | Product: ${programConfig?.financial_product_id || 'N/A'} | Vehicle: ${programConfig?.vehicle_style_id || 'N/A'}/${programConfig?.financing_vehicle_condition || 'N/A'} | Dates: ${programConfig?.program_start_date || 'N/A'}–${programConfig?.program_end_date || 'N/A'}`;
-  const headerRow1: any[] = [metadata, ''];
-  for (const cp of creditProfiles) {
-    for (let j = 0; j < pricingConfigs.length; j++) headerRow1.push(cp);
-  }
+  const headerRow1: any[] = [metadata];
   aoa[0] = headerRow1;
 
-  // Row 2: Lender/Geo + Pricing Config headers
-  const headerRow2: any[] = ['LENDER', 'GEO_CODE'];
-  for (let i = 0; i < creditProfiles.length; i++) {
-    for (const pc of pricingConfigs) headerRow2.push(pc);
+  // Row 2 (index 1): Credit profiles starting at C2 (A2/B2 empty)
+  const headerRow2: any[] = ['', ''];
+  for (const cp of creditProfiles) {
+    for (let j = 0; j < pricingConfigs.length; j++) headerRow2.push(cp);
   }
   aoa[1] = headerRow2;
+
+  // Row 3 (index 2): LENDER/GEO_CODE + Pricing Config headers starting at C3
+  const headerRow3: any[] = ['LENDER', 'GEO_CODE'];
+  for (let i = 0; i < creditProfiles.length; i++) {
+    for (const pc of pricingConfigs) headerRow3.push(pc);
+  }
+  aoa[2] = headerRow3;
 
   // Track comments to add after sheet creation
   const comments: Array<{ r: number; c: number; text: string }> = [];
 
-  let outR = 2;
+  let outR = 3; // Data starts at Row 4 (index 3)
   for (const lender of lenders) {
     for (const geo of geoCodes) {
       const rowArr: any[] = [lender, geo];
@@ -533,8 +551,8 @@ function createUnifiedWorksheet(
   const numCols = 2 + creditProfiles.length * pricingConfigs.length;
   (ws as any)['!cols'] = Array.from({ length: numCols }, (_, i) => ({ width: i < 2 ? 16 : 12 }));
 
-  // Freeze panes at B3 (freeze Column A and Rows 1–2)
-  (ws as any)['!freeze'] = { xSplit: 1, ySplit: 2 };
+  // Freeze panes at B4 (freeze Column A and Rows 1–3)
+  (ws as any)['!freeze'] = { xSplit: 1, ySplit: 3 };
 
   // Number formats based on pricingType
   let numFmt = '0.000';
@@ -544,7 +562,7 @@ function createUnifiedWorksheet(
   else if (pt.includes('rv')) numFmt = '0.0%';
 
   const totalRows = aoa.length;
-  for (let r = 2; r < totalRows; r++) {
+  for (let r = 3; r < totalRows; r++) { // Data starts at Row 4 (index 3)
     for (let c = 2; c < numCols; c++) {
       const ref = XLSX.utils.encode_cell({ r, c });
       if ((ws as any)[ref] && typeof (ws as any)[ref].v === 'number') (ws as any)[ref].z = numFmt;
