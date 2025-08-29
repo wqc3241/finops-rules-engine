@@ -48,6 +48,11 @@ const FinancialProgramConfigSection = ({
     onSelectionChange: onSelectionChange
   });
 
+  // Add debug logging for the data returned from hook
+  console.log('🔍 programsData from hook:', programsData);
+  console.log('🔍 programsData length:', programsData?.length);
+  console.log('🔍 loading state:', loading);
+
   // Use either external state (if provided) or internal state
   const showAddModal = externalShowAddModal !== undefined ? externalShowAddModal : internalShowAddModal;
   const setShowAddModal = externalSetShowAddModal || setInternalShowAddModal;
