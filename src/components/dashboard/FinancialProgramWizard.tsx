@@ -329,71 +329,106 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
     setCurrentStep('wizard');
   };
 
-  const handleCreatePrograms = async () => {
+  const handleSavePrograms = async () => {
     try {
-      // Get existing program codes to avoid conflicts
-      const { data: existingPrograms } = await supabase
-        .from('financial_program_configs')
-        .select('program_code');
-      
-      const existingCodes = existingPrograms?.map(p => p.program_code) || [];
-      
-      // Generate program data for each vehicle style
-      const programsToCreate: FinancialProgramRecord[] = await Promise.all(
-        wizardData.vehicleStyleIds.map(async (vehicleStyleId) => {
-          // Get vehicle style record for model year
-          const { data: vehicleStyleData } = await supabase
-            .from('vehicle_style_coding')
-            .select('*')
-            .eq('vehicle_style_id', vehicleStyleId)
-            .single();
+      if (isEditMode && editData?.id) {
+        // Update existing program
+        const updatedProgram: FinancialProgramRecord = {
+          program_code: editData.program_code, // Keep existing program code
+          vehicle_style_id: wizardData.vehicleStyleIds[0], // Take first vehicle style for edit mode
+          financing_vehicle_condition: wizardData.vehicleCondition,
+          financial_product_id: wizardData.financialProduct,
+          program_start_date: wizardData.programStartDate,
+          program_end_date: wizardData.programEndDate,
+          is_active: editData.is_active || 'Active',
+          advertised: editData.advertised || 'Yes',
+          version: (editData.version || 1) + 1, // Increment version
+          priority: editData.priority || 1,
+          order_types: wizardData.orderTypes.join(', '),
+          template_metadata: {
+            pricingTypes: wizardData.pricingTypes,
+            pricingTypeConfigs: wizardData.pricingTypeConfigs,
+            lenders: wizardData.lenders,
+            geoCodes: wizardData.geoCodes
+          }
+        };
 
-          const programCode = generateProgramCode({
-            vehicleCondition: wizardData.vehicleCondition,
-            financialProduct: (financialProducts.find(p => p.id === wizardData.financialProduct)?.productType || wizardData.financialProduct),
-            vehicleStyleId,
-            vehicleStyleRecord: vehicleStyleData,
-            programStartDate: wizardData.programStartDate
-          }, existingCodes);
+        const { error } = await supabase
+          .from('financial_program_configs')
+          .update(updatedProgram)
+          .eq('id', editData.id);
 
-          // Add this code to existing codes for next iterations
-          existingCodes.push(programCode);
+        if (error) throw error;
 
-          return {
-            program_code: programCode,
-            vehicle_style_id: vehicleStyleId,
-            financing_vehicle_condition: wizardData.vehicleCondition,
-            financial_product_id: wizardData.financialProduct,
-            program_start_date: wizardData.programStartDate,
-            program_end_date: wizardData.programEndDate,
-            is_active: 'Active',
-            advertised: 'Yes',
-            version: 1,
-            priority: 1,
-            order_types: wizardData.orderTypes.join(', '),
-            template_metadata: {
-              pricingTypes: wizardData.pricingTypes,
-              pricingTypeConfigs: wizardData.pricingTypeConfigs,
-              lenders: wizardData.lenders,
-              geoCodes: wizardData.geoCodes
-            }
-          };
-        })
-      );
+        onComplete([updatedProgram]);
+        onOpenChange(false);
+        toast.success("Financial program updated successfully!");
+      } else {
+        // Create new programs
+        // Get existing program codes to avoid conflicts
+        const { data: existingPrograms } = await supabase
+          .from('financial_program_configs')
+          .select('program_code');
+        
+        const existingCodes = existingPrograms?.map(p => p.program_code) || [];
+        
+        // Generate program data for each vehicle style
+        const programsToCreate: FinancialProgramRecord[] = await Promise.all(
+          wizardData.vehicleStyleIds.map(async (vehicleStyleId) => {
+            // Get vehicle style record for model year
+            const { data: vehicleStyleData } = await supabase
+              .from('vehicle_style_coding')
+              .select('*')
+              .eq('vehicle_style_id', vehicleStyleId)
+              .single();
 
-      // Insert all programs
-      const { error } = await supabase
-        .from('financial_program_configs')
-        .insert(programsToCreate);
+            const programCode = generateProgramCode({
+              vehicleCondition: wizardData.vehicleCondition,
+              financialProduct: (financialProducts.find(p => p.id === wizardData.financialProduct)?.productType || wizardData.financialProduct),
+              vehicleStyleId,
+              vehicleStyleRecord: vehicleStyleData,
+              programStartDate: wizardData.programStartDate
+            }, existingCodes);
 
-      if (error) throw error;
+            // Add this code to existing codes for next iterations
+            existingCodes.push(programCode);
 
-      onComplete(programsToCreate);
-      onOpenChange(false);
-      toast.success(`${programsToCreate.length} financial program${programsToCreate.length > 1 ? 's' : ''} created successfully!`);
+            return {
+              program_code: programCode,
+              vehicle_style_id: vehicleStyleId,
+              financing_vehicle_condition: wizardData.vehicleCondition,
+              financial_product_id: wizardData.financialProduct,
+              program_start_date: wizardData.programStartDate,
+              program_end_date: wizardData.programEndDate,
+              is_active: 'Active',
+              advertised: 'Yes',
+              version: 1,
+              priority: 1,
+              order_types: wizardData.orderTypes.join(', '),
+              template_metadata: {
+                pricingTypes: wizardData.pricingTypes,
+                pricingTypeConfigs: wizardData.pricingTypeConfigs,
+                lenders: wizardData.lenders,
+                geoCodes: wizardData.geoCodes
+              }
+            };
+          })
+        );
+
+        // Insert all programs
+        const { error } = await supabase
+          .from('financial_program_configs')
+          .insert(programsToCreate);
+
+        if (error) throw error;
+
+        onComplete(programsToCreate);
+        onOpenChange(false);
+        toast.success(`${programsToCreate.length} financial program${programsToCreate.length > 1 ? 's' : ''} created successfully!`);
+      }
     } catch (error) {
-      console.error('Error creating programs:', error);
-      toast.error("Failed to create financial programs. Please try again.");
+      console.error('Error saving programs:', error);
+      toast.error(`Failed to ${isEditMode ? 'update' : 'create'} financial program${isEditMode ? '' : 's'}. Please try again.`);
     }
   };
 
@@ -906,7 +941,7 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
               {isFormValid() ? "✓ All required fields completed" : "Complete all required fields to continue"}
             </div>
             <Button onClick={handleNext} disabled={!isFormValid()}>
-              Create Financial Program
+              {isEditMode ? 'Update Financial Program' : 'Create Financial Program'}
             </Button>
           </div>
         ) : (
@@ -916,13 +951,17 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
               vehicleStyleOptions={vehicleStyleOptions}
               financialProducts={financialProducts}
               programPreviews={programPreviews}
+              isEditMode={isEditMode}
             />
             <div className="flex justify-between items-center pt-2 border-t">
               <Button variant="outline" onClick={handleBack}>
                 Back to Edit
               </Button>
-              <Button onClick={handleCreatePrograms}>
-                Create {wizardData.vehicleStyleIds.length} Program{wizardData.vehicleStyleIds.length > 1 ? 's' : ''}
+              <Button onClick={handleSavePrograms}>
+                {isEditMode 
+                  ? 'Update Financial Program' 
+                  : `Create ${wizardData.vehicleStyleIds.length} Program${wizardData.vehicleStyleIds.length > 1 ? 's' : ''}`
+                }
               </Button>
             </div>
           </>

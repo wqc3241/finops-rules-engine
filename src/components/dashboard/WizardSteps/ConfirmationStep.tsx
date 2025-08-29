@@ -23,9 +23,10 @@ interface ConfirmationStepProps {
   vehicleStyleOptions: Array<{ id: string; label: string }>;
   financialProducts: Array<{ id: string; productType: string; productSubtype?: string }>;
   programPreviews: FinancialProgramPreview[];
+  isEditMode?: boolean;
 }
 
-const ConfirmationStep = ({ data, vehicleStyleOptions, financialProducts, programPreviews }: ConfirmationStepProps) => {
+const ConfirmationStep = ({ data, vehicleStyleOptions, financialProducts, programPreviews, isEditMode = false }: ConfirmationStepProps) => {
   const selectedFinancialProduct = useMemo(() => {
     return financialProducts.find(p => p.id === data.financialProduct);
   }, [financialProducts, data.financialProduct]);
@@ -35,7 +36,10 @@ const ConfirmationStep = ({ data, vehicleStyleOptions, financialProducts, progra
       <div>
         <h3 className="text-lg font-semibold mb-2">Confirmation</h3>
         <p className="text-sm text-muted-foreground mb-4">
-          Review the {programPreviews.length} financial program{programPreviews.length > 1 ? 's' : ''} that will be created. Click "Create Programs" to proceed.
+          {isEditMode 
+            ? "Review the financial program updates below. Click \"Update Financial Program\" to save changes."
+            : `Review the ${programPreviews.length} financial program${programPreviews.length > 1 ? 's' : ''} that will be created. Click "Create Programs" to proceed.`
+          }
         </p>
       </div>
 
