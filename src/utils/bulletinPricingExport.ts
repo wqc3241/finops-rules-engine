@@ -57,6 +57,10 @@ export async function exportBulletinPricing(selectedProgramCodes?: string[]) {
       .select('type_code');
     const defaultPricingTypes: string[] = (pricingTypesRows || []).map((r: any) => r.type_code).filter(Boolean);
 
+    // 4) Create the workbook and sheet names tracker
+    const workbook = XLSX.utils.book_new();
+    const usedNames = new Set<string>();
+
     for (const programCode of targetProgramCodes) {
       const programConfig: any = (programConfigs || []).find((c: any) => c.program_code === programCode);
 
@@ -70,7 +74,9 @@ export async function exportBulletinPricing(selectedProgramCodes?: string[]) {
             .filter(Boolean)
           ));
 
-      const supportedTypes = (supportedTypesRaw || []).filter(Boolean);
+      const supportedTypes = ((supportedTypesRaw && supportedTypesRaw.filter(Boolean).length > 0)
+        ? supportedTypesRaw.filter(Boolean)
+        : defaultPricingTypes);
 
       // If there are no explicit types, skip creating empty sheets
       for (const pricingType of supportedTypes) {
@@ -457,28 +463,25 @@ function createUnifiedWorksheet(
   // Build worksheet AOA
   const aoa: any[][] = [];
 
-  // Row 1: Metadata
+  // Row 1: Metadata + Credit Profile headers (profiles start at C1)
   const metadata = `Program: ${programCode} | Pricing Type: ${pricingType} | Product: ${programConfig?.financial_product_id || 'N/A'} | Vehicle: ${programConfig?.vehicle_style_id || 'N/A'}/${programConfig?.financing_vehicle_condition || 'N/A'} | Dates: ${programConfig?.program_start_date || 'N/A'}–${programConfig?.program_end_date || 'N/A'}`;
-  aoa[0] = [metadata];
-
-  // Row 2: Credit Profile headers starting at C1 (A,B reserved for Lender/Geo)
-  const row1: any[] = ['', ''];
+  const headerRow1: any[] = [metadata, ''];
   for (const cp of creditProfiles) {
-    for (let j = 0; j < pricingConfigs.length; j++) row1.push(cp);
+    for (let j = 0; j < pricingConfigs.length; j++) headerRow1.push(cp);
   }
-  aoa[1] = row1;
+  aoa[0] = headerRow1;
 
-  // Row 3: Pricing Config headers under each Credit Profile
-  const row2: any[] = ['LENDER', 'GEO_CODE'];
+  // Row 2: Lender/Geo + Pricing Config headers
+  const headerRow2: any[] = ['LENDER', 'GEO_CODE'];
   for (let i = 0; i < creditProfiles.length; i++) {
-    for (const pc of pricingConfigs) row2.push(pc);
+    for (const pc of pricingConfigs) headerRow2.push(pc);
   }
-  aoa[2] = row2;
+  aoa[1] = headerRow2;
 
   // Track comments to add after sheet creation
   const comments: Array<{ r: number; c: number; text: string }> = [];
 
-  let outR = 3;
+  let outR = 2;
   for (const lender of lenders) {
     for (const geo of geoCodes) {
       const rowArr: any[] = [lender, geo];
@@ -524,8 +527,8 @@ function createUnifiedWorksheet(
   const numCols = 2 + creditProfiles.length * pricingConfigs.length;
   (ws as any)['!cols'] = Array.from({ length: numCols }, (_, i) => ({ width: i < 2 ? 16 : 12 }));
 
-  // Freeze panes at B3
-  (ws as any)['!freeze'] = { xSplit: 2, ySplit: 3 };
+  // Freeze panes at B3 (freeze Column A and Rows 1–2)
+  (ws as any)['!freeze'] = { xSplit: 1, ySplit: 2 };
 
   // Number formats based on pricingType
   let numFmt = '0.000';
@@ -535,7 +538,7 @@ function createUnifiedWorksheet(
   else if (pt.includes('rv')) numFmt = '0.0%';
 
   const totalRows = aoa.length;
-  for (let r = 3; r < totalRows; r++) {
+  for (let r = 2; r < totalRows; r++) {
     for (let c = 2; c < numCols; c++) {
       const ref = XLSX.utils.encode_cell({ r, c });
       if ((ws as any)[ref] && typeof (ws as any)[ref].v === 'number') (ws as any)[ref].z = numFmt;
