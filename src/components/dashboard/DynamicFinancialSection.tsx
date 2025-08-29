@@ -65,11 +65,16 @@ const {
   pageSize
 });
 
-// Debug logging for data loading
-console.log('🔍 DynamicFinancialSection data from hook:', data);
-console.log('🔍 DynamicFinancialSection data length:', data?.length);
-console.log('🔍 DynamicFinancialSection loading:', loading);
-console.log('🔍 DynamicFinancialSection schemaId:', schemaId);
+// Debug logging for data loading (moved to useEffect to prevent render loops)
+useEffect(() => {
+  console.log('🔍 DynamicFinancialSection data from hook:', data);
+  console.log('🔍 DynamicFinancialSection data length:', data?.length);
+  console.log('🔍 DynamicFinancialSection loading:', loading);
+  console.log('🔍 DynamicFinancialSection schemaId:', schemaId);
+  if (data?.length > 0) {
+    console.log('🔍 First item sample:', data[0]);
+  }
+}, [data, loading, schemaId]);
 
   // Temporarily disable approval workflow to fix runtime error
   const isTableLocked = (schemaId: string) => false;
