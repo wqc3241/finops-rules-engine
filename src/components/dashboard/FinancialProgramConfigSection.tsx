@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import FinancialProgramWizard, { WizardData } from "./FinancialProgramWizard";
 import { FinancialProgramRecord } from "@/types/financialProgram";
 import { useDynamicFinancialData } from "@/hooks/useDynamicFinancialData";
+import { transformProgramDataForWizard } from "@/utils/financialProgramUtils";
 
 interface FinancialProgramConfigSectionProps {
   title: string;
@@ -70,7 +71,7 @@ const FinancialProgramConfigSection = ({
 
   const handleEditProgram = (program: any) => {
     console.log('🔧 Original program data:', program);
-    const editDataForWizard = getEditData(program);
+    const editDataForWizard = transformProgramDataForWizard(program);
     console.log('🔧 Transformed edit data:', editDataForWizard);
     
     setEditingProgramData(editDataForWizard);
@@ -82,41 +83,6 @@ const FinancialProgramConfigSection = ({
     setShowWizard(false);
   };
 
-  // Transform program data to wizard format
-  const getEditData = (program: any): WizardData => {
-    console.log('🔧 getEditData input program:', program);
-    
-    // Use template_metadata from Supabase schema
-    const templateMetadata = program.template_metadata || {};
-    console.log('🔧 Template metadata:', templateMetadata);
-    
-    // Convert date format from "2/1/2025" to "2025-02-01"
-    const formatDateForInput = (dateStr: string) => {
-      if (!dateStr) return "";
-      try {
-        const date = new Date(dateStr);
-        return date.toISOString().split('T')[0];
-      } catch {
-        return dateStr;
-      }
-    };
-
-    const wizardData = {
-      vehicleStyleIds: [program.vehicle_style_id].filter(Boolean),
-      vehicleCondition: program.financing_vehicle_condition || "New",
-      orderTypes: program.order_types ? program.order_types.split(', ').filter(Boolean) : ["INV"],
-      financialProduct: program.financial_product_id || "",
-      pricingTypes: templateMetadata.pricingTypes || [],
-      pricingTypeConfigs: templateMetadata.pricingTypeConfigs || {},
-      programStartDate: formatDateForInput(program.program_start_date),
-      programEndDate: formatDateForInput(program.program_end_date),
-      lenders: templateMetadata.lenders || [],
-      geoCodes: templateMetadata.geoCodes || []
-    };
-    
-    console.log('🔧 getEditData output wizard data:', wizardData);
-    return wizardData;
-  };
 
   return (
     <div className="p-6">

@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { exportBulletinPricing } from "@/utils/bulletinPricingExport";
 import BulletinPricingUploadModal from "../BulletinPricingUploadModal";
 import { exportSelectedProgramsBulletinPricing } from "@/utils/selectedProgramsBulletinExport";
+import { transformProgramDataForWizard } from "@/utils/financialProgramUtils";
 
 interface DynamicFinancialSectionProps {
   schemaId: string;
@@ -242,8 +243,11 @@ useEffect(() => {
     console.log('🔧 rowData template_metadata:', rowData?.template_metadata);
     
     if (schemaId === 'financial-program-config') {
-      console.log('🔧 Setting editData and opening wizard');
-      setEditData(rowData);
+      console.log('🔧 Transforming rowData to wizard format');
+      const transformedData = transformProgramDataForWizard(rowData);
+      console.log('🔧 Transformed data for wizard:', transformedData);
+      
+      setEditData(transformedData);
       setIsEditMode(true);
       setShowWizard(true);
     }
