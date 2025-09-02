@@ -446,12 +446,21 @@ function createUnifiedWorksheet(
   const selGeoCodes: string[] = (tm.geoCodes as string[]) || (programConfig?.geo_codes as string[]) || (tm.geo_codes as string[]) || (tm.sample_geo_codes as string[]) || [];
   const selLenders: string[] = (tm.lenders as string[]) || (tm.lender_list as string[]) || [];
 
-  // Collect from data
-  const dataLenders = Array.from(new Set((data || []).map(r => norm(r.lender_list)).filter(Boolean)));
+  // Collect from data - split comma-separated lender lists into individual lenders
+  const splitLenders = (s?: string | null) => {
+    const raw = (s ?? '').replace(/[\u200B\u00A0]/g, '').trim();
+    if (!raw) return [] as string[];
+    return raw
+      .split(',')
+      .map(part => norm(part))
+      .filter(Boolean);
+  };
+  const dataLenders = Array.from(new Set(
+    (data || []).flatMap(r => splitLenders(r.lender_list))
+  ));
   const dataGeos = Array.from(new Set((data || []).map(r => norm(r.geo_code)).filter(Boolean)));
   const dataProfiles = Array.from(new Set((data || []).map(r => norm(r.credit_profile)).filter(Boolean)));
   const dataConfigs = Array.from(new Set((data || []).map(r => norm(r.pricing_config)).filter(Boolean)));
-
   // Sorting helpers
   const alpha = (a: string, b: string) => a.localeCompare(b, undefined, { numeric: true });
   const naturalNum = (a: string, b: string) => {
@@ -472,12 +481,16 @@ function createUnifiedWorksheet(
   const creditProfiles = orderWithSelection(dataProfiles, selCreditProfiles, alpha);
   const pricingConfigs = orderWithSelection(dataConfigs, selPricingConfigs, naturalNum);
 
-  // Index data by lender|geo|profile|config (treat lender_list as atomic)
+  // Index data by lender|geo|profile|config (split lender_list into individual lenders)
   const index = new Map<string, BulletinPricingRow[]>();
   for (const row of data) {
-    const key = `${norm(row.lender_list)}|${norm(row.geo_code)}|${norm(row.credit_profile)}|${norm(row.pricing_config)}`;
-    if (!index.has(key)) index.set(key, []);
-    index.get(key)!.push(row);
+    const lendersForRow = splitLenders(row.lender_list);
+    const lendersEff = lendersForRow.length > 0 ? lendersForRow : ['UNKNOWN'];
+    for (const lender of lendersEff) {
+      const key = `${lender}|${norm(row.geo_code)}|${norm(row.credit_profile)}|${norm(row.pricing_config)}`;
+      if (!index.has(key)) index.set(key, []);
+      index.get(key)!.push(row);
+    }
   }
 
   // Build worksheet AOA
