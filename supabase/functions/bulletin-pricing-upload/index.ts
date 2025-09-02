@@ -47,38 +47,32 @@ serve(async (req) => {
       );
     }
 
-    // Extract program code from first sheet name (format: PROGRAM_CODE_SEGMENTS_PRICINGTYPE)
-    const firstSheetName = workbook.SheetNames[0];
-    console.log(`First sheet name: ${firstSheetName}`);
-    
-    const lastUnderscoreIndex = firstSheetName.lastIndexOf('_');
-    console.log(`Last underscore index: ${lastUnderscoreIndex}`);
-    
-    if (lastUnderscoreIndex === -1) {
+    // Build sheet info (supports multiple program codes per workbook)
+    const sheetInfos: { sheetName: string; programCode: string; pricingType: string }[] = [];
+    let badSheet: string | null = null;
+    for (const name of workbook.SheetNames) {
+      const idx = name.lastIndexOf('_');
+      if (idx === -1) {
+        badSheet = name;
+        break;
+      }
+      sheetInfos.push({
+        sheetName: name,
+        programCode: name.substring(0, idx).trim(),
+        pricingType: name.substring(idx + 1).trim(),
+      });
+    }
+
+    if (badSheet) {
       return new Response(
-        JSON.stringify({ error: `Sheet names must follow format: PROGRAM_CODE_PRICINGTYPE. Found sheet: ${firstSheetName}` }),
+        JSON.stringify({ error: `Sheet names must follow format: PROGRAM_CODE_PRICINGTYPE. Found sheet: ${badSheet}` }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    const programCode = firstSheetName.substring(0, lastUnderscoreIndex).trim();
-    const pricingType = firstSheetName.substring(lastUnderscoreIndex + 1).trim();
-    console.log(`Extracted program code: ${programCode}, pricing type: ${pricingType}`);
-    
-    // Validate all sheets use the same program code (everything before the last underscore)
-    for (const sheetName of workbook.SheetNames) {
-      const lastUnderscore = sheetName.lastIndexOf('_');
-      const sheetProgramCode = lastUnderscore > -1 ? sheetName.substring(0, lastUnderscore) : sheetName;
-      
-      if (sheetProgramCode !== programCode) {
-        return new Response(
-          JSON.stringify({ error: `All sheet names must use the same program code. Expected: ${programCode}, Found: ${sheetProgramCode} in sheet: ${sheetName}` }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-    }
-
-    console.log(`Processing upload for program: ${programCode}, file: ${file.name}`);
+    const uniqueProgramCodes = Array.from(new Set(sheetInfos.map(s => s.programCode)));
+    const programCodesCsv = uniqueProgramCodes.join(',');
+    console.log(`Processing upload for programs: ${JSON.stringify(uniqueProgramCodes)}, file: ${file.name}`);
 
     // Get user ID from JWT
     const authHeader = req.headers.get('Authorization');
@@ -97,13 +91,13 @@ serve(async (req) => {
       );
     }
 
-    // Create upload session
+    // Create upload session (store all program codes present in workbook)
     const { data: session, error: sessionError } = await adminSupabase
       .from('bulletin_upload_sessions')
       .insert({
         filename: file.name,
         file_size: file.size,
-        program_code: programCode,
+        program_code: programCodesCsv,
         uploaded_by: user.id,
         upload_status: 'processing'
       })
@@ -120,28 +114,29 @@ serve(async (req) => {
 
     // Excel file already parsed above for program code extraction
 
-    // Get program configuration (pick the most recent if multiple exist)
-    const { data: programConfig, error: configError } = await supabase
+    // Get program configurations for all program codes in the workbook (use most recent per program)
+    const { data: programConfigsData, error: configError } = await supabase
       .from('financial_program_configs')
       .select('id, program_code, created_at, is_active, program_start_date, program_end_date, template_metadata')
-      .eq('program_code', programCode.trim())
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle();
+      .in('program_code', uniqueProgramCodes);
 
-    console.log('Program lookup result:', { programCode, found: !!programConfig, error: configError?.message });
-
-    if (configError || !programConfig) {
-      await logError(session.id, 'General', null, null, 'PROGRAM_NOT_FOUND', `Program code ${programCode} not found`);
+    if (configError) {
+      console.error('Failed to fetch program configs:', configError);
       await updateSessionStatus(session.id, 'failed', 'failed');
       return new Response(
-        JSON.stringify({ 
-          error: 'Program not found',
-          sessionId: session.id
-        }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: 'Failed to fetch program configurations', sessionId: session.id }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    const programConfigMap: Record<string, any> = {};
+    (programConfigsData || [])
+      .sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      .forEach((cfg: any) => {
+        if (!programConfigMap[cfg.program_code]) programConfigMap[cfg.program_code] = cfg;
+      });
+
+    console.log('Program lookup result:', { programCodes: uniqueProgramCodes, found: Object.keys(programConfigMap) });
 
     // Get related configuration data
     const [pricingTypesResult, creditProfilesResult, pricingConfigsResult, lendersResult, geoLocationsResult] = await Promise.all([
@@ -158,24 +153,19 @@ serve(async (req) => {
     const validLenders = (lendersResult.data?.map(l => l.lender_name) || []).filter(Boolean);
     const validGeoCodes = (geoLocationsResult.data?.map(g => g.geo_code) || []).filter(Boolean);
 
-    const allowedLenders = Array.isArray((programConfig as any).template_metadata?.lenders)
-      ? (programConfig as any).template_metadata.lenders
-      : [];
-
     const validationResults = await validateWorkbook(
-      workbook, 
-      session.id, 
-      programCode, 
-      validPricingTypes, 
-      validCreditProfiles, 
+      workbook,
+      session.id,
+      validPricingTypes,
+      validCreditProfiles,
       validPricingConfigs,
       validLenders,
-      allowedLenders,
-      validGeoCodes
+      validGeoCodes,
+      programConfigMap
     );
 
     if (validationResults.isValid) {
-      const bulletinRecords = await parseWorkbookData(workbook, programCode, session.id, user.id);
+      const bulletinRecords = await parseWorkbookData(workbook, session.id, user.id);
       
       // Insert valid records with pending approval status
       if (bulletinRecords.length > 0) {
@@ -235,19 +225,27 @@ serve(async (req) => {
   }
 });
 
-async function validateWorkbook(workbook: any, sessionId: string, programCode: string, validPricingTypes: string[], validCreditProfiles: string[], validPricingConfigs: string[], validLenders: string[], allowedLenders: string[], validGeoCodes: string[]) {
+async function validateWorkbook(
+  workbook: any,
+  sessionId: string,
+  validPricingTypes: string[],
+  validCreditProfiles: string[],
+  validPricingConfigs: string[],
+  validLenders: string[],
+  validGeoCodes: string[],
+  programConfigMap: Record<string, any>
+) {
   const errors: any[] = [];
   let totalRecords = 0;
   let validRecords = 0;
   let invalidRecords = 0;
 
   const validLenderSet = new Set(validLenders.map(l => l.toLowerCase()));
-  const allowedLenderSet = new Set((allowedLenders || []).map((l: string) => l.toLowerCase()));
   const validGeoSet = new Set(validGeoCodes.map(g => g?.toString().trim()));
 
   for (const sheetName of workbook.SheetNames) {
     const worksheet = workbook.Sheets[sheetName];
-    
+
     // Validate tab naming convention: {Program Code}_{Pricing Type} where pricing type is after last underscore
     const lastUnderscoreIndex = sheetName.lastIndexOf('_');
     if (lastUnderscoreIndex === -1) {
@@ -256,23 +254,34 @@ async function validateWorkbook(workbook: any, sessionId: string, programCode: s
       continue;
     }
 
-    const sheetProgramCode = sheetName.substring(0, lastUnderscoreIndex);
-    const pricingType = sheetName.substring(lastUnderscoreIndex + 1);
-    
-    if (sheetProgramCode !== programCode) {
-      await logError(sessionId, sheetName, null, null, 'TAB_NAMING', `Tab program code ${sheetProgramCode} does not match expected ${programCode}`);
+    const sheetProgramCode = sheetName.substring(0, lastUnderscoreIndex).trim();
+    const pricingType = sheetName.substring(lastUnderscoreIndex + 1).trim();
+
+    const programCfg = programConfigMap[sheetProgramCode];
+    if (!programCfg) {
+      await logError(sessionId, sheetName, null, null, 'PROGRAM_NOT_FOUND', `Program code ${sheetProgramCode} not found`);
       invalidRecords++;
       continue;
     }
+
     if (!validPricingTypes.includes(pricingType)) {
       await logError(sessionId, sheetName, null, null, 'INVALID_PRICING_TYPE', `Pricing type ${pricingType} not found in system`);
       invalidRecords++;
       continue;
     }
 
+    const allowedPricingTypes = Array.isArray(programCfg.template_metadata?.pricingTypes)
+      ? programCfg.template_metadata.pricingTypes
+      : [];
+    if (allowedPricingTypes.length > 0 && !allowedPricingTypes.includes(pricingType)) {
+      await logError(sessionId, sheetName, null, null, 'PRICING_TYPE_NOT_ALLOWED', `Pricing type ${pricingType} not allowed for program ${sheetProgramCode}`);
+      invalidRecords++;
+      continue;
+    }
+
     // Parse worksheet data
     const data = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-    
+
     if (data.length < 4) {
       await logError(sessionId, sheetName, null, null, 'INSUFFICIENT_ROWS', 'Sheet must have at least 4 rows (headers + data)');
       invalidRecords++;
@@ -286,6 +295,11 @@ async function validateWorkbook(workbook: any, sessionId: string, programCode: s
 
     // Lender validation: expect comma-separated lenders in cell B1
     const lendersCellRaw = (programRow[1] ?? '').toString().trim();
+    const allowedLenders = Array.isArray(programCfg.template_metadata?.lenders)
+      ? (programCfg.template_metadata.lenders as string[])
+      : [];
+    const allowedLenderSet = new Set(allowedLenders.map((l: string) => l.toLowerCase()));
+
     if (!lendersCellRaw) {
       await logError(sessionId, sheetName, 1, 'Column B', 'MISSING_LENDERS', 'Lender list (B1) is required');
       invalidRecords++;
@@ -301,7 +315,7 @@ async function validateWorkbook(workbook: any, sessionId: string, programCode: s
             await logError(sessionId, sheetName, 1, 'Column B', 'INVALID_LENDER', `Lender not found in system: ${lender}`, lender);
             invalidRecords++;
           } else if (allowedLenderSet.size > 0 && !allowedLenderSet.has(lenderLc)) {
-            await logError(sessionId, sheetName, 1, 'Column B', 'LENDER_NOT_ALLOWED', `Lender not allowed for program ${programCode}: ${lender}`, lender);
+            await logError(sessionId, sheetName, 1, 'Column B', 'LENDER_NOT_ALLOWED', `Lender not allowed for program ${sheetProgramCode}: ${lender}`, lender);
             invalidRecords++;
           }
         }
@@ -317,7 +331,7 @@ async function validateWorkbook(workbook: any, sessionId: string, programCode: s
       }
     }
 
-    // Validate pricing configs in row 3  
+    // Validate pricing configs in row 3
     for (let col = 1; col < pricingConfigRow.length; col++) {
       const pricingConfig = pricingConfigRow[col];
       if (pricingConfig && !validPricingConfigs.includes(pricingConfig)) {
@@ -330,7 +344,7 @@ async function validateWorkbook(workbook: any, sessionId: string, programCode: s
     for (let row = 3; row < data.length; row++) {
       const rowData = data[row] as any[];
       totalRecords++;
-      
+
       const geoCode = rowData[0];
       if (!geoCode) {
         await logError(sessionId, sheetName, row + 1, 'Column A', 'MISSING_GEO_CODE', 'Geo code is required');
@@ -372,17 +386,18 @@ async function validateWorkbook(workbook: any, sessionId: string, programCode: s
   };
 }
 
-async function parseWorkbookData(workbook: any, programCode: string, sessionId: string, userId: string) {
+async function parseWorkbookData(workbook: any, sessionId: string, userId: string) {
   const bulletinRecords: any[] = [];
 
   for (const sheetName of workbook.SheetNames) {
     const worksheet = workbook.Sheets[sheetName];
     const data = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-    
+
     if (data.length < 4) continue;
 
     const lastUnderscoreIndex = sheetName.lastIndexOf('_');
     const pricingType = sheetName.substring(lastUnderscoreIndex + 1);
+    const sheetProgramCode = sheetName.substring(0, lastUnderscoreIndex).trim();
     const programRow = data[0] as any[];
     const creditProfileRow = data[1] as any[];
     const pricingConfigRow = data[2] as any[];
@@ -393,15 +408,15 @@ async function parseWorkbookData(workbook: any, programCode: string, sessionId: 
     for (let row = 3; row < data.length; row++) {
       const rowData = data[row] as any[];
       const geoCode = rowData[0];
-      
+
       if (!geoCode) continue;
 
       for (let col = 1; col < rowData.length; col++) {
         const pricingValue = rowData[col];
         if (pricingValue !== undefined && pricingValue !== null && pricingValue !== '' && !isNaN(Number(pricingValue))) {
           bulletinRecords.push({
-            bulletin_id: `${programCode}_${geoCode}_${pricingType}_${col}_${Date.now()}`,
-            financial_program_code: programCode,
+            bulletin_id: `${sheetProgramCode}_${geoCode}_${pricingType}_${col}_${Date.now()}`,
+            financial_program_code: sheetProgramCode,
             geo_code: String(geoCode),
             pricing_type: pricingType,
             credit_profile: creditProfileRow[col],
