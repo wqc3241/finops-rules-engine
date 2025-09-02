@@ -123,7 +123,7 @@ serve(async (req) => {
     // Get program configuration (pick the most recent if multiple exist)
     const { data: programConfig, error: configError } = await supabase
       .from('financial_program_configs')
-      .select('id, program_code, created_at, is_active, program_start_date, program_end_date')
+      .select('id, program_code, created_at, is_active, program_start_date, program_end_date, template_metadata')
       .eq('program_code', programCode.trim())
       .order('created_at', { ascending: false })
       .limit(1)
@@ -144,15 +144,23 @@ serve(async (req) => {
     }
 
     // Get related configuration data
-    const [pricingTypesResult, creditProfilesResult, pricingConfigsResult] = await Promise.all([
+    const [pricingTypesResult, creditProfilesResult, pricingConfigsResult, lendersResult, geoLocationsResult] = await Promise.all([
       supabase.from('pricing_types').select('type_code'),
       supabase.from('credit_profiles').select('profile_id'),
-      supabase.from('pricing_configs').select('pricing_rule_id')
+      supabase.from('pricing_configs').select('pricing_rule_id'),
+      supabase.from('lenders').select('lender_name'),
+      supabase.from('geo_location').select('geo_code')
     ]);
 
     const validPricingTypes = pricingTypesResult.data?.map(p => p.type_code) || [];
     const validCreditProfiles = creditProfilesResult.data?.map(c => c.profile_id) || [];
     const validPricingConfigs = pricingConfigsResult.data?.map(p => p.pricing_rule_id) || [];
+    const validLenders = (lendersResult.data?.map(l => l.lender_name) || []).filter(Boolean);
+    const validGeoCodes = (geoLocationsResult.data?.map(g => g.geo_code) || []).filter(Boolean);
+
+    const allowedLenders = Array.isArray((programConfig as any).template_metadata?.lenders)
+      ? (programConfig as any).template_metadata.lenders
+      : [];
 
     const validationResults = await validateWorkbook(
       workbook, 
@@ -160,7 +168,10 @@ serve(async (req) => {
       programCode, 
       validPricingTypes, 
       validCreditProfiles, 
-      validPricingConfigs
+      validPricingConfigs,
+      validLenders,
+      allowedLenders,
+      validGeoCodes
     );
 
     if (validationResults.isValid) {
@@ -224,11 +235,15 @@ serve(async (req) => {
   }
 });
 
-async function validateWorkbook(workbook: any, sessionId: string, programCode: string, validPricingTypes: string[], validCreditProfiles: string[], validPricingConfigs: string[]) {
+async function validateWorkbook(workbook: any, sessionId: string, programCode: string, validPricingTypes: string[], validCreditProfiles: string[], validPricingConfigs: string[], validLenders: string[], allowedLenders: string[], validGeoCodes: string[]) {
   const errors: any[] = [];
   let totalRecords = 0;
   let validRecords = 0;
   let invalidRecords = 0;
+
+  const validLenderSet = new Set(validLenders.map(l => l.toLowerCase()));
+  const allowedLenderSet = new Set((allowedLenders || []).map((l: string) => l.toLowerCase()));
+  const validGeoSet = new Set(validGeoCodes.map(g => g?.toString().trim()));
 
   for (const sheetName of workbook.SheetNames) {
     const worksheet = workbook.Sheets[sheetName];
@@ -269,6 +284,30 @@ async function validateWorkbook(workbook: any, sessionId: string, programCode: s
     const creditProfileRow = data[1] as any[];
     const pricingConfigRow = data[2] as any[];
 
+    // Lender validation: expect comma-separated lenders in cell B1
+    const lendersCellRaw = (programRow[1] ?? '').toString().trim();
+    if (!lendersCellRaw) {
+      await logError(sessionId, sheetName, 1, 'Column B', 'MISSING_LENDERS', 'Lender list (B1) is required');
+      invalidRecords++;
+    } else {
+      const lendersList = lendersCellRaw.split(',').map((s: string) => s.trim()).filter(Boolean);
+      if (lendersList.length === 0) {
+        await logError(sessionId, sheetName, 1, 'Column B', 'MISSING_LENDERS', 'No lenders provided in cell B1');
+        invalidRecords++;
+      } else {
+        for (const lender of lendersList) {
+          const lenderLc = lender.toLowerCase();
+          if (!validLenderSet.has(lenderLc)) {
+            await logError(sessionId, sheetName, 1, 'Column B', 'INVALID_LENDER', `Lender not found in system: ${lender}`, lender);
+            invalidRecords++;
+          } else if (allowedLenderSet.size > 0 && !allowedLenderSet.has(lenderLc)) {
+            await logError(sessionId, sheetName, 1, 'Column B', 'LENDER_NOT_ALLOWED', `Lender not allowed for program ${programCode}: ${lender}`, lender);
+            invalidRecords++;
+          }
+        }
+      }
+    }
+
     // Validate credit profiles in row 2
     for (let col = 1; col < creditProfileRow.length; col++) {
       const creditProfile = creditProfileRow[col];
@@ -295,6 +334,11 @@ async function validateWorkbook(workbook: any, sessionId: string, programCode: s
       const geoCode = rowData[0];
       if (!geoCode) {
         await logError(sessionId, sheetName, row + 1, 'Column A', 'MISSING_GEO_CODE', 'Geo code is required');
+        invalidRecords++;
+        continue;
+      }
+      if (!validGeoSet.has(String(geoCode))) {
+        await logError(sessionId, sheetName, row + 1, 'Column A', 'INVALID_GEO_CODE', `Geo code not found in system: ${geoCode}`, String(geoCode));
         invalidRecords++;
         continue;
       }
@@ -339,8 +383,11 @@ async function parseWorkbookData(workbook: any, programCode: string, sessionId: 
 
     const lastUnderscoreIndex = sheetName.lastIndexOf('_');
     const pricingType = sheetName.substring(lastUnderscoreIndex + 1);
+    const programRow = data[0] as any[];
     const creditProfileRow = data[1] as any[];
     const pricingConfigRow = data[2] as any[];
+    const lendersCellRaw = (programRow[1] ?? '').toString();
+    const lenderList = lendersCellRaw.split(',').map((s: string) => s.trim()).filter(Boolean).join(', ');
 
     // Parse data rows
     for (let row = 3; row < data.length; row++) {
@@ -355,7 +402,7 @@ async function parseWorkbookData(workbook: any, programCode: string, sessionId: 
           bulletinRecords.push({
             bulletin_id: `${programCode}_${geoCode}_${pricingType}_${col}_${Date.now()}`,
             financial_program_code: programCode,
-            geo_code: geoCode,
+            geo_code: String(geoCode),
             pricing_type: pricingType,
             credit_profile: creditProfileRow[col],
             pricing_config: pricingConfigRow[col],
@@ -363,9 +410,8 @@ async function parseWorkbookData(workbook: any, programCode: string, sessionId: 
             upload_date: new Date().toISOString(),
             updated_date: new Date().toISOString(),
             advertised: false,
-            upload_session_id: sessionId,
-            approval_status: 'pending_approval',
-            created_by: userId
+            created_by: userId,
+            lender_list: lenderList
           });
         }
       }
