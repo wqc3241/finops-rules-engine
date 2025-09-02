@@ -240,8 +240,13 @@ async function validateWorkbook(
   let validRecords = 0;
   let invalidRecords = 0;
 
-  const validLenderSet = new Set(validLenders.map(l => l?.toString().trim().toLowerCase()).filter(Boolean));
-  const validGeoSet = new Set(validGeoCodes.map(g => g?.toString().trim()).filter(Boolean));
+  // Normalization helpers
+  const normalizeLender = (s: string) => s?.toString().trim().toUpperCase();
+  const normalizeGeo = (s: string) => s?.toString().trim().toUpperCase().replace(/_/g, '-');
+
+  // Normalize system lists
+  const validLenderSet = new Set(validLenders.map(l => normalizeLender(l)).filter(Boolean));
+  const validGeoSet = new Set(validGeoCodes.map(g => normalizeGeo(g)).filter(Boolean));
 
   // Helper to push error for response and also persist to DB
   const pushError = async (
@@ -333,13 +338,15 @@ async function validateWorkbook(
     const allowedLenders = Array.isArray(programCfg.template_metadata?.lenders)
       ? (programCfg.template_metadata.lenders as string[])
       : [];
-    const allowedLenderSet = new Set(allowedLenders.map(l => l?.toLowerCase()));
+    const allowedLenderSet = new Set(allowedLenders.map(l => normalizeLender(String(l))));
+    const hasTemplateLenders = allowedLenderSet.size > 0;
 
     // Allowed geos from template metadata (optional allowlist)
     const allowedGeos = Array.isArray(programCfg.template_metadata?.geoCodes)
       ? (programCfg.template_metadata.geoCodes as string[])
       : [];
-    const allowedGeoSet = new Set(allowedGeos.map(g => g?.toString().trim()))
+    const allowedGeoSet = new Set(allowedGeos.map(g => normalizeGeo(String(g))));
+    const hasTemplateGeos = allowedGeoSet.size > 0;
 
     // Data rows start at row index 3 (row 4 in Excel)
     for (let row = 3; row < data.length; row++) {
@@ -350,29 +357,48 @@ async function validateWorkbook(
       const lenderRaw = rowData[0] !== undefined && rowData[0] !== null ? String(rowData[0]).trim() : '';
       const geoRaw = rowData[1] !== undefined && rowData[1] !== null ? String(rowData[1]).trim() : '';
 
-      const lenderLc = lenderRaw.toLowerCase();
       const lenderPresent = !!lenderRaw;
-      const lenderInSystem = lenderPresent && validLenderSet.has(lenderLc);
-      const lenderAllowed = lenderInSystem && (allowedLenderSet.size === 0 || allowedLenderSet.has(lenderLc));
+      const geoPresent = !!geoRaw;
+      const lenderNorm = lenderPresent ? normalizeLender(lenderRaw) : '';
+      const geoNorm = geoPresent ? normalizeGeo(geoRaw) : '';
+
+      // Prioritize template allowlists: if present, we validate against them; otherwise, fall back to global system lists
+      const lenderAllowedByTemplate = lenderPresent && allowedLenderSet.has(lenderNorm);
+      const lenderInSystem = lenderPresent && validLenderSet.has(lenderNorm);
+      const lenderOK = lenderPresent && (hasTemplateLenders ? lenderAllowedByTemplate : lenderInSystem);
 
       if (!lenderPresent) {
         await pushError(sheetName, rowNumber, 'Column A', 'MISSING_LENDER', 'Lender is required in column A');
-      } else if (!lenderInSystem) {
-        await pushError(sheetName, rowNumber, 'Column A', 'INVALID_LENDER', `Lender not found in system: ${lenderRaw}`, lenderRaw);
-      } else if (!lenderAllowed) {
-        await pushError(sheetName, rowNumber, 'Column A', 'LENDER_NOT_ALLOWED', `Lender not allowed for program ${sheetProgramCode}: ${lenderRaw}`, lenderRaw);
+      } else if (!lenderOK) {
+        await pushError(
+          sheetName,
+          rowNumber,
+          'Column A',
+          hasTemplateLenders ? 'LENDER_NOT_ALLOWED' : 'INVALID_LENDER',
+          hasTemplateLenders
+            ? `Lender not allowed for program ${sheetProgramCode}: ${lenderRaw}`
+            : `Lender not found in system: ${lenderRaw}`,
+          lenderRaw
+        );
       }
 
-      const geoPresent = !!geoRaw;
-      const geoInSystem = geoPresent && validGeoSet.has(geoRaw);
-      const geoAllowed = geoInSystem && (allowedGeoSet.size === 0 || allowedGeoSet.has(geoRaw));
+      const geoAllowedByTemplate = geoPresent && allowedGeoSet.has(geoNorm);
+      const geoInSystem = geoPresent && validGeoSet.has(geoNorm);
+      const geoOK = geoPresent && (hasTemplateGeos ? geoAllowedByTemplate : geoInSystem);
 
       if (!geoPresent) {
         await pushError(sheetName, rowNumber, 'Column B', 'MISSING_GEO_CODE', 'Geo code is required in column B');
-      } else if (!geoInSystem) {
-        await pushError(sheetName, rowNumber, 'Column B', 'INVALID_GEO_CODE', `Geo code not found in system: ${geoRaw}`, geoRaw);
-      } else if (!geoAllowed) {
-        await pushError(sheetName, rowNumber, 'Column B', 'GEO_CODE_NOT_ALLOWED', `Geo code not allowed for program ${sheetProgramCode}: ${geoRaw}`, geoRaw);
+      } else if (!geoOK) {
+        await pushError(
+          sheetName,
+          rowNumber,
+          'Column B',
+          hasTemplateGeos ? 'GEO_CODE_NOT_ALLOWED' : 'INVALID_GEO_CODE',
+          hasTemplateGeos
+            ? `Geo code not allowed for program ${sheetProgramCode}: ${geoRaw}`
+            : `Geo code not found in system: ${geoRaw}`,
+          geoRaw
+        );
       }
 
       // Scan value cells C.. across this row
@@ -390,10 +416,16 @@ async function validateWorkbook(
         totalRecords++;
 
         // If row-level prerequisites fail, mark this cell invalid
-        if (!(lenderPresent && lenderInSystem && lenderAllowed) || !(geoPresent && geoInSystem && geoAllowed)) {
+        if (!(lenderOK && geoOK)) {
           invalidRecords++;
           // Prefer row-level error type in message
-          const reason = !lenderPresent ? 'MISSING_LENDER' : !lenderInSystem ? 'INVALID_LENDER' : !lenderAllowed ? 'LENDER_NOT_ALLOWED' : !geoPresent ? 'MISSING_GEO_CODE' : !geoInSystem ? 'INVALID_GEO_CODE' : 'GEO_CODE_NOT_ALLOWED';
+          const reason = !lenderPresent
+            ? 'MISSING_LENDER'
+            : !lenderOK
+              ? (hasTemplateLenders ? 'LENDER_NOT_ALLOWED' : 'INVALID_LENDER')
+              : !geoPresent
+                ? 'MISSING_GEO_CODE'
+                : (hasTemplateGeos ? 'GEO_CODE_NOT_ALLOWED' : 'INVALID_GEO_CODE');
           await pushError(sheetName, rowNumber, colName, reason, `Cannot accept value without valid lender/geo. Value: ${cell}`);
           continue;
         }
@@ -447,12 +479,16 @@ async function parseWorkbookData(workbook: any, sessionId: string, userId: strin
     const pricingConfigRow = (data[2] as any[]) || [];
 
     // Data rows start at row index 3 (row 4 in Excel)
+    const normalizeLender = (s: string) => s?.toString().trim().toUpperCase();
+    const normalizeGeo = (s: string) => s?.toString().trim().toUpperCase().replace(/_/g, '-');
     for (let row = 3; row < data.length; row++) {
       const rowData = (data[row] as any[]) || [];
       const lenderRaw = rowData[0] !== undefined && rowData[0] !== null ? String(rowData[0]).trim() : '';
       const geoRaw = rowData[1] !== undefined && rowData[1] !== null ? String(rowData[1]).trim() : '';
 
       if (!lenderRaw || !geoRaw) continue;
+      const lenderNorm = normalizeLender(lenderRaw);
+      const geoNorm = normalizeGeo(geoRaw);
 
       // Scan columns from C onward (index 2)
       const maxCols = Math.max(creditProfileRow.length, pricingConfigRow.length, rowData.length);
@@ -469,9 +505,9 @@ async function parseWorkbookData(workbook: any, sessionId: string, userId: strin
         if (isNaN(num)) continue;
 
         bulletinRecords.push({
-          bulletin_id: `${sheetProgramCode}_${lenderRaw}_${geoRaw}_${pricingType}_${cp}_${pcfg}_${Date.now()}`,
+          bulletin_id: `${sheetProgramCode}_${lenderNorm}_${geoNorm}_${pricingType}_${cp}_${pcfg}_${Date.now()}`,
           financial_program_code: sheetProgramCode,
-          geo_code: geoRaw,
+          geo_code: geoNorm,
           pricing_type: pricingType,
           credit_profile: cp,
           pricing_config: pcfg,
@@ -480,7 +516,7 @@ async function parseWorkbookData(workbook: any, sessionId: string, userId: strin
           updated_date: new Date().toISOString(),
           advertised: false,
           created_by: userId,
-          lender_list: lenderRaw
+          lender_list: lenderNorm
         });
       }
     }
