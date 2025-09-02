@@ -91,8 +91,6 @@ const TabsSection = ({
               onClearSelection={handleClearSelection}
               onBatchDelete={handleBatchDelete}
               onBatchDuplicate={batchDuplicateCallback ? handleBatchDuplicate : undefined}
-              onBatchDownloadBulletinPricing={currentSchemaId === 'financial-program-config' ? handleBatchDownloadBulletinPricing : undefined}
-              showBulletinPricingDownload={currentSchemaId === 'financial-program-config'}
             />
           )}
           <LFSSetupTabs 
@@ -111,13 +109,11 @@ const TabsSection = ({
       return (
         <div className="relative">
           {showBatchOperations && (
-            <BatchOperations 
+            <BatchOperations
               selectedItems={selectedItems}
               onClearSelection={handleClearSelection}
               onBatchDelete={handleBatchDelete}
-              onBatchDuplicate={handleBatchDuplicate}
-              onBatchDownloadBulletinPricing={currentSchemaId === 'financial-program-config' ? handleBatchDownloadBulletinPricing : undefined}
-              showBulletinPricingDownload={currentSchemaId === 'financial-program-config'}
+              onBatchDuplicate={batchDuplicateCallback ? handleBatchDuplicate : undefined}
             />
           )}
           <ChangeTrackingProvider>

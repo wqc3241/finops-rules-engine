@@ -16,6 +16,8 @@ interface SectionHeaderProps {
   onDownload?: () => void;
   uploadLabel?: string;
   downloadLabel?: string;
+  downloadDisabled?: boolean;
+  selectedItems?: string[];
   onVersionHistory?: () => void;
   showVersionHistory?: boolean;
   children?: ReactNode;
@@ -34,6 +36,8 @@ const SectionHeader = ({
   onDownload,
   uploadLabel = "Upload",
   downloadLabel = "Download",
+  downloadDisabled = false,
+  selectedItems = [],
   onVersionHistory,
   showVersionHistory = true,
   children 
@@ -67,7 +71,13 @@ const SectionHeader = ({
           </Button>
         )}
         {onDownload && (
-          <Button variant="outline" size="sm" onClick={onDownload}>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={onDownload}
+            disabled={downloadDisabled}
+            className={downloadDisabled ? "opacity-50 cursor-not-allowed" : ""}
+          >
             <Download className="h-3 w-3 mr-1" />
             {downloadLabel}
           </Button>

@@ -7,17 +7,13 @@ interface BatchOperationsProps {
   onClearSelection: () => void;
   onBatchDelete: () => void;
   onBatchDuplicate?: () => void;
-  onBatchDownloadBulletinPricing?: () => void;
-  showBulletinPricingDownload?: boolean;
 }
 
 const BatchOperations = ({ 
   selectedItems,
   onClearSelection,
   onBatchDelete,
-  onBatchDuplicate,
-  onBatchDownloadBulletinPricing,
-  showBulletinPricingDownload = true
+  onBatchDuplicate
 }: BatchOperationsProps) => {
   return (
     <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 bg-white rounded-lg shadow-lg border p-2 flex items-center gap-2">
@@ -35,17 +31,6 @@ const BatchOperations = ({
         </Button>
       )}
       
-      {onBatchDownloadBulletinPricing && (
-        <Button 
-          onClick={onBatchDownloadBulletinPricing}
-          size="sm"
-          variant="outline"
-          className="h-7 text-xs"
-        >
-          <Download className="h-3 w-3 mr-1" />
-          Download Bulletin Pricing
-        </Button>
-      )}
       
       <Button 
         onClick={onBatchDelete}

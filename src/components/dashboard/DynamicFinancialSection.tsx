@@ -271,8 +271,44 @@ useEffect(() => {
     try {
       console.log(`Download ${title} clicked`);
       
+      if (schemaId === 'financial-program-config') {
+        if (selectedItems.length === 0) {
+          toast.error("Please select at least one financial program to download");
+          return;
+        }
+
+        // Get the program codes from the selected items
+        const selectedPrograms = selectedItems.map(id => {
+          const item = data.find((d: any) => d.id === id);
+          return item?.programCode || item?.program_code;
+        }).filter(Boolean);
+
+        if (selectedPrograms.length === 0) {
+          toast.error("No valid financial programs selected");
+          return;
+        }
+
+        try {
+          toast.info("Exporting bulletin pricing...");
+          const result = await exportBulletinPricing(selectedPrograms);
+          toast.success(`Export complete! Generated ${result.fileCount} file(s).`);
+        } catch (error: any) {
+          console.error('Selected bulletin pricing export failed (primary):', error);
+          const msg = typeof error?.message === 'string' ? error.message : '';
+          if (msg.includes('No bulletin pricing data')) {
+            // Fallback: create data + template workbook for the selection
+            toast.info("No pricing data found for selection. Generating templates...");
+            await exportSelectedProgramsBulletinPricing(selectedPrograms);
+            toast.success("Template export complete.");
+          } else {
+            toast.error("Export failed. Please try again.");
+          }
+        }
+        return;
+      }
+      
       if (schemaId === 'fee-rules') {
-        // Fetch current fee rules data from Supabase
+        // ... keep existing fee-rules code
         const { data: feeRules, error } = await supabase
           .from('fee_rules')
           .select('*')
@@ -314,10 +350,6 @@ useEffect(() => {
         XLSX.writeFile(workbook, fileName);
         toast.success(`Downloaded ${exportData.length} fee rules to ${fileName}`);
       } else if (schemaId === 'bulletin-pricing') {
-        toast.info("Exporting bulletin pricing...");
-        const result = await exportBulletinPricing();
-        toast.success(`Export complete! Generated ${result.fileCount} file(s).`);
-      } else if (schemaId === 'financial-program-config') {
         toast.info("Exporting bulletin pricing...");
         const result = await exportBulletinPricing();
         toast.success(`Export complete! Generated ${result.fileCount} file(s).`);
@@ -406,6 +438,8 @@ useEffect(() => {
         onDownload={shouldShowUploadDownload ? handleDownload : undefined}
         uploadLabel={schemaId === 'financial-program-config' ? 'Upload Bulletin Pricing' : `Upload ${title}`}
         downloadLabel={schemaId === 'financial-program-config' ? 'Download Bulletin Pricing' : `Download ${title}`}
+        downloadDisabled={schemaId === 'financial-program-config' && selectedItems.length === 0}
+        selectedItems={selectedItems}
         onVersionHistory={handleVersionHistory}
         showVersionHistory={true}
       />
