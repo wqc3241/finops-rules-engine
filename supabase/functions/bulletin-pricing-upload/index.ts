@@ -236,21 +236,34 @@ async function validateWorkbook(
   programConfigMap: Record<string, any>
 ) {
   const errors: any[] = [];
-  let totalRecords = 0;
+  let totalRecords = 0; // counts non-empty pricing cells only
   let validRecords = 0;
   let invalidRecords = 0;
 
-  const validLenderSet = new Set(validLenders.map(l => l.toLowerCase()));
-  const validGeoSet = new Set(validGeoCodes.map(g => g?.toString().trim()));
+  const validLenderSet = new Set(validLenders.map(l => l?.toString().trim().toLowerCase()).filter(Boolean));
+  const validGeoSet = new Set(validGeoCodes.map(g => g?.toString().trim()).filter(Boolean));
 
+  // Helper to push error for response and also persist to DB
+  const pushError = async (
+    sheetName: string,
+    rowNumber: number | null,
+    columnName: string | null,
+    errorType: string,
+    errorMessage: string,
+    fieldValue?: string
+  ) => {
+    errors.push({ sheet_name: sheetName, row_number: rowNumber, column_name: columnName, error_type: errorType, error_message: errorMessage, field_value: fieldValue });
+    await logError(sessionId, sheetName, rowNumber, columnName, errorType, errorMessage, fieldValue);
+  };
+
+  // Iterate sheets
   for (const sheetName of workbook.SheetNames) {
     const worksheet = workbook.Sheets[sheetName];
 
-    // Validate tab naming convention: {Program Code}_{Pricing Type} where pricing type is after last underscore
+    // Validate tab naming convention: {Program Code}_{Pricing Type}
     const lastUnderscoreIndex = sheetName.lastIndexOf('_');
     if (lastUnderscoreIndex === -1) {
-      await logError(sessionId, sheetName, null, null, 'TAB_NAMING', `Tab name should follow format PROGRAM_CODE_PRICINGTYPE`);
-      invalidRecords++;
+      await pushError(sheetName, null, null, 'TAB_NAMING', 'Tab name should follow format PROGRAM_CODE_PRICINGTYPE');
       continue;
     }
 
@@ -259,119 +272,150 @@ async function validateWorkbook(
 
     const programCfg = programConfigMap[sheetProgramCode];
     if (!programCfg) {
-      await logError(sessionId, sheetName, null, null, 'PROGRAM_NOT_FOUND', `Program code ${sheetProgramCode} not found`);
-      invalidRecords++;
+      await pushError(sheetName, null, null, 'PROGRAM_NOT_FOUND', `Program code ${sheetProgramCode} not found`);
       continue;
     }
 
     if (!validPricingTypes.includes(pricingType)) {
-      await logError(sessionId, sheetName, null, null, 'INVALID_PRICING_TYPE', `Pricing type ${pricingType} not found in system`);
-      invalidRecords++;
+      await pushError(sheetName, null, null, 'INVALID_PRICING_TYPE', `Pricing type ${pricingType} not found in system`);
       continue;
     }
 
     const allowedPricingTypes = Array.isArray(programCfg.template_metadata?.pricingTypes)
-      ? programCfg.template_metadata.pricingTypes
+      ? programCfg.template_metadata.pricingTypes as string[]
       : [];
     if (allowedPricingTypes.length > 0 && !allowedPricingTypes.includes(pricingType)) {
-      await logError(sessionId, sheetName, null, null, 'PRICING_TYPE_NOT_ALLOWED', `Pricing type ${pricingType} not allowed for program ${sheetProgramCode}`);
-      invalidRecords++;
+      await pushError(sheetName, null, null, 'PRICING_TYPE_NOT_ALLOWED', `Pricing type ${pricingType} not allowed for program ${sheetProgramCode}`);
       continue;
     }
 
-    // Parse worksheet data
     const data = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-
     if (data.length < 4) {
-      await logError(sessionId, sheetName, null, null, 'INSUFFICIENT_ROWS', 'Sheet must have at least 4 rows (headers + data)');
-      invalidRecords++;
+      await pushError(sheetName, null, null, 'INSUFFICIENT_ROWS', 'Sheet must have at least 4 rows (headers + data)');
       continue;
     }
 
-    // Validate header structure
-    const programRow = data[0] as any[];
-    const creditProfileRow = data[1] as any[];
-    const pricingConfigRow = data[2] as any[];
+    // Header rows according to template: C2+=credit profiles, C3+=pricing configs
+    const creditProfileRow = (data[1] as any[]) || [];
+    const pricingConfigRow = (data[2] as any[]) || [];
 
-    // Lender validation: expect comma-separated lenders in cell B1
-    const lendersCellRaw = (programRow[1] ?? '').toString().trim();
+    // Determine max columns to scan, starting at col index 2 (column C)
+    const maxCols = Math.max(creditProfileRow.length, pricingConfigRow.length);
+
+    // Precompute header validity per column
+    const headerInfo: Array<{ cp?: string; pcfg?: string; valid: boolean; col: number }>
+      = [];
+    for (let col = 2; col < maxCols; col++) {
+      const cp = creditProfileRow[col] ? String(creditProfileRow[col]).trim() : '';
+      const pcfg = pricingConfigRow[col] ? String(pricingConfigRow[col]).trim() : '';
+
+      let validHeader = true;
+      if (!cp) {
+        await pushError(sheetName, 2, `Column ${col + 1}`, 'MISSING_CREDIT_PROFILE_HEADER', 'Missing credit profile header');
+        validHeader = false;
+      } else if (!validCreditProfiles.includes(cp)) {
+        await pushError(sheetName, 2, `Column ${col + 1}`, 'INVALID_CREDIT_PROFILE', `Credit profile ${cp} not found in system`);
+        validHeader = false;
+      }
+
+      if (!pcfg) {
+        await pushError(sheetName, 3, `Column ${col + 1}`, 'MISSING_PRICING_CONFIG_HEADER', 'Missing pricing config header');
+        validHeader = false;
+      } else if (!validPricingConfigs.includes(pcfg)) {
+        await pushError(sheetName, 3, `Column ${col + 1}`, 'INVALID_PRICING_CONFIG', `Pricing config ${pcfg} not found in system`);
+        validHeader = false;
+      }
+
+      headerInfo.push({ cp, pcfg, valid: validHeader, col });
+    }
+
+    // Allowed lenders from template metadata (optional allowlist)
     const allowedLenders = Array.isArray(programCfg.template_metadata?.lenders)
       ? (programCfg.template_metadata.lenders as string[])
       : [];
-    const allowedLenderSet = new Set(allowedLenders.map((l: string) => l.toLowerCase()));
+    const allowedLenderSet = new Set(allowedLenders.map(l => l?.toLowerCase()));
 
-    if (!lendersCellRaw) {
-      await logError(sessionId, sheetName, 1, 'Column B', 'MISSING_LENDERS', 'Lender list (B1) is required');
-      invalidRecords++;
-    } else {
-      const lendersList = lendersCellRaw.split(',').map((s: string) => s.trim()).filter(Boolean);
-      if (lendersList.length === 0) {
-        await logError(sessionId, sheetName, 1, 'Column B', 'MISSING_LENDERS', 'No lenders provided in cell B1');
-        invalidRecords++;
-      } else {
-        for (const lender of lendersList) {
-          const lenderLc = lender.toLowerCase();
-          if (!validLenderSet.has(lenderLc)) {
-            await logError(sessionId, sheetName, 1, 'Column B', 'INVALID_LENDER', `Lender not found in system: ${lender}`, lender);
-            invalidRecords++;
-          } else if (allowedLenderSet.size > 0 && !allowedLenderSet.has(lenderLc)) {
-            await logError(sessionId, sheetName, 1, 'Column B', 'LENDER_NOT_ALLOWED', `Lender not allowed for program ${sheetProgramCode}: ${lender}`, lender);
-            invalidRecords++;
-          }
-        }
-      }
-    }
+    // Allowed geos from template metadata (optional allowlist)
+    const allowedGeos = Array.isArray(programCfg.template_metadata?.geoCodes)
+      ? (programCfg.template_metadata.geoCodes as string[])
+      : [];
+    const allowedGeoSet = new Set(allowedGeos.map(g => g?.toString().trim()))
 
-    // Validate credit profiles in row 2
-    for (let col = 1; col < creditProfileRow.length; col++) {
-      const creditProfile = creditProfileRow[col];
-      if (creditProfile && !validCreditProfiles.includes(creditProfile)) {
-        await logError(sessionId, sheetName, 2, `Column ${col + 1}`, 'INVALID_CREDIT_PROFILE', `Credit profile ${creditProfile} not found in system`);
-        invalidRecords++;
-      }
-    }
-
-    // Validate pricing configs in row 3
-    for (let col = 1; col < pricingConfigRow.length; col++) {
-      const pricingConfig = pricingConfigRow[col];
-      if (pricingConfig && !validPricingConfigs.includes(pricingConfig)) {
-        await logError(sessionId, sheetName, 3, `Column ${col + 1}`, 'INVALID_PRICING_CONFIG', `Pricing config ${pricingConfig} not found in system`);
-        invalidRecords++;
-      }
-    }
-
-    // Validate data rows (row 4 onwards)
+    // Data rows start at row index 3 (row 4 in Excel)
     for (let row = 3; row < data.length; row++) {
-      const rowData = data[row] as any[];
-      totalRecords++;
+      const rowData = (data[row] as any[]) || [];
+      const rowNumber = row + 1;
 
-      const geoCode = rowData[0];
-      if (!geoCode) {
-        await logError(sessionId, sheetName, row + 1, 'Column A', 'MISSING_GEO_CODE', 'Geo code is required');
-        invalidRecords++;
-        continue;
-      }
-      if (!validGeoSet.has(String(geoCode))) {
-        await logError(sessionId, sheetName, row + 1, 'Column A', 'INVALID_GEO_CODE', `Geo code not found in system: ${geoCode}`, String(geoCode));
-        invalidRecords++;
-        continue;
+      // A column (index 0): lender, B column (index 1): geo code
+      const lenderRaw = rowData[0] !== undefined && rowData[0] !== null ? String(rowData[0]).trim() : '';
+      const geoRaw = rowData[1] !== undefined && rowData[1] !== null ? String(rowData[1]).trim() : '';
+
+      const lenderLc = lenderRaw.toLowerCase();
+      const lenderPresent = !!lenderRaw;
+      const lenderInSystem = lenderPresent && validLenderSet.has(lenderLc);
+      const lenderAllowed = lenderInSystem && (allowedLenderSet.size === 0 || allowedLenderSet.has(lenderLc));
+
+      if (!lenderPresent) {
+        await pushError(sheetName, rowNumber, 'Column A', 'MISSING_LENDER', 'Lender is required in column A');
+      } else if (!lenderInSystem) {
+        await pushError(sheetName, rowNumber, 'Column A', 'INVALID_LENDER', `Lender not found in system: ${lenderRaw}`, lenderRaw);
+      } else if (!lenderAllowed) {
+        await pushError(sheetName, rowNumber, 'Column A', 'LENDER_NOT_ALLOWED', `Lender not allowed for program ${sheetProgramCode}: ${lenderRaw}`, lenderRaw);
       }
 
-      // Validate pricing values
-      let hasValidPricingValue = false;
-      for (let col = 1; col < rowData.length; col++) {
-        const pricingValue = rowData[col];
-        if (pricingValue !== undefined && pricingValue !== null && pricingValue !== '') {
-          if (isNaN(Number(pricingValue))) {
-            await logError(sessionId, sheetName, row + 1, `Column ${col + 1}`, 'INVALID_PRICING_VALUE', `Pricing value must be numeric: ${pricingValue}`);
-            invalidRecords++;
-          } else {
-            hasValidPricingValue = true;
-          }
+      const geoPresent = !!geoRaw;
+      const geoInSystem = geoPresent && validGeoSet.has(geoRaw);
+      const geoAllowed = geoInSystem && (allowedGeoSet.size === 0 || allowedGeoSet.has(geoRaw));
+
+      if (!geoPresent) {
+        await pushError(sheetName, rowNumber, 'Column B', 'MISSING_GEO_CODE', 'Geo code is required in column B');
+      } else if (!geoInSystem) {
+        await pushError(sheetName, rowNumber, 'Column B', 'INVALID_GEO_CODE', `Geo code not found in system: ${geoRaw}`, geoRaw);
+      } else if (!geoAllowed) {
+        await pushError(sheetName, rowNumber, 'Column B', 'GEO_CODE_NOT_ALLOWED', `Geo code not allowed for program ${sheetProgramCode}: ${geoRaw}`, geoRaw);
+      }
+
+      // Scan value cells C.. across this row
+      for (const h of headerInfo) {
+        const col = h.col;
+        const cell = rowData[col];
+        const colName = `Column ${col + 1}`;
+
+        if (cell === undefined || cell === null || cell === '') {
+          // empty cell -> not counted
+          continue;
         }
-      }
 
-      if (hasValidPricingValue) {
+        // Count this cell as a record
+        totalRecords++;
+
+        // If row-level prerequisites fail, mark this cell invalid
+        if (!(lenderPresent && lenderInSystem && lenderAllowed) || !(geoPresent && geoInSystem && geoAllowed)) {
+          invalidRecords++;
+          // Prefer row-level error type in message
+          const reason = !lenderPresent ? 'MISSING_LENDER' : !lenderInSystem ? 'INVALID_LENDER' : !lenderAllowed ? 'LENDER_NOT_ALLOWED' : !geoPresent ? 'MISSING_GEO_CODE' : !geoInSystem ? 'INVALID_GEO_CODE' : 'GEO_CODE_NOT_ALLOWED';
+          await pushError(sheetName, rowNumber, colName, reason, `Cannot accept value without valid lender/geo. Value: ${cell}`);
+          continue;
+        }
+
+        // Header validation per column
+        if (!h.valid) {
+          invalidRecords++;
+          await pushError(sheetName, rowNumber, colName, 'INVALID_HEADER_AT_COLUMN', `Invalid/missing header(s) for column: CP='${h.cp}', CFG='${h.pcfg}'`);
+          continue;
+        }
+
+        // Numeric validation (supports percentages like 1.9%)
+        let valStr = String(cell).trim();
+        if (valStr.endsWith('%')) valStr = valStr.slice(0, -1).trim();
+        const num = Number(valStr);
+        if (isNaN(num)) {
+          invalidRecords++;
+          await pushError(sheetName, rowNumber, colName, 'INVALID_PRICING_VALUE', `Pricing value must be numeric. Got: ${cell}`);
+          continue;
+        }
+
+        // Valid cell
         validRecords++;
       }
     }
@@ -396,39 +440,48 @@ async function parseWorkbookData(workbook: any, sessionId: string, userId: strin
     if (data.length < 4) continue;
 
     const lastUnderscoreIndex = sheetName.lastIndexOf('_');
-    const pricingType = sheetName.substring(lastUnderscoreIndex + 1);
+    const pricingType = sheetName.substring(lastUnderscoreIndex + 1).trim();
     const sheetProgramCode = sheetName.substring(0, lastUnderscoreIndex).trim();
-    const programRow = data[0] as any[];
-    const creditProfileRow = data[1] as any[];
-    const pricingConfigRow = data[2] as any[];
-    const lendersCellRaw = (programRow[1] ?? '').toString();
-    const lenderList = lendersCellRaw.split(',').map((s: string) => s.trim()).filter(Boolean).join(', ');
 
-    // Parse data rows
+    const creditProfileRow = (data[1] as any[]) || [];
+    const pricingConfigRow = (data[2] as any[]) || [];
+
+    // Data rows start at row index 3 (row 4 in Excel)
     for (let row = 3; row < data.length; row++) {
-      const rowData = data[row] as any[];
-      const geoCode = rowData[0];
+      const rowData = (data[row] as any[]) || [];
+      const lenderRaw = rowData[0] !== undefined && rowData[0] !== null ? String(rowData[0]).trim() : '';
+      const geoRaw = rowData[1] !== undefined && rowData[1] !== null ? String(rowData[1]).trim() : '';
 
-      if (!geoCode) continue;
+      if (!lenderRaw || !geoRaw) continue;
 
-      for (let col = 1; col < rowData.length; col++) {
-        const pricingValue = rowData[col];
-        if (pricingValue !== undefined && pricingValue !== null && pricingValue !== '' && !isNaN(Number(pricingValue))) {
-          bulletinRecords.push({
-            bulletin_id: `${sheetProgramCode}_${geoCode}_${pricingType}_${col}_${Date.now()}`,
-            financial_program_code: sheetProgramCode,
-            geo_code: String(geoCode),
-            pricing_type: pricingType,
-            credit_profile: creditProfileRow[col],
-            pricing_config: pricingConfigRow[col],
-            pricing_value: Number(pricingValue),
-            upload_date: new Date().toISOString(),
-            updated_date: new Date().toISOString(),
-            advertised: false,
-            created_by: userId,
-            lender_list: lenderList
-          });
-        }
+      // Scan columns from C onward (index 2)
+      const maxCols = Math.max(creditProfileRow.length, pricingConfigRow.length, rowData.length);
+      for (let col = 2; col < maxCols; col++) {
+        const cp = creditProfileRow[col] ? String(creditProfileRow[col]).trim() : '';
+        const pcfg = pricingConfigRow[col] ? String(pricingConfigRow[col]).trim() : '';
+        if (!cp || !pcfg) continue;
+
+        const raw = rowData[col];
+        if (raw === undefined || raw === null || raw === '') continue;
+        let valStr = String(raw).trim();
+        if (valStr.endsWith('%')) valStr = valStr.slice(0, -1).trim();
+        const num = Number(valStr);
+        if (isNaN(num)) continue;
+
+        bulletinRecords.push({
+          bulletin_id: `${sheetProgramCode}_${lenderRaw}_${geoRaw}_${pricingType}_${cp}_${pcfg}_${Date.now()}`,
+          financial_program_code: sheetProgramCode,
+          geo_code: geoRaw,
+          pricing_type: pricingType,
+          credit_profile: cp,
+          pricing_config: pcfg,
+          pricing_value: num,
+          upload_date: new Date().toISOString(),
+          updated_date: new Date().toISOString(),
+          advertised: false,
+          created_by: userId,
+          lender_list: lenderRaw
+        });
       }
     }
   }
