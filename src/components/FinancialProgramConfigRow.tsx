@@ -149,7 +149,6 @@ const FinancialProgramConfigRow = ({
       <TableCell>
         <TableRowActions
           rowId={program.id}
-          programCode={program.program_code}
           onEdit={() => onEdit(program.id)}
           onCopy={onCopy}
           onDelete={onDelete}
