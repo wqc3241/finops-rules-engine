@@ -8,6 +8,7 @@ import FinancingDataTableTabs from "./FinancingDataTableTabs";
 import SalesPricingRulesTabs from "./SalesPricingRulesTabs";
 import { BatchOperations } from "./BatchOperations";
 import { ChangeTrackingProvider } from "@/hooks/useChangeTracking";
+import { DynamicTableSchemasProvider } from "@/hooks/useDynamicTableSchemas";
 
 
 interface TabsSectionProps {
@@ -84,92 +85,100 @@ const TabsSection = ({
   switch(activeSection) {
     case "Financing Config": 
       return (
-        <div className="relative">
-          {showBatchOperations && (
-            <BatchOperations
-              selectedItems={selectedItems}
-              onClearSelection={handleClearSelection}
-              onBatchDelete={handleBatchDelete}
-              onBatchDuplicate={batchDuplicateCallback ? handleBatchDuplicate : undefined}
-            />
-          )}
-          <LFSSetupTabs 
-            onSelectionChange={(items, schemaId) => {
-              handleSelectionChange(items);
-              setCurrentSchemaId(schemaId || "");
-            }}
-            selectedItems={selectedItems}
-            onSetBatchDeleteCallback={handleSetBatchDeleteCallback}
-            onSetBatchDuplicateCallback={handleSetBatchDuplicateCallback}
-          />
-        </div>
-      );
-    
-    case "Financial Pricing":
-      return (
-        <div className="relative">
-          {showBatchOperations && (
-            <BatchOperations
-              selectedItems={selectedItems}
-              onClearSelection={handleClearSelection}
-              onBatchDelete={handleBatchDelete}
-              onBatchDuplicate={batchDuplicateCallback ? handleBatchDuplicate : undefined}
-            />
-          )}
-          <ChangeTrackingProvider>
-            <FinancialPricingTabs
-              showAddPricingModal={showAddPricingModal}
-              setShowAddPricingModal={setShowAddPricingModal}
-              showAddPricingTypeModal={showAddPricingTypeModal}
-              setShowAddPricingTypeModal={setShowAddPricingTypeModal}
+        <DynamicTableSchemasProvider>
+          <div className="relative">
+            {showBatchOperations && (
+              <BatchOperations
+                selectedItems={selectedItems}
+                onClearSelection={handleClearSelection}
+                onBatchDelete={handleBatchDelete}
+                onBatchDuplicate={batchDuplicateCallback ? handleBatchDuplicate : undefined}
+              />
+            )}
+            <LFSSetupTabs 
               onSelectionChange={(items, schemaId) => {
                 handleSelectionChange(items);
                 setCurrentSchemaId(schemaId || "");
               }}
               selectedItems={selectedItems}
-               onSetBatchDeleteCallback={handleSetBatchDeleteCallback}
-               onSetBatchDuplicateCallback={handleSetBatchDuplicateCallback}
-               onSetBatchDownloadBulletinPricingCallback={handleSetBatchDownloadBulletinPricingCallback}
-               reviewRequestId={reviewRequestId}
+              onSetBatchDeleteCallback={handleSetBatchDeleteCallback}
+              onSetBatchDuplicateCallback={handleSetBatchDuplicateCallback}
             />
-          </ChangeTrackingProvider>
-        </div>
+          </div>
+        </DynamicTableSchemasProvider>
+      );
+    
+    case "Financial Pricing":
+      return (
+        <DynamicTableSchemasProvider>
+          <div className="relative">
+            {showBatchOperations && (
+              <BatchOperations
+                selectedItems={selectedItems}
+                onClearSelection={handleClearSelection}
+                onBatchDelete={handleBatchDelete}
+                onBatchDuplicate={batchDuplicateCallback ? handleBatchDuplicate : undefined}
+              />
+            )}
+            <ChangeTrackingProvider>
+              <FinancialPricingTabs
+                showAddPricingModal={showAddPricingModal}
+                setShowAddPricingModal={setShowAddPricingModal}
+                showAddPricingTypeModal={showAddPricingTypeModal}
+                setShowAddPricingTypeModal={setShowAddPricingTypeModal}
+                onSelectionChange={(items, schemaId) => {
+                  handleSelectionChange(items);
+                  setCurrentSchemaId(schemaId || "");
+                }}
+                selectedItems={selectedItems}
+                 onSetBatchDeleteCallback={handleSetBatchDeleteCallback}
+                 onSetBatchDuplicateCallback={handleSetBatchDuplicateCallback}
+                 onSetBatchDownloadBulletinPricingCallback={handleSetBatchDownloadBulletinPricingCallback}
+                 reviewRequestId={reviewRequestId}
+              />
+            </ChangeTrackingProvider>
+          </div>
+        </DynamicTableSchemasProvider>
       );
 
     case "Financing Data Table":
       return (
-        <div className="relative">
-          {showBatchOperations && (
-            <BatchOperations 
+        <DynamicTableSchemasProvider>
+          <div className="relative">
+            {showBatchOperations && (
+              <BatchOperations 
+                selectedItems={selectedItems}
+                onClearSelection={handleClearSelection}
+                onBatchDelete={handleBatchDelete}
+              />
+            )}
+            <FinancingDataTableTabs
+              onSelectionChange={handleSelectionChange}
               selectedItems={selectedItems}
-              onClearSelection={handleClearSelection}
-              onBatchDelete={handleBatchDelete}
+              onSetBatchDeleteCallback={handleSetBatchDeleteCallback}
             />
-          )}
-          <FinancingDataTableTabs
-            onSelectionChange={handleSelectionChange}
-            selectedItems={selectedItems}
-            onSetBatchDeleteCallback={handleSetBatchDeleteCallback}
-          />
-        </div>
+          </div>
+        </DynamicTableSchemasProvider>
       );
     
     case "Sales Pricing Rules":
       return (
-        <div className="relative">
-          {showBatchOperations && (
-            <BatchOperations 
+        <DynamicTableSchemasProvider>
+          <div className="relative">
+            {showBatchOperations && (
+              <BatchOperations 
+                selectedItems={selectedItems}
+                onClearSelection={handleClearSelection}
+                onBatchDelete={handleBatchDelete}
+              />
+            )}
+            <SalesPricingRulesTabs 
+              onSelectionChange={handleSelectionChange}
               selectedItems={selectedItems}
-              onClearSelection={handleClearSelection}
-              onBatchDelete={handleBatchDelete}
+              onSetBatchDeleteCallback={handleSetBatchDeleteCallback}
             />
-          )}
-          <SalesPricingRulesTabs 
-            onSelectionChange={handleSelectionChange}
-            selectedItems={selectedItems}
-            onSetBatchDeleteCallback={handleSetBatchDeleteCallback}
-          />
-        </div>
+          </div>
+        </DynamicTableSchemasProvider>
       );
       
     default:
