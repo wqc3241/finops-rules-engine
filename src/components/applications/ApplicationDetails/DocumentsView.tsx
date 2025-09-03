@@ -147,16 +147,8 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
 
       {/* Category Selection */}
       <div className="bg-card rounded-lg border p-4">
-        <div className="flex items-center justify-between mb-3">
+        <div className="mb-3">
           <h2 className="text-base font-semibold">Document Categories</h2>
-          <Button 
-            size="sm" 
-            onClick={() => setShowAddCategoryModal(true)}
-            className="text-xs"
-          >
-            <Plus className="h-3 w-3 mr-1" />
-            Add Category
-          </Button>
         </div>
         <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 gap-2">
           <button
