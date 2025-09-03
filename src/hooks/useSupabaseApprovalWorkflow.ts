@@ -739,6 +739,62 @@ export const useSupabaseApprovalWorkflow = () => {
     }
   }, [user, getPendingRequestsForAdmin, rejectTableChanges, finalizeChangeRequest]);
 
+  const approveChangeRequest = useCallback(async (requestId: string, comment?: string): Promise<void> => {
+    if (!user) return;
+
+    setLoading(true);
+    try {
+      const request = getChangeRequestWithDetails(requestId);
+      if (!request) {
+        toast.error("Request not found");
+        return;
+      }
+
+      // Approve all tables in this request
+      for (const tableChange of request.tableChanges) {
+        if (tableChange.status === "PENDING") {
+          await approveTableChanges(requestId, tableChange.schemaId, comment);
+        }
+      }
+      
+      await finalizeChangeRequest(requestId);
+      toast.success(`Request approved - All changes in request have been approved and applied.`);
+    } catch (error) {
+      console.error('Error approving request:', error);
+      toast.error("Error: Failed to approve request.");
+    } finally {
+      setLoading(false);
+    }
+  }, [user, getChangeRequestWithDetails, approveTableChanges, finalizeChangeRequest]);
+
+  const rejectChangeRequest = useCallback(async (requestId: string, comment?: string): Promise<void> => {
+    if (!user) return;
+
+    setLoading(true);
+    try {
+      const request = getChangeRequestWithDetails(requestId);
+      if (!request) {
+        toast.error("Request not found");
+        return;
+      }
+
+      // Reject all tables in this request
+      for (const tableChange of request.tableChanges) {
+        if (tableChange.status === "PENDING") {
+          await rejectTableChanges(requestId, tableChange.schemaId, comment);
+        }
+      }
+      
+      await finalizeChangeRequest(requestId);
+      toast.success(`Request rejected - All changes in request have been rejected.`);
+    } catch (error) {
+      console.error('Error rejecting request:', error);
+      toast.error("Error: Failed to reject request.");
+    } finally {
+      setLoading(false);
+    }
+  }, [user, getChangeRequestWithDetails, rejectTableChanges, finalizeChangeRequest]);
+
   const forceRefresh = useCallback(async () => {
     await Promise.all([
       loadChangeRequests(),
@@ -759,6 +815,8 @@ export const useSupabaseApprovalWorkflow = () => {
     getPendingRequestsForAdmin,
     approveAllPendingRequests,
     rejectAllPendingRequests,
+    approveChangeRequest,
+    rejectChangeRequest,
     isTableLocked,
     forceRefresh,
     approveBulletinPricingChanges,

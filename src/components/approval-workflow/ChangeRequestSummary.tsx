@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle, XCircle, Clock, User, Calendar, FileText, ChevronDown, ChevronUp } from "lucide-react";
+import { CheckCircle, XCircle, Clock, User, Calendar, FileText, ChevronDown, ChevronUp, Check, X } from "lucide-react";
 import { ChangeRequestWithDetails, ApprovalStatus } from "@/types/approval";
 import { useSupabaseApprovalWorkflow } from "@/hooks/useSupabaseApprovalWorkflow";
 import TableReviewInterface from "./TableReviewInterface";
@@ -20,7 +20,15 @@ interface ChangeRequestSummaryProps {
 const ChangeRequestSummary = ({ isOpen, onClose, requestId }: ChangeRequestSummaryProps) => {
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
   const [expandedTables, setExpandedTables] = useState<Set<string>>(new Set());
-  const { getChangeRequestWithDetails, getPendingRequestsForAdmin, approveAllPendingRequests, rejectAllPendingRequests } = useSupabaseApprovalWorkflow();
+  const [processingRequests, setProcessingRequests] = useState<Set<string>>(new Set());
+  const { 
+    getChangeRequestWithDetails, 
+    getPendingRequestsForAdmin, 
+    approveAllPendingRequests, 
+    rejectAllPendingRequests,
+    approveChangeRequest,
+    rejectChangeRequest
+  } = useSupabaseApprovalWorkflow();
 
   const toggleTableExpansion = (tableKey: string) => {
     const newExpanded = new Set(expandedTables);
@@ -94,6 +102,32 @@ const ChangeRequestSummary = ({ isOpen, onClose, requestId }: ChangeRequestSumma
         if (table.status === "PENDING") {
           // Note: These functions are async but we're not awaiting here for compatibility
         }
+      });
+    }
+  };
+
+  const handleApproveRequest = async (requestId: string) => {
+    setProcessingRequests(prev => new Set(prev).add(requestId));
+    try {
+      await approveChangeRequest(requestId, "Individual request approval");
+    } finally {
+      setProcessingRequests(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(requestId);
+        return newSet;
+      });
+    }
+  };
+
+  const handleRejectRequest = async (requestId: string) => {
+    setProcessingRequests(prev => new Set(prev).add(requestId));
+    try {
+      await rejectChangeRequest(requestId, "Individual request rejection");
+    } finally {
+      setProcessingRequests(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(requestId);
+        return newSet;
       });
     }
   };
@@ -190,15 +224,43 @@ const ChangeRequestSummary = ({ isOpen, onClose, requestId }: ChangeRequestSumma
                                         </p>
                                       </div>
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                      <Badge variant="outline" className="text-xs">
-                                        ~{table.changedRowsCount}
-                                      </Badge>
-                                      <Badge className={getStatusColor(table.status)}>
-                                        {getStatusIcon(table.status)}
-                                        {table.status}
-                                      </Badge>
-                                    </div>
+                                     <div className="flex items-center gap-2">
+                                       <Badge variant="outline" className="text-xs">
+                                         ~{table.changedRowsCount}
+                                       </Badge>
+                                       <Badge className={getStatusColor(table.status)}>
+                                         {getStatusIcon(table.status)}
+                                         {table.status}
+                                       </Badge>
+                                       {table.status === "PENDING" && (
+                                         <div className="flex gap-1 ml-2">
+                                           <Button
+                                             size="sm"
+                                             variant="outline"
+                                             className="h-7 px-2 text-xs bg-green-50 hover:bg-green-100 text-green-700 border-green-200"
+                                             onClick={(e) => {
+                                               e.stopPropagation();
+                                               handleApproveRequest(req.id);
+                                             }}
+                                             disabled={processingRequests.has(req.id)}
+                                           >
+                                             <Check className="h-3 w-3" />
+                                           </Button>
+                                           <Button
+                                             size="sm"
+                                             variant="outline"
+                                             className="h-7 px-2 text-xs bg-red-50 hover:bg-red-100 text-red-700 border-red-200"
+                                             onClick={(e) => {
+                                               e.stopPropagation();
+                                               handleRejectRequest(req.id);
+                                             }}
+                                             disabled={processingRequests.has(req.id)}
+                                           >
+                                             <X className="h-3 w-3" />
+                                           </Button>
+                                         </div>
+                                       )}
+                                     </div>
                                   </div>
                                 </CardHeader>
                               </CollapsibleTrigger>
