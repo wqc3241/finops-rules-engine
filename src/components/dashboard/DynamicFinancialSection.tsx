@@ -47,7 +47,7 @@ const DynamicFinancialSection = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(100);
   
-  const { getSchema, getSyncSchema, updateSchema, refreshSchema, loading: schemaLoading } = useDynamicTableSchemas();
+  const { getSchema, getSyncSchema, updateSchema, loading: schemaLoading } = useDynamicTableSchemas();
 const { 
   data, 
   setData, 
@@ -96,12 +96,6 @@ useEffect(() => {
   
   useEffect(() => {
     const loadSchema = async () => {
-      // Force refresh for credit-profile to ensure profile_id column shows up
-      if (schemaId === 'credit-profile') {
-        console.log('🔄 Refreshing credit-profile schema to ensure profile_id column');
-        await refreshSchema(schemaId);
-      }
-      
       const loadedSchema = await getSchema(schemaId);
       setSchema(loadedSchema);
     };
@@ -109,7 +103,7 @@ useEffect(() => {
     if (!schema) {
       loadSchema();
     }
-  }, [schemaId, getSchema, refreshSchema, schema]);
+  }, [schemaId, getSchema, schema]);
 
   useEffect(() => {
     loadVersions();

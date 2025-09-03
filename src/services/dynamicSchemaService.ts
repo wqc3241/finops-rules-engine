@@ -287,24 +287,18 @@ class DynamicSchemaService {
         };
       });
 
-      // Sort columns: Primary key first, then ID columns, regular columns, timestamp columns last
+      // Sort columns: ID columns first, regular columns middle, timestamp columns last
       columnDefinitions.sort((a, b) => {
-        const isPrimaryKeyA = primaryKeys.includes(a.key);
-        const isPrimaryKeyB = primaryKeys.includes(b.key);
         const isIdA = a.key.toLowerCase().includes('id');
         const isIdB = b.key.toLowerCase().includes('id');
         const isTimestampA = ['created_at', 'updated_at', 'createdat', 'updatedat'].includes(a.key.toLowerCase());
         const isTimestampB = ['created_at', 'updated_at', 'createdat', 'updatedat'].includes(b.key.toLowerCase());
         
-        // First tier: Primary key columns (profile_id should be first for credit_profiles)
-        if (isPrimaryKeyA && !isPrimaryKeyB) return -1;
-        if (!isPrimaryKeyA && isPrimaryKeyB) return 1;
-        
-        // Second tier: ID columns
+        // First tier: ID columns
         if (isIdA && !isIdB) return -1;
         if (!isIdA && isIdB) return 1;
         
-        // Last tier: Timestamp columns
+        // Third tier: Timestamp columns
         if (isTimestampA && !isTimestampB) return 1;
         if (!isTimestampA && isTimestampB) return -1;
         

@@ -101,12 +101,6 @@ export const useDynamicSchemas = (): UseDynamicSchemasReturn => {
     try {
       // Clear cache and reload
       dynamicSchemaService.clearSchemaCache(schemaId);
-      // Also remove from local state to force fresh load
-      setSchemas(prev => {
-        const newSchemas = { ...prev };
-        delete newSchemas[schemaId];
-        return newSchemas;
-      });
       const schema = await dynamicSchemaService.getSchema(schemaId);
       if (schema) {
         setSchemas(prev => ({ ...prev, [schemaId]: schema }));
