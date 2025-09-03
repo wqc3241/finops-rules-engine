@@ -11,6 +11,7 @@ import { useAuth } from "@/hooks/useSupabaseAuth";
 import { useSupabaseApprovalWorkflow } from "@/hooks/useSupabaseApprovalWorkflow";
 import { useChangeTracking } from "@/hooks/useChangeTracking";
 import { toast } from "sonner";
+import { DynamicTableSchemasProvider } from "@/hooks/useDynamicTableSchemas";
 
 interface FinancialPricingTabsProps {
   showAddPricingModal: boolean;
@@ -26,6 +27,36 @@ interface FinancialPricingTabsProps {
 }
 
 const FinancialPricingTabs = ({
+  showAddPricingModal,
+  setShowAddPricingModal,
+  showAddPricingTypeModal,
+  setShowAddPricingTypeModal,
+  onSelectionChange,
+  selectedItems = [],
+  onSetBatchDeleteCallback,
+  onSetBatchDuplicateCallback,
+  onSetBatchDownloadBulletinPricingCallback,
+  reviewRequestId
+}: FinancialPricingTabsProps) => {
+  return (
+    <DynamicTableSchemasProvider>
+      <FinancialPricingTabsContent
+        showAddPricingModal={showAddPricingModal}
+        setShowAddPricingModal={setShowAddPricingModal}
+        showAddPricingTypeModal={showAddPricingTypeModal}
+        setShowAddPricingTypeModal={setShowAddPricingTypeModal}
+        onSelectionChange={onSelectionChange}
+        selectedItems={selectedItems}
+        onSetBatchDeleteCallback={onSetBatchDeleteCallback}
+        onSetBatchDuplicateCallback={onSetBatchDuplicateCallback}
+        onSetBatchDownloadBulletinPricingCallback={onSetBatchDownloadBulletinPricingCallback}
+        reviewRequestId={reviewRequestId}
+      />
+    </DynamicTableSchemasProvider>
+  );
+};
+
+const FinancialPricingTabsContent = ({
   showAddPricingModal,
   setShowAddPricingModal,
   showAddPricingTypeModal,

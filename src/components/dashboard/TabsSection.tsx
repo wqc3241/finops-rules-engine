@@ -110,35 +110,33 @@ const TabsSection = ({
     
     case "Financial Pricing":
       return (
-        <DynamicTableSchemasProvider>
-          <div className="relative">
-            {showBatchOperations && (
-              <BatchOperations
-                selectedItems={selectedItems}
-                onClearSelection={handleClearSelection}
-                onBatchDelete={handleBatchDelete}
-                onBatchDuplicate={batchDuplicateCallback ? handleBatchDuplicate : undefined}
-              />
-            )}
-            <ChangeTrackingProvider>
-              <FinancialPricingTabs
-                showAddPricingModal={showAddPricingModal}
-                setShowAddPricingModal={setShowAddPricingModal}
-                showAddPricingTypeModal={showAddPricingTypeModal}
-                setShowAddPricingTypeModal={setShowAddPricingTypeModal}
-                onSelectionChange={(items, schemaId) => {
-                  handleSelectionChange(items);
-                  setCurrentSchemaId(schemaId || "");
-                }}
-                selectedItems={selectedItems}
-                onSetBatchDeleteCallback={handleSetBatchDeleteCallback}
-                onSetBatchDuplicateCallback={handleSetBatchDuplicateCallback}
-                onSetBatchDownloadBulletinPricingCallback={handleSetBatchDownloadBulletinPricingCallback}
-                reviewRequestId={reviewRequestId}
-              />
-            </ChangeTrackingProvider>
-          </div>
-        </DynamicTableSchemasProvider>
+        <div className="relative">
+          {showBatchOperations && (
+            <BatchOperations
+              selectedItems={selectedItems}
+              onClearSelection={handleClearSelection}
+              onBatchDelete={handleBatchDelete}
+              onBatchDuplicate={batchDuplicateCallback ? handleBatchDuplicate : undefined}
+            />
+          )}
+          <ChangeTrackingProvider>
+            <FinancialPricingTabs
+              showAddPricingModal={showAddPricingModal}
+              setShowAddPricingModal={setShowAddPricingModal}
+              showAddPricingTypeModal={showAddPricingTypeModal}
+              setShowAddPricingTypeModal={setShowAddPricingTypeModal}
+              onSelectionChange={(items, schemaId) => {
+                handleSelectionChange(items);
+                setCurrentSchemaId(schemaId || "");
+              }}
+              selectedItems={selectedItems}
+              onSetBatchDeleteCallback={handleSetBatchDeleteCallback}
+              onSetBatchDuplicateCallback={handleSetBatchDuplicateCallback}
+              onSetBatchDownloadBulletinPricingCallback={handleSetBatchDownloadBulletinPricingCallback}
+              reviewRequestId={reviewRequestId}
+            />
+          </ChangeTrackingProvider>
+        </div>
       );
 
     case "Financing Data Table":
