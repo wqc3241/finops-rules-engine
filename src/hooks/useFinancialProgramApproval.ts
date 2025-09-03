@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from './useAuth';
+import { useAuth } from './useSupabaseAuth';
 import { toast } from 'sonner';
 import { WizardData } from '@/components/dashboard/FinancialProgramWizard';
 
