@@ -1117,48 +1117,69 @@ export type Database = {
           application_id: string | null
           category_id: string | null
           created_at: string | null
+          document_type_id: string | null
+          expiration_date: string | null
           file_extension: string | null
+          file_name: string | null
           file_size_mb: number | null
           file_url: string | null
           id: string
           is_required: boolean | null
+          last_modified: string | null
           name: string
+          notes: string | null
           product_type: string | null
           requires_signature: boolean | null
           signature_status: string | null
           status: string | null
+          updated_at: string | null
+          uploaded_by: string | null
           uploaded_date: string | null
         }
         Insert: {
           application_id?: string | null
           category_id?: string | null
           created_at?: string | null
+          document_type_id?: string | null
+          expiration_date?: string | null
           file_extension?: string | null
+          file_name?: string | null
           file_size_mb?: number | null
           file_url?: string | null
           id?: string
           is_required?: boolean | null
+          last_modified?: string | null
           name: string
+          notes?: string | null
           product_type?: string | null
           requires_signature?: boolean | null
           signature_status?: string | null
           status?: string | null
+          updated_at?: string | null
+          uploaded_by?: string | null
           uploaded_date?: string | null
         }
         Update: {
           application_id?: string | null
           category_id?: string | null
           created_at?: string | null
+          document_type_id?: string | null
+          expiration_date?: string | null
           file_extension?: string | null
+          file_name?: string | null
           file_size_mb?: number | null
           file_url?: string | null
           id?: string
           is_required?: boolean | null
+          last_modified?: string | null
           name?: string
+          notes?: string | null
           product_type?: string | null
           requires_signature?: boolean | null
           signature_status?: string | null
           status?: string | null
+          updated_at?: string | null
+          uploaded_by?: string | null
           uploaded_date?: string | null
         }
         Relationships: [
@@ -1174,6 +1195,13 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "document_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documents_document_type_id_fkey"
+            columns: ["document_type_id"]
+            isOneToOne: false
+            referencedRelation: "document_types"
             referencedColumns: ["id"]
           },
         ]
