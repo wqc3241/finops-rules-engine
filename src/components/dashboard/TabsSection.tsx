@@ -8,7 +8,6 @@ import FinancingDataTableTabs from "./FinancingDataTableTabs";
 import SalesPricingRulesTabs from "./SalesPricingRulesTabs";
 import { BatchOperations } from "./BatchOperations";
 import { ChangeTrackingProvider } from "@/hooks/useChangeTracking";
-import { DynamicTableSchemasProvider } from "@/hooks/useDynamicTableSchemas";
 
 
 interface TabsSectionProps {
@@ -85,27 +84,25 @@ const TabsSection = ({
   switch(activeSection) {
     case "Financing Config": 
       return (
-        <DynamicTableSchemasProvider>
-          <div className="relative">
-            {showBatchOperations && (
-              <BatchOperations
-                selectedItems={selectedItems}
-                onClearSelection={handleClearSelection}
-                onBatchDelete={handleBatchDelete}
-                onBatchDuplicate={batchDuplicateCallback ? handleBatchDuplicate : undefined}
-              />
-            )}
-            <LFSSetupTabs 
-              onSelectionChange={(items, schemaId) => {
-                handleSelectionChange(items);
-                setCurrentSchemaId(schemaId || "");
-              }}
+        <div className="relative">
+          {showBatchOperations && (
+            <BatchOperations
               selectedItems={selectedItems}
-              onSetBatchDeleteCallback={handleSetBatchDeleteCallback}
-              onSetBatchDuplicateCallback={handleSetBatchDuplicateCallback}
+              onClearSelection={handleClearSelection}
+              onBatchDelete={handleBatchDelete}
+              onBatchDuplicate={batchDuplicateCallback ? handleBatchDuplicate : undefined}
             />
-          </div>
-        </DynamicTableSchemasProvider>
+          )}
+          <LFSSetupTabs 
+            onSelectionChange={(items, schemaId) => {
+              handleSelectionChange(items);
+              setCurrentSchemaId(schemaId || "");
+            }}
+            selectedItems={selectedItems}
+            onSetBatchDeleteCallback={handleSetBatchDeleteCallback}
+            onSetBatchDuplicateCallback={handleSetBatchDuplicateCallback}
+          />
+        </div>
       );
     
     case "Financial Pricing":
@@ -130,10 +127,10 @@ const TabsSection = ({
                 setCurrentSchemaId(schemaId || "");
               }}
               selectedItems={selectedItems}
-              onSetBatchDeleteCallback={handleSetBatchDeleteCallback}
-              onSetBatchDuplicateCallback={handleSetBatchDuplicateCallback}
-              onSetBatchDownloadBulletinPricingCallback={handleSetBatchDownloadBulletinPricingCallback}
-              reviewRequestId={reviewRequestId}
+               onSetBatchDeleteCallback={handleSetBatchDeleteCallback}
+               onSetBatchDuplicateCallback={handleSetBatchDuplicateCallback}
+               onSetBatchDownloadBulletinPricingCallback={handleSetBatchDownloadBulletinPricingCallback}
+               reviewRequestId={reviewRequestId}
             />
           </ChangeTrackingProvider>
         </div>
@@ -141,42 +138,38 @@ const TabsSection = ({
 
     case "Financing Data Table":
       return (
-        <DynamicTableSchemasProvider>
-          <div className="relative">
-            {showBatchOperations && (
-              <BatchOperations 
-                selectedItems={selectedItems}
-                onClearSelection={handleClearSelection}
-                onBatchDelete={handleBatchDelete}
-              />
-            )}
-            <FinancingDataTableTabs
-              onSelectionChange={handleSelectionChange}
+        <div className="relative">
+          {showBatchOperations && (
+            <BatchOperations 
               selectedItems={selectedItems}
-              onSetBatchDeleteCallback={handleSetBatchDeleteCallback}
+              onClearSelection={handleClearSelection}
+              onBatchDelete={handleBatchDelete}
             />
-          </div>
-        </DynamicTableSchemasProvider>
+          )}
+          <FinancingDataTableTabs
+            onSelectionChange={handleSelectionChange}
+            selectedItems={selectedItems}
+            onSetBatchDeleteCallback={handleSetBatchDeleteCallback}
+          />
+        </div>
       );
     
     case "Sales Pricing Rules":
       return (
-        <DynamicTableSchemasProvider>
-          <div className="relative">
-            {showBatchOperations && (
-              <BatchOperations 
-                selectedItems={selectedItems}
-                onClearSelection={handleClearSelection}
-                onBatchDelete={handleBatchDelete}
-              />
-            )}
-            <SalesPricingRulesTabs 
-              onSelectionChange={handleSelectionChange}
+        <div className="relative">
+          {showBatchOperations && (
+            <BatchOperations 
               selectedItems={selectedItems}
-              onSetBatchDeleteCallback={handleSetBatchDeleteCallback}
+              onClearSelection={handleClearSelection}
+              onBatchDelete={handleBatchDelete}
             />
-          </div>
-        </DynamicTableSchemasProvider>
+          )}
+          <SalesPricingRulesTabs 
+            onSelectionChange={handleSelectionChange}
+            selectedItems={selectedItems}
+            onSetBatchDeleteCallback={handleSetBatchDeleteCallback}
+          />
+        </div>
       );
       
     default:
