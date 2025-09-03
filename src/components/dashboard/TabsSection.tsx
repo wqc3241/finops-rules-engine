@@ -131,10 +131,10 @@ const TabsSection = ({
                   setCurrentSchemaId(schemaId || "");
                 }}
                 selectedItems={selectedItems}
-                 onSetBatchDeleteCallback={handleSetBatchDeleteCallback}
-                 onSetBatchDuplicateCallback={handleSetBatchDuplicateCallback}
-                 onSetBatchDownloadBulletinPricingCallback={handleSetBatchDownloadBulletinPricingCallback}
-                 reviewRequestId={reviewRequestId}
+                onSetBatchDeleteCallback={handleSetBatchDeleteCallback}
+                onSetBatchDuplicateCallback={handleSetBatchDuplicateCallback}
+                onSetBatchDownloadBulletinPricingCallback={handleSetBatchDownloadBulletinPricingCallback}
+                reviewRequestId={reviewRequestId}
               />
             </ChangeTrackingProvider>
           </div>
