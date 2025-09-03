@@ -29,16 +29,6 @@ interface UploadError {
   created_at: string;
 }
 
-interface ProcessedError {
-  type: string;
-  severity: 'critical' | 'warning' | 'info';
-  title: string;
-  message: string;
-  suggestion: string;
-  count: number;
-  examples: string[];
-  icon: any;
-}
 
 interface UploadResult {
   success: boolean;
@@ -276,97 +266,6 @@ const BulletinPricingUploadModal = ({
     }
   };
 
-  const processErrors = (errors: UploadError[]): ProcessedError[] => {
-    const errorGroups: Record<string, { errors: UploadError[], examples: Set<string> }> = {};
-    
-    errors.forEach(error => {
-      const key = error.error_type;
-      if (!errorGroups[key]) {
-        errorGroups[key] = { errors: [], examples: new Set() };
-      }
-      errorGroups[key].errors.push(error);
-      if (error.field_value) {
-        errorGroups[key].examples.add(error.field_value);
-      }
-    });
-
-    return Object.entries(errorGroups).map(([type, group]): ProcessedError => {
-      const count = group.errors.length;
-      const examples = Array.from(group.examples).slice(0, 3);
-      
-      switch (type) {
-        case 'INVALID_LENDER':
-          return {
-            type,
-            severity: 'critical',
-            title: 'Invalid Lender Codes',
-            message: `${count} lender code(s) not found in system`,
-            suggestion: 'Check lender codes match exactly with system values. Common issue: case sensitivity or extra spaces.',
-            count,
-            examples,
-            icon: AlertCircle
-          };
-        case 'INVALID_GEO_CODE':
-          return {
-            type,
-            severity: 'critical', 
-            title: 'Invalid Geographic Codes',
-            message: `${count} geo code(s) not found in system`,
-            suggestion: 'Verify geo codes follow format: NA-US-STATE (e.g., NA-US-CA). Check program template for allowed codes.',
-            count,
-            examples,
-            icon: AlertCircle
-          };
-        case 'INVALID_CREDIT_PROFILE':
-          return {
-            type,
-            severity: 'warning',
-            title: 'Invalid Credit Profiles',
-            message: `${count} credit profile(s) not found`,
-            suggestion: 'Ensure credit profile headers match program configuration exactly. Check spelling and formatting.',
-            count,
-            examples,
-            icon: AlertTriangle
-          };
-        case 'INVALID_PRICING_CONFIG':
-          return {
-            type,
-            severity: 'warning',
-            title: 'Invalid Pricing Configurations',
-            message: `${count} pricing config(s) not found`,
-            suggestion: 'Verify pricing configuration headers match program settings. Common formats: 36, 48, 60 months.',
-            count,
-            examples,
-            icon: AlertTriangle
-          };
-        case 'INVALID_PRICING_VALUE':
-          return {
-            type,
-            severity: 'info',
-            title: 'Invalid Pricing Values',
-            message: `${count} pricing value(s) have formatting issues`,
-            suggestion: 'Ensure all pricing values are valid numbers. Use decimal format (e.g., 0.045 for 4.5%).',
-            count,
-            examples,
-            icon: Info
-          };
-        default:
-          return {
-            type,
-            severity: 'warning',
-            title: type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
-            message: `${count} error(s) of type ${type}`,
-            suggestion: 'Review the detailed error list below for specific issues.',
-            count,
-            examples,
-            icon: AlertTriangle
-          };
-      }
-    }).sort((a, b) => {
-      const severityOrder = { critical: 0, warning: 1, info: 2 };
-      return severityOrder[a.severity] - severityOrder[b.severity];
-    });
-  };
 
   const handleClose = () => {
     setSelectedFile(null);
@@ -517,12 +416,6 @@ const BulletinPricingUploadModal = ({
 
               {!uploadResult.success && uploadResult.invalidRecords > 0 && (
                 <div className="space-y-4">
-                  {/* Immediate Error Summary */}
-                  {detailedErrors.length > 0 && (
-                    <ErrorSummaryDisplay 
-                      errors={processErrors(detailedErrors)}
-                    />
-                  )}
 
                   {/* Error Details Section */}
                   <Collapsible open={showErrorDetails} onOpenChange={setShowErrorDetails}>
@@ -580,77 +473,6 @@ const BulletinPricingUploadModal = ({
   );
 };
 
-// Error Summary Display Component
-interface ErrorSummaryDisplayProps {
-  errors: ProcessedError[];
-}
-
-const ErrorSummaryDisplay = ({ errors }: ErrorSummaryDisplayProps) => {
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    toast.success("Copied to clipboard");
-  };
-
-  return (
-    <div className="space-y-3">
-      <div className="flex items-center gap-2 mb-3">
-        <AlertCircle className="h-5 w-5 text-destructive" />
-        <h3 className="font-semibold">Issues Found - Action Required</h3>
-      </div>
-      
-      {errors.slice(0, 5).map((error, index) => {
-        const Icon = error.icon;
-        const severityColors = {
-          critical: "border-destructive bg-destructive/10 text-destructive-foreground",
-          warning: "border-orange-200 bg-orange-50 text-orange-900",
-          info: "border-blue-200 bg-blue-50 text-blue-900"
-        };
-        
-        return (
-          <Alert key={error.type} className={severityColors[error.severity]}>
-            <Icon className="h-4 w-4" />
-            <AlertTitle className="flex items-center justify-between">
-              <span>{error.title}</span>
-              <Badge variant="outline" className="text-xs">
-                {error.count} {error.count === 1 ? 'error' : 'errors'}
-              </Badge>
-            </AlertTitle>
-            <AlertDescription>
-              <div className="space-y-2">
-                <p className="font-medium">{error.message}</p>
-                <p className="text-sm">{error.suggestion}</p>
-                {error.examples.length > 0 && (
-                  <div className="space-y-1">
-                    <p className="text-xs font-medium">Example values causing issues:</p>
-                    <div className="flex flex-wrap gap-1">
-                      {error.examples.map((example, i) => (
-                        <Badge 
-                          key={i} 
-                          variant="secondary" 
-                          className="text-xs cursor-pointer hover:bg-secondary/80 flex items-center gap-1"
-                          onClick={() => copyToClipboard(example)}
-                        >
-                          <span>{example}</span>
-                          <Copy className="h-3 w-3" />
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </AlertDescription>
-          </Alert>
-        );
-      })}
-      
-      {errors.length > 5 && (
-        <div className="text-sm text-muted-foreground text-center py-2 border-t">
-          {errors.length - 5} more error types found. Expand detailed error list below for complete view.
-        </div>
-      )}
-    </div>
-  );
-};
 
 // Error Details Display Component
 interface ErrorDetailsDisplayProps {
