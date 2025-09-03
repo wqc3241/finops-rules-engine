@@ -230,6 +230,12 @@ class DynamicSchemaService {
     try {
       const tableName = this.getActualTableName(schemaId);
       
+      // Special debugging for problematic schemas
+      const isProblematicSchema = ['credit-profile', 'pricing-config'].includes(schemaId);
+      if (isProblematicSchema) {
+        console.log(`🔍 Generating schema for problematic table: ${schemaId} -> ${tableName}`);
+      }
+      
       // Get a sample row to determine column structure
       const { data: sampleData, error: sampleError } = await supabase
         .from(tableName as any)
@@ -249,6 +255,11 @@ class DynamicSchemaService {
 
       // Get primary keys dynamically
       const primaryKeys = await this.getPrimaryKeys(tableName);
+      
+      if (isProblematicSchema) {
+        console.log(`🔑 Primary keys for ${tableName}:`, primaryKeys);
+        console.log(`📋 Sample data keys:`, Object.keys(sampleData[0]));
+      }
 
       // Convert columns to ColumnDefinition format based on sample data
       const sampleRow = sampleData[0];
@@ -287,18 +298,24 @@ class DynamicSchemaService {
         };
       });
 
-      // Sort columns: ID columns first, regular columns middle, timestamp columns last
+      // Sort columns: Primary keys first, ID columns second, regular columns middle, timestamp columns last
       columnDefinitions.sort((a, b) => {
+        const isPrimaryKeyA = primaryKeys.includes(a.key);
+        const isPrimaryKeyB = primaryKeys.includes(b.key);
         const isIdA = a.key.toLowerCase().includes('id');
         const isIdB = b.key.toLowerCase().includes('id');
         const isTimestampA = ['created_at', 'updated_at', 'createdat', 'updatedat'].includes(a.key.toLowerCase());
         const isTimestampB = ['created_at', 'updated_at', 'createdat', 'updatedat'].includes(b.key.toLowerCase());
         
-        // First tier: ID columns
+        // First tier: Primary key columns (highest priority)
+        if (isPrimaryKeyA && !isPrimaryKeyB) return -1;
+        if (!isPrimaryKeyA && isPrimaryKeyB) return 1;
+        
+        // Second tier: Other ID columns
         if (isIdA && !isIdB) return -1;
         if (!isIdA && isIdB) return 1;
         
-        // Third tier: Timestamp columns
+        // Last tier: Timestamp columns
         if (isTimestampA && !isTimestampB) return 1;
         if (!isTimestampA && isTimestampB) return -1;
         
@@ -309,6 +326,10 @@ class DynamicSchemaService {
         if (!a.editable && b.editable) return -1;
         return a.name.localeCompare(b.name);
       });
+      
+      if (isProblematicSchema) {
+        console.log(`📊 Final column order for ${tableName}:`, columnDefinitions.map(col => `${col.key} (${col.inputType})`));
+      }
 
       const schema: DynamicTableSchema = {
         id: schemaId,
@@ -330,6 +351,13 @@ class DynamicSchemaService {
 
   // Get schema (from cache or generate)
   async getSchema(schemaId: string): Promise<DynamicTableSchema | null> {
+    // Force refresh for problematic schemas to ensure primary keys are included
+    const problematicSchemas = ['credit-profile', 'pricing-config'];
+    if (problematicSchemas.includes(schemaId)) {
+      console.log(`🔄 Force refreshing schema for ${schemaId}`);
+      this.clearSchemaCache(schemaId);
+    }
+    
     // Check cache first
     if (this.schemaCache.has(schemaId)) {
       return this.schemaCache.get(schemaId)!;
@@ -341,12 +369,25 @@ class DynamicSchemaService {
 
   // Clear cache for a specific schema
   clearSchemaCache(schemaId: string): void {
+    console.log(`🗑️ Clearing cache for schema: ${schemaId}`);
     this.schemaCache.delete(schemaId);
   }
 
   // Clear all cache
   clearAllCache(): void {
+    console.log(`🗑️ Clearing all schema cache`);
     this.schemaCache.clear();
+  }
+  
+  // Force refresh specific problematic schemas
+  async forceRefreshProblematicSchemas(): Promise<void> {
+    const problematicSchemas = ['credit-profile', 'pricing-config'];
+    console.log(`🔄 Force refreshing problematic schemas:`, problematicSchemas);
+    
+    for (const schemaId of problematicSchemas) {
+      this.clearSchemaCache(schemaId);
+      await this.generateSchemaFromDatabase(schemaId);
+    }
   }
 
   // Get all available schema IDs
