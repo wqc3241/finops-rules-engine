@@ -936,29 +936,126 @@ export type Database = {
       document_categories: {
         Row: {
           created_at: string | null
+          description: string | null
+          icon: string | null
           id: string
+          is_internal_only: boolean | null
+          is_required: boolean | null
           name: string
+          product_types: string[] | null
+          requires_signature: boolean | null
+          updated_at: string | null
         }
         Insert: {
           created_at?: string | null
+          description?: string | null
+          icon?: string | null
           id?: string
+          is_internal_only?: boolean | null
+          is_required?: boolean | null
           name: string
+          product_types?: string[] | null
+          requires_signature?: boolean | null
+          updated_at?: string | null
         }
         Update: {
           created_at?: string | null
+          description?: string | null
+          icon?: string | null
           id?: string
+          is_internal_only?: boolean | null
+          is_required?: boolean | null
           name?: string
+          product_types?: string[] | null
+          requires_signature?: boolean | null
+          updated_at?: string | null
         }
         Relationships: []
+      }
+      document_file_types: {
+        Row: {
+          category_id: string
+          created_at: string | null
+          file_extension: string
+          id: string
+          max_file_size_mb: number | null
+        }
+        Insert: {
+          category_id: string
+          created_at?: string | null
+          file_extension: string
+          id?: string
+          max_file_size_mb?: number | null
+        }
+        Update: {
+          category_id?: string
+          created_at?: string | null
+          file_extension?: string
+          id?: string
+          max_file_size_mb?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_file_types_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "document_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      document_statuses: {
+        Row: {
+          category_id: string
+          created_at: string | null
+          id: string
+          is_default: boolean | null
+          sort_order: number | null
+          status_color: string | null
+          status_name: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string | null
+          id?: string
+          is_default?: boolean | null
+          sort_order?: number | null
+          status_color?: string | null
+          status_name: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string | null
+          id?: string
+          is_default?: boolean | null
+          sort_order?: number | null
+          status_color?: string | null
+          status_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_statuses_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "document_categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       documents: {
         Row: {
           application_id: string | null
           category_id: string | null
           created_at: string | null
+          file_extension: string | null
+          file_size_mb: number | null
           file_url: string | null
           id: string
+          is_required: boolean | null
           name: string
+          product_type: string | null
+          requires_signature: boolean | null
+          signature_status: string | null
           status: string | null
           uploaded_date: string | null
         }
@@ -966,9 +1063,15 @@ export type Database = {
           application_id?: string | null
           category_id?: string | null
           created_at?: string | null
+          file_extension?: string | null
+          file_size_mb?: number | null
           file_url?: string | null
           id?: string
+          is_required?: boolean | null
           name: string
+          product_type?: string | null
+          requires_signature?: boolean | null
+          signature_status?: string | null
           status?: string | null
           uploaded_date?: string | null
         }
@@ -976,9 +1079,15 @@ export type Database = {
           application_id?: string | null
           category_id?: string | null
           created_at?: string | null
+          file_extension?: string | null
+          file_size_mb?: number | null
           file_url?: string | null
           id?: string
+          is_required?: boolean | null
           name?: string
+          product_type?: string | null
+          requires_signature?: boolean | null
+          signature_status?: string | null
           status?: string | null
           uploaded_date?: string | null
         }
