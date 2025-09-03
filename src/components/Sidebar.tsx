@@ -8,7 +8,10 @@ import {
   BarChart, 
   ListTodo, 
   Settings, 
-  Receipt 
+  Receipt,
+  FileCheck,
+  Users,
+  UserCheck
 } from 'lucide-react';
 
 interface NavItemProps {
@@ -91,6 +94,21 @@ const Sidebar = ({ open, activeItem, setActiveItem }: SidebarProps) => {
       title: 'Sales Pricing Rules',
       icon: <Receipt className="h-5 w-5" />,
       path: '/sales-pricing-rules'
+    },
+    {
+      title: 'Document Configuration',
+      icon: <FileCheck className="h-5 w-5" />,
+      path: '/document-configuration'
+    },
+    {
+      title: 'Admin Settings',
+      icon: <Users className="h-5 w-5" />,
+      path: '/admin-settings'
+    },
+    {
+      title: 'User Permissions',
+      icon: <UserCheck className="h-5 w-5" />,
+      path: '/user-permissions'
     },
   ];
 

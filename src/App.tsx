@@ -22,6 +22,7 @@ import ProfileSettings from "./pages/ProfileSettings";
 import UserPermissions from "./pages/UserPermissions";
 import AdminSettings from "./pages/AdminSettings";
 import AuthPage from "./pages/AuthPage";
+import DocumentConfiguration from "./pages/DocumentConfiguration";
 import AIAgentButton from "./components/ai-agent/AIAgentButton";
 
 // Protected Route Component
@@ -72,6 +73,7 @@ const App = () => (
               <Route path="/profile-settings" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
               <Route path="/user-permissions" element={<ProtectedRoute><UserPermissions /></ProtectedRoute>} />
               <Route path="/admin-settings" element={<ProtectedRoute><AdminSettings /></ProtectedRoute>} />
+              <Route path="/document-configuration" element={<ProtectedRoute><DocumentConfiguration /></ProtectedRoute>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
