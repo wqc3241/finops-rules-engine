@@ -8,6 +8,7 @@ import FinancingDataTableTabs from "./FinancingDataTableTabs";
 import SalesPricingRulesTabs from "./SalesPricingRulesTabs";
 import { BatchOperations } from "./BatchOperations";
 import { ChangeTrackingProvider } from "@/hooks/useChangeTracking";
+import { DynamicTableSchemasProvider } from "@/hooks/useDynamicTableSchemas";
 
 
 interface TabsSectionProps {
@@ -117,21 +118,23 @@ const TabsSection = ({
             />
           )}
           <ChangeTrackingProvider>
-            <FinancialPricingTabs
-              showAddPricingModal={showAddPricingModal}
-              setShowAddPricingModal={setShowAddPricingModal}
-              showAddPricingTypeModal={showAddPricingTypeModal}
-              setShowAddPricingTypeModal={setShowAddPricingTypeModal}
-              onSelectionChange={(items, schemaId) => {
-                handleSelectionChange(items);
-                setCurrentSchemaId(schemaId || "");
-              }}
-              selectedItems={selectedItems}
-               onSetBatchDeleteCallback={handleSetBatchDeleteCallback}
-               onSetBatchDuplicateCallback={handleSetBatchDuplicateCallback}
-               onSetBatchDownloadBulletinPricingCallback={handleSetBatchDownloadBulletinPricingCallback}
-               reviewRequestId={reviewRequestId}
-            />
+            <DynamicTableSchemasProvider>
+              <FinancialPricingTabs
+                showAddPricingModal={showAddPricingModal}
+                setShowAddPricingModal={setShowAddPricingModal}
+                showAddPricingTypeModal={showAddPricingTypeModal}
+                setShowAddPricingTypeModal={setShowAddPricingTypeModal}
+                onSelectionChange={(items, schemaId) => {
+                  handleSelectionChange(items);
+                  setCurrentSchemaId(schemaId || "");
+                }}
+                selectedItems={selectedItems}
+                 onSetBatchDeleteCallback={handleSetBatchDeleteCallback}
+                 onSetBatchDuplicateCallback={handleSetBatchDuplicateCallback}
+                 onSetBatchDownloadBulletinPricingCallback={handleSetBatchDownloadBulletinPricingCallback}
+                 reviewRequestId={reviewRequestId}
+              />
+            </DynamicTableSchemasProvider>
           </ChangeTrackingProvider>
         </div>
       );
