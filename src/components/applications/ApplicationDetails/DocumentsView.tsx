@@ -87,8 +87,8 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
 
   const handleSeedDocuments = async () => {
     try {
-      await seedDocuments.mutateAsync();
-      toast.success('Documents seeded successfully from mock data');
+      await seedDocuments.mutateAsync({ applicationIds: [applicationId] });
+      toast.success('Documents seeded successfully for this application');
     } catch (error) {
       toast.error('Failed to seed documents');
     }

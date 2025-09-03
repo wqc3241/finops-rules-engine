@@ -196,8 +196,10 @@ export const useSeedDocuments = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async () => {
-      const { data, error } = await supabase.functions.invoke('seed-documents');
+    mutationFn: async (params?: { applicationIds?: string[] }) => {
+      const { data, error } = await supabase.functions.invoke('seed-documents', {
+        body: params || {}
+      });
 
       if (error) {
         throw new Error(`Failed to seed documents: ${error.message}`);

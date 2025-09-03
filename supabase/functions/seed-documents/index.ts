@@ -207,6 +207,217 @@ const mockDocuments = [
   }
 ];
 
+// Mock applications data for seeding
+const mockApplications = [
+  // Loan Applications
+  { id: '7', name: 'Sarah Johnson', type: 'Loan', status: 'Submitted' },
+  { id: '8', name: 'Michael Torres', type: 'Loan', status: 'Void' },
+  { id: '9', name: 'Michael Torres', type: 'Loan', status: 'Approved' },
+  { id: '10', name: 'David Chen', type: 'Loan', status: 'Pending' },
+  { id: '11', name: 'Emily Chang', type: 'Loan', status: 'Pending Signature' },
+  { id: '12', name: 'James Wilson', type: 'Loan', status: 'Booked' },
+  { id: '13', name: 'Robert Kim', type: 'Loan', status: 'Pending' },
+  { id: '14', name: 'Daniel Patel', type: 'Loan', status: 'Submitted' },
+  { id: '15', name: 'William Johnson', type: 'Loan', status: 'Funded' },
+  
+  // Lease Applications
+  { id: '1', name: 'Becca Yukelson', type: 'Loan', status: 'Void' },
+  { id: '2', name: 'Becca Yukelson', type: 'Lease', status: 'Approved' },
+  { id: '3', name: 'Aisha Washington', type: 'Lease', status: 'Void' },
+  { id: '4', name: 'Carlos Rodriguez', type: 'Lease', status: 'Conditionally Approved' },
+  { id: '6', name: 'Sarah Johnson', type: 'Lease', status: 'Void' },
+  { id: '16', name: 'Sophia Martinez', type: 'Lease', status: 'Funded' },
+  { id: '17', name: 'Olivia Thompson', type: 'Lease', status: 'Approved' },
+  { id: '18', name: 'Maria Garcia', type: 'Lease', status: 'Conditionally Approved' }
+];
+
+// Helper function to generate application-specific documents
+function generateApplicationDocuments(application: any) {
+  const isLoan = application.type === 'Loan';
+  const status = application.status;
+  const appId = application.id;
+  const customerName = application.name.split(' ')[0];
+  
+  const baseDocuments = [
+    // Required for all applications
+    {
+      name: `Driver License - ${customerName}`,
+      type: 'Driver License',
+      category: 'Customer Documents',
+      status: ['Approved', 'Booked', 'Funded'].includes(status) ? 'approved' : 
+              ['Void'].includes(status) ? 'rejected' : 'submitted',
+      fileUrl: `/documents/app-${appId}/drivers-license.jpg`,
+      fileName: `drivers-license-${appId}.jpg`,
+      fileSize: `${(Math.random() * 2 + 0.5).toFixed(1)} MB`,
+      uploadedBy: customerName,
+      isRequired: true,
+      notes: `Driver license for ${application.name}`
+    },
+    {
+      name: `Credit Application - ${customerName}`,
+      type: 'Credit Application',
+      category: 'Customer Documents',
+      status: ['Approved', 'Booked', 'Funded', 'Conditionally Approved'].includes(status) ? 'approved' : 
+              ['Void'].includes(status) ? 'rejected' : 'pending_review',
+      fileUrl: `/documents/app-${appId}/credit-application.pdf`,
+      fileName: `credit-application-${appId}.pdf`,
+      fileSize: `${(Math.random() * 1.5 + 0.5).toFixed(1)} MB`,
+      uploadedBy: 'Jennifer Davis',
+      isRequired: true,
+      notes: `Credit application for ${application.name}`
+    }
+  ];
+
+  // Add loan/lease specific documents
+  if (isLoan) {
+    baseDocuments.push(
+      {
+        name: `Purchase Order - ${appId}`,
+        type: 'Purchase Order',
+        category: 'Order Documents',
+        status: ['Booked', 'Funded'].includes(status) ? 'approved' : 
+                ['Void'].includes(status) ? 'rejected' : 'submitted',
+        fileUrl: `/documents/app-${appId}/purchase-order.pdf`,
+        fileName: `purchase-order-${appId}.pdf`,
+        fileSize: `${(Math.random() * 3 + 1.5).toFixed(1)} MB`,
+        uploadedBy: 'Michael McCann',
+        isRequired: true,
+        notes: `Purchase order for loan application ${appId}`
+      },
+      {
+        name: `Sales Contract - ${appId}`,
+        type: 'Sales Contract',
+        category: 'Order Documents',
+        status: ['Approved', 'Booked', 'Funded'].includes(status) ? 'approved' : 
+                ['Void'].includes(status) ? 'rejected' : 'pending_review',
+        fileUrl: `/documents/app-${appId}/sales-contract.pdf`,
+        fileName: `sales-contract-${appId}.pdf`,
+        fileSize: `${(Math.random() * 2.5 + 1).toFixed(1)} MB`,
+        uploadedBy: 'Sarah Wilson',
+        isRequired: true,
+        notes: `Sales contract for loan application ${appId}`
+      }
+    );
+  } else {
+    baseDocuments.push({
+      name: `Lease Agreement - ${appId}`,
+      type: 'Lease Agreement',
+      category: 'Order Documents',
+      status: ['Approved', 'Booked', 'Funded'].includes(status) ? 'approved' : 
+              ['Void'].includes(status) ? 'rejected' : 'pending_review',
+      fileUrl: `/documents/app-${appId}/lease-agreement.pdf`,
+      fileName: `lease-agreement-${appId}.pdf`,
+      fileSize: `${(Math.random() * 2.8 + 1.2).toFixed(1)} MB`,
+      uploadedBy: 'James Rodriguez',
+      isRequired: true,
+      notes: `Lease agreement for application ${appId}`
+    });
+  }
+
+  // Add conditional documents based on status
+  if (['Conditionally Approved', 'Approved', 'Booked', 'Funded'].includes(status)) {
+    baseDocuments.push(
+      {
+        name: `Income Verification - ${customerName}`,
+        type: 'Income Verification',
+        category: 'Stipulation Documents',
+        status: ['Approved', 'Booked', 'Funded'].includes(status) ? 'approved' : 'submitted',
+        fileUrl: `/documents/app-${appId}/income-verification.pdf`,
+        fileName: `income-verification-${appId}.pdf`,
+        fileSize: `${(Math.random() * 1.2 + 0.4).toFixed(1)} MB`,
+        uploadedBy: 'Robert Martinez',
+        isRequired: true,
+        notes: `Income verification for ${application.name}`
+      },
+      {
+        name: `Insurance Proof - ${customerName}`,
+        type: 'Insurance Proof',
+        category: 'Stipulation Documents',
+        status: ['Approved', 'Booked', 'Funded'].includes(status) ? 'approved' : 'submitted',
+        fileUrl: `/documents/app-${appId}/insurance-proof.pdf`,
+        fileName: `insurance-proof-${appId}.pdf`,
+        fileSize: `${(Math.random() * 0.8 + 0.3).toFixed(1)} MB`,
+        uploadedBy: 'Amanda Garcia',
+        isRequired: true,
+        notes: `Insurance proof for ${application.name}`
+      }
+    );
+  }
+
+  // Add registration documents for approved/booked/funded
+  if (['Approved', 'Booked', 'Funded'].includes(status)) {
+    baseDocuments.push(
+      {
+        name: `Vehicle Registration - ${appId}`,
+        type: 'Vehicle Registration',
+        category: 'Registration Documents',
+        status: ['Booked', 'Funded'].includes(status) ? 'approved' : 'submitted',
+        fileUrl: `/documents/app-${appId}/vehicle-registration.pdf`,
+        fileName: `vehicle-registration-${appId}.pdf`,
+        fileSize: `${(Math.random() * 1.1 + 0.6).toFixed(1)} MB`,
+        uploadedBy: 'David Chen',
+        isRequired: true,
+        notes: `Vehicle registration for application ${appId}`
+      },
+      {
+        name: `Title Certificate - ${appId}`,
+        type: 'Title Certificate',
+        category: 'Registration Documents',
+        status: ['Booked', 'Funded'].includes(status) ? 'approved' : 'submitted',
+        fileUrl: `/documents/app-${appId}/title-certificate.pdf`,
+        fileName: `title-certificate-${appId}.pdf`,
+        fileSize: `${(Math.random() * 1.4 + 0.8).toFixed(1)} MB`,
+        uploadedBy: 'Lisa Anderson',
+        isRequired: true,
+        notes: `Title certificate for application ${appId}`
+      }
+    );
+  }
+
+  // Add compliance documents for funded applications
+  if (['Funded', 'Booked'].includes(status)) {
+    baseDocuments.push({
+      name: `Disclosure Statement - ${appId}`,
+      type: 'Disclosure Statement',
+      category: 'Compliance Documents',
+      status: 'approved',
+      fileUrl: `/documents/app-${appId}/disclosure-statement.pdf`,
+      fileName: `disclosure-statement-${appId}.pdf`,
+      fileSize: `${(Math.random() * 0.7 + 0.3).toFixed(1)} MB`,
+      uploadedBy: 'Kevin Brown',
+      isRequired: true,
+      notes: `Regulatory disclosure for application ${appId}`
+    });
+  }
+
+  // Add supporting documents randomly
+  if (Math.random() > 0.3) {
+    baseDocuments.push({
+      name: `Additional Notes - ${customerName}`,
+      type: 'Additional Notes',
+      category: 'Supporting Documents',
+      status: 'submitted',
+      fileUrl: `/documents/app-${appId}/additional-notes.txt`,
+      fileName: `additional-notes-${appId}.txt`,
+      fileSize: `${(Math.random() * 0.05 + 0.01).toFixed(2)} MB`,
+      uploadedBy: 'Nicole Wilson',
+      isRequired: false,
+      notes: `Additional customer notes for application ${appId}`
+    });
+  }
+
+  // Add realistic timestamps
+  const baseDate = new Date('2024-04-25');
+  const currentDate = new Date();
+  
+  return baseDocuments.map((doc, index) => ({
+    ...doc,
+    application_id: appId,
+    uploadedDate: new Date(baseDate.getTime() + (index * 2 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0],
+    lastModified: new Date(baseDate.getTime() + (index * 2 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0]
+  }));
+}
+
 Deno.serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -219,7 +430,25 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
+    // Parse request body for applicationIds parameter
+    let applicationIds: string[] = [];
+    if (req.method === 'POST') {
+      try {
+        const body = await req.json();
+        applicationIds = body.applicationIds || [];
+      } catch {
+        // If no body or invalid JSON, proceed with all applications
+      }
+    }
+
     console.log('Starting document seeding process...');
+    
+    // Filter applications if specific IDs were provided
+    const applicationsToSeed = applicationIds.length > 0 
+      ? mockApplications.filter(app => applicationIds.includes(app.id))
+      : mockApplications;
+
+    console.log(`Seeding documents for ${applicationsToSeed.length} applications`);
 
     // 1. Seed document categories
     console.log('Seeding document categories...');
@@ -288,40 +517,48 @@ Deno.serve(async (req) => {
 
     const typeMap = new Map(documentTypes.map(type => [type.name, type.id]));
 
-    // 5. Seed documents
-    console.log('Seeding documents...');
-    for (const doc of mockDocuments) {
-      const categoryId = categoryMap.get(doc.category);
-      const documentTypeId = typeMap.get(doc.type);
+    // 5. Generate and seed application-specific documents
+    console.log('Seeding application-specific documents...');
+    let totalDocumentsSeeded = 0;
+    
+    for (const application of applicationsToSeed) {
+      console.log(`Generating documents for application ${application.id} (${application.name})`);
+      const appDocuments = generateApplicationDocuments(application);
       
-      if (categoryId && documentTypeId) {
-        const { error: docError } = await supabase
-          .from('documents')
-          .upsert({
-            name: doc.name,
-            category_id: categoryId,
-            document_type_id: documentTypeId,
-            status: doc.status,
-            file_url: doc.fileUrl,
-            file_name: doc.fileName,
-            file_size_mb: parseFloat(doc.fileSize.replace(/[^\d.]/g, '')), // Extract number from "2.3 MB"
-            uploaded_date: doc.uploadedDate,
-            uploaded_by: doc.uploadedBy,
-            last_modified: doc.lastModified,
-            is_required: doc.isRequired,
-            notes: doc.notes,
-            product_type: 'general', // Default product type
-            file_extension: doc.fileName?.split('.').pop() || 'pdf'
-          }, { onConflict: 'name,category_id' });
+      for (const doc of appDocuments) {
+        const categoryId = categoryMap.get(doc.category);
+        const documentTypeId = typeMap.get(doc.type);
         
-        if (docError) {
-          console.error('Error seeding document:', doc.name, docError);
-        } else {
-          console.log('Seeded document:', doc.name);
+        if (categoryId && documentTypeId) {
+          const { error: docError } = await supabase
+            .from('documents')
+            .upsert({
+              name: doc.name,
+              application_id: doc.application_id,
+              category_id: categoryId,
+              document_type_id: documentTypeId,
+              status: doc.status,
+              file_url: doc.fileUrl,
+              file_name: doc.fileName,
+              file_size_mb: parseFloat(doc.fileSize.replace(/[^\d.]/g, '')),
+              uploaded_date: doc.uploadedDate,
+              uploaded_by: doc.uploadedBy,
+              last_modified: doc.lastModified,
+              is_required: doc.isRequired,
+              notes: doc.notes,
+              product_type: application.type.toLowerCase(),
+              file_extension: doc.fileName?.split('.').pop() || 'pdf'
+            }, { onConflict: 'name,application_id' });
+          
+          if (docError) {
+            console.error('Error seeding document:', doc.name, docError);
+          } else {
+            totalDocumentsSeeded++;
+          }
         }
-      } else {
-        console.warn('Skipping document due to missing category or type:', doc.name);
       }
+      
+      console.log(`Seeded ${appDocuments.length} documents for application ${application.id}`);
     }
 
     console.log('Document seeding completed successfully');
@@ -329,10 +566,11 @@ Deno.serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: 'Documents seeded successfully',
+        message: 'Application-specific documents seeded successfully',
+        applicationsProcessed: applicationsToSeed.length,
         categoriesSeeded: documentCategories.length,
         typesSeeded: uniqueTypes.length,
-        documentsSeeded: mockDocuments.length
+        documentsSeeded: totalDocumentsSeeded
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
