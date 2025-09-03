@@ -149,14 +149,16 @@ const FinancialPricingTabsContent = ({
       value: "bulletin-pricing",
       label: "Bulletin Pricing",
       content: (
-        <BulletinPricingSection 
-          title="Bulletin Pricing"
-          showAddModal={showAddBulletinPricingModal}
-          setShowAddModal={setShowAddBulletinPricingModal}
-          onSelectionChange={(items) => onSelectionChange?.(items, "bulletin-pricing")}
-          selectedItems={selectedItems}
-          onSetBatchDeleteCallback={onSetBatchDeleteCallback}
-        />
+        <DynamicTableSchemasProvider>
+          <BulletinPricingSection 
+            title="Bulletin Pricing"
+            showAddModal={showAddBulletinPricingModal}
+            setShowAddModal={setShowAddBulletinPricingModal}
+            onSelectionChange={(items) => onSelectionChange?.(items, "bulletin-pricing")}
+            selectedItems={selectedItems}
+            onSetBatchDeleteCallback={onSetBatchDeleteCallback}
+          />
+        </DynamicTableSchemasProvider>
       )
     },
     {
