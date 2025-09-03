@@ -11,7 +11,6 @@ interface DynamicTableSchemasContextType {
   removeColumn: (schemaId: string, columnId: string) => void;
   updateColumn: (schemaId: string, columnId: string, updates: Partial<ColumnDefinition>) => void;
   refreshSchema: (schemaId: string) => Promise<void>;
-  clearSchemaCache: (schemaId: string) => void;
   loading: boolean;
 }
 
@@ -23,20 +22,9 @@ interface DynamicTableSchemasProviderProps {
 
 export const DynamicTableSchemasProvider = ({ children }: DynamicTableSchemasProviderProps) => {
   const dynamicSchemas = useDynamicSchemas();
-  
-  // Add clearSchemaCache method to the context
-  const contextValue = {
-    ...dynamicSchemas,
-    clearSchemaCache: (schemaId: string) => {
-      // Call the schema service directly to clear cache
-      import('@/services/dynamicSchemaService').then(({ dynamicSchemaService }) => {
-        dynamicSchemaService.clearSchemaCache(schemaId);
-      });
-    }
-  };
 
   return (
-    <DynamicTableSchemasContext.Provider value={contextValue}>
+    <DynamicTableSchemasContext.Provider value={dynamicSchemas}>
       {children}
     </DynamicTableSchemasContext.Provider>
   );
