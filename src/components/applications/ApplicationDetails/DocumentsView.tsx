@@ -144,16 +144,6 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
 
   return (
     <div className="space-y-6">
-      {/* Seed Documents Button */}
-      {documents.length === 0 && (
-        <div className="text-center py-8 bg-muted/50 rounded-lg">
-          <p className="text-muted-foreground mb-4">No documents found. Would you like to seed sample documents?</p>
-          <Button onClick={handleSeedDocuments} disabled={seedDocuments.isPending}>
-            <Database className="h-4 w-4 mr-2" />
-            {seedDocuments.isPending ? 'Seeding...' : 'Seed Sample Documents'}
-          </Button>
-        </div>
-      )}
 
       {/* Category Selection */}
       <div className="bg-card rounded-lg border p-4">
