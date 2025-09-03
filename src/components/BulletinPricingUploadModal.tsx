@@ -131,6 +131,37 @@ const BulletinPricingUploadModal = ({
 
       if (!response.ok) {
         const errorText = await response.text();
+        
+        // Try to parse the error response as JSON first
+        let parsedErrorData = null;
+        try {
+          parsedErrorData = JSON.parse(errorText);
+        } catch (parseError) {
+          // If parsing fails, treat as regular error
+          throw new Error(errorText || `HTTP ${response.status}`);
+        }
+        
+        // If we successfully parsed JSON and it has the expected structure
+        if (parsedErrorData && typeof parsedErrorData === 'object') {
+          // Set the parsed data as upload result even though it failed
+          setUploadResult(parsedErrorData);
+          
+          // Show error toast
+          toast.error(parsedErrorData.message || 'Upload failed with validation errors');
+          
+          // If there are errors and a session ID, fetch detailed errors
+          if (parsedErrorData.sessionId && parsedErrorData.invalidRecords > 0) {
+            fetchDetailedErrors(parsedErrorData.sessionId);
+          }
+          
+          // Clear progress and return early to avoid the success path
+          clearInterval(progressInterval);
+          setUploadProgress(100);
+          setIsUploading(false);
+          return;
+        }
+        
+        // If JSON parsing succeeded but structure is unexpected, treat as regular error
         throw new Error(errorText || `HTTP ${response.status}`);
       }
 
