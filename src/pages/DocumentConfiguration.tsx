@@ -313,8 +313,7 @@ const CategoryForm: React.FC<{
 }> = ({ category, onSubmit, isLoading }) => {
   const [formData, setFormData] = useState({
     name: category?.name || '',
-    description: category?.description || '',
-    icon: category?.icon || 'FileText'
+    description: category?.description || ''
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -324,32 +323,14 @@ const CategoryForm: React.FC<{
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="name">Category Name</Label>
-          <Input
-            id="name"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            required
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="icon">Icon</Label>
-          <Select value={formData.icon} onValueChange={(value) => setFormData({ ...formData, icon: value })}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="FileText">FileText</SelectItem>
-              <SelectItem value="File">File</SelectItem>
-              <SelectItem value="FileImage">FileImage</SelectItem>
-              <SelectItem value="CreditCard">CreditCard</SelectItem>
-              <SelectItem value="User">User</SelectItem>
-              <SelectItem value="Car">Car</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+      <div className="space-y-2">
+        <Label htmlFor="name">Category Name</Label>
+        <Input
+          id="name"
+          value={formData.name}
+          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+          required
+        />
       </div>
 
       <div className="space-y-2">
