@@ -151,14 +151,72 @@ const BulletinPricingUploadModal = ({
 
     } catch (error) {
       console.error('Upload error:', error);
-      toast.error(error instanceof Error ? error.message : 'Upload failed');
+      
+      let errorMessage = 'Upload failed due to an unexpected error';
+      let detailedMessage = '';
+      
+      if (error instanceof Error) {
+        errorMessage = error.message;
+        
+        // Try to parse the error message for more detailed information
+        try {
+          // If the error message looks like JSON, try to parse it
+          if (error.message.startsWith('{')) {
+            const errorData = JSON.parse(error.message);
+            if (errorData.error) {
+              errorMessage = errorData.error;
+              detailedMessage = errorData.details || '';
+            }
+          }
+          // Handle HTTP errors with status codes
+          else if (error.message.includes('HTTP')) {
+            const statusMatch = error.message.match(/HTTP (\d+)/);
+            if (statusMatch) {
+              const status = statusMatch[1];
+              switch (status) {
+                case '401':
+                  errorMessage = 'Authentication failed. Please refresh and try again.';
+                  break;
+                case '403':
+                  errorMessage = 'Access denied. You do not have permission to upload bulletin pricing.';
+                  break;
+                case '413':
+                  errorMessage = 'File too large. Please ensure your Excel file is under the size limit.';
+                  break;
+                case '500':
+                  errorMessage = 'Server error occurred during upload. Please try again or contact support.';
+                  break;
+                default:
+                  errorMessage = `Upload failed with HTTP ${status}. Please try again.`;
+              }
+            }
+          }
+          // Handle common network errors
+          else if (error.message.includes('fetch')) {
+            errorMessage = 'Network error occurred. Please check your connection and try again.';
+          }
+          else if (error.message.includes('Authentication required')) {
+            errorMessage = 'Session expired. Please refresh the page and log in again.';
+          }
+        } catch (parseError) {
+          // If parsing fails, use the original error message
+          console.error('Failed to parse error details:', parseError);
+        }
+      }
+      
+      // Enhance the message with more context when available
+      const finalMessage = detailedMessage 
+        ? `${errorMessage}\n\nDetails: ${detailedMessage}`
+        : errorMessage;
+      
+      toast.error(errorMessage);
       setUploadResult({
         success: false,
         sessionId: '',
         totalRecords: 0,
         validRecords: 0,
         invalidRecords: 0,
-        message: 'Upload failed due to an unexpected error'
+        message: finalMessage
       });
     } finally {
       setIsUploading(false);
