@@ -48,6 +48,12 @@ export interface DocumentWithCategory extends Document {
   };
 }
 
+// Helper function to check if a string is a valid UUID
+const isValidUUID = (str: string): boolean => {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(str);
+};
+
 // Hook to fetch documents for a specific application
 export const useDocuments = (applicationId?: string) => {
   return useQuery({
@@ -61,11 +67,11 @@ export const useDocuments = (applicationId?: string) => {
           document_type:document_types(*)
         `);
       
-      // If applicationId is provided, filter by it
-      if (applicationId) {
+      // Only filter by application_id if it's a valid UUID
+      if (applicationId && isValidUUID(applicationId)) {
         query = query.eq('application_id', applicationId);
       } else {
-        // If no applicationId, get documents that are not tied to any specific application
+        // If no applicationId or invalid UUID, get documents that are not tied to any specific application
         query = query.is('application_id', null);
       }
       
