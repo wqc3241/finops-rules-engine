@@ -971,11 +971,7 @@ export type Database = {
           description: string | null
           icon: string | null
           id: string
-          is_internal_only: boolean | null
-          is_required: boolean | null
           name: string
-          product_types: string[] | null
-          requires_signature: boolean | null
           updated_at: string | null
         }
         Insert: {
@@ -983,11 +979,7 @@ export type Database = {
           description?: string | null
           icon?: string | null
           id?: string
-          is_internal_only?: boolean | null
-          is_required?: boolean | null
           name: string
-          product_types?: string[] | null
-          requires_signature?: boolean | null
           updated_at?: string | null
         }
         Update: {
@@ -995,11 +987,7 @@ export type Database = {
           description?: string | null
           icon?: string | null
           id?: string
-          is_internal_only?: boolean | null
-          is_required?: boolean | null
           name?: string
-          product_types?: string[] | null
-          requires_signature?: boolean | null
           updated_at?: string | null
         }
         Relationships: []
@@ -1080,8 +1068,10 @@ export type Database = {
           created_at: string | null
           description: string | null
           id: string
+          is_internal_only: boolean | null
           is_required: boolean | null
           name: string
+          product_types: string[] | null
           requires_signature: boolean | null
           sort_order: number | null
           updated_at: string | null
@@ -1091,8 +1081,10 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           id?: string
+          is_internal_only?: boolean | null
           is_required?: boolean | null
           name: string
+          product_types?: string[] | null
           requires_signature?: boolean | null
           sort_order?: number | null
           updated_at?: string | null
@@ -1102,8 +1094,10 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           id?: string
+          is_internal_only?: boolean | null
           is_required?: boolean | null
           name?: string
+          product_types?: string[] | null
           requires_signature?: boolean | null
           sort_order?: number | null
           updated_at?: string | null

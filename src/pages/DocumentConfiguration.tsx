@@ -314,19 +314,13 @@ const CategoryForm: React.FC<{
   const [formData, setFormData] = useState({
     name: category?.name || '',
     description: category?.description || '',
-    icon: category?.icon || 'FileText',
-    is_required: category?.is_required || false,
-    requires_signature: category?.requires_signature || false,
-    is_internal_only: category?.is_internal_only || false,
-    product_types: category?.product_types || []
+    icon: category?.icon || 'FileText'
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit(formData);
   };
-
-  const productTypes = ['Cash', 'Loan', 'Lease'];
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -368,63 +362,6 @@ const CategoryForm: React.FC<{
         />
       </div>
 
-      <div className="space-y-4">
-        <div className="flex items-center space-x-2">
-          <Switch
-            id="required"
-            checked={formData.is_required}
-            onCheckedChange={(checked) => setFormData({ ...formData, is_required: checked })}
-          />
-          <Label htmlFor="required">Required Document</Label>
-        </div>
-
-        <div className="flex items-center space-x-2">
-          <Switch
-            id="signature"
-            checked={formData.requires_signature}
-            onCheckedChange={(checked) => setFormData({ ...formData, requires_signature: checked })}
-          />
-          <Label htmlFor="signature">Requires E-Signature</Label>
-        </div>
-
-        <div className="flex items-center space-x-2">
-          <Switch
-            id="internal"
-            checked={formData.is_internal_only}
-            onCheckedChange={(checked) => setFormData({ ...formData, is_internal_only: checked })}
-          />
-          <Label htmlFor="internal">Internal Use Only</Label>
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label>Product Types</Label>
-        <div className="flex flex-wrap gap-2">
-          {productTypes.map((type) => (
-            <div key={type} className="flex items-center space-x-2">
-              <Checkbox
-                id={type}
-                checked={formData.product_types.includes(type)}
-                onCheckedChange={(checked) => {
-                  if (checked) {
-                    setFormData({
-                      ...formData,
-                      product_types: [...formData.product_types, type]
-                    });
-                  } else {
-                    setFormData({
-                      ...formData,
-                      product_types: formData.product_types.filter(t => t !== type)
-                    });
-                  }
-                }}
-              />
-              <Label htmlFor={type}>{type}</Label>
-            </div>
-          ))}
-        </div>
-      </div>
-
       <div className="flex justify-end gap-2 pt-4">
         <Button type="submit" disabled={isLoading}>
           {isLoading ? 'Saving...' : category ? 'Update Category' : 'Create Category'}
@@ -447,6 +384,8 @@ const DocumentTypeForm: React.FC<{
     description: documentType?.description || '',
     is_required: documentType?.is_required || false,
     requires_signature: documentType?.requires_signature || false,
+    is_internal_only: documentType?.is_internal_only || false,
+    product_types: documentType?.product_types || [],
     sort_order: documentType?.sort_order || 0
   });
 
@@ -494,6 +433,43 @@ const DocumentTypeForm: React.FC<{
             onCheckedChange={(checked) => setFormData({ ...formData, requires_signature: checked })}
           />
           <Label htmlFor="signature">Requires E-Signature</Label>
+        </div>
+
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="internal"
+            checked={formData.is_internal_only}
+            onCheckedChange={(checked) => setFormData({ ...formData, is_internal_only: checked })}
+          />
+          <Label htmlFor="internal">Internal Use Only</Label>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label>Product Types</Label>
+        <div className="flex flex-wrap gap-2">
+          {['Cash', 'Loan', 'Lease'].map((type) => (
+            <div key={type} className="flex items-center space-x-2">
+              <Checkbox
+                id={type}
+                checked={formData.product_types.includes(type)}
+                onCheckedChange={(checked) => {
+                  if (checked) {
+                    setFormData({
+                      ...formData,
+                      product_types: [...formData.product_types, type]
+                    });
+                  } else {
+                    setFormData({
+                      ...formData,
+                      product_types: formData.product_types.filter(t => t !== type)
+                    });
+                  }
+                }}
+              />
+              <Label htmlFor={type}>{type}</Label>
+            </div>
+          ))}
         </div>
       </div>
 

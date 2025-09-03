@@ -7,10 +7,6 @@ export interface DocumentCategory {
   name: string;
   description?: string;
   icon: string;
-  is_required: boolean;
-  requires_signature: boolean;
-  is_internal_only: boolean;
-  product_types: string[];
   created_at: string;
   updated_at?: string;
 }
@@ -22,6 +18,8 @@ export interface DocumentType {
   description?: string;
   is_required: boolean;
   requires_signature: boolean;
+  is_internal_only: boolean;
+  product_types: string[];
   sort_order: number;
   created_at: string;
   updated_at?: string;
