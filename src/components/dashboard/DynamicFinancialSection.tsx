@@ -47,7 +47,7 @@ const DynamicFinancialSection = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(100);
   
-  const { getSchema, getSyncSchema, updateSchema, loading: schemaLoading } = useDynamicTableSchemas();
+  const { getSchema, getSyncSchema, updateSchema, clearSchemaCache, loading: schemaLoading } = useDynamicTableSchemas();
 const { 
   data, 
   setData, 
@@ -96,14 +96,30 @@ useEffect(() => {
   
   useEffect(() => {
     const loadSchema = async () => {
-      const loadedSchema = await getSchema(schemaId);
-      setSchema(loadedSchema);
+      const problematicSchemas = ['credit-profile', 'pricing-config'];
+      
+      if (problematicSchemas.includes(schemaId)) {
+        console.log(`🔄 Force clearing cache and reloading schema for ${schemaId}`);
+        clearSchemaCache(schemaId);
+      }
+      
+      try {
+        const loadedSchema = await getSchema(schemaId);
+        if (loadedSchema) {
+          setSchema(loadedSchema);
+          console.log(`✅ Schema loaded for ${schemaId}:`, loadedSchema);
+        } else {
+          console.error(`❌ Failed to load schema for ${schemaId}`);
+        }
+      } catch (error) {
+        console.error(`❌ Error loading schema for ${schemaId}:`, error);
+      }
     };
     
     if (!schema) {
       loadSchema();
     }
-  }, [schemaId, getSchema, schema]);
+  }, [schemaId, getSchema, clearSchemaCache, schema]);
 
   useEffect(() => {
     loadVersions();
