@@ -16,26 +16,32 @@ import {
   Clock,
   XCircle,
   Calendar,
-  Plus
+  Plus,
+  Database
 } from 'lucide-react';
 import { DocumentItem, DocumentCategory, DocumentItemStatus, DocumentCategoryInfo } from '@/types/application/documents';
-import { mockDocuments, documentCategories } from '@/data/mock/documents';
 import { cn } from '@/lib/utils';
 import AddDocumentCategoryModal from './DocumentsView/AddDocumentCategoryModal';
 import AddDocumentModal from './DocumentsView/AddDocumentModal';
+import { useDocuments, useSeedDocuments } from '@/hooks/useDocuments';
+import { useDocumentCategories } from '@/hooks/useDocumentConfiguration';
+import { toast } from 'sonner';
 
 interface DocumentsViewProps {
   applicationId: string;
 }
 
 const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
-  const [documents, setDocuments] = useState<DocumentItem[]>(mockDocuments);
-  const [categories, setCategories] = useState<DocumentCategoryInfo[]>(documentCategories);
-  const [selectedCategory, setSelectedCategory] = useState<DocumentCategory | 'all'>('all');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
   const [showAddDocumentModal, setShowAddDocumentModal] = useState(false);
+  
+  // Fetch data from Supabase
+  const { data: documents = [], isLoading: documentsLoading, error: documentsError } = useDocuments(applicationId);
+  const { data: categories = [], isLoading: categoriesLoading } = useDocumentCategories();
+  const seedDocuments = useSeedDocuments();
 
-  const getStatusIcon = (status: DocumentItemStatus) => {
+  const getStatusIcon = (status: string) => {
     switch (status) {
       case 'approved': return <CheckCircle className="h-4 w-4 text-green-600" />;
       case 'submitted': 
@@ -47,7 +53,7 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
     }
   };
 
-  const getStatusColor = (status: DocumentItemStatus) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case 'approved': return 'bg-green-100 text-green-800 border-green-200';
       case 'submitted': return 'bg-blue-100 text-blue-800 border-blue-200';
@@ -59,9 +65,9 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
     }
   };
 
-  const getCategoryIcon = (category: DocumentCategory | string) => {
+  const getCategoryIcon = (category: string | undefined) => {
     // For custom categories, try to use the stored icon
-    const categoryInfo = categories.find(cat => cat.id === category);
+    const categoryInfo = categories.find(cat => cat.name === category || cat.id === category);
     if (categoryInfo) {
       const iconMap = {
         'FileText': FileText,
@@ -76,47 +82,78 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
       return <IconComponent className="h-4 w-4" />;
     }
     
-    // Fallback for original categories
-    switch (category) {
-      case 'order': return <FileText className="h-4 w-4" />;
-      case 'registration': return <Car className="h-4 w-4" />;
-      case 'customer': return <User className="h-4 w-4" />;
-      case 'stipulation': return <AlertCircle className="h-4 w-4" />;
-      case 'compliance': return <Shield className="h-4 w-4" />;
-      case 'supporting': return <Folder className="h-4 w-4" />;
-      default: return <Folder className="h-4 w-4" />;
+    return <Folder className="h-4 w-4" />;
+  };
+
+  const handleSeedDocuments = async () => {
+    try {
+      await seedDocuments.mutateAsync();
+      toast.success('Documents seeded successfully from mock data');
+    } catch (error) {
+      toast.error('Failed to seed documents');
     }
   };
 
-  const handleAddCategory = (newCategory: DocumentCategoryInfo) => {
-    setCategories(prev => [...prev, newCategory]);
+  const handleAddCategory = () => {
+    setShowAddCategoryModal(false);
+    // The category will be added via the hook's mutation
   };
 
-  const handleAddDocument = (newDocument: DocumentItem) => {
-    setDocuments(prev => [...prev, newDocument]);
+  const handleAddDocument = () => {
+    setShowAddDocumentModal(false);
+    // The document will be added via the hook's mutation
   };
 
   const filteredDocuments = documents.filter(doc => {
-    const matchesCategory = selectedCategory === 'all' || doc.category === selectedCategory;
+    const matchesCategory = selectedCategory === 'all' || doc.category?.name === selectedCategory;
     return matchesCategory;
   });
 
-  const getDocumentsByCategory = (category: DocumentCategory) => {
-    return documents.filter(doc => doc.category === category);
+  const getDocumentsByCategory = (categoryName: string) => {
+    return documents.filter(doc => doc.category?.name === categoryName);
   };
 
-  const getCategoryProgress = (category: DocumentCategory) => {
-    const categoryDocs = getDocumentsByCategory(category);
-    const requiredDocs = categoryDocs.filter(doc => doc.isRequired);
+  const getCategoryProgress = (categoryName: string) => {
+    const categoryDocs = getDocumentsByCategory(categoryName);
+    const requiredDocs = categoryDocs.filter(doc => doc.is_required);
     const completedDocs = requiredDocs.filter(doc => doc.status === 'approved');
     
     if (requiredDocs.length === 0) return 100;
     return (completedDocs.length / requiredDocs.length) * 100;
   };
 
+  if (documentsError) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-red-600 mb-4">Error loading documents: {documentsError.message}</p>
+        <Button onClick={handleSeedDocuments} disabled={seedDocuments.isPending}>
+          <Database className="h-4 w-4 mr-2" />
+          {seedDocuments.isPending ? 'Seeding...' : 'Seed Sample Documents'}
+        </Button>
+      </div>
+    );
+  }
+
+  if (documentsLoading || categoriesLoading) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-gray-600">Loading documents...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
-
+      {/* Seed Documents Button */}
+      {documents.length === 0 && (
+        <div className="text-center py-8 bg-muted/50 rounded-lg">
+          <p className="text-muted-foreground mb-4">No documents found. Would you like to seed sample documents?</p>
+          <Button onClick={handleSeedDocuments} disabled={seedDocuments.isPending}>
+            <Database className="h-4 w-4 mr-2" />
+            {seedDocuments.isPending ? 'Seeding...' : 'Seed Sample Documents'}
+          </Button>
+        </div>
+      )}
 
       {/* Category Selection */}
       <div className="bg-card rounded-lg border p-4">
@@ -143,24 +180,24 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
           >
             <Folder className="h-4 w-4 mb-1" />
             <span className="text-xs font-medium">All Documents</span>
-            <span className="text-xs opacity-70">({filteredDocuments.length})</span>
+            <span className="text-xs opacity-70">({documents.length})</span>
           </button>
           {categories.map(category => {
-            const categoryDocs = getDocumentsByCategory(category.id);
+            const categoryDocs = getDocumentsByCategory(category.name);
             
             return (
               <button
                 key={category.id}
-                onClick={() => setSelectedCategory(category.id)}
+                onClick={() => setSelectedCategory(category.name)}
                 className={cn(
                   "flex flex-col items-center p-3 rounded-lg border transition-all",
-                  selectedCategory === category.id 
+                  selectedCategory === category.name 
                     ? "bg-primary text-primary-foreground border-primary" 
                     : "bg-background hover:bg-muted border-border"
                 )}
               >
-                {getCategoryIcon(category.id)}
-                <span className="text-xs font-medium mt-1">{category.label}</span>
+                {getCategoryIcon(category.name)}
+                <span className="text-xs font-medium mt-1">{category.name}</span>
                 <span className="text-xs opacity-70">({categoryDocs.length})</span>
               </button>
             );
@@ -175,7 +212,7 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
             <div>
               <h3 className="text-lg font-semibold">
                 {selectedCategory === 'all' ? 'All Documents' : 
-                 categories.find(cat => cat.id === selectedCategory)?.label}
+                 categories.find(cat => cat.name === selectedCategory)?.name}
               </h3>
               <p className="text-sm text-muted-foreground">
                 {filteredDocuments.length} document{filteredDocuments.length !== 1 ? 's' : ''}
@@ -211,13 +248,13 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
                   <TableCell className="py-4">
                     <div className="flex items-center gap-3">
                       <div className="p-2 rounded-lg bg-muted">
-                        {getCategoryIcon(document.category)}
+                        {getCategoryIcon(document.category?.name)}
                       </div>
                       <div>
                         <div className="font-medium text-sm">{document.name}</div>
-                        {document.fileName && (
+                        {document.file_name && (
                           <div className="text-xs text-muted-foreground">
-                            {document.fileName} {document.fileSize && `(${document.fileSize})`}
+                            {document.file_name} {document.file_size_mb && `(${document.file_size_mb} MB)`}
                           </div>
                         )}
                         {document.notes && (
@@ -228,9 +265,9 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">{document.type}</TableCell>
+                  <TableCell className="text-sm text-muted-foreground">{document.document_type?.name}</TableCell>
                   <TableCell>
-                    {document.isRequired ? (
+                    {document.is_required ? (
                       <Badge variant="secondary" className="text-xs">Required</Badge>
                     ) : (
                       <span className="text-xs text-muted-foreground">Optional</span>
@@ -245,20 +282,20 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
                     </div>
                   </TableCell>
                   <TableCell className="text-sm">
-                    {document.uploadedDate ? (
+                    {document.uploaded_date ? (
                       <div>
-                        <div className="font-medium">{document.uploadedDate}</div>
-                        <div className="text-xs text-muted-foreground">by {document.uploadedBy}</div>
+                        <div className="font-medium">{document.uploaded_date}</div>
+                        <div className="text-xs text-muted-foreground">by {document.uploaded_by}</div>
                       </div>
                     ) : (
                       <span className="text-muted-foreground">-</span>
                     )}
                   </TableCell>
                   <TableCell className="text-sm">
-                    {document.expirationDate ? (
+                    {document.expiration_date ? (
                       <div className="flex items-center gap-1">
                         <Calendar className="h-3 w-3 text-muted-foreground" />
-                        <span>{document.expirationDate}</span>
+                        <span>{document.expiration_date}</span>
                       </div>
                     ) : (
                       <span className="text-muted-foreground">-</span>
@@ -273,7 +310,7 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
                         </Button>
                       ) : (
                         <>
-                          {document.fileUrl && (
+                          {document.file_url && (
                             <>
                               <Button size="sm" variant="outline" className="text-xs">
                                 <Eye className="h-3 w-3 mr-1" />
@@ -306,8 +343,8 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
         open={showAddDocumentModal}
         onOpenChange={setShowAddDocumentModal}
         onAddDocument={handleAddDocument}
-        categories={categories}
-        selectedCategory={selectedCategory}
+        categories={categories.map(cat => ({ ...cat, label: cat.name, id: cat.id }))}
+        selectedCategory={selectedCategory === 'all' ? undefined : selectedCategory}
       />
     </div>
   );

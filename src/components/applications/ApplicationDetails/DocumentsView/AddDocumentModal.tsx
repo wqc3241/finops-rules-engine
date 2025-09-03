@@ -11,9 +11,9 @@ import { DocumentItem, DocumentCategory, DocumentCategoryInfo } from '@/types/ap
 interface AddDocumentModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onAddDocument: (document: DocumentItem) => void;
-  categories: DocumentCategoryInfo[];
-  selectedCategory?: DocumentCategory | 'all';
+  onAddDocument: (document: any) => void;
+  categories: any[];
+  selectedCategory?: string;
 }
 
 const AddDocumentModal: React.FC<AddDocumentModalProps> = ({
