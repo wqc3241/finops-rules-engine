@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import Navbar from '@/components/Navbar';
+import Sidebar from '@/components/Sidebar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -47,6 +49,8 @@ interface DocumentStatus {
 }
 
 const DocumentConfiguration: React.FC = () => {
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [activeItem, setActiveItem] = useState('Document Configuration');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [isCreateCategoryOpen, setIsCreateCategoryOpen] = useState(false);
   const [isEditCategoryOpen, setIsEditCategoryOpen] = useState(false);
@@ -169,139 +173,153 @@ const DocumentConfiguration: React.FC = () => {
   const selectedCategoryData = categories.find(cat => cat.id === selectedCategory);
 
   return (
-    <div className="container mx-auto py-6">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold">Document Configuration</h1>
-          <p className="text-muted-foreground">
-            Configure document categories, file types, and requirements for applications
-          </p>
-        </div>
-        <Dialog open={isCreateCategoryOpen} onOpenChange={setIsCreateCategoryOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Category
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Create Document Category</DialogTitle>
-              <DialogDescription>
-                Add a new document category with its configuration
-              </DialogDescription>
-            </DialogHeader>
-            <CategoryForm 
-              onSubmit={(data) => createCategoryMutation.mutate(data as Omit<DocumentCategory, 'id' | 'created_at' | 'updated_at'>)}
-              isLoading={createCategoryMutation.isPending}
-            />
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Categories List */}
-        <Card className="lg:col-span-1">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              Document Categories
-            </CardTitle>
-            <CardDescription>
-              Select a category to configure its settings
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {categoriesLoading ? (
-              <div className="space-y-2">
-                {[...Array(3)].map((_, i) => (
-                  <div key={i} className="h-12 bg-muted animate-pulse rounded" />
-                ))}
-              </div>
-            ) : (
-              categories.map((category) => (
-                <div
-                  key={category.id}
-                  className={`p-3 rounded-md cursor-pointer transition-colors ${
-                    selectedCategory === category.id
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted hover:bg-muted/80'
-                  }`}
-                  onClick={() => setSelectedCategory(category.id)}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <FileText className="h-4 w-4" />
-                      <span className="font-medium">{category.name}</span>
-                    </div>
-                    <div className="flex gap-1">
-                      {category.is_required && (
-                        <Badge variant="secondary" className="text-xs">Required</Badge>
-                      )}
-                      {category.requires_signature && (
-                        <Badge variant="outline" className="text-xs">Signature</Badge>
-                      )}
-                    </div>
-                  </div>
-                  {category.description && (
-                    <p className="text-xs text-muted-foreground mt-1 truncate">
-                      {category.description}
-                    </p>
-                  )}
-                </div>
-              ))
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Category Details */}
-        <div className="lg:col-span-2">
-          {selectedCategoryData ? (
-            <Tabs defaultValue="settings" className="space-y-4">
-              <TabsList>
-                <TabsTrigger value="settings">Settings</TabsTrigger>
-                <TabsTrigger value="filetypes">File Types</TabsTrigger>
-                <TabsTrigger value="statuses">Statuses</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="settings">
-                <CategorySettingsTab 
-                  category={selectedCategoryData}
-                  onUpdate={(updates) => updateCategoryMutation.mutate({ id: selectedCategoryData.id, ...updates })}
-                  onDelete={() => deleteCategoryMutation.mutate(selectedCategoryData.id)}
-                  isUpdating={updateCategoryMutation.isPending}
-                  isDeleting={deleteCategoryMutation.isPending}
-                />
-              </TabsContent>
-
-              <TabsContent value="filetypes">
-                <FileTypesTab 
-                  categoryId={selectedCategory!}
-                  fileTypes={fileTypes}
-                />
-              </TabsContent>
-
-              <TabsContent value="statuses">
-                <StatusesTab 
-                  categoryId={selectedCategory!}
-                  statuses={statuses}
-                />
-              </TabsContent>
-            </Tabs>
-          ) : (
-            <Card>
-              <CardContent className="flex items-center justify-center h-64">
-                <div className="text-center">
-                  <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-medium mb-2">No Category Selected</h3>
+    <div className="h-screen flex flex-col bg-gray-50">
+      <Navbar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+      <div className="flex flex-1 overflow-hidden">
+        <Sidebar 
+          open={sidebarOpen}
+          activeItem={activeItem}
+          setActiveItem={setActiveItem} 
+        />
+        <main className="flex-1 overflow-auto p-4">
+          <div className="container mx-auto px-4 py-6">
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h1 className="text-3xl font-bold">Document Configuration</h1>
                   <p className="text-muted-foreground">
-                    Select a document category from the list to view and configure its settings
+                    Configure document categories, file types, and requirements for applications
                   </p>
                 </div>
-              </CardContent>
-            </Card>
-          )}
-        </div>
+                <Dialog open={isCreateCategoryOpen} onOpenChange={setIsCreateCategoryOpen}>
+                  <DialogTrigger asChild>
+                    <Button>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Category
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl">
+                    <DialogHeader>
+                      <DialogTitle>Create Document Category</DialogTitle>
+                      <DialogDescription>
+                        Add a new document category with its configuration
+                      </DialogDescription>
+                    </DialogHeader>
+                    <CategoryForm 
+                      onSubmit={(data) => createCategoryMutation.mutate(data as Omit<DocumentCategory, 'id' | 'created_at' | 'updated_at'>)}
+                      isLoading={createCategoryMutation.isPending}
+                    />
+                  </DialogContent>
+                </Dialog>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Categories List */}
+                <Card className="lg:col-span-1">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <FileText className="h-5 w-5" />
+                      Document Categories
+                    </CardTitle>
+                    <CardDescription>
+                      Select a category to configure its settings
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    {categoriesLoading ? (
+                      <div className="space-y-2">
+                        {[...Array(3)].map((_, i) => (
+                          <div key={i} className="h-12 bg-muted animate-pulse rounded" />
+                        ))}
+                      </div>
+                    ) : (
+                      categories.map((category) => (
+                        <div
+                          key={category.id}
+                          className={`p-3 rounded-md cursor-pointer transition-colors ${
+                            selectedCategory === category.id
+                              ? 'bg-primary text-primary-foreground'
+                              : 'bg-muted hover:bg-muted/80'
+                          }`}
+                          onClick={() => setSelectedCategory(category.id)}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <FileText className="h-4 w-4" />
+                              <span className="font-medium">{category.name}</span>
+                            </div>
+                            <div className="flex gap-1">
+                              {category.is_required && (
+                                <Badge variant="secondary" className="text-xs">Required</Badge>
+                              )}
+                              {category.requires_signature && (
+                                <Badge variant="outline" className="text-xs">Signature</Badge>
+                              )}
+                            </div>
+                          </div>
+                          {category.description && (
+                            <p className="text-xs text-muted-foreground mt-1 truncate">
+                              {category.description}
+                            </p>
+                          )}
+                        </div>
+                      ))
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Category Details */}
+                <div className="lg:col-span-2">
+                  {selectedCategoryData ? (
+                    <Tabs defaultValue="settings" className="space-y-4">
+                      <TabsList>
+                        <TabsTrigger value="settings">Settings</TabsTrigger>
+                        <TabsTrigger value="filetypes">File Types</TabsTrigger>
+                        <TabsTrigger value="statuses">Statuses</TabsTrigger>
+                      </TabsList>
+
+                      <TabsContent value="settings">
+                        <CategorySettingsTab 
+                          category={selectedCategoryData}
+                          onUpdate={(updates) => updateCategoryMutation.mutate({ id: selectedCategoryData.id, ...updates })}
+                          onDelete={() => deleteCategoryMutation.mutate(selectedCategoryData.id)}
+                          isUpdating={updateCategoryMutation.isPending}
+                          isDeleting={deleteCategoryMutation.isPending}
+                        />
+                      </TabsContent>
+
+                      <TabsContent value="filetypes">
+                        <FileTypesTab 
+                          categoryId={selectedCategory!}
+                          fileTypes={fileTypes}
+                        />
+                      </TabsContent>
+
+                      <TabsContent value="statuses">
+                        <StatusesTab 
+                          categoryId={selectedCategory!}
+                          statuses={statuses}
+                        />
+                      </TabsContent>
+                    </Tabs>
+                  ) : (
+                    <Card>
+                      <CardContent className="flex items-center justify-center h-64">
+                        <div className="text-center">
+                          <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                          <h3 className="text-lg font-medium mb-2">No Category Selected</h3>
+                          <p className="text-muted-foreground">
+                            Select a document category from the list to view and configure its settings
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
       </div>
     </div>
   );
