@@ -319,6 +319,18 @@ export const useSupabaseApprovalWorkflow = () => {
     if (!user) return;
 
     try {
+      console.log(`🔄 Starting approval process for request ${requestId}, table: ${table}`);
+      
+      // Handle bulletin_pricing table approval - move from pending to live table
+      if (table === 'bulletin_pricing') {
+        await approveBulletinPricingChanges(requestId, comment);
+      }
+      
+      // Handle financial_program_configs table approval
+      if (table === 'financial_program_configs') {
+        await approveFinancialProgramChanges(requestId, comment);
+      }
+
       const { error } = await supabase
         .from('change_details')
         .update({
@@ -349,6 +361,18 @@ export const useSupabaseApprovalWorkflow = () => {
     if (!user) return;
 
     try {
+      console.log(`🔄 Starting rejection process for request ${requestId}, table: ${table}`);
+      
+      // Handle bulletin_pricing table rejection - delete from pending table
+      if (table === 'bulletin_pricing') {
+        await rejectBulletinPricingChanges(requestId, comment);
+      }
+      
+      // Handle financial_program_configs table rejection
+      if (table === 'financial_program_configs') {
+        await rejectFinancialProgramChanges(requestId, comment);
+      }
+
       const { error } = await supabase
         .from('change_details')
         .update({
@@ -374,6 +398,224 @@ export const useSupabaseApprovalWorkflow = () => {
       toast.error("Error: Failed to reject changes.");
     }
   }, [user]);
+
+  // Handle financial program configs approval
+  const approveFinancialProgramChanges = async (requestId: string, comment?: string) => {
+    try {
+      // Get pending records
+      const { data: pendingRecords, error: fetchError } = await supabase
+        .from('pending_financial_program_configs')
+        .select('*')
+        .eq('request_id', requestId);
+
+      if (fetchError) {
+        throw fetchError;
+      }
+
+      if (pendingRecords && pendingRecords.length > 0) {
+        // Move records to live table
+        const { error: insertError } = await supabase
+          .from('financial_program_configs')
+          .insert(pendingRecords.map(record => ({
+            program_code: record.program_code,
+            vehicle_style_id: record.vehicle_style_id,
+            financing_vehicle_condition: record.financing_vehicle_condition,
+            financial_product_id: record.financial_product_id,
+            program_start_date: record.program_start_date,
+            program_end_date: record.program_end_date,
+            is_active: record.is_active,
+            advertised: record.advertised,
+            version: record.version,
+            priority: record.priority,
+            order_types: record.order_types,
+            template_metadata: record.template_metadata,
+            clone_from: record.clone_from
+          })));
+
+        if (insertError) {
+          throw insertError;
+        }
+
+        // Delete from pending table
+        const { error: deleteError } = await supabase
+          .from('pending_financial_program_configs')
+          .delete()
+          .eq('request_id', requestId);
+
+        if (deleteError) {
+          throw deleteError;
+        }
+      }
+
+      // Remove table lock
+      await supabase
+        .from('table_locks')
+        .delete()
+        .eq('schema_id', 'financial_program_configs');
+
+      console.log('✅ Successfully approved financial program changes');
+    } catch (error) {
+      console.error('❌ Error approving financial program changes:', error);
+      throw error;
+    }
+  };
+
+  // Handle financial program configs rejection
+  const rejectFinancialProgramChanges = async (requestId: string, comment?: string) => {
+    try {
+      // Delete pending records
+      const { error: deleteError } = await supabase
+        .from('pending_financial_program_configs')
+        .delete()
+        .eq('request_id', requestId);
+
+      if (deleteError) {
+        throw deleteError;
+      }
+
+      // Remove table lock
+      await supabase
+        .from('table_locks')
+        .delete()
+        .eq('schema_id', 'financial_program_configs');
+
+      console.log('✅ Successfully rejected financial program changes');
+    } catch (error) {
+      console.error('❌ Error rejecting financial program changes:', error);
+      throw error;
+    }
+  };
+
+  // Handle bulletin pricing approval - move records from pending to live table
+  const approveBulletinPricingChanges = async (requestId: string, comment?: string) => {
+    try {
+      // Get the session ID from change request version_id
+      const { data: changeRequest } = await supabase
+        .from('change_requests')
+        .select('version_id')
+        .eq('id', requestId)
+        .single();
+
+      if (!changeRequest) {
+        throw new Error('Change request not found');
+      }
+
+      const sessionId = changeRequest.version_id;
+
+      // Get pending records
+      const { data: pendingRecords, error: fetchError } = await supabase
+        .from('pending_bulletin_pricing')
+        .select('*')
+        .eq('session_id', sessionId);
+
+      if (fetchError) {
+        throw fetchError;
+      }
+
+      if (pendingRecords && pendingRecords.length > 0) {
+        // Move records to live table
+        const { error: insertError } = await supabase
+          .from('bulletin_pricing')
+          .insert(pendingRecords.map(record => ({
+            bulletin_id: record.bulletin_id,
+            financial_program_code: record.financial_program_code,
+            pricing_type: record.pricing_type,
+            pricing_config: record.pricing_config,
+            credit_profile: record.credit_profile,
+            pricing_value: record.pricing_value,
+            lender_list: record.lender_list,
+            geo_code: record.geo_code,
+            advertised: record.advertised,
+            created_by: record.created_by,
+            upload_date: record.upload_date
+          })));
+
+        if (insertError) {
+          throw insertError;
+        }
+
+        // Delete from pending table
+        const { error: deleteError } = await supabase
+          .from('pending_bulletin_pricing')
+          .delete()
+          .eq('session_id', sessionId);
+
+        if (deleteError) {
+          throw deleteError;
+        }
+      }
+
+      // Update session status
+      const { error: sessionUpdateError } = await supabase
+        .from('bulletin_upload_sessions')
+        .update({ approval_status: 'approved' })
+        .eq('change_request_id', requestId);
+
+      if (sessionUpdateError) {
+        throw sessionUpdateError;
+      }
+
+      // Remove table lock
+      await supabase
+        .from('table_locks')
+        .delete()
+        .eq('schema_id', 'bulletin_pricing');
+
+      console.log('✅ Successfully approved bulletin pricing changes');
+    } catch (error) {
+      console.error('❌ Error approving bulletin pricing changes:', error);
+      throw error;
+    }
+  };
+
+  // Handle bulletin pricing rejection - delete pending records
+  const rejectBulletinPricingChanges = async (requestId: string, comment?: string) => {
+    try {
+      // Get the session ID from change request version_id
+      const { data: changeRequest } = await supabase
+        .from('change_requests')
+        .select('version_id')
+        .eq('id', requestId)
+        .single();
+
+      if (!changeRequest) {
+        throw new Error('Change request not found');
+      }
+
+      const sessionId = changeRequest.version_id;
+
+      // Delete pending records
+      const { error: deleteError } = await supabase
+        .from('pending_bulletin_pricing')
+        .delete()
+        .eq('session_id', sessionId);
+
+      if (deleteError) {
+        throw deleteError;
+      }
+
+      // Update session status
+      const { error: sessionUpdateError } = await supabase
+        .from('bulletin_upload_sessions')
+        .update({ approval_status: 'rejected' })
+        .eq('change_request_id', requestId);
+
+      if (sessionUpdateError) {
+        throw sessionUpdateError;
+      }
+
+      // Remove table lock
+      await supabase
+        .from('table_locks')
+        .delete()
+        .eq('schema_id', 'bulletin_pricing');
+
+      console.log('✅ Successfully rejected bulletin pricing changes');
+    } catch (error) {
+      console.error('❌ Error rejecting bulletin pricing changes:', error);
+      throw error;
+    }
+  };
 
   const finalizeChangeRequest = useCallback(async (requestId: string): Promise<void> => {
     if (!user) return;
@@ -518,6 +760,10 @@ export const useSupabaseApprovalWorkflow = () => {
     approveAllPendingRequests,
     rejectAllPendingRequests,
     isTableLocked,
-    forceRefresh
+    forceRefresh,
+    approveBulletinPricingChanges,
+    rejectBulletinPricingChanges,
+    approveFinancialProgramChanges,
+    rejectFinancialProgramChanges
   };
 };

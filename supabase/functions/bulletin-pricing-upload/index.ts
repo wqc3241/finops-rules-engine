@@ -167,18 +167,118 @@ serve(async (req) => {
     if (validationResults.isValid) {
       const bulletinRecords = await parseWorkbookData(workbook, session.id, user.id);
       
-      // Insert valid records with pending approval status
+      // Insert valid records into the pending_bulletin_pricing table for approval
       if (bulletinRecords.length > 0) {
+        // Create change request
+        const changeRequestId = crypto.randomUUID();
+        const { error: changeRequestError } = await adminSupabase
+          .from('change_requests')
+          .insert({
+            id: changeRequestId,
+            created_by: user.id,
+            status: 'IN_REVIEW',
+            version_id: session.id,
+            table_schema_ids: ['bulletin_pricing'],
+            comment: `Bulletin pricing upload: ${bulletinRecords.length} records for programs ${programCodesCsv}`
+          });
+
+        if (changeRequestError) {
+          console.error('Error creating change request:', changeRequestError);
+          await updateSessionStatus(session.id, 'failed', 'failed');
+          return new Response(
+            JSON.stringify({ 
+              error: 'Failed to create change request',
+              sessionId: session.id
+            }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        // Insert into pending table
         const { error: insertError } = await adminSupabase
-          .from('bulletin_pricing')
-          .insert(bulletinRecords);
+          .from('pending_bulletin_pricing')
+          .insert(bulletinRecords.map(record => ({
+            session_id: session.id,
+            bulletin_id: record.bulletin_id,
+            financial_program_code: record.financial_program_code,
+            pricing_type: record.pricing_type,
+            pricing_config: record.pricing_config,
+            credit_profile: record.credit_profile,
+            pricing_value: record.pricing_value,
+            lender_list: record.lender_list,
+            geo_code: record.geo_code,
+            advertised: record.advertised,
+            created_by: user.id,
+            upload_date: new Date().toISOString()
+          })));
 
         if (insertError) {
-          console.error('Failed to insert bulletin records:', insertError);
+          console.error('Failed to insert pending bulletin records:', insertError);
           await updateSessionStatus(session.id, 'failed', 'failed');
           return new Response(
             JSON.stringify({ 
               error: 'Failed to insert bulletin pricing records',
+              sessionId: session.id
+            }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        // Create change details for each record
+        const changeDetails = bulletinRecords.map(record => ({
+          request_id: changeRequestId,
+          table_name: 'bulletin_pricing',
+          rule_key: record.bulletin_id,
+          old_value: null,
+          new_value: record,
+          status: 'PENDING'
+        }));
+
+        const { error: changeDetailsError } = await adminSupabase
+          .from('change_details')
+          .insert(changeDetails);
+
+        if (changeDetailsError) {
+          console.error('Error creating change details:', changeDetailsError);
+          await updateSessionStatus(session.id, 'failed', 'failed');
+          return new Response(
+            JSON.stringify({ 
+              error: 'Failed to create change details',
+              sessionId: session.id
+            }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        // Lock the bulletin_pricing table
+        const { error: lockError } = await adminSupabase
+          .from('table_locks')
+          .insert({
+            schema_id: 'bulletin_pricing',
+            locked_by: user.id,
+            request_id: changeRequestId
+          });
+
+        if (lockError) {
+          console.error('Warning: Could not lock table:', lockError);
+          // Don't throw here as it's not critical
+        }
+
+        // Update session with change request ID
+        const { error: sessionUpdateError } = await adminSupabase
+          .from('bulletin_upload_sessions')
+          .update({
+            change_request_id: changeRequestId,
+            approval_status: 'pending_approval'
+          })
+          .eq('id', session.id);
+
+        if (sessionUpdateError) {
+          console.error('Error updating session:', sessionUpdateError);
+          await updateSessionStatus(session.id, 'failed', 'failed');
+          return new Response(
+            JSON.stringify({ 
+              error: 'Failed to update session',
               sessionId: session.id
             }),
             { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

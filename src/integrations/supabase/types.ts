@@ -418,8 +418,10 @@ export type Database = {
       }
       bulletin_upload_sessions: {
         Row: {
+          approval_status: string | null
           approved_at: string | null
           approved_by: string | null
+          change_request_id: string | null
           created_at: string
           file_size: number
           filename: string
@@ -435,8 +437,10 @@ export type Database = {
           validation_status: string
         }
         Insert: {
+          approval_status?: string | null
           approved_at?: string | null
           approved_by?: string | null
+          change_request_id?: string | null
           created_at?: string
           file_size: number
           filename: string
@@ -452,8 +456,10 @@ export type Database = {
           validation_status?: string
         }
         Update: {
+          approval_status?: string | null
           approved_at?: string | null
           approved_by?: string | null
+          change_request_id?: string | null
           created_at?: string
           file_size?: number
           filename?: string
@@ -530,6 +536,7 @@ export type Database = {
           reviewed_by: string | null
           status: Database["public"]["Enums"]["approval_status"]
           submitted_at: string
+          table_schema_ids: string[] | null
           version_id: string
         }
         Insert: {
@@ -541,6 +548,7 @@ export type Database = {
           reviewed_by?: string | null
           status?: Database["public"]["Enums"]["approval_status"]
           submitted_at?: string
+          table_schema_ids?: string[] | null
           version_id: string
         }
         Update: {
@@ -552,6 +560,7 @@ export type Database = {
           reviewed_by?: string | null
           status?: Database["public"]["Enums"]["approval_status"]
           submitted_at?: string
+          table_schema_ids?: string[] | null
           version_id?: string
         }
         Relationships: []
@@ -1620,6 +1629,117 @@ export type Database = {
           id?: string
           type_code?: string
           type_name?: string
+        }
+        Relationships: []
+      }
+      pending_bulletin_pricing: {
+        Row: {
+          advertised: boolean | null
+          bulletin_id: string
+          created_at: string | null
+          created_by: string | null
+          credit_profile: string | null
+          financial_program_code: string | null
+          geo_code: string | null
+          id: string
+          lender_list: string | null
+          pricing_config: string | null
+          pricing_type: string | null
+          pricing_value: number | null
+          session_id: string
+          upload_date: string | null
+        }
+        Insert: {
+          advertised?: boolean | null
+          bulletin_id: string
+          created_at?: string | null
+          created_by?: string | null
+          credit_profile?: string | null
+          financial_program_code?: string | null
+          geo_code?: string | null
+          id?: string
+          lender_list?: string | null
+          pricing_config?: string | null
+          pricing_type?: string | null
+          pricing_value?: number | null
+          session_id: string
+          upload_date?: string | null
+        }
+        Update: {
+          advertised?: boolean | null
+          bulletin_id?: string
+          created_at?: string | null
+          created_by?: string | null
+          credit_profile?: string | null
+          financial_program_code?: string | null
+          geo_code?: string | null
+          id?: string
+          lender_list?: string | null
+          pricing_config?: string | null
+          pricing_type?: string | null
+          pricing_value?: number | null
+          session_id?: string
+          upload_date?: string | null
+        }
+        Relationships: []
+      }
+      pending_financial_program_configs: {
+        Row: {
+          advertised: string | null
+          clone_from: string | null
+          created_at: string | null
+          created_by: string | null
+          financial_product_id: string | null
+          financing_vehicle_condition: string | null
+          id: string
+          is_active: string | null
+          order_types: string | null
+          priority: number | null
+          program_code: string
+          program_end_date: string | null
+          program_start_date: string | null
+          request_id: string
+          template_metadata: Json | null
+          vehicle_style_id: string | null
+          version: number | null
+        }
+        Insert: {
+          advertised?: string | null
+          clone_from?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          financial_product_id?: string | null
+          financing_vehicle_condition?: string | null
+          id?: string
+          is_active?: string | null
+          order_types?: string | null
+          priority?: number | null
+          program_code: string
+          program_end_date?: string | null
+          program_start_date?: string | null
+          request_id: string
+          template_metadata?: Json | null
+          vehicle_style_id?: string | null
+          version?: number | null
+        }
+        Update: {
+          advertised?: string | null
+          clone_from?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          financial_product_id?: string | null
+          financing_vehicle_condition?: string | null
+          id?: string
+          is_active?: string | null
+          order_types?: string | null
+          priority?: number | null
+          program_code?: string
+          program_end_date?: string | null
+          program_start_date?: string | null
+          request_id?: string
+          template_metadata?: Json | null
+          vehicle_style_id?: string | null
+          version?: number | null
         }
         Relationships: []
       }
