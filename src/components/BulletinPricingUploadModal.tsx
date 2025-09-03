@@ -609,38 +609,36 @@ const ErrorSummaryDisplay = ({ errors }: ErrorSummaryDisplayProps) => {
         return (
           <Alert key={error.type} className={severityColors[error.severity]}>
             <Icon className="h-4 w-4" />
-            <div className="space-y-2">
-              <AlertTitle className="flex items-center justify-between">
-                <span>{error.title}</span>
-                <Badge variant="outline" className="text-xs">
-                  {error.count} {error.count === 1 ? 'error' : 'errors'}
-                </Badge>
-              </AlertTitle>
-              <AlertDescription>
-                <div className="space-y-2">
-                  <p className="font-medium">{error.message}</p>
-                  <p className="text-sm">{error.suggestion}</p>
-                  {error.examples.length > 0 && (
-                    <div className="space-y-1">
-                      <p className="text-xs font-medium">Example values causing issues:</p>
-                      <div className="flex flex-wrap gap-1">
-                        {error.examples.map((example, i) => (
-                          <Badge 
-                            key={i} 
-                            variant="secondary" 
-                            className="text-xs cursor-pointer hover:bg-secondary/80 flex items-center gap-1"
-                            onClick={() => copyToClipboard(example)}
-                          >
-                            <span>{example}</span>
-                            <Copy className="h-3 w-3" />
-                          </Badge>
-                        ))}
-                      </div>
+            <AlertTitle className="flex items-center justify-between">
+              <span>{error.title}</span>
+              <Badge variant="outline" className="text-xs">
+                {error.count} {error.count === 1 ? 'error' : 'errors'}
+              </Badge>
+            </AlertTitle>
+            <AlertDescription>
+              <div className="space-y-2">
+                <p className="font-medium">{error.message}</p>
+                <p className="text-sm">{error.suggestion}</p>
+                {error.examples.length > 0 && (
+                  <div className="space-y-1">
+                    <p className="text-xs font-medium">Example values causing issues:</p>
+                    <div className="flex flex-wrap gap-1">
+                      {error.examples.map((example, i) => (
+                        <Badge 
+                          key={i} 
+                          variant="secondary" 
+                          className="text-xs cursor-pointer hover:bg-secondary/80 flex items-center gap-1"
+                          onClick={() => copyToClipboard(example)}
+                        >
+                          <span>{example}</span>
+                          <Copy className="h-3 w-3" />
+                        </Badge>
+                      ))}
                     </div>
-                  )}
-                </div>
-              </AlertDescription>
-            </div>
+                  </div>
+                )}
+              </div>
+            </AlertDescription>
           </Alert>
         );
       })}
