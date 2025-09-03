@@ -2,175 +2,68 @@ import React, { useState } from 'react';
 import Navbar from '@/components/Navbar';
 import Sidebar from '@/components/Sidebar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
-import { Plus, FileText, Settings, Trash2, Edit } from 'lucide-react';
+import { Plus, FileText, FolderOpen, File, Trash2, Edit } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-
-interface DocumentCategory {
-  id: string;
-  name: string;
-  description?: string;
-  icon: string;
-  is_required: boolean;
-  requires_signature: boolean;
-  is_internal_only: boolean;
-  product_types: string[];
-  created_at: string;
-  updated_at?: string;
-}
-
-interface DocumentFileType {
-  id: string;
-  category_id: string;
-  file_extension: string;
-  max_file_size_mb: number;
-  created_at: string;
-}
-
-interface DocumentStatus {
-  id: string;
-  category_id: string;
-  status_name: string;
-  status_color: string;
-  is_default: boolean;
-  sort_order: number;
-  created_at: string;
-}
+import { 
+  useDocumentCategories,
+  useDocumentTypes,
+  useDocumentAcceptableFiles,
+  useCreateDocumentCategory,
+  useUpdateDocumentCategory,
+  useDeleteDocumentCategory,
+  useCreateDocumentType,
+  useUpdateDocumentType,
+  useDeleteDocumentType,
+  useCreateAcceptableFile,
+  useDeleteAcceptableFile,
+  DocumentCategory,
+  DocumentType,
+  DocumentAcceptableFile
+} from '@/hooks/useDocumentConfiguration';
 
 const DocumentConfiguration: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeItem, setActiveItem] = useState('Document Configuration');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedDocumentType, setSelectedDocumentType] = useState<string | null>(null);
   const [isCreateCategoryOpen, setIsCreateCategoryOpen] = useState(false);
-  const [isEditCategoryOpen, setIsEditCategoryOpen] = useState(false);
+  const [isCreateTypeOpen, setIsCreateTypeOpen] = useState(false);
+  const [isCreateFileOpen, setIsCreateFileOpen] = useState(false);
   const { toast } = useToast();
-  const queryClient = useQueryClient();
 
-  // Fetch document categories
-  const { data: categories = [], isLoading: categoriesLoading } = useQuery({
-    queryKey: ['documentCategories'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('document_categories')
-        .select('*')
-        .order('name');
-      
-      if (error) throw error;
-      return data as DocumentCategory[];
-    }
-  });
+  const { data: categories = [], isLoading: categoriesLoading } = useDocumentCategories();
+  const { data: documentTypes = [] } = useDocumentTypes(selectedCategory);
+  const { data: acceptableFiles = [] } = useDocumentAcceptableFiles(selectedDocumentType);
 
-  // Fetch file types for selected category
-  const { data: fileTypes = [] } = useQuery({
-    queryKey: ['documentFileTypes', selectedCategory],
-    queryFn: async () => {
-      if (!selectedCategory) return [];
-      const { data, error } = await supabase
-        .from('document_file_types')
-        .select('*')
-        .eq('category_id', selectedCategory)
-        .order('file_extension');
-      
-      if (error) throw error;
-      return data as DocumentFileType[];
-    },
-    enabled: !!selectedCategory
-  });
-
-  // Fetch statuses for selected category
-  const { data: statuses = [] } = useQuery({
-    queryKey: ['documentStatuses', selectedCategory],
-    queryFn: async () => {
-      if (!selectedCategory) return [];
-      const { data, error } = await supabase
-        .from('document_statuses')
-        .select('*')
-        .eq('category_id', selectedCategory)
-        .order('sort_order');
-      
-      if (error) throw error;
-      return data as DocumentStatus[];
-    },
-    enabled: !!selectedCategory
-  });
-
-  // Create category mutation
-  const createCategoryMutation = useMutation({
-    mutationFn: async (categoryData: Omit<DocumentCategory, 'id' | 'created_at' | 'updated_at'>) => {
-      const { data, error } = await supabase
-        .from('document_categories')
-        .insert([categoryData])
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['documentCategories'] });
-      setIsCreateCategoryOpen(false);
-      toast({ title: 'Success', description: 'Document category created successfully' });
-    },
-    onError: (error) => {
-      toast({ title: 'Error', description: `Failed to create category: ${error.message}`, variant: 'destructive' });
-    }
-  });
-
-  // Update category mutation
-  const updateCategoryMutation = useMutation({
-    mutationFn: async ({ id, ...updates }: Partial<DocumentCategory> & { id: string }) => {
-      const { data, error } = await supabase
-        .from('document_categories')
-        .update(updates)
-        .eq('id', id)
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['documentCategories'] });
-      setIsEditCategoryOpen(false);
-      toast({ title: 'Success', description: 'Document category updated successfully' });
-    },
-    onError: (error) => {
-      toast({ title: 'Error', description: `Failed to update category: ${error.message}`, variant: 'destructive' });
-    }
-  });
-
-  // Delete category mutation
-  const deleteCategoryMutation = useMutation({
-    mutationFn: async (categoryId: string) => {
-      const { error } = await supabase
-        .from('document_categories')
-        .delete()
-        .eq('id', categoryId);
-      
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['documentCategories'] });
-      setSelectedCategory(null);
-      toast({ title: 'Success', description: 'Document category deleted successfully' });
-    },
-    onError: (error) => {
-      toast({ title: 'Error', description: `Failed to delete category: ${error.message}`, variant: 'destructive' });
-    }
-  });
+  const createCategoryMutation = useCreateDocumentCategory();
+  const updateCategoryMutation = useUpdateDocumentCategory();
+  const deleteCategoryMutation = useDeleteDocumentCategory();
+  const createTypeMutation = useCreateDocumentType();
+  const updateTypeMutation = useUpdateDocumentType();
+  const deleteTypeMutation = useDeleteDocumentType();
+  const createFileMutation = useCreateAcceptableFile();
+  const deleteFileMutation = useDeleteAcceptableFile();
 
   const selectedCategoryData = categories.find(cat => cat.id === selectedCategory);
+  const selectedTypeData = documentTypes.find(type => type.id === selectedDocumentType);
+
+  const handleCategorySelect = (categoryId: string) => {
+    setSelectedCategory(categoryId);
+    setSelectedDocumentType(null);
+  };
+
+  const handleTypeSelect = (typeId: string) => {
+    setSelectedDocumentType(typeId);
+  };
 
   return (
     <div className="h-screen flex flex-col bg-gray-50">
@@ -188,7 +81,7 @@ const DocumentConfiguration: React.FC = () => {
                 <div>
                   <h1 className="text-3xl font-bold">Document Configuration</h1>
                   <p className="text-muted-foreground">
-                    Configure document categories, file types, and requirements for applications
+                    Configure document categories, types, and acceptable file formats
                   </p>
                 </div>
                 <Dialog open={isCreateCategoryOpen} onOpenChange={setIsCreateCategoryOpen}>
@@ -206,24 +99,24 @@ const DocumentConfiguration: React.FC = () => {
                       </DialogDescription>
                     </DialogHeader>
                     <CategoryForm 
-                      onSubmit={(data) => createCategoryMutation.mutate(data as Omit<DocumentCategory, 'id' | 'created_at' | 'updated_at'>)}
+                      onSubmit={(data) => {
+                        createCategoryMutation.mutate(data as Omit<DocumentCategory, 'id' | 'created_at' | 'updated_at'>);
+                        setIsCreateCategoryOpen(false);
+                      }}
                       isLoading={createCategoryMutation.isPending}
                     />
                   </DialogContent>
                 </Dialog>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-12 gap-6">
                 {/* Categories List */}
-                <Card className="lg:col-span-1">
+                <Card className="col-span-3">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                      <FileText className="h-5 w-5" />
-                      Document Categories
+                      <FolderOpen className="h-5 w-5" />
+                      Categories
                     </CardTitle>
-                    <CardDescription>
-                      Select a category to configure its settings
-                    </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-2">
                     {categoriesLoading ? (
@@ -241,81 +134,168 @@ const DocumentConfiguration: React.FC = () => {
                               ? 'bg-primary text-primary-foreground'
                               : 'bg-muted hover:bg-muted/80'
                           }`}
-                          onClick={() => setSelectedCategory(category.id)}
+                          onClick={() => handleCategorySelect(category.id)}
                         >
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <FileText className="h-4 w-4" />
-                              <span className="font-medium">{category.name}</span>
-                            </div>
-                            <div className="flex gap-1">
-                              {category.is_required && (
-                                <Badge variant="secondary" className="text-xs">Required</Badge>
-                              )}
-                              {category.requires_signature && (
-                                <Badge variant="outline" className="text-xs">Signature</Badge>
-                              )}
-                            </div>
+                          <div className="flex items-center gap-2">
+                            <FolderOpen className="h-4 w-4" />
+                            <span className="font-medium text-sm">{category.name}</span>
                           </div>
-                          {category.description && (
-                            <p className="text-xs text-muted-foreground mt-1 truncate">
-                              {category.description}
-                            </p>
-                          )}
                         </div>
                       ))
                     )}
                   </CardContent>
                 </Card>
 
-                {/* Category Details */}
-                <div className="lg:col-span-2">
-                  {selectedCategoryData ? (
-                    <Tabs defaultValue="settings" className="space-y-4">
-                      <TabsList>
-                        <TabsTrigger value="settings">Settings</TabsTrigger>
-                        <TabsTrigger value="filetypes">File Types</TabsTrigger>
-                        <TabsTrigger value="statuses">Statuses</TabsTrigger>
-                      </TabsList>
-
-                      <TabsContent value="settings">
-                        <CategorySettingsTab 
-                          category={selectedCategoryData}
-                          onUpdate={(updates) => updateCategoryMutation.mutate({ id: selectedCategoryData.id, ...updates })}
-                          onDelete={() => deleteCategoryMutation.mutate(selectedCategoryData.id)}
-                          isUpdating={updateCategoryMutation.isPending}
-                          isDeleting={deleteCategoryMutation.isPending}
-                        />
-                      </TabsContent>
-
-                      <TabsContent value="filetypes">
-                        <FileTypesTab 
-                          categoryId={selectedCategory!}
-                          fileTypes={fileTypes}
-                        />
-                      </TabsContent>
-
-                      <TabsContent value="statuses">
-                        <StatusesTab 
-                          categoryId={selectedCategory!}
-                          statuses={statuses}
-                        />
-                      </TabsContent>
-                    </Tabs>
-                  ) : (
-                    <Card>
-                      <CardContent className="flex items-center justify-center h-64">
-                        <div className="text-center">
-                          <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                          <h3 className="text-lg font-medium mb-2">No Category Selected</h3>
-                          <p className="text-muted-foreground">
-                            Select a document category from the list to view and configure its settings
-                          </p>
+                {/* Document Types */}
+                <Card className="col-span-4">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 justify-between">
+                      <div className="flex items-center gap-2">
+                        <FileText className="h-5 w-5" />
+                        Document Types
+                      </div>
+                      {selectedCategory && (
+                        <Dialog open={isCreateTypeOpen} onOpenChange={setIsCreateTypeOpen}>
+                          <DialogTrigger asChild>
+                            <Button size="sm" variant="outline">
+                              <Plus className="h-3 w-3 mr-1" />
+                              Add Type
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Create Document Type</DialogTitle>
+                              <DialogDescription>
+                                Add a new document type under {selectedCategoryData?.name}
+                              </DialogDescription>
+                            </DialogHeader>
+                            <DocumentTypeForm 
+                              categoryId={selectedCategory}
+                              onSubmit={(data) => {
+                                createTypeMutation.mutate(data);
+                                setIsCreateTypeOpen(false);
+                              }}
+                              isLoading={createTypeMutation.isPending}
+                            />
+                          </DialogContent>
+                        </Dialog>
+                      )}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    {selectedCategory ? (
+                      documentTypes.length > 0 ? (
+                        documentTypes.map((type) => (
+                          <div
+                            key={type.id}
+                            className={`p-3 rounded-md cursor-pointer transition-colors ${
+                              selectedDocumentType === type.id
+                                ? 'bg-primary text-primary-foreground'
+                                : 'bg-muted hover:bg-muted/80'
+                            }`}
+                            onClick={() => handleTypeSelect(type.id)}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <FileText className="h-4 w-4" />
+                                <span className="font-medium text-sm">{type.name}</span>
+                              </div>
+                              <div className="flex gap-1">
+                                {type.is_required && (
+                                  <Badge variant="secondary" className="text-xs">Required</Badge>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="text-center py-8 text-muted-foreground">
+                          <FileText className="h-8 w-8 mx-auto mb-2" />
+                          <p className="text-sm">No document types</p>
                         </div>
-                      </CardContent>
-                    </Card>
-                  )}
-                </div>
+                      )
+                    ) : (
+                      <div className="text-center py-8 text-muted-foreground">
+                        <p className="text-sm">Select a category first</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Acceptable Files */}
+                <Card className="col-span-5">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 justify-between">
+                      <div className="flex items-center gap-2">
+                        <File className="h-5 w-5" />
+                        Acceptable Files
+                      </div>
+                      {selectedDocumentType && (
+                        <Dialog open={isCreateFileOpen} onOpenChange={setIsCreateFileOpen}>
+                          <DialogTrigger asChild>
+                            <Button size="sm" variant="outline">
+                              <Plus className="h-3 w-3 mr-1" />
+                              Add File Type
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Add Acceptable File Type</DialogTitle>
+                              <DialogDescription>
+                                Add an acceptable file type for {selectedTypeData?.name}
+                              </DialogDescription>
+                            </DialogHeader>
+                            <AcceptableFileForm 
+                              documentTypeId={selectedDocumentType}
+                              onSubmit={(data) => {
+                                createFileMutation.mutate(data);
+                                setIsCreateFileOpen(false);
+                              }}
+                              isLoading={createFileMutation.isPending}
+                            />
+                          </DialogContent>
+                        </Dialog>
+                      )}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    {selectedDocumentType ? (
+                      acceptableFiles.length > 0 ? (
+                        acceptableFiles.map((file) => (
+                          <div
+                            key={file.id}
+                            className="p-3 rounded-md bg-muted flex items-center justify-between"
+                          >
+                            <div className="flex items-center gap-2">
+                              <File className="h-4 w-4" />
+                              <span className="font-medium text-sm">{file.file_extension}</span>
+                              <Badge variant="outline" className="text-xs">
+                                {file.max_file_size_mb}MB max
+                              </Badge>
+                            </div>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => deleteFileMutation.mutate(file.id)}
+                              disabled={deleteFileMutation.isPending}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="text-center py-8 text-muted-foreground">
+                          <File className="h-8 w-8 mx-auto mb-2" />
+                          <p className="text-sm">No acceptable file types</p>
+                        </div>
+                      )
+                    ) : (
+                      <div className="text-center py-8 text-muted-foreground">
+                        <p className="text-sm">Select a document type first</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
               </div>
             </div>
           </div>
@@ -454,174 +434,135 @@ const CategoryForm: React.FC<{
   );
 };
 
-// Category Settings Tab
-const CategorySettingsTab: React.FC<{
-  category: DocumentCategory;
-  onUpdate: (updates: Partial<DocumentCategory>) => void;
-  onDelete: () => void;
-  isUpdating: boolean;
-  isDeleting: boolean;
-}> = ({ category, onUpdate, onDelete, isUpdating, isDeleting }) => {
-  const [isEditOpen, setIsEditOpen] = useState(false);
+// Document Type Form Component
+const DocumentTypeForm: React.FC<{
+  categoryId: string;
+  documentType?: DocumentType;
+  onSubmit: (data: any) => void;
+  isLoading: boolean;
+}> = ({ categoryId, documentType, onSubmit, isLoading }) => {
+  const [formData, setFormData] = useState({
+    category_id: categoryId,
+    name: documentType?.name || '',
+    description: documentType?.description || '',
+    is_required: documentType?.is_required || false,
+    requires_signature: documentType?.requires_signature || false,
+    sort_order: documentType?.sort_order || 0
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit(formData);
+  };
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="flex items-center gap-2">
-              <Settings className="h-5 w-5" />
-              Category Settings
-            </CardTitle>
-            <CardDescription>Configure category properties and behavior</CardDescription>
-          </div>
-          <div className="flex gap-2">
-            <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-              <DialogTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <Edit className="h-4 w-4 mr-2" />
-                  Edit
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-2xl">
-                <DialogHeader>
-                  <DialogTitle>Edit Category</DialogTitle>
-                  <DialogDescription>Update category configuration</DialogDescription>
-                </DialogHeader>
-                <CategoryForm 
-                  category={category}
-                  onSubmit={(data) => {
-                    onUpdate(data);
-                    setIsEditOpen(false);
-                  }}
-                  isLoading={isUpdating}
-                />
-              </DialogContent>
-            </Dialog>
-            <Button 
-              variant="destructive" 
-              size="sm" 
-              onClick={onDelete}
-              disabled={isDeleting}
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              {isDeleting ? 'Deleting...' : 'Delete'}
-            </Button>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="grid grid-cols-2 gap-6">
-          <div>
-            <h4 className="font-medium mb-2">Basic Information</h4>
-            <div className="space-y-2 text-sm">
-              <div><strong>Name:</strong> {category.name}</div>
-              <div><strong>Icon:</strong> {category.icon}</div>
-              {category.description && (
-                <div><strong>Description:</strong> {category.description}</div>
-              )}
-            </div>
-          </div>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="name">Document Type Name</Label>
+        <Input
+          id="name"
+          value={formData.name}
+          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+          required
+        />
+      </div>
 
-          <div>
-            <h4 className="font-medium mb-2">Configuration</h4>
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Badge variant={category.is_required ? "default" : "secondary"}>
-                  {category.is_required ? "Required" : "Optional"}
-                </Badge>
-              </div>
-              <div className="flex items-center gap-2">
-                <Badge variant={category.requires_signature ? "default" : "secondary"}>
-                  {category.requires_signature ? "Signature Required" : "View Only"}
-                </Badge>
-              </div>
-              <div className="flex items-center gap-2">
-                <Badge variant={category.is_internal_only ? "default" : "secondary"}>
-                  {category.is_internal_only ? "Internal Only" : "External Use"}
-                </Badge>
-              </div>
-            </div>
-          </div>
+      <div className="space-y-2">
+        <Label htmlFor="description">Description</Label>
+        <Textarea
+          id="description"
+          value={formData.description}
+          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+          rows={3}
+        />
+      </div>
+
+      <div className="space-y-4">
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="required"
+            checked={formData.is_required}
+            onCheckedChange={(checked) => setFormData({ ...formData, is_required: checked })}
+          />
+          <Label htmlFor="required">Required Document</Label>
         </div>
 
-        <div>
-          <h4 className="font-medium mb-2">Product Types</h4>
-          <div className="flex flex-wrap gap-2">
-            {category.product_types.length > 0 ? (
-              category.product_types.map((type) => (
-                <Badge key={type} variant="outline">{type}</Badge>
-              ))
-            ) : (
-              <span className="text-muted-foreground text-sm">No product types specified</span>
-            )}
-          </div>
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="signature"
+            checked={formData.requires_signature}
+            onCheckedChange={(checked) => setFormData({ ...formData, requires_signature: checked })}
+          />
+          <Label htmlFor="signature">Requires E-Signature</Label>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+
+      <div className="flex justify-end gap-2 pt-4">
+        <Button type="submit" disabled={isLoading}>
+          {isLoading ? 'Saving...' : documentType ? 'Update Type' : 'Create Type'}
+        </Button>
+      </div>
+    </form>
   );
 };
 
-// File Types Tab
-const FileTypesTab: React.FC<{
-  categoryId: string;
-  fileTypes: DocumentFileType[];
-}> = ({ categoryId, fileTypes }) => {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Acceptable File Types</CardTitle>
-        <CardDescription>Configure which file types are allowed for this category</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="flex flex-wrap gap-2">
-          {fileTypes.map((fileType) => (
-            <Badge key={fileType.id} variant="outline">
-              {fileType.file_extension} (max {fileType.max_file_size_mb}MB)
-            </Badge>
-          ))}
-        </div>
-        {fileTypes.length === 0 && (
-          <p className="text-muted-foreground text-sm">No file types configured</p>
-        )}
-      </CardContent>
-    </Card>
-  );
-};
+// Acceptable File Form Component
+const AcceptableFileForm: React.FC<{
+  documentTypeId: string;
+  onSubmit: (data: any) => void;
+  isLoading: boolean;
+}> = ({ documentTypeId, onSubmit, isLoading }) => {
+  const [formData, setFormData] = useState({
+    document_type_id: documentTypeId,
+    file_extension: '',
+    max_file_size_mb: 10
+  });
 
-// Statuses Tab
-const StatusesTab: React.FC<{
-  categoryId: string;
-  statuses: DocumentStatus[];
-}> = ({ categoryId, statuses }) => {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit(formData);
+  };
+
+  const commonExtensions = ['.pdf', '.doc', '.docx', '.jpg', '.jpeg', '.png', '.gif', '.txt', '.xlsx', '.csv'];
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Document Statuses</CardTitle>
-        <CardDescription>Configure available statuses for documents in this category</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-2">
-          {statuses.map((status) => (
-            <div key={status.id} className="flex items-center justify-between p-2 rounded border">
-              <div className="flex items-center gap-2">
-                <div 
-                  className="w-3 h-3 rounded-full" 
-                  style={{ backgroundColor: status.status_color }}
-                />
-                <span>{status.status_name}</span>
-                {status.is_default && (
-                  <Badge variant="secondary" className="text-xs">Default</Badge>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-        {statuses.length === 0 && (
-          <p className="text-muted-foreground text-sm">No statuses configured</p>
-        )}
-      </CardContent>
-    </Card>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="extension">File Extension</Label>
+        <Select 
+          value={formData.file_extension} 
+          onValueChange={(value) => setFormData({ ...formData, file_extension: value })}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select file extension" />
+          </SelectTrigger>
+          <SelectContent>
+            {commonExtensions.map((ext) => (
+              <SelectItem key={ext} value={ext}>{ext}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="maxSize">Maximum File Size (MB)</Label>
+        <Input
+          id="maxSize"
+          type="number"
+          min="1"
+          max="100"
+          value={formData.max_file_size_mb}
+          onChange={(e) => setFormData({ ...formData, max_file_size_mb: parseInt(e.target.value) || 10 })}
+          required
+        />
+      </div>
+
+      <div className="flex justify-end gap-2 pt-4">
+        <Button type="submit" disabled={isLoading}>
+          {isLoading ? 'Adding...' : 'Add File Type'}
+        </Button>
+      </div>
+    </form>
   );
 };
 

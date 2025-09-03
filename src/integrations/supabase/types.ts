@@ -933,6 +933,38 @@ export type Database = {
         }
         Relationships: []
       }
+      document_acceptable_files: {
+        Row: {
+          created_at: string | null
+          document_type_id: string
+          file_extension: string
+          id: string
+          max_file_size_mb: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          document_type_id: string
+          file_extension: string
+          id?: string
+          max_file_size_mb?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          document_type_id?: string
+          file_extension?: string
+          id?: string
+          max_file_size_mb?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_acceptable_files_document_type_id_fkey"
+            columns: ["document_type_id"]
+            isOneToOne: false
+            referencedRelation: "document_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       document_categories: {
         Row: {
           created_at: string | null
@@ -1035,6 +1067,50 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "document_statuses_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "document_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      document_types: {
+        Row: {
+          category_id: string
+          created_at: string | null
+          description: string | null
+          id: string
+          is_required: boolean | null
+          name: string
+          requires_signature: boolean | null
+          sort_order: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          category_id: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_required?: boolean | null
+          name: string
+          requires_signature?: boolean | null
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          category_id?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_required?: boolean | null
+          name?: string
+          requires_signature?: boolean | null
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_types_category_id_fkey"
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "document_categories"

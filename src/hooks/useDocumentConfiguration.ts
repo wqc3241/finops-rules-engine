@@ -15,24 +15,27 @@ export interface DocumentCategory {
   updated_at?: string;
 }
 
-export interface DocumentFileType {
+export interface DocumentType {
   id: string;
   category_id: string;
+  name: string;
+  description?: string;
+  is_required: boolean;
+  requires_signature: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at?: string;
+}
+
+export interface DocumentAcceptableFile {
+  id: string;
+  document_type_id: string;
   file_extension: string;
   max_file_size_mb: number;
   created_at: string;
 }
 
-export interface DocumentStatus {
-  id: string;
-  category_id: string;
-  status_name: string;
-  status_color: string;
-  is_default: boolean;
-  sort_order: number;
-  created_at: string;
-}
-
+// Document Categories
 export const useDocumentCategories = () => {
   return useQuery({
     queryKey: ['documentCategories'],
@@ -45,42 +48,6 @@ export const useDocumentCategories = () => {
       if (error) throw error;
       return data as DocumentCategory[];
     }
-  });
-};
-
-export const useDocumentFileTypes = (categoryId?: string) => {
-  return useQuery({
-    queryKey: ['documentFileTypes', categoryId],
-    queryFn: async () => {
-      if (!categoryId) return [];
-      const { data, error } = await supabase
-        .from('document_file_types')
-        .select('*')
-        .eq('category_id', categoryId)
-        .order('file_extension');
-      
-      if (error) throw error;
-      return data as DocumentFileType[];
-    },
-    enabled: !!categoryId
-  });
-};
-
-export const useDocumentStatuses = (categoryId?: string) => {
-  return useQuery({
-    queryKey: ['documentStatuses', categoryId],
-    queryFn: async () => {
-      if (!categoryId) return [];
-      const { data, error } = await supabase
-        .from('document_statuses')
-        .select('*')
-        .eq('category_id', categoryId)
-        .order('sort_order');
-      
-      if (error) throw error;
-      return data as DocumentStatus[];
-    },
-    enabled: !!categoryId
   });
 };
 
@@ -158,8 +125,7 @@ export const useDeleteDocumentCategory = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['documentCategories'] });
-      queryClient.invalidateQueries({ queryKey: ['documentFileTypes'] });
-      queryClient.invalidateQueries({ queryKey: ['documentStatuses'] });
+      queryClient.invalidateQueries({ queryKey: ['documentTypes'] });
       toast({ title: 'Success', description: 'Document category deleted successfully' });
     },
     onError: (error: any) => {
@@ -172,15 +138,34 @@ export const useDeleteDocumentCategory = () => {
   });
 };
 
-export const useCreateFileType = () => {
+// Document Types
+export const useDocumentTypes = (categoryId?: string) => {
+  return useQuery({
+    queryKey: ['documentTypes', categoryId],
+    queryFn: async () => {
+      if (!categoryId) return [];
+      const { data, error } = await supabase
+        .from('document_types')
+        .select('*')
+        .eq('category_id', categoryId)
+        .order('sort_order');
+      
+      if (error) throw error;
+      return data as DocumentType[];
+    },
+    enabled: !!categoryId
+  });
+};
+
+export const useCreateDocumentType = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async (fileTypeData: Omit<DocumentFileType, 'id' | 'created_at'>) => {
+    mutationFn: async (typeData: Omit<DocumentType, 'id' | 'created_at' | 'updated_at'>) => {
       const { data, error } = await supabase
-        .from('document_file_types')
-        .insert([fileTypeData])
+        .from('document_types')
+        .insert([typeData])
         .select()
         .single();
       
@@ -188,83 +173,27 @@ export const useCreateFileType = () => {
       return data;
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['documentFileTypes', variables.category_id] });
-      toast({ title: 'Success', description: 'File type added successfully' });
+      queryClient.invalidateQueries({ queryKey: ['documentTypes', variables.category_id] });
+      toast({ title: 'Success', description: 'Document type created successfully' });
     },
     onError: (error: any) => {
       toast({ 
         title: 'Error', 
-        description: `Failed to add file type: ${error.message}`, 
+        description: `Failed to create document type: ${error.message}`, 
         variant: 'destructive' 
       });
     }
   });
 };
 
-export const useDeleteFileType = () => {
+export const useUpdateDocumentType = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async (fileTypeId: string) => {
-      const { error } = await supabase
-        .from('document_file_types')
-        .delete()
-        .eq('id', fileTypeId);
-      
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['documentFileTypes'] });
-      toast({ title: 'Success', description: 'File type removed successfully' });
-    },
-    onError: (error: any) => {
-      toast({ 
-        title: 'Error', 
-        description: `Failed to remove file type: ${error.message}`, 
-        variant: 'destructive' 
-      });
-    }
-  });
-};
-
-export const useCreateDocumentStatus = () => {
-  const queryClient = useQueryClient();
-  const { toast } = useToast();
-
-  return useMutation({
-    mutationFn: async (statusData: Omit<DocumentStatus, 'id' | 'created_at'>) => {
+    mutationFn: async ({ id, ...updates }: Partial<DocumentType> & { id: string }) => {
       const { data, error } = await supabase
-        .from('document_statuses')
-        .insert([statusData])
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['documentStatuses', variables.category_id] });
-      toast({ title: 'Success', description: 'Status added successfully' });
-    },
-    onError: (error: any) => {
-      toast({ 
-        title: 'Error', 
-        description: `Failed to add status: ${error.message}`, 
-        variant: 'destructive' 
-      });
-    }
-  });
-};
-
-export const useUpdateDocumentStatus = () => {
-  const queryClient = useQueryClient();
-  const { toast } = useToast();
-
-  return useMutation({
-    mutationFn: async ({ id, ...updates }: Partial<DocumentStatus> & { id: string }) => {
-      const { data, error } = await supabase
-        .from('document_statuses')
+        .from('document_types')
         .update(updates)
         .eq('id', id)
         .select()
@@ -274,40 +203,116 @@ export const useUpdateDocumentStatus = () => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['documentStatuses'] });
-      toast({ title: 'Success', description: 'Status updated successfully' });
+      queryClient.invalidateQueries({ queryKey: ['documentTypes'] });
+      toast({ title: 'Success', description: 'Document type updated successfully' });
     },
     onError: (error: any) => {
       toast({ 
         title: 'Error', 
-        description: `Failed to update status: ${error.message}`, 
+        description: `Failed to update document type: ${error.message}`, 
         variant: 'destructive' 
       });
     }
   });
 };
 
-export const useDeleteDocumentStatus = () => {
+export const useDeleteDocumentType = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async (statusId: string) => {
+    mutationFn: async (typeId: string) => {
       const { error } = await supabase
-        .from('document_statuses')
+        .from('document_types')
         .delete()
-        .eq('id', statusId);
+        .eq('id', typeId);
       
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['documentStatuses'] });
-      toast({ title: 'Success', description: 'Status deleted successfully' });
+      queryClient.invalidateQueries({ queryKey: ['documentTypes'] });
+      queryClient.invalidateQueries({ queryKey: ['documentAcceptableFiles'] });
+      toast({ title: 'Success', description: 'Document type deleted successfully' });
     },
     onError: (error: any) => {
       toast({ 
         title: 'Error', 
-        description: `Failed to delete status: ${error.message}`, 
+        description: `Failed to delete document type: ${error.message}`, 
+        variant: 'destructive' 
+      });
+    }
+  });
+};
+
+// Document Acceptable Files
+export const useDocumentAcceptableFiles = (documentTypeId?: string) => {
+  return useQuery({
+    queryKey: ['documentAcceptableFiles', documentTypeId],
+    queryFn: async () => {
+      if (!documentTypeId) return [];
+      const { data, error } = await supabase
+        .from('document_acceptable_files')
+        .select('*')
+        .eq('document_type_id', documentTypeId)
+        .order('file_extension');
+      
+      if (error) throw error;
+      return data as DocumentAcceptableFile[];
+    },
+    enabled: !!documentTypeId
+  });
+};
+
+export const useCreateAcceptableFile = () => {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async (fileData: Omit<DocumentAcceptableFile, 'id' | 'created_at'>) => {
+      const { data, error } = await supabase
+        .from('document_acceptable_files')
+        .insert([fileData])
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['documentAcceptableFiles', variables.document_type_id] });
+      toast({ title: 'Success', description: 'Acceptable file type added successfully' });
+    },
+    onError: (error: any) => {
+      toast({ 
+        title: 'Error', 
+        description: `Failed to add acceptable file type: ${error.message}`, 
+        variant: 'destructive' 
+      });
+    }
+  });
+};
+
+export const useDeleteAcceptableFile = () => {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async (fileId: string) => {
+      const { error } = await supabase
+        .from('document_acceptable_files')
+        .delete()
+        .eq('id', fileId);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['documentAcceptableFiles'] });
+      toast({ title: 'Success', description: 'Acceptable file type removed successfully' });
+    },
+    onError: (error: any) => {
+      toast({ 
+        title: 'Error', 
+        description: `Failed to remove acceptable file type: ${error.message}`, 
         variant: 'destructive' 
       });
     }
