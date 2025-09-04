@@ -123,6 +123,115 @@ class DynamicSchemaService {
     return displayMap[sourceTable] || 'id';
   };
 
+  // Get custom column information for special cases
+  private getCustomColumnInfo = (schemaId: string, columnName: string): { name?: string; type?: 'string' | 'number' | 'boolean'; sortable?: boolean; filterable?: boolean } => {
+    // Custom formatting for discount-rules eligibility columns
+    if (schemaId === 'discount-rules') {
+      const discountRulesColumnMap: Record<string, { name?: string; type?: 'string' | 'number' | 'boolean'; sortable?: boolean; filterable?: boolean }> = {
+        'inventory_scope': { 
+          name: 'Inventory Scope', 
+          type: 'string', 
+          sortable: true, 
+          filterable: true 
+        },
+        'purchase_types': { 
+          name: 'Purchase Types', 
+          type: 'string', 
+          sortable: false, 
+          filterable: true 
+        },
+        'markets_countries': { 
+          name: 'Markets (Countries)', 
+          type: 'string', 
+          sortable: false, 
+          filterable: true 
+        },
+        'markets_regions': { 
+          name: 'Markets (Regions)', 
+          type: 'string', 
+          sortable: false, 
+          filterable: true 
+        },
+        'markets_states': { 
+          name: 'Markets (States)', 
+          type: 'string', 
+          sortable: false, 
+          filterable: true 
+        },
+        'conditions_applies_to_all': { 
+          name: 'Vehicle Conditions (All)', 
+          type: 'boolean', 
+          sortable: true, 
+          filterable: true 
+        },
+        'conditions_values': { 
+          name: 'Vehicle Conditions', 
+          type: 'string', 
+          sortable: false, 
+          filterable: true 
+        },
+        'models_applies_to_all': { 
+          name: 'Vehicle Models (All)', 
+          type: 'boolean', 
+          sortable: true, 
+          filterable: true 
+        },
+        'models_values': { 
+          name: 'Vehicle Models', 
+          type: 'string', 
+          sortable: false, 
+          filterable: true 
+        },
+        'trims_applies_to_all': { 
+          name: 'Vehicle Trims (All)', 
+          type: 'boolean', 
+          sortable: true, 
+          filterable: true 
+        },
+        'trims_values': { 
+          name: 'Vehicle Trims', 
+          type: 'string', 
+          sortable: false, 
+          filterable: true 
+        },
+        'vehicle_year_applies_to_all': { 
+          name: 'Vehicle Years (All)', 
+          type: 'boolean', 
+          sortable: true, 
+          filterable: true 
+        },
+        'vehicle_year_values': { 
+          name: 'Vehicle Years', 
+          type: 'string', 
+          sortable: false, 
+          filterable: true 
+        },
+        'vin_list': { 
+          name: 'VIN List', 
+          type: 'string', 
+          sortable: false, 
+          filterable: true 
+        },
+        'config_filters': { 
+          name: 'Configuration Filters', 
+          type: 'string', 
+          sortable: false, 
+          filterable: false 
+        },
+        'priority': { 
+          name: 'Priority', 
+          type: 'number', 
+          sortable: true, 
+          filterable: true 
+        }
+      };
+      
+      return discountRulesColumnMap[columnName] || {};
+    }
+    
+    return {};
+  };
+
   // Get primary key columns dynamically from database schema
   private async getPrimaryKeys(tableName: string): Promise<string[]> {
     try {
@@ -261,12 +370,16 @@ class DynamicSchemaService {
         console.log(`📋 Sample data keys:`, Object.keys(sampleData[0]));
       }
 
-      // Convert columns to ColumnDefinition format based on sample data
+  // Convert columns to ColumnDefinition format based on sample data
       const sampleRow = sampleData[0];
       const columnDefinitions: ColumnDefinition[] = Object.keys(sampleRow)
         .filter(columnName => {
           // Hide template_metadata column for financial-program-config
           if (schemaId === 'financial-program-config' && columnName === 'template_metadata') {
+            return false;
+          }
+          // Hide original eligibility JSON column for discount-rules (we show the normalized columns instead)
+          if (schemaId === 'discount-rules' && columnName === 'eligibility') {
             return false;
           }
           return true;
@@ -282,14 +395,18 @@ class DynamicSchemaService {
         const isMultiSelect = this.isMultiSelectField(tableName, columnName, value);
         const sourceTable = this.getSourceTableForField(tableName, columnName);
         
+        // Get custom formatting for discount-rules eligibility columns
+        const customColumnInfo = this.getCustomColumnInfo(schemaId, columnName);
+        
         return {
           id: columnName,
-          name: this.formatColumnName(columnName),
+          name: customColumnInfo.name || this.formatColumnName(columnName),
           key: columnName,
-          type: dataType,
+          type: customColumnInfo.type || dataType,
           inputType: isPrimaryKey || !isEditable ? 'Output' : 'Input',
           isRequired: isPrimaryKey && isEditable,
-          sortable: true,
+          sortable: customColumnInfo.sortable !== undefined ? customColumnInfo.sortable : true,
+          filterable: customColumnInfo.filterable,
           editable: isEditable,
           isArray,
           isMultiSelect,
@@ -358,6 +475,12 @@ class DynamicSchemaService {
       this.clearSchemaCache(schemaId);
     }
     
+    // Force refresh discount-rules to pick up new eligibility columns
+    if (schemaId === 'discount-rules') {
+      console.log(`🔄 Force refreshing discount-rules schema for new eligibility columns`);
+      this.clearSchemaCache(schemaId);
+    }
+    
     // Check cache first
     if (this.schemaCache.has(schemaId)) {
       return this.schemaCache.get(schemaId)!;
@@ -388,6 +511,13 @@ class DynamicSchemaService {
       this.clearSchemaCache(schemaId);
       await this.generateSchemaFromDatabase(schemaId);
     }
+  }
+
+  // Force refresh discount-rules schema to pick up new eligibility columns
+  async forceRefreshDiscountRules(): Promise<void> {
+    console.log(`🔄 Force refreshing discount-rules schema to pick up new eligibility columns`);
+    this.clearSchemaCache('discount-rules');
+    await this.generateSchemaFromDatabase('discount-rules');
   }
 
   // Get all available schema IDs
