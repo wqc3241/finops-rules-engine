@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
 import { useDocumentCategories, useDocumentTypes } from '@/hooks/useDocumentConfiguration';
 import { useCreateDocument } from '@/hooks/useDocuments';
 import { Loader2, Info } from 'lucide-react';
@@ -25,12 +22,8 @@ const AddDocumentModal: React.FC<AddDocumentModalProps> = ({
   selectedCategory,
 }) => {
   const [formData, setFormData] = useState({
-    name: '',
     categoryId: selectedCategory && selectedCategory !== 'all' ? selectedCategory : '',
-    documentTypeId: '',
-    notes: '',
-    isRequired: false,
-    expirationDate: ''
+    documentTypeId: ''
   });
 
   // Fetch document categories and types
@@ -49,12 +42,8 @@ const AddDocumentModal: React.FC<AddDocumentModalProps> = ({
   useEffect(() => {
     if (!open) {
       setFormData({
-        name: '',
         categoryId: selectedCategory && selectedCategory !== 'all' ? selectedCategory : '',
-        documentTypeId: '',
-        notes: '',
-        isRequired: false,
-        expirationDate: ''
+        documentTypeId: ''
       });
     }
   }, [open, selectedCategory]);
@@ -64,19 +53,17 @@ const AddDocumentModal: React.FC<AddDocumentModalProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name.trim() || !formData.categoryId || !formData.documentTypeId) return;
+    if (!formData.categoryId || !formData.documentTypeId || !selectedDocumentType) return;
 
     try {
       await createDocument.mutateAsync({
-        name: formData.name.trim(),
+        name: selectedDocumentType.name,
         application_id: applicationId,
         category_id: formData.categoryId,
         document_type_id: formData.documentTypeId,
         status: 'Pending',
-        notes: formData.notes.trim() || undefined,
-        is_required: selectedDocumentType?.is_required || formData.isRequired,
-        requires_signature: selectedDocumentType?.requires_signature || false,
-        expiration_date: formData.expirationDate || undefined,
+        is_required: selectedDocumentType.is_required,
+        requires_signature: selectedDocumentType.requires_signature,
         uploaded_by: 'System', // This could be replaced with actual user info
       });
 
@@ -99,17 +86,6 @@ const AddDocumentModal: React.FC<AddDocumentModalProps> = ({
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="document-name">Document Name</Label>
-            <Input
-              id="document-name"
-              value={formData.name}
-              onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-              placeholder="Enter document name"
-              required
-            />
-          </div>
-
           <div className="space-y-2">
             <Label htmlFor="document-category">Document Category</Label>
             <Select 
@@ -217,39 +193,6 @@ const AddDocumentModal: React.FC<AddDocumentModalProps> = ({
             </Alert>
           )}
 
-          <div className="space-y-2">
-            <Label htmlFor="document-notes">Notes (Optional)</Label>
-            <Textarea
-              id="document-notes"
-              value={formData.notes}
-              onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
-              placeholder="Additional notes about this document"
-              rows={3}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="expiration-date">Expiration Date (Optional)</Label>
-            <Input
-              id="expiration-date"
-              type="date"
-              value={formData.expirationDate}
-              onChange={(e) => setFormData(prev => ({ ...prev, expirationDate: e.target.value }))}
-            />
-          </div>
-
-          {/* Only show the manual required toggle if the document type doesn't already require it */}
-          {!selectedDocumentType?.is_required && (
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="is-required"
-                checked={formData.isRequired}
-                onCheckedChange={(checked) => setFormData(prev => ({ ...prev, isRequired: checked }))}
-              />
-              <Label htmlFor="is-required">Mark as required document</Label>
-            </div>
-          )}
-
           <DialogFooter>
             <Button 
               type="button" 
@@ -262,7 +205,6 @@ const AddDocumentModal: React.FC<AddDocumentModalProps> = ({
             <Button 
               type="submit" 
               disabled={
-                !formData.name.trim() || 
                 !formData.categoryId || 
                 !formData.documentTypeId || 
                 createDocument.isPending
