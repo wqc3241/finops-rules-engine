@@ -7,7 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 interface FormData {
   name: string;
   key: string;
-  type: "string" | "boolean" | "number";
+  type: "string" | "boolean" | "number" | "array" | "json";
   inputType: "Input" | "Output";
   isRequired: boolean;
   sortable: boolean;
@@ -65,7 +65,7 @@ const ColumnConfigurationForm = ({
             <Label>Data Type</Label>
             <Select 
               value={formData.type} 
-              onValueChange={(value: "string" | "boolean" | "number") => 
+              onValueChange={(value: "string" | "boolean" | "number" | "array" | "json") => 
                 onFormDataChange({ type: value })
               }
               disabled={isDisabled}
@@ -77,6 +77,8 @@ const ColumnConfigurationForm = ({
                 <SelectItem value="string">String</SelectItem>
                 <SelectItem value="boolean">Boolean</SelectItem>
                 <SelectItem value="number">Number</SelectItem>
+                <SelectItem value="array">Array</SelectItem>
+                <SelectItem value="json">JSON</SelectItem>
               </SelectContent>
             </Select>
           </div>

@@ -217,8 +217,8 @@ const TableCellRenderer = ({
     return value.toLocaleString();
   }
 
-  // Special display for multi-select fields
-  if (column.isMultiSelect && (Array.isArray(value) || typeof value === 'string')) {
+  // Special display for multi-select fields and arrays
+  if ((column.isMultiSelect || column.type === 'array') && (Array.isArray(value) || typeof value === 'string')) {
     const displayValues = Array.isArray(value) 
       ? value 
       : typeof value === 'string' 
@@ -234,6 +234,23 @@ const TableCellRenderer = ({
         ))}
       </div>
     );
+  }
+
+  // Special display for JSON fields
+  if (column.type === 'json') {
+    if (value === null || value === undefined) {
+      return <span className="text-gray-400">null</span>;
+    }
+    try {
+      const jsonString = typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value);
+      return (
+        <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded max-w-xs truncate" title={jsonString}>
+          {jsonString}
+        </span>
+      );
+    } catch {
+      return <span className="text-red-500">Invalid JSON</span>;
+    }
   }
 
   // Safely render arrays/objects (e.g., jsonb columns)

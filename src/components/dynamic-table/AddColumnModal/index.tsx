@@ -25,7 +25,7 @@ const AddColumnModal = ({ open, onOpenChange, onAddColumn, existingColumns }: Ad
   const [formData, setFormData] = useState({
     name: "",
     key: "",
-    type: "string" as "string" | "boolean" | "number",
+    type: "string" as "string" | "boolean" | "number" | "array" | "json",
     inputType: "Input" as "Input" | "Output",
     isRequired: false,
     sortable: true,

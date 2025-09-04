@@ -124,10 +124,24 @@ class DynamicSchemaService {
   };
 
   // Get custom column information for special cases
-  private getCustomColumnInfo = (schemaId: string, columnName: string): { name?: string; type?: 'string' | 'number' | 'boolean'; sortable?: boolean; filterable?: boolean } => {
+  private getCustomColumnInfo = (schemaId: string, columnName: string): { 
+    name?: string; 
+    type?: 'string' | 'number' | 'boolean' | 'array' | 'json'; 
+    sortable?: boolean; 
+    filterable?: boolean;
+    isArray?: boolean;
+    isMultiSelect?: boolean;
+  } => {
     // Custom formatting for discount-rules eligibility columns
     if (schemaId === 'discount-rules') {
-      const discountRulesColumnMap: Record<string, { name?: string; type?: 'string' | 'number' | 'boolean'; sortable?: boolean; filterable?: boolean }> = {
+      const discountRulesColumnMap: Record<string, { 
+        name?: string; 
+        type?: 'string' | 'number' | 'boolean' | 'array' | 'json'; 
+        sortable?: boolean; 
+        filterable?: boolean;
+        isArray?: boolean;
+        isMultiSelect?: boolean;
+      }> = {
         'inventory_scope': { 
           name: 'Inventory Scope', 
           type: 'string', 
@@ -136,27 +150,35 @@ class DynamicSchemaService {
         },
         'purchase_types': { 
           name: 'Purchase Types', 
-          type: 'string', 
+          type: 'array', 
           sortable: false, 
-          filterable: true 
+          filterable: true,
+          isArray: true,
+          isMultiSelect: true
         },
         'markets_countries': { 
           name: 'Markets (Countries)', 
-          type: 'string', 
+          type: 'array', 
           sortable: false, 
-          filterable: true 
+          filterable: true,
+          isArray: true,
+          isMultiSelect: true
         },
         'markets_regions': { 
           name: 'Markets (Regions)', 
-          type: 'string', 
+          type: 'array', 
           sortable: false, 
-          filterable: true 
+          filterable: true,
+          isArray: true,
+          isMultiSelect: true
         },
         'markets_states': { 
           name: 'Markets (States)', 
-          type: 'string', 
+          type: 'array', 
           sortable: false, 
-          filterable: true 
+          filterable: true,
+          isArray: true,
+          isMultiSelect: true
         },
         'conditions_applies_to_all': { 
           name: 'Vehicle Conditions (All)', 
@@ -166,9 +188,11 @@ class DynamicSchemaService {
         },
         'conditions_values': { 
           name: 'Vehicle Conditions', 
-          type: 'string', 
+          type: 'array', 
           sortable: false, 
-          filterable: true 
+          filterable: true,
+          isArray: true,
+          isMultiSelect: true
         },
         'models_applies_to_all': { 
           name: 'Vehicle Models (All)', 
@@ -178,9 +202,11 @@ class DynamicSchemaService {
         },
         'models_values': { 
           name: 'Vehicle Models', 
-          type: 'string', 
+          type: 'array', 
           sortable: false, 
-          filterable: true 
+          filterable: true,
+          isArray: true,
+          isMultiSelect: true
         },
         'trims_applies_to_all': { 
           name: 'Vehicle Trims (All)', 
@@ -190,9 +216,11 @@ class DynamicSchemaService {
         },
         'trims_values': { 
           name: 'Vehicle Trims', 
-          type: 'string', 
+          type: 'array', 
           sortable: false, 
-          filterable: true 
+          filterable: true,
+          isArray: true,
+          isMultiSelect: true
         },
         'vehicle_year_applies_to_all': { 
           name: 'Vehicle Years (All)', 
@@ -202,19 +230,23 @@ class DynamicSchemaService {
         },
         'vehicle_year_values': { 
           name: 'Vehicle Years', 
-          type: 'string', 
+          type: 'array', 
           sortable: false, 
-          filterable: true 
+          filterable: true,
+          isArray: true,
+          isMultiSelect: true
         },
         'vin_list': { 
           name: 'VIN List', 
-          type: 'string', 
+          type: 'array', 
           sortable: false, 
-          filterable: true 
+          filterable: true,
+          isArray: true,
+          isMultiSelect: true
         },
         'config_filters': { 
           name: 'Configuration Filters', 
-          type: 'string', 
+          type: 'json', 
           sortable: false, 
           filterable: false 
         },
@@ -408,8 +440,8 @@ class DynamicSchemaService {
           sortable: customColumnInfo.sortable !== undefined ? customColumnInfo.sortable : true,
           filterable: customColumnInfo.filterable,
           editable: isEditable,
-          isArray,
-          isMultiSelect,
+          isArray: customColumnInfo.isArray || isArray,
+          isMultiSelect: customColumnInfo.isMultiSelect || isMultiSelect,
           sourceTable,
           displayColumn: sourceTable ? this.getDisplayColumnForTable(sourceTable) : undefined
         };

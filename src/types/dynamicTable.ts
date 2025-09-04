@@ -3,7 +3,7 @@ export interface ColumnDefinition {
   id: string;
   name: string;
   key: string;
-  type: 'string' | 'boolean' | 'number';
+  type: 'string' | 'boolean' | 'number' | 'array' | 'json';
   inputType: 'Input' | 'Output';
   isRequired: boolean;
   sortable: boolean;
