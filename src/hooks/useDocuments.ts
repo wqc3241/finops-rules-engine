@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 export interface Document {
   id: string;
@@ -48,12 +49,6 @@ export interface DocumentWithCategory extends Document {
   };
 }
 
-// Helper function to check if a string is a valid UUID
-const isValidUUID = (str: string): boolean => {
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-  return uuidRegex.test(str);
-};
-
 // Hook to fetch documents for a specific application
 export const useDocuments = (applicationId?: string) => {
   return useQuery({
@@ -67,11 +62,11 @@ export const useDocuments = (applicationId?: string) => {
           document_type:document_types(*)
         `);
       
-      // Only filter by application_id if it's a valid UUID
-      if (applicationId && isValidUUID(applicationId)) {
+      // Filter by application_id if provided
+      if (applicationId) {
         query = query.eq('application_id', applicationId);
       } else {
-        // If no applicationId or invalid UUID, get documents that are not tied to any specific application
+        // If no applicationId, get documents that are not tied to any specific application
         query = query.is('application_id', null);
       }
       
@@ -112,26 +107,58 @@ export const useDocumentCategoriesWithCounts = () => {
 // Hook to create a new document
 export const useCreateDocument = () => {
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async (newDocument: Omit<Document, 'id' | 'created_at' | 'updated_at'>) => {
+    mutationFn: async (documentData: {
+      name: string;
+      application_id?: string;
+      category_id?: string;
+      document_type_id?: string;
+      status?: string;
+      notes?: string;
+      is_required?: boolean;
+      requires_signature?: boolean;
+      expiration_date?: string;
+      uploaded_by?: string;
+    }) => {
       const { data, error } = await supabase
         .from('documents')
-        .insert([newDocument])
-        .select()
+        .insert([{
+          name: documentData.name,
+          application_id: documentData.application_id,
+          category_id: documentData.category_id,
+          document_type_id: documentData.document_type_id,
+          status: documentData.status || 'Pending',
+          notes: documentData.notes,
+          is_required: documentData.is_required || false,
+          requires_signature: documentData.requires_signature || false,
+          expiration_date: documentData.expiration_date,
+          uploaded_by: documentData.uploaded_by,
+        }])
+        .select(`
+          *,
+          category:document_categories(*),
+          document_type:document_types(*)
+        `)
         .single();
-
-      if (error) {
-        throw new Error(`Failed to create document: ${error.message}`);
-      }
-
+      
+      if (error) throw error;
       return data;
     },
-    onSuccess: (data) => {
-      // Invalidate and refetch documents
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['documents'] });
       queryClient.invalidateQueries({ queryKey: ['document-categories-with-counts'] });
+      queryClient.invalidateQueries({ queryKey: ['documentCategories'] });
+      toast({ title: 'Success', description: 'Document created successfully' });
     },
+    onError: (error: any) => {
+      toast({ 
+        title: 'Error', 
+        description: `Failed to create document: ${error.message}`, 
+        variant: 'destructive' 
+      });
+    }
   });
 };
 

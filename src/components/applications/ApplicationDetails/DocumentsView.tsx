@@ -99,11 +99,6 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
     // The category will be added via the hook's mutation
   };
 
-  const handleAddDocument = () => {
-    setShowAddDocumentModal(false);
-    // The document will be added via the hook's mutation
-  };
-
   const filteredDocuments = documents.filter(doc => {
     const matchesCategory = selectedCategory === 'all' || doc.category?.name === selectedCategory;
     return matchesCategory;
@@ -324,9 +319,9 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
       <AddDocumentModal
         open={showAddDocumentModal}
         onOpenChange={setShowAddDocumentModal}
-        onAddDocument={handleAddDocument}
-        categories={categories.map(cat => ({ ...cat, label: cat.name, id: cat.id }))}
-        selectedCategory={selectedCategory === 'all' ? undefined : selectedCategory}
+        applicationId={applicationId}
+        selectedCategory={selectedCategory === 'all' ? undefined : 
+          categories.find(cat => cat.name === selectedCategory)?.id}
       />
     </div>
   );
