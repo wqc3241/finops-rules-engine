@@ -833,103 +833,85 @@ export type Database = {
       }
       discount_rules: {
         Row: {
-          amount: number
-          amount_type: Database["public"]["Enums"]["amount_type_enum"]
-          auto_approval_rules: Json
-          capitalize_type:
-            | Database["public"]["Enums"]["capitalize_type_enum"]
-            | null
+          _id: string | null
+          applicable_purchase_type: string[]
+          applicable_title_status: string[]
+          applicable_vehicle_model: string[]
+          applicable_vehicle_year: number[]
+          category: string | null
           created_at: string
-          created_by: string | null
-          currency: string
+          createdAt: string | null
+          createdBy: string | null
           description: string | null
-          discount_type: Database["public"]["Enums"]["discount_type_enum"]
-          eligibility: Json
-          end_at: string | null
-          exclusive_with: string[]
-          gl_code: string | null
+          endDate: string | null
+          feeActive: boolean | null
+          feeAmount: number | null
+          feeState: string | null
+          feeTaxable: boolean | null
           id: string
-          is_active: boolean
-          max_stackable_count: number
-          name: string
-          priority: number
-          published_at: string | null
-          published_by: string | null
-          referral_registry_id: string | null
-          stacking_group_id: string | null
-          start_at: string
-          taxable: boolean
+          name: string | null
+          payType: string | null
+          startDate: string | null
+          subcategory: string | null
+          type: string | null
           updated_at: string
-          updated_by: string | null
-          verification_modes: Database["public"]["Enums"]["verification_mode_enum"][]
-          verification_required: boolean
-          version: number
+          updatedAt: string | null
+          updatedBy: string | null
+          verification_required: boolean | null
         }
         Insert: {
-          amount: number
-          amount_type: Database["public"]["Enums"]["amount_type_enum"]
-          auto_approval_rules?: Json
-          capitalize_type?:
-            | Database["public"]["Enums"]["capitalize_type_enum"]
-            | null
+          _id?: string | null
+          applicable_purchase_type?: string[]
+          applicable_title_status?: string[]
+          applicable_vehicle_model?: string[]
+          applicable_vehicle_year?: number[]
+          category?: string | null
           created_at?: string
-          created_by?: string | null
-          currency?: string
+          createdAt?: string | null
+          createdBy?: string | null
           description?: string | null
-          discount_type: Database["public"]["Enums"]["discount_type_enum"]
-          eligibility?: Json
-          end_at?: string | null
-          exclusive_with?: string[]
-          gl_code?: string | null
+          endDate?: string | null
+          feeActive?: boolean | null
+          feeAmount?: number | null
+          feeState?: string | null
+          feeTaxable?: boolean | null
           id?: string
-          is_active?: boolean
-          max_stackable_count?: number
-          name: string
-          priority?: number
-          published_at?: string | null
-          published_by?: string | null
-          referral_registry_id?: string | null
-          stacking_group_id?: string | null
-          start_at: string
-          taxable?: boolean
+          name?: string | null
+          payType?: string | null
+          startDate?: string | null
+          subcategory?: string | null
+          type?: string | null
           updated_at?: string
-          updated_by?: string | null
-          verification_modes?: Database["public"]["Enums"]["verification_mode_enum"][]
-          verification_required?: boolean
-          version?: number
+          updatedAt?: string | null
+          updatedBy?: string | null
+          verification_required?: boolean | null
         }
         Update: {
-          amount?: number
-          amount_type?: Database["public"]["Enums"]["amount_type_enum"]
-          auto_approval_rules?: Json
-          capitalize_type?:
-            | Database["public"]["Enums"]["capitalize_type_enum"]
-            | null
+          _id?: string | null
+          applicable_purchase_type?: string[]
+          applicable_title_status?: string[]
+          applicable_vehicle_model?: string[]
+          applicable_vehicle_year?: number[]
+          category?: string | null
           created_at?: string
-          created_by?: string | null
-          currency?: string
+          createdAt?: string | null
+          createdBy?: string | null
           description?: string | null
-          discount_type?: Database["public"]["Enums"]["discount_type_enum"]
-          eligibility?: Json
-          end_at?: string | null
-          exclusive_with?: string[]
-          gl_code?: string | null
+          endDate?: string | null
+          feeActive?: boolean | null
+          feeAmount?: number | null
+          feeState?: string | null
+          feeTaxable?: boolean | null
           id?: string
-          is_active?: boolean
-          max_stackable_count?: number
-          name?: string
-          priority?: number
-          published_at?: string | null
-          published_by?: string | null
-          referral_registry_id?: string | null
-          stacking_group_id?: string | null
-          start_at?: string
-          taxable?: boolean
+          name?: string | null
+          payType?: string | null
+          startDate?: string | null
+          subcategory?: string | null
+          type?: string | null
           updated_at?: string
-          updated_by?: string | null
-          verification_modes?: Database["public"]["Enums"]["verification_mode_enum"][]
-          verification_required?: boolean
-          version?: number
+          updatedAt?: string | null
+          updatedBy?: string | null
+          verification_required?: boolean | null
         }
         Relationships: []
       }
