@@ -132,7 +132,7 @@ class DynamicSchemaService {
     isArray?: boolean;
     isMultiSelect?: boolean;
   } => {
-    // Custom formatting for discount-rules eligibility columns
+    // Custom formatting for discount-rules columns
     if (schemaId === 'discount-rules') {
       const discountRulesColumnMap: Record<string, { 
         name?: string; 
@@ -142,117 +142,137 @@ class DynamicSchemaService {
         isArray?: boolean;
         isMultiSelect?: boolean;
       }> = {
-        'inventory_scope': { 
-          name: 'Inventory Scope', 
+        'name': { 
+          name: 'Rule Name', 
           type: 'string', 
           sortable: true, 
           filterable: true 
         },
-        'purchase_types': { 
-          name: 'Purchase Types', 
-          type: 'array', 
-          sortable: false, 
-          filterable: true,
-          isArray: true,
-          isMultiSelect: true
-        },
-        'markets_countries': { 
-          name: 'Markets (Countries)', 
-          type: 'array', 
-          sortable: false, 
-          filterable: true,
-          isArray: true,
-          isMultiSelect: true
-        },
-        'markets_regions': { 
-          name: 'Markets (Regions)', 
-          type: 'array', 
-          sortable: false, 
-          filterable: true,
-          isArray: true,
-          isMultiSelect: true
-        },
-        'markets_states': { 
-          name: 'Markets (States)', 
-          type: 'array', 
-          sortable: false, 
-          filterable: true,
-          isArray: true,
-          isMultiSelect: true
-        },
-        'conditions_applies_to_all': { 
-          name: 'Vehicle Conditions (All)', 
-          type: 'boolean', 
+        'category': { 
+          name: 'Category', 
+          type: 'string', 
           sortable: true, 
           filterable: true 
         },
-        'conditions_values': { 
-          name: 'Vehicle Conditions', 
-          type: 'array', 
-          sortable: false, 
-          filterable: true,
-          isArray: true,
-          isMultiSelect: true
-        },
-        'models_applies_to_all': { 
-          name: 'Vehicle Models (All)', 
-          type: 'boolean', 
+        'subcategory': { 
+          name: 'Subcategory', 
+          type: 'string', 
           sortable: true, 
           filterable: true 
         },
-        'models_values': { 
-          name: 'Vehicle Models', 
-          type: 'array', 
-          sortable: false, 
-          filterable: true,
-          isArray: true,
-          isMultiSelect: true
-        },
-        'trims_applies_to_all': { 
-          name: 'Vehicle Trims (All)', 
-          type: 'boolean', 
+        'description': { 
+          name: 'Description', 
+          type: 'string', 
           sortable: true, 
           filterable: true 
         },
-        'trims_values': { 
-          name: 'Vehicle Trims', 
-          type: 'array', 
-          sortable: false, 
-          filterable: true,
-          isArray: true,
-          isMultiSelect: true
-        },
-        'vehicle_year_applies_to_all': { 
-          name: 'Vehicle Years (All)', 
-          type: 'boolean', 
+        'type': { 
+          name: 'Type', 
+          type: 'string', 
           sortable: true, 
           filterable: true 
         },
-        'vehicle_year_values': { 
-          name: 'Vehicle Years', 
-          type: 'array', 
-          sortable: false, 
-          filterable: true,
-          isArray: true,
-          isMultiSelect: true
+        'payType': { 
+          name: 'Pay Type', 
+          type: 'string', 
+          sortable: true, 
+          filterable: true 
         },
-        'vin_list': { 
-          name: 'VIN List', 
-          type: 'array', 
-          sortable: false, 
-          filterable: true,
-          isArray: true,
-          isMultiSelect: true
-        },
-        'config_filters': { 
-          name: 'Configuration Filters', 
-          type: 'json', 
-          sortable: false, 
-          filterable: false 
-        },
-        'priority': { 
-          name: 'Priority', 
+        'feeAmount': { 
+          name: 'Fee Amount', 
           type: 'number', 
+          sortable: true, 
+          filterable: true 
+        },
+        'feeState': { 
+          name: 'Fee State', 
+          type: 'string', 
+          sortable: true, 
+          filterable: true 
+        },
+        'feeTaxable': { 
+          name: 'Fee Taxable', 
+          type: 'boolean', 
+          sortable: true, 
+          filterable: true 
+        },
+        'feeActive': { 
+          name: 'Fee Active', 
+          type: 'boolean', 
+          sortable: true, 
+          filterable: true 
+        },
+        'verification_required': { 
+          name: 'Verification Required', 
+          type: 'boolean', 
+          sortable: true, 
+          filterable: true 
+        },
+        'applicable_vehicle_year': { 
+          name: 'Applicable Vehicle Years', 
+          type: 'array', 
+          sortable: false, 
+          filterable: true,
+          isArray: true,
+          isMultiSelect: true
+        },
+        'applicable_vehicle_model': { 
+          name: 'Applicable Vehicle Models', 
+          type: 'array', 
+          sortable: false, 
+          filterable: true,
+          isArray: true,
+          isMultiSelect: true
+        },
+        'applicable_purchase_type': { 
+          name: 'Applicable Purchase Types', 
+          type: 'array', 
+          sortable: false, 
+          filterable: true,
+          isArray: true,
+          isMultiSelect: true
+        },
+        'applicable_title_status': { 
+          name: 'Applicable Title Status', 
+          type: 'array', 
+          sortable: false, 
+          filterable: true,
+          isArray: true,
+          isMultiSelect: true
+        },
+        'startDate': { 
+          name: 'Start Date', 
+          type: 'string', 
+          sortable: true, 
+          filterable: true 
+        },
+        'endDate': { 
+          name: 'End Date', 
+          type: 'string', 
+          sortable: true, 
+          filterable: true 
+        },
+        'createdBy': { 
+          name: 'Created By', 
+          type: 'string', 
+          sortable: true, 
+          filterable: true 
+        },
+        'updatedBy': { 
+          name: 'Updated By', 
+          type: 'string', 
+          sortable: true, 
+          filterable: true 
+        },
+        'createdAt': { 
+          name: 'Created At', 
+          type: 'string', 
+          sortable: true, 
+          filterable: true 
+        },
+        'updatedAt': { 
+          name: 'Updated At', 
+          type: 'string', 
           sortable: true, 
           filterable: true 
         }
@@ -410,10 +430,6 @@ class DynamicSchemaService {
           if (schemaId === 'financial-program-config' && columnName === 'template_metadata') {
             return false;
           }
-          // Hide original eligibility JSON column for discount-rules (we show the normalized columns instead)
-          if (schemaId === 'discount-rules' && columnName === 'eligibility') {
-            return false;
-          }
           return true;
         })
         .map((columnName) => {
@@ -507,9 +523,9 @@ class DynamicSchemaService {
       this.clearSchemaCache(schemaId);
     }
     
-    // Force refresh discount-rules to pick up new eligibility columns
+    // Force refresh discount-rules to ensure updated columns are displayed
     if (schemaId === 'discount-rules') {
-      console.log(`🔄 Force refreshing discount-rules schema for new eligibility columns`);
+      console.log(`🔄 Force refreshing discount-rules schema`);
       this.clearSchemaCache(schemaId);
     }
     
@@ -545,9 +561,9 @@ class DynamicSchemaService {
     }
   }
 
-  // Force refresh discount-rules schema to pick up new eligibility columns
+  // Force refresh discount-rules schema
   async forceRefreshDiscountRules(): Promise<void> {
-    console.log(`🔄 Force refreshing discount-rules schema to pick up new eligibility columns`);
+    console.log(`🔄 Force refreshing discount-rules schema`);
     this.clearSchemaCache('discount-rules');
     await this.generateSchemaFromDatabase('discount-rules');
   }
