@@ -100,8 +100,8 @@ const DocumentConfiguration: React.FC = () => {
                 <Card className="col-span-4">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 justify-between">
-                      <div className="flex items-center gap-2">
-                        <FolderOpen className="h-3 w-3" />
+                      <div className="flex items-center gap-2 text-sm">
+                        <FolderOpen className="h-5 w-5" />
                         Categories
                       </div>
                       <Dialog open={isCreateCategoryOpen} onOpenChange={setIsCreateCategoryOpen}>
@@ -187,8 +187,8 @@ const DocumentConfiguration: React.FC = () => {
                 <Card className="col-span-4">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 justify-between">
-                      <div className="flex items-center gap-2">
-                        <FileText className="h-3 w-3" />
+                      <div className="flex items-center gap-2 text-sm">
+                        <FileText className="h-5 w-5" />
                         Document Types
                       </div>
                       {selectedCategory && (
@@ -287,8 +287,8 @@ const DocumentConfiguration: React.FC = () => {
                 <Card className="col-span-2">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 justify-between">
-                      <div className="flex items-center gap-2">
-                        <File className="h-3 w-3" />
+                      <div className="flex items-center gap-2 text-sm">
+                        <File className="h-5 w-5" />
                         Acceptable Files
                       </div>
                       {selectedDocumentType && (
