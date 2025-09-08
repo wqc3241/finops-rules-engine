@@ -99,33 +99,34 @@ const DocumentConfiguration: React.FC = () => {
                 {/* Categories List */}
                 <Card className="col-span-4">
                   <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <FolderOpen className="h-5 w-5" />
-                      Categories
+                    <CardTitle className="flex items-center gap-2 justify-between">
+                      <div className="flex items-center gap-2">
+                        <FolderOpen className="h-5 w-5" />
+                        Categories
                       </div>
-                                    <Dialog open={isCreateCategoryOpen} onOpenChange={setIsCreateCategoryOpen}>
-                  <DialogTrigger asChild>
-                    <Button>
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Category
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-2xl">
-                    <DialogHeader>
-                      <DialogTitle>Create Document Category</DialogTitle>
-                      <DialogDescription>
-                        Add a new document category with its configuration
-                      </DialogDescription>
-                    </DialogHeader>
-                    <CategoryForm 
-                      onSubmit={(data) => {
-                        createCategoryMutation.mutate(data as Omit<DocumentCategory, 'id' | 'created_at' | 'updated_at'>);
-                        setIsCreateCategoryOpen(false);
-                      }}
-                      isLoading={createCategoryMutation.isPending}
-                    />
-                  </DialogContent>
-                </Dialog>
+                      <Dialog open={isCreateCategoryOpen} onOpenChange={setIsCreateCategoryOpen}>
+                        <DialogTrigger asChild>
+                          <Button>
+                            <Plus className="h-4 w-4 mr-2" />
+                            Add Category
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-2xl">
+                          <DialogHeader>
+                            <DialogTitle>Create Document Category</DialogTitle>
+                            <DialogDescription>
+                              Add a new document category with its configuration
+                            </DialogDescription>
+                          </DialogHeader>
+                          <CategoryForm 
+                            onSubmit={(data) => {
+                              createCategoryMutation.mutate(data as Omit<DocumentCategory, 'id' | 'created_at' | 'updated_at'>);
+                              setIsCreateCategoryOpen(false);
+                            }}
+                            isLoading={createCategoryMutation.isPending}
+                          />
+                        </DialogContent>
+                      </Dialog>
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-2">
@@ -375,72 +376,81 @@ const DocumentConfiguration: React.FC = () => {
       </div>
 
       {/* Edit Category Dialog */}
-      <Dialog open={!!editingCategory} onOpenChange={() => setEditingCategory(null)}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Edit Document Category</DialogTitle>
-            <DialogDescription>
-              Update the category information
-            </DialogDescription>
-          </DialogHeader>
-          {editingCategory && (
+      {editingCategory && (
+        <Dialog open={!!editingCategory} onOpenChange={() => setEditingCategory(null)}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Edit Document Category</DialogTitle>
+              <DialogDescription>
+                Update the category information
+              </DialogDescription>
+            </DialogHeader>
             <CategoryForm 
               category={editingCategory}
               onSubmit={(data) => {
-                updateCategoryMutation.mutate({ id: editingCategory.id, ...data });
+                updateCategoryMutation.mutate({
+                  id: editingCategory.id,
+                  ...data
+                });
                 setEditingCategory(null);
               }}
               isLoading={updateCategoryMutation.isPending}
             />
-          )}
-        </DialogContent>
-      </Dialog>
+          </DialogContent>
+        </Dialog>
+      )}
 
       {/* Edit Document Type Dialog */}
-      <Dialog open={!!editingType} onOpenChange={() => setEditingType(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit Document Type</DialogTitle>
-            <DialogDescription>
-              Update the document type information
-            </DialogDescription>
-          </DialogHeader>
-          {editingType && (
+      {editingType && (
+        <Dialog open={!!editingType} onOpenChange={() => setEditingType(null)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit Document Type</DialogTitle>
+              <DialogDescription>
+                Update the document type information
+              </DialogDescription>
+            </DialogHeader>
             <DocumentTypeForm 
               categoryId={editingType.category_id}
               documentType={editingType}
               onSubmit={(data) => {
-                updateTypeMutation.mutate({ id: editingType.id, ...data });
+                updateTypeMutation.mutate({
+                  id: editingType.id,
+                  ...data
+                });
                 setEditingType(null);
               }}
               isLoading={updateTypeMutation.isPending}
             />
-          )}
-        </DialogContent>
-      </Dialog>
+          </DialogContent>
+        </Dialog>
+      )}
 
       {/* Edit Acceptable File Dialog */}
-      <Dialog open={!!editingFile} onOpenChange={() => setEditingFile(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit Acceptable File Type</DialogTitle>
-            <DialogDescription>
-              Update the acceptable file type settings
-            </DialogDescription>
-          </DialogHeader>
-          {editingFile && (
+      {editingFile && (
+        <Dialog open={!!editingFile} onOpenChange={() => setEditingFile(null)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit Acceptable File Type</DialogTitle>
+              <DialogDescription>
+                Update the acceptable file type information
+              </DialogDescription>
+            </DialogHeader>
             <AcceptableFileForm 
               documentTypeId={editingFile.document_type_id}
               acceptableFile={editingFile}
               onSubmit={(data) => {
-                updateFileMutation.mutate({ id: editingFile.id, ...data });
+                updateFileMutation.mutate({
+                  id: editingFile.id,
+                  ...data
+                });
                 setEditingFile(null);
               }}
               isLoading={updateFileMutation.isPending}
             />
-          )}
-        </DialogContent>
-      </Dialog>
+          </DialogContent>
+        </Dialog>
+      )}
 
       {/* Delete Confirmation Dialogs */}
       <DeleteConfirmationDialog
@@ -452,8 +462,8 @@ const DocumentConfiguration: React.FC = () => {
             setDeletingCategory(null);
           }
         }}
-        title="Delete Document Category"
-        description="Are you sure you want to delete this category? This will also delete all associated document types and acceptable files. This action cannot be undone."
+        title="Delete Category"
+        description="Are you sure you want to delete this category? This action cannot be undone and will also delete all associated document types and acceptable files."
       />
 
       <DeleteConfirmationDialog
@@ -466,7 +476,7 @@ const DocumentConfiguration: React.FC = () => {
           }
         }}
         title="Delete Document Type"
-        description="Are you sure you want to delete this document type? This will also delete all associated acceptable files. This action cannot be undone."
+        description="Are you sure you want to delete this document type? This action cannot be undone and will also delete all associated acceptable files."
       />
 
       <DeleteConfirmationDialog
@@ -479,7 +489,7 @@ const DocumentConfiguration: React.FC = () => {
           }
         }}
         title="Delete Acceptable File Type"
-        description="Are you sure you want to remove this acceptable file type? This action cannot be undone."
+        description="Are you sure you want to delete this acceptable file type? This action cannot be undone."
       />
     </div>
   );
@@ -493,7 +503,8 @@ const CategoryForm: React.FC<{
 }> = ({ category, onSubmit, isLoading }) => {
   const [formData, setFormData] = useState({
     name: category?.name || '',
-    description: category?.description || ''
+    description: category?.description || '',
+    icon: category?.icon || '',
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -503,29 +514,42 @@ const CategoryForm: React.FC<{
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="name">Category Name</Label>
-        <Input
-          id="name"
-          value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          required
-        />
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="name">Category Name</Label>
+          <Input
+            id="name"
+            value={formData.name}
+            onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+            placeholder="Enter category name"
+            required
+          />
+        </div>
+        <div>
+          <Label htmlFor="icon">Icon</Label>
+          <Input
+            id="icon"
+            value={formData.icon}
+            onChange={(e) => setFormData(prev => ({ ...prev, icon: e.target.value }))}
+            placeholder="Icon name (e.g., folder)"
+          />
+        </div>
       </div>
-
-      <div className="space-y-2">
+      
+      <div>
         <Label htmlFor="description">Description</Label>
         <Textarea
           id="description"
           value={formData.description}
-          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+          onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+          placeholder="Enter category description"
           rows={3}
         />
       </div>
 
-      <div className="flex justify-end gap-2 pt-4">
+      <div className="flex justify-end gap-2">
         <Button type="submit" disabled={isLoading}>
-          {isLoading ? 'Saving...' : category ? 'Update Category' : 'Create Category'}
+          {isLoading ? 'Saving...' : (category ? 'Update' : 'Create')}
         </Button>
       </div>
     </form>
@@ -540,14 +564,14 @@ const DocumentTypeForm: React.FC<{
   isLoading: boolean;
 }> = ({ categoryId, documentType, onSubmit, isLoading }) => {
   const [formData, setFormData] = useState({
-    category_id: categoryId,
     name: documentType?.name || '',
     description: documentType?.description || '',
     is_required: documentType?.is_required || false,
     requires_signature: documentType?.requires_signature || false,
     is_internal_only: documentType?.is_internal_only || false,
     product_types: documentType?.product_types || [],
-    sort_order: documentType?.sort_order || 0
+    sort_order: documentType?.sort_order || 0,
+    category_id: categoryId,
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -557,86 +581,72 @@ const DocumentTypeForm: React.FC<{
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="name">Document Type Name</Label>
-        <Input
-          id="name"
-          value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          required
-        />
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="name">Type Name</Label>
+          <Input
+            id="name"
+            value={formData.name}
+            onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+            placeholder="Enter document type name"
+            required
+          />
+        </div>
+        <div>
+          <Label htmlFor="sort_order">Sort Order</Label>
+          <Input
+            id="sort_order"
+            type="number"
+            value={formData.sort_order}
+            onChange={(e) => setFormData(prev => ({ ...prev, sort_order: parseInt(e.target.value) || 0 }))}
+            placeholder="0"
+          />
+        </div>
       </div>
-
-      <div className="space-y-2">
+      
+      <div>
         <Label htmlFor="description">Description</Label>
         <Textarea
           id="description"
           value={formData.description}
-          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+          onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+          placeholder="Enter document type description"
           rows={3}
         />
       </div>
 
-      <div className="space-y-4">
+      <div className="flex flex-col gap-4">
         <div className="flex items-center space-x-2">
           <Switch
-            id="required"
+            id="is_required"
             checked={formData.is_required}
-            onCheckedChange={(checked) => setFormData({ ...formData, is_required: checked })}
+            onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_required: checked }))}
           />
-          <Label htmlFor="required">Required Document</Label>
+          <Label htmlFor="is_required">Required Document</Label>
         </div>
-
+        
         <div className="flex items-center space-x-2">
           <Switch
-            id="signature"
+            id="requires_signature"
             checked={formData.requires_signature}
-            onCheckedChange={(checked) => setFormData({ ...formData, requires_signature: checked })}
+            onCheckedChange={(checked) => setFormData(prev => ({ ...prev, requires_signature: checked }))}
           />
-          <Label htmlFor="signature">Requires E-Signature</Label>
+          <Label htmlFor="requires_signature">Requires Signature</Label>
         </div>
 
         <div className="flex items-center space-x-2">
           <Switch
-            id="internal"
+            id="is_internal_only"
             checked={formData.is_internal_only}
-            onCheckedChange={(checked) => setFormData({ ...formData, is_internal_only: checked })}
+            onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_internal_only: checked }))}
           />
-          <Label htmlFor="internal">Internal Use Only</Label>
+          <Label htmlFor="is_internal_only">Internal Only</Label>
         </div>
       </div>
 
-      <div className="space-y-2">
-        <Label>Product Types</Label>
-        <div className="flex flex-wrap gap-2">
-          {['Cash', 'Loan', 'Lease'].map((type) => (
-            <div key={type} className="flex items-center space-x-2">
-              <Checkbox
-                id={type}
-                checked={formData.product_types.includes(type)}
-                onCheckedChange={(checked) => {
-                  if (checked) {
-                    setFormData({
-                      ...formData,
-                      product_types: [...formData.product_types, type]
-                    });
-                  } else {
-                    setFormData({
-                      ...formData,
-                      product_types: formData.product_types.filter(t => t !== type)
-                    });
-                  }
-                }}
-              />
-              <Label htmlFor={type}>{type}</Label>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="flex justify-end gap-2 pt-4">
+      <div className="flex justify-end gap-2">
         <Button type="submit" disabled={isLoading}>
-          {isLoading ? 'Saving...' : documentType ? 'Update Type' : 'Create Type'}
+          {isLoading ? 'Saving...' : (documentType ? 'Update' : 'Create')}
         </Button>
       </div>
     </form>
@@ -651,9 +661,9 @@ const AcceptableFileForm: React.FC<{
   isLoading: boolean;
 }> = ({ documentTypeId, acceptableFile, onSubmit, isLoading }) => {
   const [formData, setFormData] = useState({
-    document_type_id: documentTypeId,
     file_extension: acceptableFile?.file_extension || '',
-    max_file_size_mb: acceptableFile?.max_file_size_mb || 10
+    max_file_size_mb: acceptableFile?.max_file_size_mb || 10,
+    document_type_id: documentTypeId,
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -661,43 +671,36 @@ const AcceptableFileForm: React.FC<{
     onSubmit(formData);
   };
 
-  const commonExtensions = ['.pdf', '.doc', '.docx', '.jpg', '.jpeg', '.png', '.gif', '.txt', '.xlsx', '.csv'];
-
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="extension">File Extension</Label>
-        <Select 
-          value={formData.file_extension} 
-          onValueChange={(value) => setFormData({ ...formData, file_extension: value })}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select file extension" />
-          </SelectTrigger>
-          <SelectContent>
-            {commonExtensions.map((ext) => (
-              <SelectItem key={ext} value={ext}>{ext}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="file_extension">File Extension</Label>
+          <Input
+            id="file_extension"
+            value={formData.file_extension}
+            onChange={(e) => setFormData(prev => ({ ...prev, file_extension: e.target.value }))}
+            placeholder="e.g., .pdf, .jpg, .docx"
+            required
+          />
+        </div>
+        <div>
+          <Label htmlFor="max_file_size_mb">Max Size (MB)</Label>
+          <Input
+            id="max_file_size_mb"
+            type="number"
+            value={formData.max_file_size_mb}
+            onChange={(e) => setFormData(prev => ({ ...prev, max_file_size_mb: parseInt(e.target.value) || 10 }))}
+            placeholder="10"
+            min="1"
+          />
+        </div>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="maxSize">Maximum File Size (MB)</Label>
-        <Input
-          id="maxSize"
-          type="number"
-          min="1"
-          max="100"
-          value={formData.max_file_size_mb}
-          onChange={(e) => setFormData({ ...formData, max_file_size_mb: parseInt(e.target.value) || 10 })}
-          required
-        />
-      </div>
 
-      <div className="flex justify-end gap-2 pt-4">
+      <div className="flex justify-end gap-2">
         <Button type="submit" disabled={isLoading}>
-          {isLoading ? 'Saving...' : acceptableFile ? 'Update File Type' : 'Add File Type'}
+          {isLoading ? 'Saving...' : (acceptableFile ? 'Update' : 'Create')}
         </Button>
       </div>
     </form>
