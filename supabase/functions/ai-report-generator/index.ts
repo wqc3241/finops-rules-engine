@@ -85,7 +85,12 @@ serve(async (req) => {
               },
               "chartTypes": ["pie", "bar", "line", "table"] for dashboards,
               "aggregations": ["count", "sum", "average", "trend"] what to calculate
-            }
+            }`
+          },
+          {
+            role: 'user',
+            content: message
+          }
         ],
         max_completion_tokens: 1000
       }),
