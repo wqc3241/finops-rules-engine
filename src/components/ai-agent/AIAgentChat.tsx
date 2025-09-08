@@ -1,16 +1,20 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, X, Bot, User } from 'lucide-react';
+import { Send, X, Bot, User, BarChart3, FileText, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useToast } from '@/components/ui/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Message {
   id: string;
   text: string;
   sender: 'user' | 'ai';
   timestamp: Date;
+  type?: 'text' | 'report' | 'dashboard';
+  data?: any;
 }
 
 interface AIAgentChatProps {
@@ -18,10 +22,11 @@ interface AIAgentChatProps {
 }
 
 const AIAgentChat: React.FC<AIAgentChatProps> = ({ onClose }) => {
+  const { toast } = useToast();
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: 'Hello! I\'m your AI assistant. I can help you with application management, financial information, and any questions about the system. How can I assist you today?',
+      text: 'Hello! I\'m your AI assistant. I can help you generate reports and dashboards using natural language. Try asking me things like:\n\n• "Show me all pending applications from last month"\n• "Create a dashboard with loan vs lease applications"\n• "Generate a report of applications by status"\n\nHow can I assist you today?',
       sender: 'ai',
       timestamp: new Date()
     }
@@ -48,42 +53,83 @@ const AIAgentChat: React.FC<AIAgentChatProps> = ({ onClose }) => {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const messageText = inputValue;
     setInputValue('');
     setIsTyping(true);
 
-    // Simulate AI response (replace with actual AI integration)
-    setTimeout(() => {
+    try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        throw new Error('You must be logged in to use the AI assistant');
+      }
+
+      // Call AI report generator edge function
+      const { data, error } = await supabase.functions.invoke('ai-report-generator', {
+        body: {
+          message: messageText,
+          userId: user.id
+        }
+      });
+
+      if (error) {
+        throw new Error(error.message || 'Failed to process AI request');
+      }
+
+      const result = data;
+      
+      if (!result.success) {
+        throw new Error(result.error || 'AI processing failed');
+      }
+
+      // Create AI response message with generated data
       const aiResponse: Message = {
         id: (Date.now() + 1).toString(),
-        text: generateAIResponse(inputValue),
+        text: result.message,
+        sender: 'ai',
+        timestamp: new Date(),
+        type: result.intent.type,
+        data: result.data
+      };
+
+      setMessages(prev => [...prev, aiResponse]);
+      
+      toast({
+        title: "Success",
+        description: `${result.intent.type === 'report' ? 'Report' : 'Dashboard'} generated successfully!`,
+      });
+
+    } catch (error) {
+      console.error('Error processing AI request:', error);
+      
+      const errorResponse: Message = {
+        id: (Date.now() + 1).toString(),
+        text: `Sorry, I encountered an error: ${error instanceof Error ? error.message : 'Unknown error'}. Please make sure you're logged in and try again.`,
         sender: 'ai',
         timestamp: new Date()
       };
-      setMessages(prev => [...prev, aiResponse]);
+      
+      setMessages(prev => [...prev, errorResponse]);
+      
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : 'Failed to process request',
+        variant: "destructive",
+      });
+    } finally {
       setIsTyping(false);
-    }, 1500);
+    }
   };
 
-  const generateAIResponse = (userInput: string): string => {
-    const input = userInput.toLowerCase();
+  const handleQuickAction = (action: string) => {
+    const quickMessages = {
+      report: "Generate a report showing all applications with their current status",
+      dashboard: "Create a dashboard with application metrics and charts",
+      pending: "Show me all pending applications that need decisions"
+    };
     
-    if (input.includes('application') || input.includes('status')) {
-      return 'I can help you with application management. You can view all applications in the Applications section, filter by status, or check specific application details. Would you like me to guide you to a specific application?';
-    }
-    
-    if (input.includes('financial') || input.includes('pricing')) {
-      return 'For financial information, you can access the Financial Pricing section to view pricing rules, or check individual application financial summaries. I can help you navigate to specific financial data.';
-    }
-    
-    if (input.includes('dashboard') || input.includes('report')) {
-      return 'The Dashboard provides an overview of your applications with charts and metrics. The Reports section offers detailed analytics. Would you like me to explain any specific metrics?';
-    }
-    
-    if (input.includes('help') || input.includes('how')) {
-      return 'I\'m here to help! I can assist with:\n• Application management and status updates\n• Financial data and pricing information\n• Navigation and feature explanations\n• System tasks and workflows\n\nWhat specific area would you like help with?';
-    }
-    
-    return 'I understand you\'re asking about "' + userInput + '". I can help you with application management, financial data, reports, and system navigation. Could you provide more specific details about what you\'d like to know or accomplish?';
+    setInputValue(quickMessages[action as keyof typeof quickMessages] || '');
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -93,12 +139,12 @@ const AIAgentChat: React.FC<AIAgentChatProps> = ({ onClose }) => {
   };
 
   return (
-    <Card className="w-96 h-96 shadow-xl">
+    <Card className="w-96 h-[500px] shadow-xl">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Bot className="h-5 w-5 text-blue-600" />
-            <CardTitle className="text-sm">AI Assistant</CardTitle>
+            <Sparkles className="h-5 w-5 text-primary" />
+            <CardTitle className="text-sm">AI Report Generator</CardTitle>
           </div>
           <Button variant="ghost" size="sm" onClick={onClose}>
             <X className="h-4 w-4" />
@@ -106,6 +152,39 @@ const AIAgentChat: React.FC<AIAgentChatProps> = ({ onClose }) => {
         </div>
       </CardHeader>
       <CardContent className="p-0 flex flex-col h-full">
+        {/* Quick Actions */}
+        <div className="p-4 border-b bg-muted/50">
+          <p className="text-xs text-muted-foreground mb-2">Quick Actions:</p>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleQuickAction('report')}
+              className="text-xs"
+            >
+              <FileText className="h-3 w-3 mr-1" />
+              Report
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleQuickAction('dashboard')}
+              className="text-xs"
+            >
+              <BarChart3 className="h-3 w-3 mr-1" />
+              Dashboard
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleQuickAction('pending')}
+              className="text-xs"
+            >
+              Pending
+            </Button>
+          </div>
+        </div>
+
         <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
           <div className="space-y-4">
             {messages.map((message) => (
@@ -114,10 +193,10 @@ const AIAgentChat: React.FC<AIAgentChatProps> = ({ onClose }) => {
                 className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-[80%] rounded-lg p-3 ${
+                  className={`max-w-[85%] rounded-lg p-3 ${
                     message.sender === 'user'
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-900'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-muted text-foreground'
                   }`}
                 >
                   <div className="flex items-start gap-2">
@@ -125,22 +204,44 @@ const AIAgentChat: React.FC<AIAgentChatProps> = ({ onClose }) => {
                       <Bot className="h-4 w-4 mt-0.5 flex-shrink-0" />
                     )}
                     {message.sender === 'user' && (
-                      <User className="h-4 w-4 mt-0.5 flex-shrink-0 text-blue-100" />
+                      <User className="h-4 w-4 mt-0.5 flex-shrink-0" />
                     )}
-                    <p className="text-sm whitespace-pre-line">{message.text}</p>
+                    <div className="flex-1">
+                      <p className="text-sm whitespace-pre-line">{message.text}</p>
+                      {message.data && (
+                        <div className="mt-2 p-2 bg-background/50 rounded border">
+                          <div className="text-xs font-medium mb-1">Generated Data:</div>
+                          <div className="text-xs space-y-1">
+                            <div>Total Applications: {message.data.totalApplications}</div>
+                            {message.data.summary?.statusDistribution && (
+                              <div>
+                                Status Distribution: {Object.entries(message.data.summary.statusDistribution)
+                                  .map(([status, count]) => `${status}: ${count}`)
+                                  .join(', ')}
+                              </div>
+                            )}
+                            {message.data.summary?.averageAmount && (
+                              <div>
+                                Average Amount: ${message.data.summary.averageAmount.toLocaleString()}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
             ))}
             {isTyping && (
               <div className="flex justify-start">
-                <div className="bg-gray-100 rounded-lg p-3">
+                <div className="bg-muted rounded-lg p-3">
                   <div className="flex items-center gap-2">
                     <Bot className="h-4 w-4" />
                     <div className="flex gap-1">
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                      <div className="w-2 h-2 bg-muted-foreground/50 rounded-full animate-bounce"></div>
+                      <div className="w-2 h-2 bg-muted-foreground/50 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                      <div className="w-2 h-2 bg-muted-foreground/50 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                     </div>
                   </div>
                 </div>
@@ -148,16 +249,18 @@ const AIAgentChat: React.FC<AIAgentChatProps> = ({ onClose }) => {
             )}
           </div>
         </ScrollArea>
+        
         <div className="p-4 border-t">
           <div className="flex gap-2">
             <Input
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Ask me anything..."
+              placeholder="Describe the report or dashboard you want..."
               className="flex-1"
+              disabled={isTyping}
             />
-            <Button onClick={handleSendMessage} size="sm">
+            <Button onClick={handleSendMessage} size="sm" disabled={isTyping || !inputValue.trim()}>
               <Send className="h-4 w-4" />
             </Button>
           </div>

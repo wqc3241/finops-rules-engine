@@ -44,6 +44,75 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_generated_dashboards: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          layout_config: Json | null
+          name: string
+          updated_at: string
+          widgets: Json | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          layout_config?: Json | null
+          name: string
+          updated_at?: string
+          widgets?: Json | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          layout_config?: Json | null
+          name?: string
+          updated_at?: string
+          widgets?: Json | null
+        }
+        Relationships: []
+      }
+      ai_generated_reports: {
+        Row: {
+          chart_config: Json | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          query_parameters: Json | null
+          report_data: Json | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          chart_config?: Json | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          query_parameters?: Json | null
+          report_data?: Json | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          chart_config?: Json | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          query_parameters?: Json | null
+          report_data?: Json | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       app_dt_references: {
         Row: {
           application_date: string | null
