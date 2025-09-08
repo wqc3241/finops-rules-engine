@@ -290,6 +290,36 @@ export const useCreateAcceptableFile = () => {
   });
 };
 
+export const useUpdateAcceptableFile = () => {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async ({ id, ...updates }: Partial<DocumentAcceptableFile> & { id: string }) => {
+      const { data, error } = await supabase
+        .from('document_acceptable_files')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['documentAcceptableFiles'] });
+      toast({ title: 'Success', description: 'Acceptable file type updated successfully' });
+    },
+    onError: (error: any) => {
+      toast({ 
+        title: 'Error', 
+        description: `Failed to update acceptable file type: ${error.message}`, 
+        variant: 'destructive' 
+      });
+    }
+  });
+};
+
 export const useDeleteAcceptableFile = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();

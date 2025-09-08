@@ -24,11 +24,13 @@ import {
   useUpdateDocumentType,
   useDeleteDocumentType,
   useCreateAcceptableFile,
+  useUpdateAcceptableFile,
   useDeleteAcceptableFile,
   DocumentCategory,
   DocumentType,
   DocumentAcceptableFile
 } from '@/hooks/useDocumentConfiguration';
+import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog';
 
 const DocumentConfiguration: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -38,6 +40,12 @@ const DocumentConfiguration: React.FC = () => {
   const [isCreateCategoryOpen, setIsCreateCategoryOpen] = useState(false);
   const [isCreateTypeOpen, setIsCreateTypeOpen] = useState(false);
   const [isCreateFileOpen, setIsCreateFileOpen] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<DocumentCategory | null>(null);
+  const [editingType, setEditingType] = useState<DocumentType | null>(null);
+  const [editingFile, setEditingFile] = useState<DocumentAcceptableFile | null>(null);
+  const [deletingCategory, setDeletingCategory] = useState<string | null>(null);
+  const [deletingType, setDeletingType] = useState<string | null>(null);
+  const [deletingFile, setDeletingFile] = useState<string | null>(null);
   const { toast } = useToast();
 
   const { data: categories = [], isLoading: categoriesLoading } = useDocumentCategories();
@@ -51,6 +59,7 @@ const DocumentConfiguration: React.FC = () => {
   const updateTypeMutation = useUpdateDocumentType();
   const deleteTypeMutation = useDeleteDocumentType();
   const createFileMutation = useCreateAcceptableFile();
+  const updateFileMutation = useUpdateAcceptableFile();
   const deleteFileMutation = useDeleteAcceptableFile();
 
   const selectedCategoryData = categories.find(cat => cat.id === selectedCategory);
@@ -119,30 +128,56 @@ const DocumentConfiguration: React.FC = () => {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-2">
-                    {categoriesLoading ? (
-                      <div className="space-y-2">
-                        {[...Array(3)].map((_, i) => (
-                          <div key={i} className="h-12 bg-muted animate-pulse rounded" />
-                        ))}
-                      </div>
-                    ) : (
-                      categories.map((category) => (
-                        <div
-                          key={category.id}
-                          className={`p-3 rounded-md cursor-pointer transition-colors ${
-                            selectedCategory === category.id
-                              ? 'bg-primary text-primary-foreground'
-                              : 'bg-muted hover:bg-muted/80'
-                          }`}
-                          onClick={() => handleCategorySelect(category.id)}
-                        >
-                          <div className="flex items-center gap-2">
-                            <FolderOpen className="h-4 w-4" />
-                            <span className="font-medium text-sm">{category.name}</span>
-                          </div>
-                        </div>
-                      ))
-                    )}
+                     {categoriesLoading ? (
+                       <div className="space-y-2">
+                         {[...Array(3)].map((_, i) => (
+                           <div key={i} className="h-12 bg-muted animate-pulse rounded" />
+                         ))}
+                       </div>
+                     ) : (
+                       categories.map((category) => (
+                         <div
+                           key={category.id}
+                           className={`group p-3 rounded-md cursor-pointer transition-colors ${
+                             selectedCategory === category.id
+                               ? 'bg-primary text-primary-foreground'
+                               : 'bg-muted hover:bg-muted/80'
+                           }`}
+                           onClick={() => handleCategorySelect(category.id)}
+                         >
+                           <div className="flex items-center justify-between">
+                             <div className="flex items-center gap-2">
+                               <FolderOpen className="h-4 w-4" />
+                               <span className="font-medium text-sm">{category.name}</span>
+                             </div>
+                             <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                               <Button
+                                 size="sm"
+                                 variant="ghost"
+                                 onClick={(e) => {
+                                   e.stopPropagation();
+                                   setEditingCategory(category);
+                                 }}
+                                 className="h-6 w-6 p-0"
+                               >
+                                 <Edit className="h-3 w-3" />
+                               </Button>
+                               <Button
+                                 size="sm"
+                                 variant="ghost"
+                                 onClick={(e) => {
+                                   e.stopPropagation();
+                                   setDeletingCategory(category.id);
+                                 }}
+                                 className="h-6 w-6 p-0 text-destructive"
+                               >
+                                 <Trash2 className="h-3 w-3" />
+                               </Button>
+                             </div>
+                           </div>
+                         </div>
+                       ))
+                     )}
                   </CardContent>
                 </Card>
 
@@ -185,29 +220,53 @@ const DocumentConfiguration: React.FC = () => {
                   <CardContent className="space-y-2">
                     {selectedCategory ? (
                       documentTypes.length > 0 ? (
-                        documentTypes.map((type) => (
-                          <div
-                            key={type.id}
-                            className={`p-3 rounded-md cursor-pointer transition-colors ${
-                              selectedDocumentType === type.id
-                                ? 'bg-primary text-primary-foreground'
-                                : 'bg-muted hover:bg-muted/80'
-                            }`}
-                            onClick={() => handleTypeSelect(type.id)}
-                          >
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                <FileText className="h-4 w-4" />
-                                <span className="font-medium text-sm">{type.name}</span>
-                              </div>
-                              <div className="flex gap-1">
-                                {type.is_required && (
-                                  <Badge variant="secondary" className="text-xs">Required</Badge>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        ))
+                         documentTypes.map((type) => (
+                           <div
+                             key={type.id}
+                             className={`group p-3 rounded-md cursor-pointer transition-colors ${
+                               selectedDocumentType === type.id
+                                 ? 'bg-primary text-primary-foreground'
+                                 : 'bg-muted hover:bg-muted/80'
+                             }`}
+                             onClick={() => handleTypeSelect(type.id)}
+                           >
+                             <div className="flex items-center justify-between">
+                               <div className="flex items-center gap-2">
+                                 <FileText className="h-4 w-4" />
+                                 <span className="font-medium text-sm">{type.name}</span>
+                               </div>
+                               <div className="flex items-center gap-2">
+                                 {type.is_required && (
+                                   <Badge variant="secondary" className="text-xs">Required</Badge>
+                                 )}
+                                 <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                   <Button
+                                     size="sm"
+                                     variant="ghost"
+                                     onClick={(e) => {
+                                       e.stopPropagation();
+                                       setEditingType(type);
+                                     }}
+                                     className="h-6 w-6 p-0"
+                                   >
+                                     <Edit className="h-3 w-3" />
+                                   </Button>
+                                   <Button
+                                     size="sm"
+                                     variant="ghost"
+                                     onClick={(e) => {
+                                       e.stopPropagation();
+                                       setDeletingType(type.id);
+                                     }}
+                                     className="h-6 w-6 p-0 text-destructive"
+                                   >
+                                     <Trash2 className="h-3 w-3" />
+                                   </Button>
+                                 </div>
+                               </div>
+                             </div>
+                           </div>
+                         ))
                       ) : (
                         <div className="text-center py-8 text-muted-foreground">
                           <FileText className="h-8 w-8 mx-auto mb-2" />
@@ -261,28 +320,38 @@ const DocumentConfiguration: React.FC = () => {
                   <CardContent className="space-y-2">
                     {selectedDocumentType ? (
                       acceptableFiles.length > 0 ? (
-                        acceptableFiles.map((file) => (
-                          <div
-                            key={file.id}
-                            className="p-3 rounded-md bg-muted flex items-center justify-between"
-                          >
-                            <div className="flex items-center gap-2">
-                              <File className="h-4 w-4" />
-                              <span className="font-medium text-sm">{file.file_extension}</span>
-                              <Badge variant="outline" className="text-xs">
-                                {file.max_file_size_mb}MB max
-                              </Badge>
-                            </div>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => deleteFileMutation.mutate(file.id)}
-                              disabled={deleteFileMutation.isPending}
-                            >
-                              <Trash2 className="h-3 w-3" />
-                            </Button>
-                          </div>
-                        ))
+                         acceptableFiles.map((file) => (
+                           <div
+                             key={file.id}
+                             className="group p-3 rounded-md bg-muted flex items-center justify-between"
+                           >
+                             <div className="flex items-center gap-2">
+                               <File className="h-4 w-4" />
+                               <span className="font-medium text-sm">{file.file_extension}</span>
+                               <Badge variant="outline" className="text-xs">
+                                 {file.max_file_size_mb}MB max
+                               </Badge>
+                             </div>
+                             <div className="flex gap-1">
+                               <Button
+                                 size="sm"
+                                 variant="ghost"
+                                 onClick={() => setEditingFile(file)}
+                                 className="h-6 w-6 p-0"
+                               >
+                                 <Edit className="h-3 w-3" />
+                               </Button>
+                               <Button
+                                 size="sm"
+                                 variant="ghost"
+                                 onClick={() => setDeletingFile(file.id)}
+                                 className="h-6 w-6 p-0 text-destructive"
+                               >
+                                 <Trash2 className="h-3 w-3" />
+                               </Button>
+                             </div>
+                           </div>
+                         ))
                       ) : (
                         <div className="text-center py-8 text-muted-foreground">
                           <File className="h-8 w-8 mx-auto mb-2" />
@@ -301,6 +370,114 @@ const DocumentConfiguration: React.FC = () => {
           </div>
         </main>
       </div>
+
+      {/* Edit Category Dialog */}
+      <Dialog open={!!editingCategory} onOpenChange={() => setEditingCategory(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Edit Document Category</DialogTitle>
+            <DialogDescription>
+              Update the category information
+            </DialogDescription>
+          </DialogHeader>
+          {editingCategory && (
+            <CategoryForm 
+              category={editingCategory}
+              onSubmit={(data) => {
+                updateCategoryMutation.mutate({ id: editingCategory.id, ...data });
+                setEditingCategory(null);
+              }}
+              isLoading={updateCategoryMutation.isPending}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Document Type Dialog */}
+      <Dialog open={!!editingType} onOpenChange={() => setEditingType(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Document Type</DialogTitle>
+            <DialogDescription>
+              Update the document type information
+            </DialogDescription>
+          </DialogHeader>
+          {editingType && (
+            <DocumentTypeForm 
+              categoryId={editingType.category_id}
+              documentType={editingType}
+              onSubmit={(data) => {
+                updateTypeMutation.mutate({ id: editingType.id, ...data });
+                setEditingType(null);
+              }}
+              isLoading={updateTypeMutation.isPending}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Acceptable File Dialog */}
+      <Dialog open={!!editingFile} onOpenChange={() => setEditingFile(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Acceptable File Type</DialogTitle>
+            <DialogDescription>
+              Update the acceptable file type settings
+            </DialogDescription>
+          </DialogHeader>
+          {editingFile && (
+            <AcceptableFileForm 
+              documentTypeId={editingFile.document_type_id}
+              acceptableFile={editingFile}
+              onSubmit={(data) => {
+                updateFileMutation.mutate({ id: editingFile.id, ...data });
+                setEditingFile(null);
+              }}
+              isLoading={updateFileMutation.isPending}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialogs */}
+      <DeleteConfirmationDialog
+        open={!!deletingCategory}
+        onOpenChange={() => setDeletingCategory(null)}
+        onConfirm={() => {
+          if (deletingCategory) {
+            deleteCategoryMutation.mutate(deletingCategory);
+            setDeletingCategory(null);
+          }
+        }}
+        title="Delete Document Category"
+        description="Are you sure you want to delete this category? This will also delete all associated document types and acceptable files. This action cannot be undone."
+      />
+
+      <DeleteConfirmationDialog
+        open={!!deletingType}
+        onOpenChange={() => setDeletingType(null)}
+        onConfirm={() => {
+          if (deletingType) {
+            deleteTypeMutation.mutate(deletingType);
+            setDeletingType(null);
+          }
+        }}
+        title="Delete Document Type"
+        description="Are you sure you want to delete this document type? This will also delete all associated acceptable files. This action cannot be undone."
+      />
+
+      <DeleteConfirmationDialog
+        open={!!deletingFile}
+        onOpenChange={() => setDeletingFile(null)}
+        onConfirm={() => {
+          if (deletingFile) {
+            deleteFileMutation.mutate(deletingFile);
+            setDeletingFile(null);
+          }
+        }}
+        title="Delete Acceptable File Type"
+        description="Are you sure you want to remove this acceptable file type? This action cannot be undone."
+      />
     </div>
   );
 };
@@ -466,13 +643,14 @@ const DocumentTypeForm: React.FC<{
 // Acceptable File Form Component
 const AcceptableFileForm: React.FC<{
   documentTypeId: string;
+  acceptableFile?: DocumentAcceptableFile;
   onSubmit: (data: any) => void;
   isLoading: boolean;
-}> = ({ documentTypeId, onSubmit, isLoading }) => {
+}> = ({ documentTypeId, acceptableFile, onSubmit, isLoading }) => {
   const [formData, setFormData] = useState({
     document_type_id: documentTypeId,
-    file_extension: '',
-    max_file_size_mb: 10
+    file_extension: acceptableFile?.file_extension || '',
+    max_file_size_mb: acceptableFile?.max_file_size_mb || 10
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -516,7 +694,7 @@ const AcceptableFileForm: React.FC<{
 
       <div className="flex justify-end gap-2 pt-4">
         <Button type="submit" disabled={isLoading}>
-          {isLoading ? 'Adding...' : 'Add File Type'}
+          {isLoading ? 'Saving...' : acceptableFile ? 'Update File Type' : 'Add File Type'}
         </Button>
       </div>
     </form>
