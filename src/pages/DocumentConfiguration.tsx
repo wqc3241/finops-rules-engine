@@ -120,7 +120,7 @@ const DocumentConfiguration: React.FC = () => {
 
               <div className="grid grid-cols-12 gap-6">
                 {/* Categories List */}
-                <Card className="col-span-3">
+                <Card className="col-span-4">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <FolderOpen className="h-5 w-5" />
@@ -182,7 +182,7 @@ const DocumentConfiguration: React.FC = () => {
                 </Card>
 
                 {/* Document Types */}
-                <Card className="col-span-5">
+                <Card className="col-span-4">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 justify-between">
                       <div className="flex items-center gap-2">
@@ -282,7 +282,7 @@ const DocumentConfiguration: React.FC = () => {
                 </Card>
 
                 {/* Acceptable Files */}
-                <Card className="col-span-4">
+                <Card className="col-span-2">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 justify-between">
                       <div className="flex items-center gap-2">
@@ -292,9 +292,9 @@ const DocumentConfiguration: React.FC = () => {
                       {selectedDocumentType && (
                         <Dialog open={isCreateFileOpen} onOpenChange={setIsCreateFileOpen}>
                           <DialogTrigger asChild>
-                            <Button size="sm" variant="outline" className="text-xs">
+                            <Button size="sm" variant="outline" className="text-xs px-2">
                               <Plus className="h-3 w-3 mr-1" />
-                              Add Type
+                              Add
                             </Button>
                           </DialogTrigger>
                           <DialogContent>
@@ -321,37 +321,39 @@ const DocumentConfiguration: React.FC = () => {
                     {selectedDocumentType ? (
                       acceptableFiles.length > 0 ? (
                          acceptableFiles.map((file) => (
-                           <div
-                             key={file.id}
-                             className="group p-3 rounded-md bg-muted flex items-center justify-between"
-                           >
-                              <div className="flex items-center gap-2 min-w-0 flex-1">
-                                <File className="h-4 w-4 flex-shrink-0" />
-                                <span className="font-medium">{file.file_extension}</span>
-                                <Badge variant="outline" className="text-xs flex-shrink-0">
-                                  {file.max_file_size_mb}MB max
-                                </Badge>
+                            <div
+                              key={file.id}
+                              className="group p-2 rounded-md bg-muted flex flex-col gap-1"
+                            >
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-1">
+                                  <File className="h-3 w-3 flex-shrink-0" />
+                                  <span className="font-medium text-sm truncate">{file.file_extension}</span>
+                                </div>
+                                <div className="flex gap-1 flex-shrink-0">
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => setEditingFile(file)}
+                                    className="h-5 w-5 p-0"
+                                  >
+                                    <Edit className="h-2.5 w-2.5" />
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => setDeletingFile(file.id)}
+                                    className="h-5 w-5 p-0 text-destructive"
+                                  >
+                                    <Trash2 className="h-2.5 w-2.5" />
+                                  </Button>
+                                </div>
                               </div>
-                              <div className="flex gap-1 flex-shrink-0">
-                               <Button
-                                 size="sm"
-                                 variant="ghost"
-                                 onClick={() => setEditingFile(file)}
-                                 className="h-6 w-6 p-0"
-                               >
-                                 <Edit className="h-3 w-3" />
-                               </Button>
-                               <Button
-                                 size="sm"
-                                 variant="ghost"
-                                 onClick={() => setDeletingFile(file.id)}
-                                 className="h-6 w-6 p-0 text-destructive"
-                               >
-                                 <Trash2 className="h-3 w-3" />
-                               </Button>
+                              <Badge variant="outline" className="text-xs w-fit">
+                                {file.max_file_size_mb}MB max
+                              </Badge>
                              </div>
-                           </div>
-                         ))
+                          ))
                       ) : (
                         <div className="text-center py-8 text-muted-foreground">
                           <File className="h-8 w-8 mx-auto mb-2" />
