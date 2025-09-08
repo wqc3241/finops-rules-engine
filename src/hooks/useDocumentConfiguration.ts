@@ -188,30 +188,34 @@ export const useUpdateDocumentType = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  return useMutation({
-    mutationFn: async ({ id, ...updates }: Partial<DocumentType> & { id: string }) => {
-      const { data, error } = await supabase
-        .from('document_types')
-        .update(updates)
-        .eq('id', id)
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['documentTypes'] });
-      toast({ title: 'Success', description: 'Document type updated successfully' });
-    },
-    onError: (error: any) => {
-      toast({ 
-        title: 'Error', 
-        description: `Failed to update document type: ${error.message}`, 
-        variant: 'destructive' 
-      });
-    }
-  });
+    return useMutation({
+      mutationFn: async ({ id, ...updates }: Partial<DocumentType> & { id: string }) => {
+        const { data, error } = await supabase
+          .from('document_types')
+          .update(updates)
+          .eq('id', id)
+          .select()
+          .maybeSingle();
+        
+        if (error) throw error;
+        return data ?? { id, ...updates };
+      },
+      onSuccess: (_data, variables) => {
+        // Refresh lists globally and specifically for the affected category
+        queryClient.invalidateQueries({ queryKey: ['documentTypes'] });
+        if ((variables as any).category_id) {
+          queryClient.invalidateQueries({ queryKey: ['documentTypes', (variables as any).category_id] });
+        }
+        toast({ title: 'Success', description: 'Document type updated successfully' });
+      },
+      onError: (error: any) => {
+        toast({ 
+          title: 'Error', 
+          description: `Failed to update document type: ${error.message}`, 
+          variant: 'destructive' 
+        });
+      }
+    });
 };
 
 export const useDeleteDocumentType = () => {
