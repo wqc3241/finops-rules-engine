@@ -118,7 +118,7 @@ const DocumentConfiguration: React.FC = () => {
                 </Dialog>
               </div>
 
-              <div className="grid grid-cols-12 gap-6">
+              <div className="grid grid-cols-10 gap-6">
                 {/* Categories List */}
                 <Card className="col-span-4">
                   <CardHeader>
