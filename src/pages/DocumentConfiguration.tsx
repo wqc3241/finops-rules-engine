@@ -504,7 +504,6 @@ const CategoryForm: React.FC<{
   const [formData, setFormData] = useState({
     name: category?.name || '',
     description: category?.description || '',
-    icon: category?.icon || '',
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -514,7 +513,7 @@ const CategoryForm: React.FC<{
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4">
         <div>
           <Label htmlFor="name">Category Name</Label>
           <Input
@@ -523,15 +522,6 @@ const CategoryForm: React.FC<{
             onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
             placeholder="Enter category name"
             required
-          />
-        </div>
-        <div>
-          <Label htmlFor="icon">Icon</Label>
-          <Input
-            id="icon"
-            value={formData.icon}
-            onChange={(e) => setFormData(prev => ({ ...prev, icon: e.target.value }))}
-            placeholder="Icon name (e.g., folder)"
           />
         </div>
       </div>
