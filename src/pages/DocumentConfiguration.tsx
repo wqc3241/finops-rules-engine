@@ -95,7 +95,7 @@ const DocumentConfiguration: React.FC = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-11 gap-6">
+              <div className="grid grid-cols-10 gap-6">
                 {/* Categories List */}
                 <Card className="col-span-4">
                   <CardHeader>
@@ -284,12 +284,12 @@ const DocumentConfiguration: React.FC = () => {
                 </Card>
 
                 {/* Acceptable Files */}
-                <Card className="col-span-3">
+                <Card className="col-span-2">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 justify-between">
                       <div className="flex items-center gap-2">
                         <File className="h-5 w-5" />
-                        Acceptable Files
+                        File Types
                       </div>
                       {selectedDocumentType && (
                         <Dialog open={isCreateFileOpen} onOpenChange={setIsCreateFileOpen}>
