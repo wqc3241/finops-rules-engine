@@ -208,7 +208,6 @@ const BulletinPricingSection = ({
         title={title} 
         isCollapsed={isCollapsed} 
         setIsCollapsed={setIsCollapsed} 
-        onAddNew={isLocked ? undefined : handleAddNewModal}
         onUndo={isLocked ? undefined : handleUndo}
         onRedo={isLocked ? undefined : handleRedo}
         canUndo={canUndo && !isLocked}
