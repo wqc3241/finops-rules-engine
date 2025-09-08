@@ -615,6 +615,34 @@ const DocumentTypeForm: React.FC<{
         />
       </div>
 
+      <div>
+        <Label>Product Types</Label>
+        <div className="grid grid-cols-3 gap-4 mt-2">
+          {['Cash', 'Loan', 'Lease'].map((productType) => (
+            <div key={productType} className="flex items-center space-x-2">
+              <Checkbox
+                id={`product_type_${productType}`}
+                checked={formData.product_types.includes(productType)}
+                onCheckedChange={(checked) => {
+                  if (checked) {
+                    setFormData(prev => ({
+                      ...prev,
+                      product_types: [...prev.product_types, productType]
+                    }));
+                  } else {
+                    setFormData(prev => ({
+                      ...prev,
+                      product_types: prev.product_types.filter(type => type !== productType)
+                    }));
+                  }
+                }}
+              />
+              <Label htmlFor={`product_type_${productType}`}>{productType}</Label>
+            </div>
+          ))}
+        </div>
+      </div>
+
       <div className="flex flex-col gap-4">
         <div className="flex items-center space-x-2">
           <Switch
