@@ -120,7 +120,7 @@ const DocumentConfiguration: React.FC = () => {
 
               <div className="grid grid-cols-12 gap-6">
                 {/* Categories List */}
-                <Card className="col-span-4">
+                <Card className="col-span-3">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <FolderOpen className="h-5 w-5" />
@@ -182,7 +182,7 @@ const DocumentConfiguration: React.FC = () => {
                 </Card>
 
                 {/* Document Types */}
-                <Card className="col-span-4">
+                <Card className="col-span-5">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 justify-between">
                       <div className="flex items-center gap-2">
@@ -282,7 +282,7 @@ const DocumentConfiguration: React.FC = () => {
                 </Card>
 
                 {/* Acceptable Files */}
-                <Card className="col-span-2">
+                <Card className="col-span-4">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 justify-between">
                       <div className="flex items-center gap-2">
@@ -292,9 +292,9 @@ const DocumentConfiguration: React.FC = () => {
                       {selectedDocumentType && (
                         <Dialog open={isCreateFileOpen} onOpenChange={setIsCreateFileOpen}>
                           <DialogTrigger asChild>
-                            <Button size="sm" variant="outline">
+                            <Button size="sm" variant="outline" className="text-xs">
                               <Plus className="h-3 w-3 mr-1" />
-                              Add File Type
+                              Add Type
                             </Button>
                           </DialogTrigger>
                           <DialogContent>
@@ -325,14 +325,14 @@ const DocumentConfiguration: React.FC = () => {
                              key={file.id}
                              className="group p-3 rounded-md bg-muted flex items-center justify-between"
                            >
-                             <div className="flex items-center gap-2">
-                               <File className="h-4 w-4" />
-                               <span className="font-medium text-sm">{file.file_extension}</span>
-                               <Badge variant="outline" className="text-xs">
-                                 {file.max_file_size_mb}MB max
-                               </Badge>
-                             </div>
-                             <div className="flex gap-1">
+                              <div className="flex items-center gap-2 min-w-0 flex-1">
+                                <File className="h-4 w-4 flex-shrink-0" />
+                                <span className="font-medium">{file.file_extension}</span>
+                                <Badge variant="outline" className="text-xs flex-shrink-0">
+                                  {file.max_file_size_mb}MB max
+                                </Badge>
+                              </div>
+                              <div className="flex gap-1 flex-shrink-0">
                                <Button
                                  size="sm"
                                  variant="ghost"
