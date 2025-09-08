@@ -93,7 +93,17 @@ const DocumentConfiguration: React.FC = () => {
                     Configure document categories, types, and acceptable file formats
                   </p>
                 </div>
-                <Dialog open={isCreateCategoryOpen} onOpenChange={setIsCreateCategoryOpen}>
+              </div>
+
+              <div className="grid grid-cols-10 gap-6">
+                {/* Categories List */}
+                <Card className="col-span-4">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <FolderOpen className="h-5 w-5" />
+                      Categories
+                      </div>
+                                    <Dialog open={isCreateCategoryOpen} onOpenChange={setIsCreateCategoryOpen}>
                   <DialogTrigger asChild>
                     <Button>
                       <Plus className="h-4 w-4 mr-2" />
@@ -116,15 +126,6 @@ const DocumentConfiguration: React.FC = () => {
                     />
                   </DialogContent>
                 </Dialog>
-              </div>
-
-              <div className="grid grid-cols-10 gap-6">
-                {/* Categories List */}
-                <Card className="col-span-4">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <FolderOpen className="h-5 w-5" />
-                      Categories
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-2">
