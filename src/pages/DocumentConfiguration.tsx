@@ -120,7 +120,7 @@ const DocumentConfiguration: React.FC = () => {
 
               <div className="grid grid-cols-12 gap-6">
                 {/* Categories List */}
-                <Card className="col-span-3">
+                <Card className="col-span-4">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <FolderOpen className="h-5 w-5" />
@@ -282,7 +282,7 @@ const DocumentConfiguration: React.FC = () => {
                 </Card>
 
                 {/* Acceptable Files */}
-                <Card className="col-span-5">
+                <Card className="col-span-2">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 justify-between">
                       <div className="flex items-center gap-2">
