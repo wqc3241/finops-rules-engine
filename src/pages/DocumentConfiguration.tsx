@@ -106,9 +106,8 @@ const DocumentConfiguration: React.FC = () => {
                       </div>
                       <Dialog open={isCreateCategoryOpen} onOpenChange={setIsCreateCategoryOpen}>
                         <DialogTrigger asChild>
-                          <Button>
-                            <Button size="sm" variant="outline">
-                              <Plus className="h-3 w-3 mr-1" />
+                          <Button size="sm" variant="outline">
+                            <Plus className="h-3 w-3 mr-1" />
                             Add Category
                           </Button>
                         </DialogTrigger>
