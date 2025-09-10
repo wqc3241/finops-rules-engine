@@ -280,6 +280,20 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center gap-2 justify-end">
+                      {document.document_type?.docusign_template_id && (
+                        <Button 
+                          size="sm" 
+                          variant="default" 
+                          className="text-xs"
+                          onClick={() => {
+                            // TODO: Implement DocuSign template flow
+                            console.log('Generate DocuSign document:', document.document_type?.docusign_template_id);
+                          }}
+                        >
+                          <FileText className="h-3 w-3 mr-1" />
+                          Generate
+                        </Button>
+                      )}
                       {document.status === 'not_submitted' ? (
                         <Button size="sm" className="text-xs">
                           <Upload className="h-3 w-3 mr-1" />
