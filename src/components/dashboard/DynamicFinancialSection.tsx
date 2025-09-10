@@ -16,6 +16,9 @@ import * as XLSX from 'xlsx';
 import { toast } from "sonner";
 import { exportBulletinPricing } from "@/utils/bulletinPricingExport";
 import BulletinPricingUploadModal from "../BulletinPricingUploadModal";
+import FeeRulesUploadModal from "./FeeRulesUploadModal";
+import TaxRulesUploadModal from "./TaxRulesUploadModal";
+import DiscountRulesUploadModal from "./DiscountRulesUploadModal";
 import { exportSelectedProgramsBulletinPricing } from "@/utils/selectedProgramsBulletinExport";
 import { transformProgramDataForWizard } from "@/utils/financialProgramUtils";
 
@@ -44,6 +47,9 @@ const DynamicFinancialSection = ({
   const [isEditMode, setIsEditMode] = useState(false);
   const [showVersionHistory, setShowVersionHistory] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const [showFeeRulesUploadModal, setShowFeeRulesUploadModal] = useState(false);
+  const [showTaxRulesUploadModal, setShowTaxRulesUploadModal] = useState(false);
+  const [showDiscountRulesUploadModal, setShowDiscountRulesUploadModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(100);
   
@@ -256,6 +262,12 @@ useEffect(() => {
   const handleUpload = () => {
     if (schemaId === 'financial-program-config') {
       setShowUploadModal(true);
+    } else if (schemaId === 'fee-rules') {
+      setShowFeeRulesUploadModal(true);
+    } else if (schemaId === 'tax-rules') {
+      setShowTaxRulesUploadModal(true);
+    } else if (schemaId === 'discount-rules') {
+      setShowDiscountRulesUploadModal(true);
     } else {
       console.log(`Upload ${title} clicked`);
       toast.success(`Upload ${title} functionality will be implemented`);
@@ -349,6 +361,93 @@ useEffect(() => {
         // Download the file
         XLSX.writeFile(workbook, fileName);
         toast.success(`Downloaded ${exportData.length} fee rules to ${fileName}`);
+      } else if (schemaId === 'tax-rules') {
+        // Handle tax rules download
+        const { data: taxRules, error } = await supabase
+          .from('tax_rules')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error('Error fetching tax rules:', error);
+          toast.error('Failed to fetch tax rules data');
+          return;
+        }
+
+        // Prepare data for Excel export
+        const exportData = taxRules?.map(rule => ({
+          'Tax Name': rule.tax_name,
+          'Tax Type': rule.tax_type,
+          'Tax Rate': rule.rate,
+          'Tax Active': rule.is_active ? 'Yes' : 'No',
+          'Geo Code': rule.geo_code,
+          'Created At': new Date(rule.created_at).toLocaleDateString()
+        })) || [];
+
+        // Create Excel workbook
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Tax Rules');
+
+        // Auto-adjust column widths
+        const maxWidth = exportData.reduce((w, r) => Math.max(w, Object.keys(r).length), 10);
+        worksheet['!cols'] = Object.keys(exportData[0] || {}).map(() => ({ wch: maxWidth }));
+
+        // Generate filename with current date
+        const fileName = `tax_rules_${new Date().toISOString().split('T')[0]}.xlsx`;
+        
+        // Download the file
+        XLSX.writeFile(workbook, fileName);
+        toast.success(`Downloaded ${exportData.length} tax rules to ${fileName}`);
+      } else if (schemaId === 'discount-rules') {
+        // Handle discount rules download
+        const { data: discountRules, error } = await supabase
+          .from('discount_rules')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error('Error fetching discount rules:', error);
+          toast.error('Failed to fetch discount rules data');
+          return;
+        }
+
+        // Prepare data for Excel export
+        const exportData = discountRules?.map(rule => ({
+          'Discount Name': rule.name,
+          'Discount Type': rule.type,
+          'Discount Amount': rule.discountAmount,
+          'Discount Active': rule.feeActive ? 'Yes' : 'No',
+          'Discount State': rule.feeState,
+          'Taxable': rule.feeTaxable ? 'Yes' : 'No',
+          'Category': rule.category,
+          'Subcategory': rule.subcategory,
+          'Description': rule.description,
+          'Start Date': rule.startDate,
+          'End Date': rule.endDate,
+          'Applicable Vehicle Years': rule.applicable_vehicle_year?.join(', ') || '',
+          'Applicable Vehicle Models': rule.applicable_vehicle_model?.join(', ') || '',
+          'Applicable Purchase Types': rule.applicable_purchase_type?.join(', ') || '',
+          'Applicable Title Status': rule.applicable_title_status?.join(', ') || '',
+          'Pay Type': rule.payType,
+          'Created At': new Date(rule.createdAt).toLocaleDateString()
+        })) || [];
+
+        // Create Excel workbook
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Discount Rules');
+
+        // Auto-adjust column widths
+        const maxWidth = exportData.reduce((w, r) => Math.max(w, Object.keys(r).length), 10);
+        worksheet['!cols'] = Object.keys(exportData[0] || {}).map(() => ({ wch: maxWidth }));
+
+        // Generate filename with current date
+        const fileName = `discount_rules_${new Date().toISOString().split('T')[0]}.xlsx`;
+        
+        // Download the file
+        XLSX.writeFile(workbook, fileName);
+        toast.success(`Downloaded ${exportData.length} discount rules to ${fileName}`);
       } else if (schemaId === 'bulletin-pricing') {
         toast.info("Exporting bulletin pricing...");
         const result = await exportBulletinPricing();
@@ -396,7 +495,7 @@ useEffect(() => {
   };
 
   // Determine if this section should have upload/download buttons
-  const shouldShowUploadDownload = schemaId === 'fee-rules' || schemaId === 'tax-rules' || schemaId === 'bulletin-pricing' || schemaId === 'financial-program-config';
+  const shouldShowUploadDownload = schemaId === 'fee-rules' || schemaId === 'tax-rules' || schemaId === 'discount-rules' || schemaId === 'bulletin-pricing' || schemaId === 'financial-program-config';
 
   const handlePageChange = (page: number, newPageSize: number) => {
     setCurrentPage(page);
@@ -473,6 +572,33 @@ useEffect(() => {
         <BulletinPricingUploadModal
           isOpen={showUploadModal}
           onClose={() => setShowUploadModal(false)}
+          onUploadComplete={handleUploadComplete}
+        />
+      )}
+
+      {/* Fee Rules Upload Modal */}
+      {schemaId === 'fee-rules' && (
+        <FeeRulesUploadModal
+          isOpen={showFeeRulesUploadModal}
+          onClose={() => setShowFeeRulesUploadModal(false)}
+          onUploadComplete={handleUploadComplete}
+        />
+      )}
+
+      {/* Tax Rules Upload Modal */}
+      {schemaId === 'tax-rules' && (
+        <TaxRulesUploadModal
+          isOpen={showTaxRulesUploadModal}
+          onClose={() => setShowTaxRulesUploadModal(false)}
+          onUploadComplete={handleUploadComplete}
+        />
+      )}
+
+      {/* Discount Rules Upload Modal */}
+      {schemaId === 'discount-rules' && (
+        <DiscountRulesUploadModal
+          isOpen={showDiscountRulesUploadModal}
+          onClose={() => setShowDiscountRulesUploadModal(false)}
           onUploadComplete={handleUploadComplete}
         />
       )}
