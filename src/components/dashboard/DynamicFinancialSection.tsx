@@ -332,8 +332,9 @@ useEffect(() => {
           return;
         }
 
-        // Prepare data for Excel export
+        // Prepare data for Excel export with all available columns
         const exportData = feeRules?.map(rule => ({
+          'Fee ID': rule._id,
           'Fee Name': rule.name,
           'Fee Type': rule.type,
           'Amount': rule.feeAmount,
@@ -343,7 +344,35 @@ useEffect(() => {
           'Fee State': rule.feeState,
           'Fee Taxable': rule.feeTaxable ? 'Yes' : 'No',
           'Category': rule.category,
-          'Created At': new Date(rule.createdAt).toLocaleDateString()
+          'Subcategory': rule.subcategory,
+          'Description': rule.description,
+          'Pay Type': rule.payType,
+          'Provider': rule.provider,
+          'Fee Range Type': rule.feeRangeType,
+          'Fee Ranges': rule.feeRanges,
+          'Fee Tax Rate': rule.feeTaxRate,
+          'Capitalize Type': rule.capitalizeType,
+          'Pricing Version': rule.pricingVersion,
+          'Start Date': rule.startDate,
+          'End Date': rule.endDate,
+          'Self Reg': rule.selfReg ? 'Yes' : 'No',
+          'Is Deleted': rule.isDeleted ? 'Yes' : 'No',
+          'Is New Experience': rule.isNewExperience,
+          'Vehicle Year - Applies To All': rule.vehicleYear_appliesToAll ? 'Yes' : 'No',
+          'Vehicle Year Values': rule.vehicleYear_values ? JSON.stringify(rule.vehicleYear_values) : '',
+          'Title Status - Applies To All': rule.titleStatus_appliesToAll ? 'Yes' : 'No',
+          'Title Status Values': rule.titleStatus_values ? JSON.stringify(rule.titleStatus_values) : '',
+          'Vehicle Model - Applies To All': rule.vehicleModel_appliesToAll ? 'Yes' : 'No',
+          'Vehicle Model Values': rule.vehicleModel_values ? JSON.stringify(rule.vehicleModel_values) : '',
+          'Purchase Type - Applies To All': rule.purchaseType_appliesToAll ? 'Yes' : 'No',
+          'Purchase Type Values': rule.purchaseType_values ? JSON.stringify(rule.purchaseType_values) : '',
+          'FR CA Translation': rule.frCaTranslation,
+          'Migration': rule.migration,
+          'Version': rule.__v,
+          'Created By': rule.createdBy,
+          'Updated By': rule.updatedBy,
+          'Created At': rule.createdAt,
+          'Updated At': rule.updatedAt ? new Date(rule.updatedAt).toLocaleDateString() : ''
         })) || [];
 
         // Create Excel workbook
