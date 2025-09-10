@@ -324,7 +324,7 @@ useEffect(() => {
         const { data: feeRules, error } = await supabase
           .from('fee_rules')
           .select('*')
-          .order('created_at', { ascending: false });
+          .order('updatedAt', { ascending: false });
 
         if (error) {
           console.error('Error fetching fee rules:', error);
