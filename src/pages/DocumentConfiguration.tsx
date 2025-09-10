@@ -233,10 +233,15 @@ const DocumentConfiguration: React.FC = () => {
                              onClick={() => handleTypeSelect(type.id)}
                            >
                              <div className="flex items-center justify-between">
-                               <div className="flex items-center gap-2">
-                                 <FileText className="h-4 w-4" />
-                                 <span className="font-medium text-sm">{type.name}</span>
-                               </div>
+                                <div className="flex items-center gap-2">
+                                  <FileText className="h-4 w-4" />
+                                  <span className="font-medium text-sm">{type.name}</span>
+                                  {type.docusign_template_id && (
+                                    <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-800">
+                                      DocuSign
+                                    </Badge>
+                                  )}
+                                </div>
                                <div className="flex items-center gap-2">
                                  {type.is_required && (
                                    <Badge variant="secondary" className="text-xs">Required</Badge>
@@ -291,7 +296,7 @@ const DocumentConfiguration: React.FC = () => {
                         <File className="h-5 w-5" />
                         Acceptable Files
                       </div>
-                      {selectedDocumentType && (
+                      {selectedDocumentType && !selectedTypeData?.docusign_template_id && (
                         <Dialog open={isCreateFileOpen} onOpenChange={setIsCreateFileOpen}>
                           <DialogTrigger asChild>
                             <Button size="sm" variant="outline" className="text-xs px-2">
@@ -319,54 +324,69 @@ const DocumentConfiguration: React.FC = () => {
                       )}
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-2">
-                    {selectedDocumentType ? (
-                      acceptableFiles.length > 0 ? (
-                         acceptableFiles.map((file) => (
-                            <div
-                              key={file.id}
-                              className="group p-2 rounded-md bg-muted flex flex-col gap-1"
-                            >
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-1">
-                                  <File className="h-3 w-3 flex-shrink-0" />
-                                  <span className="font-medium text-sm truncate">{file.file_extension}</span>
-                                </div>
-                                <div className="flex gap-1 flex-shrink-0">
-                                  <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    onClick={() => setEditingFile(file)}
-                                    className="h-5 w-5 p-0"
-                                  >
-                                    <Edit className="h-2.5 w-2.5" />
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    onClick={() => setDeletingFile(file.id)}
-                                    className="h-5 w-5 p-0 text-destructive"
-                                  >
-                                    <Trash2 className="h-2.5 w-2.5" />
-                                  </Button>
-                                </div>
+                   <CardContent className="space-y-2">
+                     {selectedDocumentType ? (
+                       selectedTypeData?.docusign_template_id ? (
+                         <div className="p-3 rounded-md bg-blue-50 border border-blue-200">
+                           <div className="flex items-center gap-2 mb-2">
+                             <svg className="h-4 w-4 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
+                               <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                             </svg>
+                             <span className="font-medium text-blue-900 text-sm">DocuSign Template</span>
+                           </div>
+                           <p className="text-blue-800 text-sm font-mono bg-blue-100 px-2 py-1 rounded">
+                             {selectedTypeData.docusign_template_id}
+                           </p>
+                           <p className="text-blue-700 text-xs mt-2">
+                             This document uses DocuSign for electronic signing. File type restrictions are managed by DocuSign.
+                           </p>
+                         </div>
+                       ) : acceptableFiles.length > 0 ? (
+                          acceptableFiles.map((file) => (
+                             <div
+                               key={file.id}
+                               className="group p-2 rounded-md bg-muted flex flex-col gap-1"
+                             >
+                               <div className="flex items-center justify-between">
+                                 <div className="flex items-center gap-1">
+                                   <File className="h-3 w-3 flex-shrink-0" />
+                                   <span className="font-medium text-sm truncate">{file.file_extension}</span>
+                                 </div>
+                                 <div className="flex gap-1 flex-shrink-0">
+                                   <Button
+                                     size="sm"
+                                     variant="ghost"
+                                     onClick={() => setEditingFile(file)}
+                                     className="h-5 w-5 p-0"
+                                   >
+                                     <Edit className="h-2.5 w-2.5" />
+                                   </Button>
+                                   <Button
+                                     size="sm"
+                                     variant="ghost"
+                                     onClick={() => setDeletingFile(file.id)}
+                                     className="h-5 w-5 p-0 text-destructive"
+                                   >
+                                     <Trash2 className="h-2.5 w-2.5" />
+                                   </Button>
+                                 </div>
+                               </div>
+                               <Badge variant="outline" className="text-xs w-fit">
+                                 {file.max_file_size_mb}MB max
+                               </Badge>
                               </div>
-                              <Badge variant="outline" className="text-xs w-fit">
-                                {file.max_file_size_mb}MB max
-                              </Badge>
-                             </div>
-                          ))
-                      ) : (
-                        <div className="text-center py-8 text-muted-foreground">
-                          <File className="h-8 w-8 mx-auto mb-2" />
-                          <p className="text-sm">No acceptable file types</p>
-                        </div>
-                      )
-                    ) : (
-                      <div className="text-center py-8 text-muted-foreground">
-                        <p className="text-sm">Select a document type first</p>
-                      </div>
-                    )}
+                           ))
+                       ) : (
+                         <div className="text-center py-8 text-muted-foreground">
+                           <File className="h-8 w-8 mx-auto mb-2" />
+                           <p className="text-sm">No acceptable file types</p>
+                         </div>
+                       )
+                     ) : (
+                       <div className="text-center py-8 text-muted-foreground">
+                         <p className="text-sm">Select a document type first</p>
+                       </div>
+                     )}
                   </CardContent>
                 </Card>
               </div>
@@ -571,6 +591,7 @@ const DocumentTypeForm: React.FC<{
     is_internal_only: documentType?.is_internal_only || false,
     product_types: documentType?.product_types || [],
     sort_order: documentType?.sort_order || 0,
+    docusign_template_id: documentType?.docusign_template_id || '',
     category_id: categoryId,
   });
 
@@ -613,6 +634,21 @@ const DocumentTypeForm: React.FC<{
           placeholder="Enter document type description"
           rows={3}
         />
+      </div>
+
+      <div>
+        <Label htmlFor="docusign_template_id">DocuSign Template ID</Label>
+        <Input
+          id="docusign_template_id"
+          value={formData.docusign_template_id}
+          onChange={(e) => setFormData(prev => ({ ...prev, docusign_template_id: e.target.value }))}
+          placeholder="Enter DocuSign template ID (optional)"
+        />
+        {formData.docusign_template_id && (
+          <p className="text-sm text-muted-foreground mt-1">
+            Note: When DocuSign Template ID is set, file type restrictions will be disabled.
+          </p>
+        )}
       </div>
 
       <div>

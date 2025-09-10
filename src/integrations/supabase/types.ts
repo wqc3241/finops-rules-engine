@@ -912,9 +912,9 @@ export type Database = {
           createdAt: string | null
           createdBy: string | null
           description: string | null
+          discountAmount: number | null
           endDate: string | null
           feeActive: boolean | null
-          feeAmount: number | null
           feeState: string | null
           feeTaxable: boolean | null
           id: string
@@ -939,9 +939,9 @@ export type Database = {
           createdAt?: string | null
           createdBy?: string | null
           description?: string | null
+          discountAmount?: number | null
           endDate?: string | null
           feeActive?: boolean | null
-          feeAmount?: number | null
           feeState?: string | null
           feeTaxable?: boolean | null
           id?: string
@@ -966,9 +966,9 @@ export type Database = {
           createdAt?: string | null
           createdBy?: string | null
           description?: string | null
+          discountAmount?: number | null
           endDate?: string | null
           feeActive?: boolean | null
-          feeAmount?: number | null
           feeState?: string | null
           feeTaxable?: boolean | null
           id?: string
@@ -1118,6 +1118,7 @@ export type Database = {
           category_id: string
           created_at: string | null
           description: string | null
+          docusign_template_id: string | null
           id: string
           is_internal_only: boolean | null
           is_required: boolean | null
@@ -1131,6 +1132,7 @@ export type Database = {
           category_id: string
           created_at?: string | null
           description?: string | null
+          docusign_template_id?: string | null
           id?: string
           is_internal_only?: boolean | null
           is_required?: boolean | null
@@ -1144,6 +1146,7 @@ export type Database = {
           category_id?: string
           created_at?: string | null
           description?: string | null
+          docusign_template_id?: string | null
           id?: string
           is_internal_only?: boolean | null
           is_required?: boolean | null
