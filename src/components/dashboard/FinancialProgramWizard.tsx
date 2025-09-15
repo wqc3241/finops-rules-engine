@@ -293,7 +293,7 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
 
   const orderTypes = [
     { id: "INV", label: "Inventory (INV)" },
-    { id: "CON", label: "Contract (CON)" }
+    { id: "CON", label: "Configurator (CON)" }
   ];
 
   const isFormValid = () => {
