@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { DealStructureItem, DealStructureStipulation } from '@/types/application';
 import StipulationsTable from './StipulationsTable';
@@ -8,6 +8,8 @@ import ApprovedDealStructure from './ApprovedDealStructure';
 import CustomerDealStructure from './CustomerDealStructure';
 import { Separator } from '@/components/ui/separator';
 import { useDealFinancialNavigation } from '@/hooks/useDealFinancialNavigation';
+import { SendDocumentsToDTModal } from '../DocumentsView/SendDocumentsToDTModal';
+import { useParams } from 'react-router-dom';
 
 interface ExpandedViewProps {
   requested: DealStructureItem[];
@@ -59,6 +61,8 @@ const ExpandedView: React.FC<ExpandedViewProps> = ({
   onCancelCustomerEdit
 }) => {
   const { navigateToFinancialSection } = useDealFinancialNavigation();
+  const { id: applicationId } = useParams();
+  const [showSendDocumentsModal, setShowSendDocumentsModal] = useState(false);
 
   const handleViewFinancialDetail = () => {
     if (onViewFinancialDetail) {
@@ -125,7 +129,12 @@ const ExpandedView: React.FC<ExpandedViewProps> = ({
           <div className="flex justify-between items-center my-6">
             <h4 className="text-md font-medium">Stipulations</h4>
             <div className="space-x-2">
-              <Button variant="outline">Send Documents To DT</Button>
+              <Button 
+                variant="outline" 
+                onClick={() => setShowSendDocumentsModal(true)}
+              >
+                Send Documents To DT
+              </Button>
               <Button variant="outline">Add Stipulation</Button>
             </div>
           </div>
@@ -140,6 +149,15 @@ const ExpandedView: React.FC<ExpandedViewProps> = ({
             {contractStatus}
           </span>
         </div>
+      )}
+
+      {/* Send Documents To DT Modal */}
+      {applicationId && (
+        <SendDocumentsToDTModal
+          open={showSendDocumentsModal}
+          onOpenChange={setShowSendDocumentsModal}
+          applicationId={applicationId}
+        />
       )}
     </>
   );
