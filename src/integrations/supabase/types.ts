@@ -848,12 +848,17 @@ export type Database = {
           gateway_id: string | null
           geo_code: string | null
           id: string
+          lease_taxes_paid: string | null
+          lease_taxes_remitted: string | null
           legal_entity_address: string | null
           legal_entity_city: string | null
           legal_entity_name: string | null
           legal_entity_phone: string | null
           legal_entity_state: string | null
           legal_entity_zip: string | null
+          license_number: string | null
+          licensed: string
+          remittance_responsibility: string | null
           selling_state: string | null
         }
         Insert: {
@@ -869,12 +874,17 @@ export type Database = {
           gateway_id?: string | null
           geo_code?: string | null
           id: string
+          lease_taxes_paid?: string | null
+          lease_taxes_remitted?: string | null
           legal_entity_address?: string | null
           legal_entity_city?: string | null
           legal_entity_name?: string | null
           legal_entity_phone?: string | null
           legal_entity_state?: string | null
           legal_entity_zip?: string | null
+          license_number?: string | null
+          licensed?: string
+          remittance_responsibility?: string | null
           selling_state?: string | null
         }
         Update: {
@@ -890,12 +900,17 @@ export type Database = {
           gateway_id?: string | null
           geo_code?: string | null
           id?: string
+          lease_taxes_paid?: string | null
+          lease_taxes_remitted?: string | null
           legal_entity_address?: string | null
           legal_entity_city?: string | null
           legal_entity_name?: string | null
           legal_entity_phone?: string | null
           legal_entity_state?: string | null
           legal_entity_zip?: string | null
+          license_number?: string | null
+          licensed?: string
+          remittance_responsibility?: string | null
           selling_state?: string | null
         }
         Relationships: []
