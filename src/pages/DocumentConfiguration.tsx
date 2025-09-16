@@ -501,8 +501,13 @@ const DocumentConfiguration: React.FC = () => {
             setDeletingCategory(null);
           }
         }}
-        title="Delete Category"
-        description="Are you sure you want to delete this category? This action cannot be undone and will also delete all associated document types and acceptable files."
+        title="Delete Document Category"
+        description={(() => {
+          const categoryToDelete = categories.find(cat => cat.id === deletingCategory);
+          const associatedTypes = documentTypes.filter(type => type.category_id === deletingCategory);
+          
+          return `Are you sure you want to delete "${categoryToDelete?.name}"? This will also permanently delete ${associatedTypes.length} document type${associatedTypes.length !== 1 ? 's' : ''} and all associated documents. This action cannot be undone.`;
+        })()}
       />
 
       <DeleteConfirmationDialog
