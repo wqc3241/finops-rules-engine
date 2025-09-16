@@ -1,7 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ChevronLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ApplicationDetails, VehicleData } from '@/types/application';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface ApplicationHeaderProps {
   details: ApplicationDetails;
@@ -10,6 +17,8 @@ interface ApplicationHeaderProps {
 }
 
 const ApplicationHeader: React.FC<ApplicationHeaderProps> = ({ details, vehicleData, deliveryDate }) => {
+  const [vehicleType, setVehicleType] = useState<string>("New");
+  
   // Enhanced status color mapping with more statuses (text colors for badges)
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -52,6 +61,19 @@ const ApplicationHeader: React.FC<ApplicationHeaderProps> = ({ details, vehicleD
             <span className="text-sm text-gray-600">
               <span className="font-medium">Type:</span> {details.type || 'N/A'}
             </span>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600 font-medium">Vehicle Type:</span>
+              <Select value={vehicleType} onValueChange={setVehicleType}>
+                <SelectTrigger className="w-20 h-7 text-sm bg-white border border-gray-300 shadow-sm z-50">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-white border border-gray-300 shadow-lg z-50">
+                  <SelectItem value="New">New</SelectItem>
+                  <SelectItem value="Used">Used</SelectItem>
+                  <SelectItem value="Demo">Demo</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             {vehicleData?.vin && (
               <span className="text-sm text-gray-600">
                 <span className="font-medium">VIN:</span> <span className="font-mono">{vehicleData.vin}</span>
