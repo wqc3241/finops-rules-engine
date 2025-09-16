@@ -25,6 +25,7 @@ import AddDocumentCategoryModal from './DocumentsView/AddDocumentCategoryModal';
 import AddDocumentModal from './DocumentsView/AddDocumentModal';
 import { useDocuments, useSeedDocuments } from '@/hooks/useDocuments';
 import { useDocumentCategories } from '@/hooks/useDocumentConfiguration';
+import { useTeamPermissions } from '@/hooks/useTeamPermissions';
 import { toast } from 'sonner';
 
 interface DocumentsViewProps {
@@ -40,6 +41,12 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
   const { data: documents = [], isLoading: documentsLoading, error: documentsError } = useDocuments(applicationId);
   const { data: categories = [], isLoading: categoriesLoading } = useDocumentCategories();
   const seedDocuments = useSeedDocuments();
+  const { canAddDocumentToCategory, canManageCategory, isLoading: permissionsLoading } = useTeamPermissions();
+
+  // Filter categories based on user permissions
+  const availableCategories = categories.filter(category => 
+    canAddDocumentToCategory(category.id)
+  );
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -159,7 +166,7 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
             <span className="text-xs font-medium">All Documents</span>
             <span className="text-xs opacity-70">({documents.length})</span>
           </button>
-          {categories.map(category => {
+          {availableCategories.map(category => {
             const categoryDocs = getDocumentsByCategory(category.name);
             
             return (
@@ -189,20 +196,32 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
             <div>
               <h3 className="text-lg font-semibold">
                 {selectedCategory === 'all' ? 'All Documents' : 
-                 categories.find(cat => cat.name === selectedCategory)?.name}
+                 availableCategories.find(cat => cat.name === selectedCategory)?.name}
               </h3>
               <p className="text-sm text-muted-foreground">
                 {filteredDocuments.length} document{filteredDocuments.length !== 1 ? 's' : ''}
               </p>
             </div>
-            <Button 
-              size="sm" 
-              onClick={() => setShowAddDocumentModal(true)}
-              className="text-xs"
-            >
-              <Plus className="h-3 w-3 mr-1" />
-              Add Document
-            </Button>
+            {(() => {
+              const selectedCategoryData = availableCategories.find(cat => cat.name === selectedCategory);
+              const canAddToThisCategory = selectedCategory === 'all' || 
+                (selectedCategoryData && canAddDocumentToCategory(selectedCategoryData.id));
+              
+              return canAddToThisCategory ? (
+                <Button 
+                  size="sm" 
+                  onClick={() => setShowAddDocumentModal(true)}
+                  className="text-xs"
+                >
+                  <Plus className="h-3 w-3 mr-1" />
+                  Add Document
+                </Button>
+              ) : (
+                <div className="text-xs text-muted-foreground px-3 py-2">
+                  No permission to add documents
+                </div>
+              );
+            })()}
           </div>
         </div>
         
