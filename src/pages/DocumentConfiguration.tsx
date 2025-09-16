@@ -30,6 +30,7 @@ import {
   DocumentType,
   DocumentAcceptableFile
 } from '@/hooks/useDocumentConfiguration';
+import { MultiSelect } from '@/components/ui/multi-select';
 import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog';
 
 const DocumentConfiguration: React.FC = () => {
@@ -147,36 +148,54 @@ const DocumentConfiguration: React.FC = () => {
                            }`}
                            onClick={() => handleCategorySelect(category.id)}
                          >
-                           <div className="flex items-center justify-between">
-                             <div className="flex items-center gap-2">
-                               <FolderOpen className="h-4 w-4" />
-                               <span className="font-medium text-sm">{category.name}</span>
-                             </div>
-                             <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                               <Button
-                                 size="sm"
-                                 variant="ghost"
-                                 onClick={(e) => {
-                                   e.stopPropagation();
-                                   setEditingCategory(category);
-                                 }}
-                                 className="h-6 w-6 p-0"
-                               >
-                                 <Edit className="h-3 w-3" />
-                               </Button>
-                               <Button
-                                 size="sm"
-                                 variant="ghost"
-                                 onClick={(e) => {
-                                   e.stopPropagation();
-                                   setDeletingCategory(category.id);
-                                 }}
-                                 className="h-6 w-6 p-0 text-destructive"
-                               >
-                                 <Trash2 className="h-3 w-3" />
-                               </Button>
-                             </div>
-                           </div>
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <FolderOpen className="h-4 w-4" />
+                                <div className="flex flex-col gap-1">
+                                  <span className="font-medium text-sm">{category.name}</span>
+                                  {category.allowed_teams && category.allowed_teams.length > 0 && (
+                                    <div className="flex gap-1 flex-wrap">
+                                      {category.allowed_teams.map(team => {
+                                        const teamOption = TEAM_OPTIONS.find(opt => opt.value === team);
+                                        return (
+                                          <Badge 
+                                            key={team} 
+                                            variant="outline" 
+                                            className="text-xs h-4 px-1 py-0"
+                                          >
+                                            {teamOption?.label || team}
+                                          </Badge>
+                                        );
+                                      })}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setEditingCategory(category);
+                                  }}
+                                  className="h-6 w-6 p-0"
+                                >
+                                  <Edit className="h-3 w-3" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setDeletingCategory(category.id);
+                                  }}
+                                  className="h-6 w-6 p-0 text-destructive"
+                                >
+                                  <Trash2 className="h-3 w-3" />
+                                </Button>
+                              </div>
+                            </div>
                          </div>
                        ))
                      )}
@@ -515,6 +534,15 @@ const DocumentConfiguration: React.FC = () => {
   );
 };
 
+// Team options for multi-select
+const TEAM_OPTIONS = [
+  { value: 'SALES', label: 'Sales' },
+  { value: 'ORDER_OPS', label: 'Order Ops' },
+  { value: 'FS_OPS', label: 'FS Ops' },
+  { value: 'SERVICE', label: 'Service' },
+  { value: 'REMARKETING', label: 'Remarketing' }
+];
+
 // Category Form Component
 const CategoryForm: React.FC<{
   category?: DocumentCategory;
@@ -524,7 +552,8 @@ const CategoryForm: React.FC<{
   const [formData, setFormData] = useState({
     name: category?.name || '',
     description: category?.description || '',
-    icon: category?.icon || '',
+    icon: category?.icon || 'FileText',
+    allowed_teams: category?.allowed_teams || [],
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -551,7 +580,7 @@ const CategoryForm: React.FC<{
             id="icon"
             value={formData.icon}
             onChange={(e) => setFormData(prev => ({ ...prev, icon: e.target.value }))}
-            placeholder="Icon name (e.g., folder)"
+            placeholder="Icon name (e.g., FileText)"
           />
         </div>
       </div>
@@ -565,6 +594,20 @@ const CategoryForm: React.FC<{
           placeholder="Enter category description"
           rows={3}
         />
+      </div>
+
+      <div>
+        <Label htmlFor="teams">Allowed Teams</Label>
+        <MultiSelect
+          options={TEAM_OPTIONS}
+          selected={formData.allowed_teams}
+          onChange={(teams) => setFormData(prev => ({ ...prev, allowed_teams: teams }))}
+          placeholder="Select teams that can manage this category"
+          className="w-full"
+        />
+        <p className="text-sm text-muted-foreground mt-1">
+          If no teams are selected, all teams with document access can manage this category
+        </p>
       </div>
 
       <div className="flex justify-end gap-2">

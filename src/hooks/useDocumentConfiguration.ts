@@ -7,6 +7,7 @@ export interface DocumentCategory {
   name: string;
   description?: string;
   icon: string;
+  allowed_teams: string[];
   created_at: string;
   updated_at?: string;
 }
@@ -41,7 +42,7 @@ export const useDocumentCategories = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('document_categories')
-        .select('*')
+        .select('id, name, description, icon, allowed_teams, created_at, updated_at')
         .order('name');
       
       if (error) throw error;

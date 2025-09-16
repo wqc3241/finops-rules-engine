@@ -1033,6 +1033,7 @@ export type Database = {
       }
       document_categories: {
         Row: {
+          allowed_teams: string[] | null
           created_at: string | null
           description: string | null
           icon: string | null
@@ -1041,6 +1042,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          allowed_teams?: string[] | null
           created_at?: string | null
           description?: string | null
           icon?: string | null
@@ -1049,6 +1051,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          allowed_teams?: string[] | null
           created_at?: string | null
           description?: string | null
           icon?: string | null
@@ -2564,6 +2567,10 @@ export type Database = {
       }
       is_fs_ops_or_admin: {
         Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      user_can_manage_category: {
+        Args: { category_id: string }
         Returns: boolean
       }
     }
