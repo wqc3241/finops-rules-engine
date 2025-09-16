@@ -15,7 +15,8 @@ export const baseApplicationDetails: ApplicationFullDetails = {
     edition: 'Standard',
     orderedBy: 'Unknown Customer',
     status: 'Pending',
-    type: 'Lease' // Default to Lease type
+    type: 'Lease', // Default to Lease type
+    vehicleType: 'New'
   },
   applicantInfo,
   coApplicantInfo,

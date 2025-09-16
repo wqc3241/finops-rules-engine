@@ -13,7 +13,8 @@ export const approvedApplications: Record<string, ApplicationFullDetails> = {
       edition: 'Dream Edition',
       orderedBy: 'Becca Yukelson',
       status: 'Approved',
-      type: 'Lease'
+      type: 'Lease',
+      vehicleType: 'New'
     },
     orderDetails: {
       ...orderDetails,
@@ -103,7 +104,8 @@ export const approvedApplications: Record<string, ApplicationFullDetails> = {
       edition: 'Touring',
       orderedBy: 'Olivia Thompson',
       status: 'Approved',
-      type: 'Lease'
+      type: 'Lease',
+      vehicleType: 'Demo'
     },
     orderDetails: {
       ...orderDetails,

@@ -65,7 +65,8 @@ export const pendingApplications: Record<string, ApplicationFullDetails> = {
       edition: 'Pure',
       orderedBy: 'David Chen',
       status: 'Pending',
-      type: 'Loan'
+      type: 'Loan',
+      vehicleType: 'Used'
     },
     orderDetails: {
       ...orderDetails,

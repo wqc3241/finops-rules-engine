@@ -7,6 +7,7 @@ export interface ApplicationDetails {
   orderedBy: string;
   status: string;
   type: string;
+  vehicleType?: string;
   // Reapplication fields
   reapplyEnabled?: boolean;
   reapplicationSequence?: number;
