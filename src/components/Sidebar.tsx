@@ -59,29 +59,19 @@ const Sidebar = ({ open, activeItem, setActiveItem }: SidebarProps) => {
       path: '/applications'
     },
     {
-      title: 'Financial Pricing',
-      icon: <DollarSign className="h-5 w-5" />,
-      path: '/financial-pricing'
-    },
-    {
-      title: 'Financing Data Table',
-      icon: <Receipt className="h-5 w-5" />,
-      path: '/financing-data-table'
-    },
-    {
       title: 'Dashboard',
       icon: <LayoutDashboard className="h-5 w-5" />,
       path: '/dashboard'
     },
     {
-      title: 'Report',
-      icon: <BarChart className="h-5 w-5" />,
-      path: '/report'
+      title: 'Document Configuration',
+      icon: <FileCheck className="h-5 w-5" />,
+      path: '/document-configuration'
     },
     {
-      title: 'Tasks',
-      icon: <ListTodo className="h-5 w-5" />,
-      path: '/tasks'
+      title: 'Financial Pricing',
+      icon: <DollarSign className="h-5 w-5" />,
+      path: '/financial-pricing'
     },
     {
       title: 'Financing Config',
@@ -89,14 +79,24 @@ const Sidebar = ({ open, activeItem, setActiveItem }: SidebarProps) => {
       path: '/lfs-setup'
     },
     {
+      title: 'Financing Data Table',
+      icon: <Receipt className="h-5 w-5" />,
+      path: '/financing-data-table'
+    },
+    {
+      title: 'Report',
+      icon: <BarChart className="h-5 w-5" />,
+      path: '/report'
+    },
+    {
       title: 'Sales Pricing Rules',
       icon: <Receipt className="h-5 w-5" />,
       path: '/sales-pricing-rules'
     },
     {
-      title: 'Document Configuration',
-      icon: <FileCheck className="h-5 w-5" />,
-      path: '/document-configuration'
+      title: 'Tasks',
+      icon: <ListTodo className="h-5 w-5" />,
+      path: '/tasks'
     },
   ];
 
