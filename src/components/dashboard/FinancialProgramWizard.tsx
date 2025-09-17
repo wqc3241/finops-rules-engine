@@ -11,6 +11,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { Plus } from "lucide-react";
+
+import AddCreditProfileModal from "./AddCreditProfileModal";
+import AddPricingConfigModal from "./AddPricingConfigModal";
 
 import { usePricingTypes } from "@/hooks/usePricingTypes";
 import { generateProgramCode } from "@/utils/programCodeGenerator";
@@ -111,6 +115,45 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
   const [financialProducts, setFinancialProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const { pricingTypes } = usePricingTypes();
+
+  // Modal states
+  const [showCreditProfileModal, setShowCreditProfileModal] = useState(false);
+  const [showPricingConfigModal, setShowPricingConfigModal] = useState(false);
+
+  // Function to refresh credit profiles data
+  const refreshCreditProfiles = async () => {
+    try {
+      const { data } = await supabase.from('credit_profiles').select('*');
+      setCreditProfiles((data || []).map((r: any) => ({
+        id: r.profile_id,
+        priority: r.priority,
+        minCreditScore: r.min_credit_score,
+        maxCreditScore: r.max_credit_score,
+        minIncome: r.min_income,
+        maxIncome: r.max_income,
+        employmentType: r.employment_type,
+      })));
+    } catch (error) {
+      console.error('Error refreshing credit profiles:', error);
+    }
+  };
+
+  // Function to refresh pricing configs data
+  const refreshPricingConfigs = async () => {
+    try {
+      const { data } = await supabase.from('pricing_configs').select('*');
+      setPricingConfigs((data || []).map((r: any) => ({
+        id: r.pricing_rule_id,
+        minLTV: r.min_ltv,
+        maxLTV: r.max_ltv,
+        minTerm: r.min_term,
+        maxTerm: r.max_term,
+        priority: r.priority,
+      })));
+    } catch (error) {
+      console.error('Error refreshing pricing configs:', error);
+    }
+  };
 
   // Load all data on mount
   useEffect(() => {
@@ -725,7 +768,19 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
                 <div className="space-y-6">
                   {/* Credit Profiles Matrix */}
                   <div className="space-y-3">
-                    <Label className="font-medium text-sm">Credit Profiles *</Label>
+                    <div className="flex items-center justify-between">
+                      <Label className="font-medium text-sm">Credit Profiles *</Label>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowCreditProfileModal(true)}
+                        className="flex items-center gap-1 text-xs h-7"
+                      >
+                        <Plus className="h-3 w-3" />
+                        Credit Profiles
+                      </Button>
+                    </div>
                     <div className="border rounded-lg overflow-hidden">
                       <div className="bg-muted/50 px-3 py-2 border-b">
                         <div className="grid gap-2" style={{ gridTemplateColumns: `2fr ${wizardData.pricingTypes.map(() => '1fr').join(' ')}` }}>
@@ -786,7 +841,19 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
 
                   {/* Pricing Configurations Matrix */}
                   <div className="space-y-3">
-                    <Label className="font-medium text-sm">Pricing Configurations *</Label>
+                    <div className="flex items-center justify-between">
+                      <Label className="font-medium text-sm">Pricing Configurations *</Label>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowPricingConfigModal(true)}
+                        className="flex items-center gap-1 text-xs h-7"
+                      >
+                        <Plus className="h-3 w-3" />
+                        Pricing Config
+                      </Button>
+                    </div>
                     <div className="border rounded-lg overflow-hidden">
                       <div className="bg-muted/50 px-3 py-2 border-b">
                         <div className="grid gap-2" style={{ gridTemplateColumns: `2fr ${wizardData.pricingTypes.map(() => '1fr').join(' ')}` }}>
@@ -908,6 +975,18 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
           </>
         )}
       </DialogContent>
+
+      {/* Modals */}
+      <AddCreditProfileModal
+        isOpen={showCreditProfileModal}
+        onClose={() => setShowCreditProfileModal(false)}
+        onSave={refreshCreditProfiles}
+      />
+      <AddPricingConfigModal
+        isOpen={showPricingConfigModal}
+        onClose={() => setShowPricingConfigModal(false)}
+        onSave={refreshPricingConfigs}
+      />
     </Dialog>
   );
 };
