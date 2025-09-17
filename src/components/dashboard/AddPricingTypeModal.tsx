@@ -9,13 +9,15 @@ import { toast } from "sonner";
 interface AddPricingTypeModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onAddPricingType: (typeCode: string, typeName: string) => Promise<boolean>;
+  onAddPricingType: (typeCode: string, typeName: string, financialProductIds?: string[]) => Promise<boolean>;
+  selectedFinancialProduct?: string;
 }
 
 const AddPricingTypeModal = ({
   open,
   onOpenChange,
   onAddPricingType,
+  selectedFinancialProduct,
 }: AddPricingTypeModalProps) => {
   const [typeCode, setTypeCode] = useState("");
   const [typeName, setTypeName] = useState("");
@@ -37,7 +39,8 @@ const AddPricingTypeModal = ({
     setIsSubmitting(true);
     
     try {
-      const success = await onAddPricingType(typeCode.trim(), typeName.trim());
+      const financialProductIds = selectedFinancialProduct ? [selectedFinancialProduct] : undefined;
+      const success = await onAddPricingType(typeCode.trim(), typeName.trim(), financialProductIds);
       if (success) {
         // Reset form
         setTypeCode("");

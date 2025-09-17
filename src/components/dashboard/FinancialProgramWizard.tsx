@@ -157,6 +157,11 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
     }
   };
 
+  // Wrapper function to add pricing type with selected financial product
+  const handleAddPricingType = async (typeCode: string, typeName: string, financialProductIds?: string[]) => {
+    return await addPricingType(typeCode, typeName, financialProductIds);
+  };
+
   // Load all data on mount
   useEffect(() => {
     const loadData = async () => {
@@ -1004,7 +1009,8 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
       <AddPricingTypeModal
         open={showPricingTypeModal}
         onOpenChange={setShowPricingTypeModal}
-        onAddPricingType={addPricingType}
+        onAddPricingType={handleAddPricingType}
+        selectedFinancialProduct={wizardData.financialProduct}
       />
     </Dialog>
   );

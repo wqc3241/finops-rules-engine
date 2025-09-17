@@ -37,13 +37,17 @@ export const usePricingTypes = () => {
     fetchTypes();
   }, []);
 
-  const addPricingType = async (typeCode: string, typeName: string) => {
+  const addPricingType = async (typeCode: string, typeName: string, financialProductIds?: string[]) => {
     if (pricingTypes.some((pt) => pt.typeCode === typeCode)) {
       return false;
     }
     const { error } = await supabase
       .from("pricing_types")
-      .insert({ type_code: typeCode, type_name: typeName });
+      .insert({ 
+        type_code: typeCode, 
+        type_name: typeName,
+        financial_products_list: financialProductIds || []
+      });
     if (error) return false;
     await fetchTypes();
     return true;
