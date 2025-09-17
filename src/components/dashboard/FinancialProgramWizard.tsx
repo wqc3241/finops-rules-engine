@@ -15,6 +15,7 @@ import { Plus } from "lucide-react";
 
 import AddCreditProfileModal from "./AddCreditProfileModal";
 import AddPricingConfigModal from "./AddPricingConfigModal";
+import AddPricingTypeModal from "./AddPricingTypeModal";
 
 import { usePricingTypes } from "@/hooks/usePricingTypes";
 import { generateProgramCode } from "@/utils/programCodeGenerator";
@@ -114,11 +115,12 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
   const [geos, setGeos] = useState<any[]>([]);
   const [financialProducts, setFinancialProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const { pricingTypes } = usePricingTypes();
+  const { pricingTypes, addPricingType } = usePricingTypes();
 
   // Modal states
   const [showCreditProfileModal, setShowCreditProfileModal] = useState(false);
   const [showPricingConfigModal, setShowPricingConfigModal] = useState(false);
+  const [showPricingTypeModal, setShowPricingTypeModal] = useState(false);
 
   // Function to refresh credit profiles data
   const refreshCreditProfiles = async () => {
@@ -717,7 +719,19 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
                 <Separator />
 
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">Available Pricing Types *</Label>
+                  <div className="flex justify-between items-center">
+                    <Label className="text-sm font-medium">Available Pricing Types *</Label>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowPricingTypeModal(true)}
+                      className="flex items-center gap-2 text-xs"
+                    >
+                      <Plus className="h-3 w-3" />
+                      Pricing Type
+                    </Button>
+                  </div>
                   {!wizardData.financialProduct ? (
                     <div className="text-sm text-muted-foreground p-2 bg-muted rounded-lg">
                       Please select a Financial Product first to see available Pricing Types.
@@ -986,6 +1000,11 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
         isOpen={showPricingConfigModal}
         onClose={() => setShowPricingConfigModal(false)}
         onSave={refreshPricingConfigs}
+      />
+      <AddPricingTypeModal
+        open={showPricingTypeModal}
+        onOpenChange={setShowPricingTypeModal}
+        onAddPricingType={addPricingType}
       />
     </Dialog>
   );
