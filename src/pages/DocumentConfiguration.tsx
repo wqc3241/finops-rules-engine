@@ -96,7 +96,7 @@ const DocumentConfiguration: React.FC = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-10 gap-6">
+              <div className="grid grid-cols-12 gap-6">
                 {/* Categories List */}
                 <Card className="col-span-4">
                   <CardHeader>
@@ -308,7 +308,7 @@ const DocumentConfiguration: React.FC = () => {
                 </Card>
 
                 {/* Acceptable Files */}
-                <Card className="col-span-2">
+                <Card className="col-span-4">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 justify-between">
                       <div className="flex items-center gap-2 text-sm">
