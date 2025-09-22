@@ -917,83 +917,74 @@ export type Database = {
       }
       discount_rules: {
         Row: {
-          _id: string | null
           applicable_purchase_type: string[]
           applicable_title_status: string[]
           applicable_vehicle_model: string[]
           applicable_vehicle_year: number[]
           category: string | null
-          created_at: string
-          createdAt: string | null
+          created_at: string | null
           createdBy: string | null
           description: string | null
+          discount_geo: string | null
+          discount_taxable: boolean | null
           discountAmount: number | null
           endDate: string | null
           feeActive: boolean | null
-          feeState: string | null
-          feeTaxable: boolean | null
           id: string
           name: string | null
           payType: string | null
           startDate: string | null
           subcategory: string | null
           type: string | null
-          updated_at: string
-          updatedAt: string | null
+          updated_at: string | null
           updatedBy: string | null
           verification_required: boolean | null
         }
         Insert: {
-          _id?: string | null
           applicable_purchase_type?: string[]
           applicable_title_status?: string[]
           applicable_vehicle_model?: string[]
           applicable_vehicle_year?: number[]
           category?: string | null
-          created_at?: string
-          createdAt?: string | null
+          created_at?: string | null
           createdBy?: string | null
           description?: string | null
+          discount_geo?: string | null
+          discount_taxable?: boolean | null
           discountAmount?: number | null
           endDate?: string | null
           feeActive?: boolean | null
-          feeState?: string | null
-          feeTaxable?: boolean | null
           id?: string
           name?: string | null
           payType?: string | null
           startDate?: string | null
           subcategory?: string | null
           type?: string | null
-          updated_at?: string
-          updatedAt?: string | null
+          updated_at?: string | null
           updatedBy?: string | null
           verification_required?: boolean | null
         }
         Update: {
-          _id?: string | null
           applicable_purchase_type?: string[]
           applicable_title_status?: string[]
           applicable_vehicle_model?: string[]
           applicable_vehicle_year?: number[]
           category?: string | null
-          created_at?: string
-          createdAt?: string | null
+          created_at?: string | null
           createdBy?: string | null
           description?: string | null
+          discount_geo?: string | null
+          discount_taxable?: boolean | null
           discountAmount?: number | null
           endDate?: string | null
           feeActive?: boolean | null
-          feeState?: string | null
-          feeTaxable?: boolean | null
           id?: string
           name?: string | null
           payType?: string | null
           startDate?: string | null
           subcategory?: string | null
           type?: string | null
-          updated_at?: string
-          updatedAt?: string | null
+          updated_at?: string | null
           updatedBy?: string | null
           verification_required?: boolean | null
         }
@@ -1131,6 +1122,48 @@ export type Database = {
           },
         ]
       }
+      document_templates: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          docusign_template_id: string | null
+          id: string
+          is_active: boolean
+          name: string
+          template_content: string | null
+          template_id: string
+          template_type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          docusign_template_id?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          template_content?: string | null
+          template_id: string
+          template_type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          docusign_template_id?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          template_content?: string | null
+          template_id?: string
+          template_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       document_types: {
         Row: {
           category_id: string
@@ -1144,6 +1177,7 @@ export type Database = {
           product_types: string[] | null
           requires_signature: boolean | null
           sort_order: number | null
+          template_id: string | null
           updated_at: string | null
         }
         Insert: {
@@ -1158,6 +1192,7 @@ export type Database = {
           product_types?: string[] | null
           requires_signature?: boolean | null
           sort_order?: number | null
+          template_id?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -1172,6 +1207,7 @@ export type Database = {
           product_types?: string[] | null
           requires_signature?: boolean | null
           sort_order?: number | null
+          template_id?: string | null
           updated_at?: string | null
         }
         Relationships: [
@@ -1180,6 +1216,13 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "document_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_types_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "document_templates"
             referencedColumns: ["id"]
           },
         ]
@@ -2018,6 +2061,7 @@ export type Database = {
       pricing_configs: {
         Row: {
           created_at: string | null
+          "Mark Up Percent": number | null
           max_lease_mileage: number | null
           max_ltv: number | null
           max_term: number | null
@@ -2029,6 +2073,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          "Mark Up Percent"?: number | null
           max_lease_mileage?: number | null
           max_ltv?: number | null
           max_term?: number | null
@@ -2040,6 +2085,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          "Mark Up Percent"?: number | null
           max_lease_mileage?: number | null
           max_ltv?: number | null
           max_term?: number | null
@@ -2543,6 +2589,10 @@ export type Database = {
     }
     Functions: {
       current_user_role: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      generate_template_id: {
         Args: Record<PropertyKey, never>
         Returns: string
       }
