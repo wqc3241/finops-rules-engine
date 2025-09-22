@@ -98,9 +98,6 @@ const DocumentConfiguration: React.FC = () => {
               </div>
             </div>
             
-            {/* Document Templates Section */}
-            <DocumentTemplatesSection />
-            
             <div className="bg-white rounded-lg shadow-sm p-6">
 
               <div className="grid grid-cols-12 gap-6">
@@ -421,9 +418,12 @@ const DocumentConfiguration: React.FC = () => {
                      )}
                   </CardContent>
                 </Card>
-              </div>
-            </div>
-          </div>
+               </div>
+             </div>
+             
+             {/* Document Templates Section */}
+             <DocumentTemplatesSection />
+           </div>
         </main>
       </div>
 
