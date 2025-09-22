@@ -447,8 +447,8 @@ useEffect(() => {
           'Discount Type': rule.type,
           'Discount Amount': rule.discountAmount,
           'Discount Active': rule.feeActive ? 'Yes' : 'No',
-          'Discount State': rule.feeState,
-          'Taxable': rule.feeTaxable ? 'Yes' : 'No',
+          'Discount State': rule.discount_geo,
+          'Taxable': rule.discount_taxable ? 'Yes' : 'No',
           'Category': rule.category,
           'Subcategory': rule.subcategory,
           'Description': rule.description,
@@ -459,7 +459,7 @@ useEffect(() => {
           'Applicable Purchase Types': rule.applicable_purchase_type?.join(', ') || '',
           'Applicable Title Status': rule.applicable_title_status?.join(', ') || '',
           'Pay Type': rule.payType,
-          'Created At': new Date(rule.createdAt).toLocaleDateString()
+          'Created At': new Date(rule.created_at).toLocaleDateString()
         })) || [];
 
         // Create Excel workbook

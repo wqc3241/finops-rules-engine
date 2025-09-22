@@ -22,7 +22,8 @@ export interface DocumentType {
   is_internal_only: boolean;
   product_types: string[];
   sort_order: number;
-  docusign_template_id?: string;
+  template_id?: string;
+  docusign_template_id?: string; // Keep for backward compatibility
   created_at: string;
   updated_at?: string;
 }

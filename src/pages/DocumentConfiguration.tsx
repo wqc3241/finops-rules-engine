@@ -30,8 +30,11 @@ import {
   DocumentType,
   DocumentAcceptableFile
 } from '@/hooks/useDocumentConfiguration';
+import { useDocumentTemplates } from '@/hooks/useDocumentTemplates';
 import { MultiSelect } from '@/components/ui/multi-select';
 import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog';
+import SectionHeader from '@/components/dashboard/SectionHeader';
+import { DocumentTemplatesSection } from '@/components/documents/DocumentTemplatesSection';
 
 const DocumentConfiguration: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -85,16 +88,20 @@ const DocumentConfiguration: React.FC = () => {
           setActiveItem={setActiveItem} 
         />
         <main className="flex-1 overflow-auto p-4">
-          <div className="container mx-auto px-4 py-6">
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <h1 className="text-3xl font-bold">Document Configuration</h1>
-                  <p className="text-muted-foreground">
-                    Configure document categories, types, and acceptable file formats
-                  </p>
-                </div>
+          <div className="container mx-auto px-4 py-6 space-y-6">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h1 className="text-3xl font-bold">Document Configuration</h1>
+                <p className="text-muted-foreground">
+                  Manage document templates, categories, types, and acceptable file formats
+                </p>
               </div>
+            </div>
+            
+            {/* Document Templates Section */}
+            <DocumentTemplatesSection />
+            
+            <div className="bg-white rounded-lg shadow-sm p-6">
 
               <div className="grid grid-cols-12 gap-6">
                 {/* Categories List */}
@@ -252,15 +259,21 @@ const DocumentConfiguration: React.FC = () => {
                              onClick={() => handleTypeSelect(type.id)}
                            >
                              <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                  <FileText className="h-4 w-4" />
-                                  <span className="font-medium text-sm">{type.name}</span>
-                                  {type.docusign_template_id && (
-                                    <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-800">
-                                      DocuSign
-                                    </Badge>
-                                  )}
-                                </div>
+                                 <div className="flex items-center gap-2">
+                                   <FileText className="h-4 w-4" />
+                                   <span className="font-medium text-sm">{type.name}</span>
+                                   {type.template_id && (
+                                     <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-800">
+                                       Template
+                                     </Badge>
+                                   )}
+                                   {/* Backward compatibility for legacy DocuSign template IDs */}
+                                   {!type.template_id && type.docusign_template_id && (
+                                     <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-800">
+                                       DocuSign
+                                     </Badge>
+                                   )}
+                                 </div>
                                <div className="flex items-center gap-2">
                                  {type.is_required && (
                                    <Badge variant="secondary" className="text-xs">Required</Badge>
@@ -315,7 +328,7 @@ const DocumentConfiguration: React.FC = () => {
                         <File className="h-5 w-5" />
                         Acceptable Files
                       </div>
-                      {selectedDocumentType && !selectedTypeData?.docusign_template_id && (
+                      {selectedDocumentType && !(selectedTypeData?.template_id || selectedTypeData?.docusign_template_id) && (
                         <Dialog open={isCreateFileOpen} onOpenChange={setIsCreateFileOpen}>
                           <DialogTrigger asChild>
                             <Button size="sm" variant="outline" className="text-xs px-2">
@@ -344,8 +357,8 @@ const DocumentConfiguration: React.FC = () => {
                     </CardTitle>
                   </CardHeader>
                    <CardContent className="space-y-2">
-                     {selectedDocumentType ? (
-                       selectedTypeData?.docusign_template_id ? (
+                      {selectedDocumentType ? (
+                        selectedTypeData?.template_id || selectedTypeData?.docusign_template_id ? (
                          <div className="p-3 rounded-md bg-blue-50 border border-blue-200">
                            <div className="flex items-center gap-2 mb-2">
                              <svg className="h-4 w-4 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
@@ -631,6 +644,7 @@ const DocumentTypeForm: React.FC<{
   onSubmit: (data: any) => void;
   isLoading: boolean;
 }> = ({ categoryId, documentType, onSubmit, isLoading }) => {
+  const { data: templates = [] } = useDocumentTemplates();
   const [formData, setFormData] = useState({
     name: documentType?.name || '',
     description: documentType?.description || '',
@@ -639,7 +653,7 @@ const DocumentTypeForm: React.FC<{
     is_internal_only: documentType?.is_internal_only || false,
     product_types: documentType?.product_types || [],
     sort_order: documentType?.sort_order || 0,
-    docusign_template_id: documentType?.docusign_template_id || '',
+    template_id: documentType?.template_id || '',
     category_id: categoryId,
   });
 
@@ -685,16 +699,32 @@ const DocumentTypeForm: React.FC<{
       </div>
 
       <div>
-        <Label htmlFor="docusign_template_id">DocuSign Template ID</Label>
-        <Input
-          id="docusign_template_id"
-          value={formData.docusign_template_id}
-          onChange={(e) => setFormData(prev => ({ ...prev, docusign_template_id: e.target.value }))}
-          placeholder="Enter DocuSign template ID (optional)"
-        />
-        {formData.docusign_template_id && (
+        <Label htmlFor="template">Document Template</Label>
+        <Select
+          value={formData.template_id}
+          onValueChange={(value) => setFormData(prev => ({ ...prev, template_id: value }))}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select a template (optional)" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">No template</SelectItem>
+            {templates.map((template) => (
+              <SelectItem key={template.id} value={template.id}>
+                <div className="flex items-center gap-2">
+                  <span>{template.name}</span>
+                  <Badge variant={template.template_type === 'docusign' ? 'default' : 'secondary'} className="text-xs">
+                    {template.template_type === 'docusign' ? 'DocuSign' : 'HTML'}
+                  </Badge>
+                  <code className="text-xs text-muted-foreground">({template.template_id})</code>
+                </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {formData.template_id && (
           <p className="text-sm text-muted-foreground mt-1">
-            Note: When DocuSign Template ID is set, file type restrictions will be disabled.
+            Note: When a template is selected, file type restrictions will be managed by the template.
           </p>
         )}
       </div>
