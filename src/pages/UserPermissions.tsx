@@ -28,30 +28,24 @@ const UserPermissions = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 w-full">
-      <Navbar 
-        sidebarOpen={sidebarOpen}
-        setSidebarOpen={setSidebarOpen}
-      />
-      <div className="flex pt-16">
+    <div className="h-screen flex flex-col bg-gray-50">
+      <Navbar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+      <div className="flex flex-1 overflow-hidden">
         <Sidebar 
           open={sidebarOpen}
           activeItem={activeItem}
           setActiveItem={setActiveItem}
         />
-        <main className={`flex-1 transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-0'}`}>
-          <div className="p-8">
-            <div className="max-w-7xl mx-auto">
-              {/* Header Section */}
-              <div className="mb-8">
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="p-3 bg-green-100 rounded-xl">
-                    <Shield className="h-8 w-8 text-green-600" />
-                  </div>
-                  <div>
-                    <h1 className="text-4xl font-bold text-gray-900 mb-2">Your Permissions</h1>
-                    <p className="text-lg text-gray-600">View your current access permissions across different modules</p>
-                  </div>
+        <main className="flex-1 overflow-auto p-4">
+          <div className="container mx-auto px-4 py-6">
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="p-3 bg-green-100 rounded-xl">
+                  <Shield className="h-8 w-8 text-green-600" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-semibold text-gray-900">Your Permissions</h1>
+                  <p className="text-gray-600">View your current access permissions across different modules</p>
                 </div>
               </div>
               
