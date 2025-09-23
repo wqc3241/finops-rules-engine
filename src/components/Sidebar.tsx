@@ -42,6 +42,8 @@ interface SidebarProps {
 }
 
 const Sidebar = ({ open, activeItem, setActiveItem }: SidebarProps) => {
+  if (!open) return null;
+  
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -99,9 +101,7 @@ const Sidebar = ({ open, activeItem, setActiveItem }: SidebarProps) => {
   ];
 
   return (
-    <aside className={`fixed left-0 top-16 h-[calc(100vh-4rem)] bg-white border-r border-gray-200 z-30 transition-transform duration-300 ${
-      open ? 'translate-x-0 w-64' : '-translate-x-full w-64'
-    }`}>
+    <aside className="w-64 bg-white border-r border-gray-200 flex-shrink-0">
       <nav className="h-full flex flex-col">
         <div className="flex-1">
           {navItems.map((item) => (
