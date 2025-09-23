@@ -36,12 +36,15 @@ const ProfileSettings = () => {
         sidebarOpen={sidebarOpen}
         setSidebarOpen={setSidebarOpen}
       />
-      <Sidebar 
-        open={sidebarOpen}
-        activeItem={activeItem}
-        setActiveItem={setActiveItem}
-      />
-      <main className="flex-1 pt-16 min-h-screen bg-gray-50">
+      <div className="flex pt-16">
+        <Sidebar 
+          open={sidebarOpen}
+          activeItem={activeItem}
+          setActiveItem={setActiveItem}
+        />
+        <main className={`flex-1 min-h-screen bg-gray-50 transition-all duration-300 ${
+          sidebarOpen ? 'md:ml-0' : 'md:ml-0'
+        }`}>
           <div className="p-8">
             <div className="max-w-6xl mx-auto">
               {/* Header Section */}
@@ -157,6 +160,7 @@ const ProfileSettings = () => {
             </div>
           </div>
         </main>
+      </div>
     </div>
   );
 };

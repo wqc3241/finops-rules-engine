@@ -100,7 +100,9 @@ const Sidebar = ({ open, activeItem, setActiveItem }: SidebarProps) => {
 
   return (
     <aside className={`fixed left-0 top-16 h-[calc(100vh-4rem)] bg-white border-r border-gray-200 z-30 transition-transform duration-300 ${
-      open ? 'translate-x-0 w-64' : '-translate-x-full w-64'
+      open ? 'translate-x-0' : '-translate-x-full'
+    } w-64 md:relative md:top-0 md:h-full md:translate-x-0 ${
+      open ? 'md:block' : 'md:hidden'
     }`}>
       <nav className="h-full flex flex-col">
         <div className="flex-1">
