@@ -33,6 +33,7 @@ export interface Document {
     name: string;
     description?: string;
     docusign_template_id?: string;
+    template_id?: string;
   };
 }
 
@@ -48,6 +49,7 @@ export interface DocumentWithCategory extends Document {
     name: string;
     description?: string;
     docusign_template_id?: string;
+    template_id?: string;
   };
 }
 
