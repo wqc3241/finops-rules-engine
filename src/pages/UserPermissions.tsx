@@ -1,18 +1,21 @@
-
 import React from 'react';
 import { useAuth } from '@/hooks/useSupabaseAuth';
 import { Navigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
-import Sidebar from '@/components/Sidebar';
+import { AppSidebar } from '@/components/AppSidebar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useState } from 'react';
 import { Check, X, Shield } from 'lucide-react';
+import {
+  SidebarProvider,
+  SidebarInset,
+  SidebarTrigger,
+} from '@/components/ui/sidebar';
 
 const UserPermissions = () => {
   const { user, profile, hasPermission } = useAuth();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [activeItem, setActiveItem] = useState('User Permissions');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   if (!user) {
     return <Navigate to="/auth" replace />;
@@ -28,18 +31,17 @@ const UserPermissions = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 w-full">
-      <Navbar 
-        sidebarOpen={sidebarOpen}
-        setSidebarOpen={setSidebarOpen}
-      />
-      <Sidebar 
-        open={sidebarOpen}
-        activeItem={activeItem}
-        setActiveItem={setActiveItem}
-      />
-      <main className="flex-1 pt-16 min-h-screen bg-gray-50">
-          <div className="p-8">
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full bg-gray-50">
+        <AppSidebar />
+        <SidebarInset>
+          <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+            <SidebarTrigger className="-ml-1" />
+            <div className="ml-auto flex items-center gap-2">
+              <Navbar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+            </div>
+          </header>
+          <div className="flex-1 space-y-4 p-4 pt-6 md:p-8">
             <div className="max-w-7xl mx-auto">
               {/* Header Section */}
               <div className="mb-8">
@@ -103,8 +105,9 @@ const UserPermissions = () => {
               </div>
             </div>
           </div>
-        </main>
-    </div>
+        </SidebarInset>
+      </div>
+    </SidebarProvider>
   );
 };
 
