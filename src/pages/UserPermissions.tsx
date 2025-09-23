@@ -17,6 +17,7 @@ const UserPermissions = () => {
   const { user, profile, hasPermission } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  // Force browser refresh by adding this comment
   if (!user) {
     return <Navigate to="/auth" replace />;
   }
