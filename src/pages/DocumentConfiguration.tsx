@@ -701,14 +701,14 @@ const DocumentTypeForm: React.FC<{
       <div>
         <Label htmlFor="template">Document Template</Label>
         <Select
-          value={formData.template_id}
-          onValueChange={(value) => setFormData(prev => ({ ...prev, template_id: value }))}
+          value={formData.template_id || "no-template"}
+          onValueChange={(value) => setFormData(prev => ({ ...prev, template_id: value === "no-template" ? "" : value }))}
         >
           <SelectTrigger>
             <SelectValue placeholder="Select a template (optional)" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">No template</SelectItem>
+            <SelectItem value="no-template">No template</SelectItem>
             {templates.map((template) => (
               <SelectItem key={template.id} value={template.id}>
                 <div className="flex items-center gap-2">
