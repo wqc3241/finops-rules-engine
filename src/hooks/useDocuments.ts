@@ -34,6 +34,7 @@ export interface Document {
     description?: string;
     docusign_template_id?: string;
     template_id?: string;
+    is_internal_only?: boolean;
   };
 }
 
@@ -50,6 +51,7 @@ export interface DocumentWithCategory extends Document {
     description?: string;
     docusign_template_id?: string;
     template_id?: string;
+    is_internal_only?: boolean;
   };
 }
 
@@ -63,7 +65,7 @@ export const useDocuments = (applicationId?: string) => {
         .select(`
           *,
           category:document_categories(*),
-          document_type:document_types(*)
+          document_type:document_types(*, is_internal_only)
         `);
       
       // Filter by application_id if provided
@@ -143,7 +145,7 @@ export const useCreateDocument = () => {
         .select(`
           *,
           category:document_categories(*),
-          document_type:document_types(*)
+          document_type:document_types(*, is_internal_only)
         `)
         .single();
       

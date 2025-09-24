@@ -231,6 +231,7 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
               <TableRow className="bg-muted/50">
                 <TableHead className="font-semibold">Document</TableHead>
                 <TableHead className="font-semibold">Type</TableHead>
+                <TableHead className="font-semibold">Customer Document</TableHead>
                 <TableHead className="font-semibold">Required</TableHead>
                 <TableHead className="font-semibold">Status</TableHead>
                 <TableHead className="font-semibold">Uploaded</TableHead>
@@ -262,6 +263,14 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
                     </div>
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">{document.document_type?.name}</TableCell>
+                  <TableCell>
+                    <Badge 
+                      variant={document.document_type?.is_internal_only === false ? "default" : "secondary"} 
+                      className="text-xs"
+                    >
+                      {document.document_type?.is_internal_only === false ? 'Yes' : 'No'}
+                    </Badge>
+                  </TableCell>
                   <TableCell>
                     {document.is_required ? (
                       <Badge variant="secondary" className="text-xs">Required</Badge>
