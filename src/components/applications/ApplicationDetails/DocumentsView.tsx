@@ -17,12 +17,16 @@ import {
   XCircle,
   Calendar,
   Plus,
-  Database
+  Database,
+  GitBranch,
+  History
 } from 'lucide-react';
 import { DocumentItem, DocumentCategory, DocumentItemStatus, DocumentCategoryInfo } from '@/types/application/documents';
 import { cn } from '@/lib/utils';
 import AddDocumentCategoryModal from './DocumentsView/AddDocumentCategoryModal';
 import AddDocumentModal from './DocumentsView/AddDocumentModal';
+import DocumentHistoryModal from './DocumentsView/DocumentHistoryModal';
+import { useGenerateDocumentVersion } from '@/hooks/useDocumentVersions';
 import { useDocuments, useSeedDocuments } from '@/hooks/useDocuments';
 import { useDocumentCategories } from '@/hooks/useDocumentConfiguration';
 import { useTeamPermissions } from '@/hooks/useTeamPermissions';
@@ -36,11 +40,15 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
   const [showAddDocumentModal, setShowAddDocumentModal] = useState(false);
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [selectedDocumentId, setSelectedDocumentId] = useState<string>('');
+  const [selectedDocumentName, setSelectedDocumentName] = useState<string>('');
   
   // Fetch data from Supabase
   const { data: documents = [], isLoading: documentsLoading, error: documentsError } = useDocuments(applicationId);
   const { data: categories = [], isLoading: categoriesLoading } = useDocumentCategories();
   const seedDocuments = useSeedDocuments();
+  const generateVersion = useGenerateDocumentVersion();
   const { canAddDocumentToCategory, canManageCategory, isLoading: permissionsLoading } = useTeamPermissions();
 
   // Filter categories based on user permissions
@@ -104,6 +112,25 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
   const handleAddCategory = () => {
     setShowAddCategoryModal(false);
     // The category will be added via the hook's mutation
+  };
+
+  const handleViewHistory = (documentId: string, documentName: string) => {
+    setSelectedDocumentId(documentId);
+    setSelectedDocumentName(documentName);
+    setShowHistoryModal(true);
+  };
+
+  const handleGenerateDocument = async (document: any) => {
+    if (!document.document_type?.template_id) return;
+    
+    try {
+      await generateVersion.mutateAsync({
+        parentDocumentId: document.id,
+        templateId: document.document_type.template_id
+      });
+    } catch (error) {
+      // Error is handled by the mutation hook
+    }
   };
 
   const filteredDocuments = documents.filter(doc => {
@@ -248,7 +275,22 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
                         {getCategoryIcon(document.category?.name)}
                       </div>
                       <div>
-                        <div className="font-medium text-sm">{document.name}</div>
+                        <div className="flex items-center gap-2">
+                          <span 
+                            className="font-medium text-sm cursor-pointer hover:text-primary"
+                            onClick={() => handleViewHistory(document.id, document.name)}
+                          >
+                            {document.name}
+                          </span>
+                          {document.version_number > 1 && (
+                            <Badge variant="outline" className="text-xs">
+                              v{document.version_number}
+                            </Badge>
+                          )}
+                          {document.is_generated && (
+                            <GitBranch className="h-3 w-3 text-blue-600" />
+                          )}
+                        </div>
                         {document.file_name && (
                           <div className="text-xs text-muted-foreground">
                             {document.file_name} {document.file_size_mb && `(${document.file_size_mb} MB)`}
@@ -308,20 +350,32 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center gap-2 justify-end">
+                      {/* View History Button */}
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        className="text-xs"
+                        onClick={() => handleViewHistory(document.id, document.name)}
+                      >
+                        <History className="h-3 w-3 mr-1" />
+                        History
+                      </Button>
+                      
+                      {/* Generate/Regenerate Button */}
                       {document.document_type?.template_id && (
                         <Button 
                           size="sm" 
                           variant="default" 
                           className="text-xs"
-                          onClick={() => {
-                            // TODO: Implement template generation flow
-                            console.log('Generate document from template:', document.document_type?.template_id);
-                          }}
+                          onClick={() => handleGenerateDocument(document)}
+                          disabled={generateVersion.isPending}
                         >
                           <FileText className="h-3 w-3 mr-1" />
-                          Generate
+                          {document.generation_count > 1 ? 'Regenerate' : 'Generate'}
                         </Button>
                       )}
+                      
+                      {/* Upload/View/Download Buttons */}
                       {document.status === 'not_submitted' ? (
                         <Button size="sm" className="text-xs">
                           <Upload className="h-3 w-3 mr-1" />
@@ -364,6 +418,13 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
         applicationId={applicationId}
         selectedCategory={selectedCategory === 'all' ? undefined : 
           categories.find(cat => cat.name === selectedCategory)?.id}
+      />
+
+      <DocumentHistoryModal
+        open={showHistoryModal}
+        onOpenChange={setShowHistoryModal}
+        documentId={selectedDocumentId}
+        documentName={selectedDocumentName}
       />
     </div>
   );

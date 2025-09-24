@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useDocumentCategories, useDocumentTypes } from '@/hooks/useDocumentConfiguration';
 import { useCreateDocument } from '@/hooks/useDocuments';
+import { useCheckDuplicateDocument } from '@/hooks/useDocumentVersions';
 import { Loader2, Info } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
@@ -29,6 +30,7 @@ const AddDocumentModal: React.FC<AddDocumentModalProps> = ({
   // Fetch document categories and types
   const { data: categories = [], isLoading: categoriesLoading } = useDocumentCategories();
   const { data: documentTypes = [], isLoading: typesLoading } = useDocumentTypes(formData.categoryId);
+  const { data: existingDocumentTypes = [] } = useCheckDuplicateDocument(applicationId);
   const createDocument = useCreateDocument();
 
   // Reset document type when category changes
@@ -149,24 +151,38 @@ const AddDocumentModal: React.FC<AddDocumentModalProps> = ({
                     No document types available for this category
                   </div>
                 ) : (
-                  documentTypes.map((type) => (
-                    <SelectItem key={type.id} value={type.id}>
-                      <div className="flex flex-col">
-                        <div className="flex items-center gap-2">
-                          <span>{type.name}</span>
-                          {type.is_required && (
-                            <span className="text-xs bg-red-100 text-red-800 px-1 rounded">Required</span>
-                          )}
-                          {type.requires_signature && (
-                            <span className="text-xs bg-blue-100 text-blue-800 px-1 rounded">Signature</span>
+                  documentTypes.map((type) => {
+                    const isDuplicate = existingDocumentTypes.includes(type.id);
+                    return (
+                      <SelectItem 
+                        key={type.id} 
+                        value={type.id}
+                        disabled={isDuplicate}
+                      >
+                        <div className="flex flex-col">
+                          <div className="flex items-center gap-2">
+                            <span className={isDuplicate ? 'text-muted-foreground' : ''}>
+                              {type.name}
+                            </span>
+                            {isDuplicate && (
+                              <span className="text-xs bg-orange-100 text-orange-800 px-1 rounded">Already Added</span>
+                            )}
+                            {type.is_required && !isDuplicate && (
+                              <span className="text-xs bg-red-100 text-red-800 px-1 rounded">Required</span>
+                            )}
+                            {type.requires_signature && !isDuplicate && (
+                              <span className="text-xs bg-blue-100 text-blue-800 px-1 rounded">Signature</span>
+                            )}
+                          </div>
+                          {type.description && (
+                            <span className={`text-xs ${isDuplicate ? 'text-muted-foreground' : 'text-muted-foreground'}`}>
+                              {type.description}
+                            </span>
                           )}
                         </div>
-                        {type.description && (
-                          <span className="text-xs text-muted-foreground">{type.description}</span>
-                        )}
-                      </div>
-                    </SelectItem>
-                  ))
+                      </SelectItem>
+                    );
+                  })
                 )}
               </SelectContent>
             </Select>
@@ -193,6 +209,15 @@ const AddDocumentModal: React.FC<AddDocumentModalProps> = ({
             </Alert>
           )}
 
+          {existingDocumentTypes.includes(formData.documentTypeId) && (
+            <Alert variant="destructive">
+              <Info className="h-4 w-4" />
+              <AlertDescription>
+                This document type has already been added to this application. Please select a different document type.
+              </AlertDescription>
+            </Alert>
+          )}
+
           <DialogFooter>
             <Button 
               type="button" 
@@ -207,6 +232,7 @@ const AddDocumentModal: React.FC<AddDocumentModalProps> = ({
               disabled={
                 !formData.categoryId || 
                 !formData.documentTypeId || 
+                existingDocumentTypes.includes(formData.documentTypeId) ||
                 createDocument.isPending
               }
             >

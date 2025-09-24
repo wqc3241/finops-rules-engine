@@ -1238,11 +1238,15 @@ export type Database = {
           file_name: string | null
           file_size_mb: number | null
           file_url: string | null
+          generated_from_template_id: string | null
+          generation_count: number | null
           id: string
+          is_generated: boolean | null
           is_required: boolean | null
           last_modified: string | null
           name: string
           notes: string | null
+          parent_document_id: string | null
           product_type: string | null
           requires_signature: boolean | null
           signature_status: string | null
@@ -1250,6 +1254,7 @@ export type Database = {
           updated_at: string | null
           uploaded_by: string | null
           uploaded_date: string | null
+          version_number: number | null
         }
         Insert: {
           application_id?: string | null
@@ -1261,11 +1266,15 @@ export type Database = {
           file_name?: string | null
           file_size_mb?: number | null
           file_url?: string | null
+          generated_from_template_id?: string | null
+          generation_count?: number | null
           id?: string
+          is_generated?: boolean | null
           is_required?: boolean | null
           last_modified?: string | null
           name: string
           notes?: string | null
+          parent_document_id?: string | null
           product_type?: string | null
           requires_signature?: boolean | null
           signature_status?: string | null
@@ -1273,6 +1282,7 @@ export type Database = {
           updated_at?: string | null
           uploaded_by?: string | null
           uploaded_date?: string | null
+          version_number?: number | null
         }
         Update: {
           application_id?: string | null
@@ -1284,11 +1294,15 @@ export type Database = {
           file_name?: string | null
           file_size_mb?: number | null
           file_url?: string | null
+          generated_from_template_id?: string | null
+          generation_count?: number | null
           id?: string
+          is_generated?: boolean | null
           is_required?: boolean | null
           last_modified?: string | null
           name?: string
           notes?: string | null
+          parent_document_id?: string | null
           product_type?: string | null
           requires_signature?: boolean | null
           signature_status?: string | null
@@ -1296,6 +1310,7 @@ export type Database = {
           updated_at?: string | null
           uploaded_by?: string | null
           uploaded_date?: string | null
+          version_number?: number | null
         }
         Relationships: [
           {
@@ -1310,6 +1325,20 @@ export type Database = {
             columns: ["document_type_id"]
             isOneToOne: false
             referencedRelation: "document_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documents_generated_from_template_id_fkey"
+            columns: ["generated_from_template_id"]
+            isOneToOne: false
+            referencedRelation: "document_templates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documents_parent_document_id_fkey"
+            columns: ["parent_document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
             referencedColumns: ["id"]
           },
         ]

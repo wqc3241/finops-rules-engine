@@ -21,6 +21,12 @@ export interface Document {
   expiration_date?: string;
   created_at?: string;
   updated_at?: string;
+  // Version management fields
+  version_number?: number;
+  parent_document_id?: string;
+  generation_count?: number;
+  is_generated?: boolean;
+  generated_from_template_id?: string;
   // Joined data from related tables
   category?: {
     id: string;
@@ -65,7 +71,7 @@ export const useDocuments = (applicationId?: string) => {
         .select(`
           *,
           category:document_categories(*),
-          document_type:document_types(*, is_internal_only)
+          document_type:document_types(*, is_internal_only, template_id)
         `);
       
       // Filter by application_id if provided
