@@ -113,11 +113,13 @@ export const useGenerateDocumentVersion = () => {
         .update({ generation_count: nextVersion })
         .eq('id', rootDocumentId);
 
-      // Create new version
+      // Create new version - keep original name without version suffix
+      const originalName = parentDoc.name.replace(/\s*\(v\d+\).*$/, ''); // Remove any existing version suffixes
+      
       const { data, error } = await supabase
         .from('documents')
         .insert({
-          name: `${parentDoc.name} (v${nextVersion})`,
+          name: originalName, // Keep original name without version number
           application_id: parentDoc.application_id,
           category_id: parentDoc.category_id,
           document_type_id: parentDoc.document_type_id,
