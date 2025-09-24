@@ -133,10 +133,60 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
     }
   };
 
+  // Group documents by their root document (for version consolidation)
+  const groupDocumentsByType = (docs: any[]) => {
+    const grouped = new Map();
+    
+    docs.forEach(doc => {
+      // Use parent_document_id if it exists, otherwise use the document's own id as the key
+      const rootId = doc.parent_document_id || doc.id;
+      const docTypeId = doc.document_type_id;
+      const key = `${docTypeId}_${rootId}`;
+      
+      if (!grouped.has(key)) {
+        grouped.set(key, []);
+      }
+      grouped.get(key).push(doc);
+    });
+    
+    return grouped;
+  };
+
+  // Get the latest version and total count for each document type
+  const getConsolidatedDocuments = (docs: any[]) => {
+    const grouped = groupDocumentsByType(docs);
+    const consolidated: any[] = [];
+    
+    grouped.forEach((versions) => {
+      // Sort by version number (highest first) or creation date
+      const sortedVersions = versions.sort((a: any, b: any) => {
+        if (a.version_number && b.version_number) {
+          return b.version_number - a.version_number;
+        }
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      });
+      
+      const latestVersion = sortedVersions[0];
+      const totalVersions = sortedVersions.length;
+      
+      // Add metadata about all versions
+      consolidated.push({
+        ...latestVersion,
+        _totalVersions: totalVersions,
+        _allVersions: sortedVersions,
+        _rootDocumentId: latestVersion.parent_document_id || latestVersion.id
+      });
+    });
+    
+    return consolidated;
+  };
+
   const filteredDocuments = documents.filter(doc => {
     const matchesCategory = selectedCategory === 'all' || doc.category?.name === selectedCategory;
     return matchesCategory;
   });
+
+  const consolidatedDocuments = getConsolidatedDocuments(filteredDocuments);
 
   const getDocumentsByCategory = (categoryName: string) => {
     return documents.filter(doc => doc.category?.name === categoryName);
@@ -225,9 +275,11 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
                 {selectedCategory === 'all' ? 'All Documents' : 
                  availableCategories.find(cat => cat.name === selectedCategory)?.name}
               </h3>
-              <p className="text-sm text-muted-foreground">
-                {filteredDocuments.length} document{filteredDocuments.length !== 1 ? 's' : ''}
-              </p>
+               <p className="text-sm text-muted-foreground">
+                 {consolidatedDocuments.length} document{consolidatedDocuments.length !== 1 ? 's' : ''} 
+                 {consolidatedDocuments.reduce((acc, doc) => acc + doc._totalVersions, 0) > consolidatedDocuments.length && 
+                   ` (${consolidatedDocuments.reduce((acc, doc) => acc + doc._totalVersions, 0)} total versions)`}
+               </p>
             </div>
             {(() => {
               const selectedCategoryData = availableCategories.find(cat => cat.name === selectedCategory);
@@ -267,8 +319,8 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredDocuments.map(document => (
-                <TableRow key={document.id} className="hover:bg-muted/30">
+              {consolidatedDocuments.map(document => (
+                <TableRow key={`${document.document_type_id}_${document._rootDocumentId}`} className="hover:bg-muted/30">
                   <TableCell className="py-4">
                     <div className="flex items-center gap-3">
                       <div className="p-2 rounded-lg bg-muted">
@@ -277,18 +329,20 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
                       <div>
                         <div className="flex items-center gap-2">
                           <span 
-                            className="font-medium text-sm cursor-pointer hover:text-primary"
-                            onClick={() => handleViewHistory(document.id, document.name)}
+                            className="font-medium text-sm cursor-pointer hover:text-primary underline-offset-4 hover:underline"
+                            onClick={() => handleViewHistory(document._rootDocumentId, document.name)}
+                            title="Click to view all versions"
                           >
                             {document.name}
                           </span>
-                          {document.version_number > 1 && (
-                            <Badge variant="outline" className="text-xs">
-                              v{document.version_number}
-                            </Badge>
-                          )}
+                          <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+                            v{document.version_number || 1} of {document._totalVersions}
+                          </Badge>
                           {document.is_generated && (
                             <GitBranch className="h-3 w-3 text-blue-600" />
+                          )}
+                          {document._totalVersions > 1 && (
+                            <History className="h-3 w-3 text-muted-foreground" />
                           )}
                         </div>
                         {document.file_name && (
@@ -350,17 +404,6 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center gap-2 justify-end">
-                      {/* View History Button */}
-                      <Button 
-                        size="sm" 
-                        variant="ghost" 
-                        className="text-xs"
-                        onClick={() => handleViewHistory(document.id, document.name)}
-                      >
-                        <History className="h-3 w-3 mr-1" />
-                        History
-                      </Button>
-                      
                       {/* Generate/Regenerate Button */}
                       {document.document_type?.template_id && (
                         <Button 
