@@ -55,6 +55,7 @@ const DocumentConfiguration: React.FC = () => {
   const { data: categories = [], isLoading: categoriesLoading } = useDocumentCategories();
   const { data: documentTypes = [] } = useDocumentTypes(selectedCategory);
   const { data: acceptableFiles = [] } = useDocumentAcceptableFiles(selectedDocumentType);
+  const { data: templates = [] } = useDocumentTemplates();
 
   const createCategoryMutation = useCreateDocumentCategory();
   const updateCategoryMutation = useUpdateDocumentCategory();
@@ -68,6 +69,32 @@ const DocumentConfiguration: React.FC = () => {
 
   const selectedCategoryData = categories.find(cat => cat.id === selectedCategory);
   const selectedTypeData = documentTypes.find(type => type.id === selectedDocumentType);
+
+  // Get template information for the selected document type
+  const getTemplateInfo = () => {
+    if (!selectedTypeData) return null;
+    
+    if (selectedTypeData.template_id) {
+      const template = templates.find(t => t.id === selectedTypeData.template_id);
+      return template ? {
+        type: template.template_type,
+        id: template.template_id,
+        name: template.name
+      } : null;
+    }
+    
+    if (selectedTypeData.docusign_template_id) {
+      return {
+        type: 'docusign',
+        id: selectedTypeData.docusign_template_id,
+        name: 'DocuSign Template'
+      };
+    }
+    
+    return null;
+  };
+
+  const templateInfo = getTemplateInfo();
 
   const handleCategorySelect = (categoryId: string) => {
     setSelectedCategory(categoryId);
@@ -353,23 +380,28 @@ const DocumentConfiguration: React.FC = () => {
                       )}
                     </CardTitle>
                   </CardHeader>
-                   <CardContent className="space-y-2">
-                      {selectedDocumentType ? (
-                        selectedTypeData?.template_id || selectedTypeData?.docusign_template_id ? (
-                         <div className="p-3 rounded-md bg-blue-50 border border-blue-200">
-                           <div className="flex items-center gap-2 mb-2">
-                             <svg className="h-4 w-4 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
-                               <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                             </svg>
-                             <span className="font-medium text-blue-900 text-sm">DocuSign Template</span>
-                           </div>
-                           <p className="text-blue-800 text-sm font-mono bg-blue-100 px-2 py-1 rounded">
-                             {selectedTypeData.docusign_template_id}
-                           </p>
-                           <p className="text-blue-700 text-xs mt-2">
-                             This document uses DocuSign for electronic signing. File type restrictions are managed by DocuSign.
-                           </p>
-                         </div>
+                    <CardContent className="space-y-2">
+                       {selectedDocumentType ? (
+                         templateInfo ? (
+                          <div className="p-3 rounded-md bg-blue-50 border border-blue-200">
+                            <div className="flex items-center gap-2 mb-2">
+                              <svg className="h-4 w-4 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                              <span className="font-medium text-blue-900 text-sm">
+                                {templateInfo.type === 'lucid_html' ? 'Lucid HTML Template' : 'DocuSign Template'}
+                              </span>
+                            </div>
+                            <p className="text-blue-800 text-sm font-mono bg-blue-100 px-2 py-1 rounded">
+                              {templateInfo.id}
+                            </p>
+                            <p className="text-blue-700 text-xs mt-2">
+                              {templateInfo.type === 'lucid_html' 
+                                ? 'This document uses Lucid HTML templates for document generation. File type restrictions are managed by the template system.'
+                                : 'This document uses DocuSign for electronic signing. File type restrictions are managed by DocuSign.'
+                              }
+                            </p>
+                          </div>
                        ) : acceptableFiles.length > 0 ? (
                           acceptableFiles.map((file) => (
                              <div
