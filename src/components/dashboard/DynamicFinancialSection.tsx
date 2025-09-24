@@ -123,10 +123,14 @@ useEffect(() => {
 
   // Set up batch download callback for financial-program-config
   useEffect(() => {
+    console.log('🔄 useEffect for batch download callback running');
+    console.log('🔄 SchemaId:', schemaId);
+    console.log('🔄 Has callback:', !!onSetBatchDownloadBulletinPricingCallback);
+    
     if (schemaId === 'financial-program-config' && onSetBatchDownloadBulletinPricingCallback) {
       onSetBatchDownloadBulletinPricingCallback(handleSelectedBulletinPricingDownload);
     }
-  }, [schemaId, onSetBatchDownloadBulletinPricingCallback, selectedItems, data]);
+  }, [schemaId, onSetBatchDownloadBulletinPricingCallback]);
   const { saveState, undo, redo, canUndo, canRedo } = useUndoRedo(data, schema || { id: '', name: '', columns: [] });
 
   const handleDataChange = (newData: any) => {
@@ -168,6 +172,21 @@ useEffect(() => {
   };
 
   const handleAddNewRecord = () => {
+    console.log('🚨 HANDLEADDNEWRECORD CALLED');
+    console.log('🚨 Stack trace:', new Error().stack);
+    console.log('🚨 Schema ID:', schemaId);
+    console.log('🚨 Schema exists:', !!schema);
+    
+    // Add user confirmation for critical tables
+    const criticalTables = ['credit-profile', 'financial-program-config', 'pricing-config'];
+    if (criticalTables.includes(schemaId)) {
+      const confirmed = window.confirm(`Are you sure you want to add a new ${title}? This action will create a new record in the database.`);
+      if (!confirmed) {
+        console.log('🚨 User cancelled add new record');
+        return;
+      }
+    }
+    
     // Use wizard for financial-program-config, regular add for others
     if (schemaId === 'financial-program-config') {
       setShowWizard(true);
@@ -178,6 +197,7 @@ useEffect(() => {
         const newData = [...data];
         saveVersion(newData, schema, 'Added new record');
       }
+      console.log('🚨 About to call handleAddNew with schema:', schema);
       handleAddNew(schema);
     }
   };

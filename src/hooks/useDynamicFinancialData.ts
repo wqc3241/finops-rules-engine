@@ -347,11 +347,18 @@ export const useDynamicFinancialData = ({
 
   // Function to add new record to Supabase
   const handleAddNewSupabase = useCallback(async (schema: any) => {
-    console.log('=== ADD NEW RECORD DEBUG ===');
-    console.log('Schema ID:', schemaId);
-    console.log('Schema:', schema);
-    console.log('Current user:', user);
-    console.log('Current profile:', profile);
+    console.log('🚨🚨🚨 HANDLEADDNEWSUPABASE CALLED 🚨🚨🚨');
+    console.log('🚨 Stack trace:', new Error().stack);
+    console.log('🚨 Schema ID:', schemaId);
+    console.log('🚨 Schema:', schema);
+    console.log('🚨 Current user:', user);
+    console.log('🚨 Current profile:', profile);
+    
+    // CRITICAL: Add safety check to prevent automatic calls
+    if (!schema || !schemaId) {
+      console.error('🚨 BLOCKED: handleAddNewSupabase called without proper schema or schemaId');
+      return;
+    }
     
     try {
       const tableName = getTableName(schemaId);

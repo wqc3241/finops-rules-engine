@@ -67,7 +67,18 @@ const SectionHeader = ({
             <History className="h-4 w-4 mr-1" />
             Versions
           </Button>}
-        {onAddNew && <button onClick={onAddNew} className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm">
+        {onAddNew && <button 
+            onClick={(e) => {
+              console.log('🚨 ADD NEW BUTTON CLICKED');
+              console.log('🚨 Event:', e);
+              console.log('🚨 Event target:', e.target);
+              e.preventDefault();
+              e.stopPropagation();
+              onAddNew();
+            }}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm"
+            type="button"
+          >
             Add New
           </button>}
         {children}
