@@ -25,9 +25,10 @@ import { DocumentItem, DocumentCategory, DocumentItemStatus, DocumentCategoryInf
 import { cn } from '@/lib/utils';
 import AddDocumentCategoryModal from './DocumentsView/AddDocumentCategoryModal';
 import AddDocumentModal from './DocumentsView/AddDocumentModal';
+import DocumentFileUploadModal from './DocumentsView/DocumentFileUploadModal';
 import DocumentHistoryModal from './DocumentsView/DocumentHistoryModal';
 import { useGenerateDocumentVersion } from '@/hooks/useDocumentVersions';
-import { useDocuments, useSeedDocuments } from '@/hooks/useDocuments';
+import { useDocuments, useSeedDocuments, DocumentWithCategory } from '@/hooks/useDocuments';
 import { useDocumentCategories } from '@/hooks/useDocumentConfiguration';
 import { useTeamPermissions } from '@/hooks/useTeamPermissions';
 import { toast } from 'sonner';
@@ -40,9 +41,9 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
   const [showAddDocumentModal, setShowAddDocumentModal] = useState(false);
+  const [showUploadModal, setShowUploadModal] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
-  const [selectedDocumentId, setSelectedDocumentId] = useState<string>('');
-  const [selectedDocumentName, setSelectedDocumentName] = useState<string>('');
+  const [selectedDocument, setSelectedDocument] = useState<DocumentWithCategory | null>(null);
   
   // Fetch data from Supabase
   const { data: documents = [], isLoading: documentsLoading, error: documentsError } = useDocuments(applicationId);
@@ -114,9 +115,8 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
     // The category will be added via the hook's mutation
   };
 
-  const handleViewHistory = (documentId: string, documentName: string) => {
-    setSelectedDocumentId(documentId);
-    setSelectedDocumentName(documentName);
+  const handleViewHistory = (document: DocumentWithCategory) => {
+    setSelectedDocument(document);
     setShowHistoryModal(true);
   };
 
@@ -330,7 +330,7 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
                         <div className="flex items-center gap-2">
                           <span 
                             className="font-medium text-sm cursor-pointer hover:text-primary underline-offset-4 hover:underline"
-                            onClick={() => handleViewHistory(document._rootDocumentId, document.name)}
+                            onClick={() => handleViewHistory(document)}
                             title="Click to view all versions"
                           >
                             {document.name}
@@ -402,46 +402,127 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
                       <span className="text-muted-foreground">-</span>
                     )}
                   </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex items-center gap-2 justify-end">
-                      {/* Generate/Regenerate Button */}
-                      {document.document_type?.template_id && (
-                        <Button 
-                          size="sm" 
-                          variant="default" 
-                          className="text-xs"
-                          onClick={() => handleGenerateDocument(document)}
-                          disabled={generateVersion.isPending}
-                        >
-                          <FileText className="h-3 w-3 mr-1" />
-                          {document.generation_count > 1 ? 'Regenerate' : 'Generate'}
-                        </Button>
-                      )}
-                      
-                      {/* Upload/View/Download Buttons */}
-                      {document.status === 'not_submitted' ? (
-                        <Button size="sm" className="text-xs">
-                          <Upload className="h-3 w-3 mr-1" />
-                          Upload
-                        </Button>
-                      ) : (
-                        <>
-                          {document.file_url && (
-                            <>
-                              <Button size="sm" variant="outline" className="text-xs">
-                                <Eye className="h-3 w-3 mr-1" />
-                                View
-                              </Button>
-                              <Button size="sm" variant="outline" className="text-xs">
-                                <Download className="h-3 w-3 mr-1" />
-                                Download
-                              </Button>
-                            </>
-                          )}
-                        </>
-                      )}
-                    </div>
-                  </TableCell>
+                   <TableCell className="text-right">
+                     <div className="flex items-center gap-2 justify-end">
+                       {/* Template Documents */}
+                       {document.document_type?.template_id ? (
+                         <>
+                           {/* Generate/Regenerate Button */}
+                           <Button 
+                             size="sm" 
+                             variant="default" 
+                             className="text-xs"
+                             onClick={() => handleGenerateDocument(document)}
+                             disabled={generateVersion.isPending}
+                           >
+                             <FileText className="h-3 w-3 mr-1" />
+                             {document.generation_count > 1 ? 'Regenerate' : 'Generate'}
+                           </Button>
+                           
+                           {/* View/Download for generated documents */}
+                           {document.file_url && (
+                             <>
+                               <Button 
+                                 size="sm" 
+                                 variant="outline" 
+                                 className="text-xs"
+                                 onClick={() => window.open(document.file_url, '_blank')}
+                               >
+                                 <Eye className="h-3 w-3 mr-1" />
+                                 View
+                               </Button>
+                               <Button 
+                                 size="sm" 
+                                 variant="outline" 
+                                 className="text-xs"
+                                 onClick={() => {
+                                   const link = document.createElement('a');
+                                   link.href = document.file_url!;
+                                   link.download = document.file_name || document.name;
+                                   link.click();
+                                 }}
+                               >
+                                 <Download className="h-3 w-3 mr-1" />
+                                 Download
+                               </Button>
+                             </>
+                           )}
+                         </>
+                       ) : (
+                         /* Non-Template Documents */
+                         <>
+                           {/* Upload Button */}
+                           {!document.file_url && (
+                             <Button 
+                               size="sm" 
+                               className="text-xs"
+                               onClick={() => {
+                                 setSelectedDocument(document);
+                                 setShowUploadModal(true);
+                               }}
+                             >
+                               <Upload className="h-3 w-3 mr-1" />
+                               Upload
+                             </Button>
+                           )}
+                           
+                           {/* View/Download for uploaded documents */}
+                           {document.file_url && (
+                             <>
+                               <Button 
+                                 size="sm"
+                                 className="text-xs"
+                                 onClick={() => {
+                                   setSelectedDocument(document);
+                                   setShowUploadModal(true);
+                                 }}
+                               >
+                                 <Upload className="h-3 w-3 mr-1" />
+                                 Upload New
+                               </Button>
+                               <Button 
+                                 size="sm" 
+                                 variant="outline" 
+                                 className="text-xs"
+                                 onClick={() => window.open(document.file_url, '_blank')}
+                               >
+                                 <Eye className="h-3 w-3 mr-1" />
+                                 View
+                               </Button>
+                               <Button 
+                                 size="sm" 
+                                 variant="outline" 
+                                 className="text-xs"
+                                 onClick={() => {
+                                   const link = document.createElement('a');
+                                   link.href = document.file_url!;
+                                   link.download = document.file_name || document.name;
+                                   link.click();
+                                 }}
+                               >
+                                 <Download className="h-3 w-3 mr-1" />
+                                 Download
+                               </Button>
+                             </>
+                           )}
+                         </>
+                       )}
+                       
+                       {/* Version History Button (for all documents) */}
+                       <Button 
+                         size="sm" 
+                         variant="ghost" 
+                         className="text-xs"
+                         onClick={() => {
+                           setSelectedDocument(document);
+                           setShowHistoryModal(true);
+                         }}
+                       >
+                         <History className="h-3 w-3 mr-1" />
+                         History
+                       </Button>
+                     </div>
+                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -463,12 +544,23 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({ applicationId }) => {
           categories.find(cat => cat.name === selectedCategory)?.id}
       />
 
-      <DocumentHistoryModal
-        open={showHistoryModal}
-        onOpenChange={setShowHistoryModal}
-        documentId={selectedDocumentId}
-        documentName={selectedDocumentName}
-      />
+      {selectedDocument && (
+        <>
+          <DocumentFileUploadModal
+            open={showUploadModal}
+            onOpenChange={setShowUploadModal}
+            document={selectedDocument}
+            applicationId={applicationId}
+          />
+          
+          <DocumentHistoryModal
+            open={showHistoryModal}
+            onOpenChange={setShowHistoryModal}
+            documentId={selectedDocument.id}
+            documentName={selectedDocument.name}
+          />
+        </>
+      )}
     </div>
   );
 };
