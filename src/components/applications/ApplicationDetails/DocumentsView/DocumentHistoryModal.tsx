@@ -13,7 +13,6 @@ import {
   GitBranch
 } from 'lucide-react';
 import { useDocumentVersions, DocumentVersion } from '@/hooks/useDocumentVersions';
-import { formatDistanceToNow } from 'date-fns';
 
 interface DocumentHistoryModalProps {
   open: boolean;
@@ -45,6 +44,22 @@ const DocumentHistoryModal: React.FC<DocumentHistoryModalProps> = ({
       return <GitBranch className="h-4 w-4 text-blue-600" />;
     }
     return <FileText className="h-4 w-4 text-gray-600" />;
+  };
+
+  const formatRelativeTime = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+    
+    if (diffInMinutes < 60) {
+      return `${diffInMinutes} minutes ago`;
+    } else if (diffInMinutes < 1440) {
+      const hours = Math.floor(diffInMinutes / 60);
+      return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+    } else {
+      const days = Math.floor(diffInMinutes / 1440);
+      return `${days} day${days > 1 ? 's' : ''} ago`;
+    }
   };
 
   return (
@@ -122,11 +137,7 @@ const DocumentHistoryModal: React.FC<DocumentHistoryModalProps> = ({
                           </div>
                           <div className="flex items-center gap-1">
                             <Calendar className="h-3 w-3" />
-                            <span>
-                              {formatDistanceToNow(new Date(version.created_at), { 
-                                addSuffix: true 
-                              })}
-                            </span>
+                            <span>{formatRelativeTime(version.created_at)}</span>
                           </div>
                           {version.file_name && (
                             <div className="text-xs">
