@@ -646,6 +646,17 @@ const FILE_FORMAT_OPTIONS = [
   { value: '.mov', label: 'QuickTime (.mov)' }
 ];
 
+// Max file size options
+const MAX_SIZE_OPTIONS = [
+  { value: 1, label: '1 MB' },
+  { value: 5, label: '5 MB' },
+  { value: 10, label: '10 MB' },
+  { value: 15, label: '15 MB' },
+  { value: 20, label: '20 MB' },
+  { value: 25, label: '25 MB' },
+  { value: 30, label: '30 MB' }
+];
+
 // Acceptable File Form Component
 const AcceptableFileForm: React.FC<{
   documentTypeId: string;
@@ -690,10 +701,21 @@ const AcceptableFileForm: React.FC<{
         </div>
         <div>
           <Label htmlFor="max_file_size_mb">Max Size (MB)</Label>
-          <Input id="max_file_size_mb" type="number" value={formData.max_file_size_mb} onChange={e => setFormData(prev => ({
-          ...prev,
-          max_file_size_mb: parseInt(e.target.value) || 10
-        }))} placeholder="10" min="1" />
+          <Select value={formData.max_file_size_mb.toString()} onValueChange={(value) => setFormData(prev => ({
+            ...prev,
+            max_file_size_mb: parseInt(value)
+          }))}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select max file size" />
+            </SelectTrigger>
+            <SelectContent>
+              {MAX_SIZE_OPTIONS.map(option => (
+                <SelectItem key={option.value} value={option.value.toString()}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
