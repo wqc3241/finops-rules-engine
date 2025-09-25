@@ -220,7 +220,7 @@ const DocumentConfiguration: React.FC = () => {
                                      </Badge>}
                                  </div>
                                <div className="flex items-center gap-2">
-                                 {type.is_required && <Badge variant="secondary" className="text-xs">Mandatory</Badge>}
+                                 {type.is_required && <Badge variant="secondary" className="text-xs">Required</Badge>}
                                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                    <Button size="sm" variant="ghost" onClick={e => {
                             e.stopPropagation();
@@ -528,13 +528,7 @@ const DocumentTypeForm: React.FC<{
           name: e.target.value
         }))} placeholder="Enter document type name" required />
         </div>
-        <div>
-          <Label htmlFor="sort_order">Sort Order</Label>
-          <Input id="sort_order" type="number" value={formData.sort_order} onChange={e => setFormData(prev => ({
-          ...prev,
-          sort_order: parseInt(e.target.value) || 0
-        }))} placeholder="0" />
-        </div>
+        
       </div>
       
       <div>
@@ -600,7 +594,7 @@ const DocumentTypeForm: React.FC<{
           ...prev,
           is_required: checked
         }))} />
-          <Label htmlFor="is_required">Required Document</Label>
+          <Label htmlFor="is_required">Mandatory</Label>
         </div>
         
         <div className="flex items-center space-x-2">
