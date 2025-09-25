@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { FileText, Car, User, AlertCircle, Shield, Folder, Upload, Download, Eye, CheckCircle, Clock, XCircle, Calendar, Plus, Database, GitBranch, History, FilePlus } from 'lucide-react';
+import { FileText, Car, User, AlertCircle, Shield, Folder, Upload, Download, Eye, CheckCircle, Clock, XCircle, Calendar, Plus, Database, GitBranch, History, FilePlus, PenTool } from 'lucide-react';
 import { DocumentItem, DocumentCategory, DocumentItemStatus, DocumentCategoryInfo } from '@/types/application/documents';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
@@ -23,6 +24,7 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({
   applicationId
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedDocuments, setSelectedDocuments] = useState<Set<string>>(new Set());
   const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
   const [showAddDocumentModal, setShowAddDocumentModal] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
@@ -197,6 +199,40 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({
       return dateString;
     }
   };
+
+  const handleDocumentSelection = (documentKey: string, checked: boolean) => {
+    const newSelected = new Set(selectedDocuments);
+    if (checked) {
+      newSelected.add(documentKey);
+    } else {
+      newSelected.delete(documentKey);
+    }
+    setSelectedDocuments(newSelected);
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      const allKeys = consolidatedDocuments.map(doc => `${doc.document_type_id}_${doc._rootDocumentId}`);
+      setSelectedDocuments(new Set(allKeys));
+    } else {
+      setSelectedDocuments(new Set());
+    }
+  };
+
+  const handleSendForSignature = () => {
+    const selectedDocs = consolidatedDocuments.filter(doc => 
+      selectedDocuments.has(`${doc.document_type_id}_${doc._rootDocumentId}`)
+    );
+    
+    if (selectedDocs.length === 0) {
+      toast.error('Please select at least one document to send for signature');
+      return;
+    }
+
+    // TODO: Implement send for signature functionality
+    toast.success(`Sending ${selectedDocs.length} document(s) for signature`);
+    setSelectedDocuments(new Set()); // Clear selection after sending
+  };
   if (documentsError) {
     return <div className="text-center py-8">
         <p className="text-red-600 mb-4">Error loading documents: {documentsError.message}</p>
@@ -265,6 +301,13 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({
           <Table>
             <TableHeader>
               <TableRow className="bg-muted/50">
+                <TableHead className="font-semibold w-12">
+                  <Checkbox
+                    checked={selectedDocuments.size === consolidatedDocuments.length && consolidatedDocuments.length > 0}
+                    onCheckedChange={handleSelectAll}
+                    aria-label="Select all documents"
+                  />
+                </TableHead>
                 <TableHead className="font-semibold">Document</TableHead>
                 <TableHead className="font-semibold">Type</TableHead>
                 <TableHead className="font-semibold">Customer Document</TableHead>
@@ -276,7 +319,19 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {consolidatedDocuments.map(document => <TableRow key={`${document.document_type_id}_${document._rootDocumentId}`} className="hover:bg-muted/30">
+              {consolidatedDocuments.map(document => {
+                const documentKey = `${document.document_type_id}_${document._rootDocumentId}`;
+                const isSelected = selectedDocuments.has(documentKey);
+                
+                return (
+                  <TableRow key={documentKey} className="hover:bg-muted/30">
+                    <TableCell className="py-4">
+                      <Checkbox
+                        checked={isSelected}
+                        onCheckedChange={(checked) => handleDocumentSelection(documentKey, !!checked)}
+                        aria-label={`Select ${document.name}`}
+                      />
+                    </TableCell>
                   <TableCell className="py-4">
                     <div className="flex items-center gap-3">
                       <div>
@@ -437,7 +492,9 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({
                        </div>
                      </TooltipProvider>
                    </TableCell>
-                </TableRow>)}
+                 </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </div>
