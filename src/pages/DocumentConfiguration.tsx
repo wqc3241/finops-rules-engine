@@ -268,10 +268,15 @@ const DocumentConfiguration: React.FC = () => {
                                 Add an acceptable file type for {selectedTypeData?.name}
                               </DialogDescription>
                             </DialogHeader>
-                            <AcceptableFileForm documentTypeId={selectedDocumentType} onSubmit={data => {
-                          createFileMutation.mutate(data);
-                          setIsCreateFileOpen(false);
-                        }} isLoading={createFileMutation.isPending} />
+                            <AcceptableFileForm 
+                              documentTypeId={selectedDocumentType} 
+                              existingFiles={acceptableFiles}
+                              onSubmit={data => {
+                              createFileMutation.mutate(data);
+                              setIsCreateFileOpen(false);
+                            }} 
+                            isLoading={createFileMutation.isPending} 
+                            />
                           </DialogContent>
                         </Dialog>}
                     </CardTitle>
@@ -374,13 +379,19 @@ const DocumentConfiguration: React.FC = () => {
                 Update the acceptable file type information
               </DialogDescription>
             </DialogHeader>
-            <AcceptableFileForm documentTypeId={editingFile.document_type_id} acceptableFile={editingFile} onSubmit={data => {
-          updateFileMutation.mutate({
-            id: editingFile.id,
-            ...data
-          });
-          setEditingFile(null);
-        }} isLoading={updateFileMutation.isPending} />
+            <AcceptableFileForm 
+              documentTypeId={editingFile.document_type_id} 
+              acceptableFile={editingFile} 
+              existingFiles={acceptableFiles}
+              onSubmit={data => {
+              updateFileMutation.mutate({
+                id: editingFile.id,
+                ...data
+              });
+              setEditingFile(null);
+            }} 
+            isLoading={updateFileMutation.isPending} 
+            />
           </DialogContent>
         </Dialog>}
 
@@ -661,14 +672,27 @@ const MAX_SIZE_OPTIONS = [
 const AcceptableFileForm: React.FC<{
   documentTypeId: string;
   acceptableFile?: DocumentAcceptableFile;
+  existingFiles?: DocumentAcceptableFile[];
   onSubmit: (data: any) => void;
   isLoading: boolean;
 }> = ({
   documentTypeId,
   acceptableFile,
+  existingFiles = [],
   onSubmit,
   isLoading
 }) => {
+  // Get existing file extensions to disable them in the dropdown (excluding current file being edited)
+  const existingExtensions = existingFiles
+    .filter(file => file.id !== acceptableFile?.id)
+    .map(file => file.file_extension);
+
+  // Filter available options to disable existing extensions
+  const availableFileOptions = FILE_FORMAT_OPTIONS.map(option => ({
+    ...option,
+    disabled: existingExtensions.includes(option.value)
+  }));
+
   const [formData, setFormData] = useState({
     file_extension: acceptableFile?.file_extension ? [acceptableFile.file_extension] : [],
     max_file_size_mb: acceptableFile?.max_file_size_mb || 10,
@@ -689,7 +713,7 @@ const AcceptableFileForm: React.FC<{
         <div>
           <Label htmlFor="file_extension">File Extensions</Label>
           <MultiSelect
-            options={FILE_FORMAT_OPTIONS}
+            options={availableFileOptions}
             selected={formData.file_extension}
             onChange={(extensions) => setFormData(prev => ({
               ...prev,

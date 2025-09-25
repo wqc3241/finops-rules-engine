@@ -20,6 +20,7 @@ import { Badge } from "@/components/ui/badge"
 export interface MultiSelectOption {
   label: string
   value: string
+  disabled?: boolean
 }
 
 interface MultiSelectProps {
@@ -43,7 +44,9 @@ export function MultiSelect({
     onChange(selected.filter((i) => i !== item))
   }
 
-  const handleToggle = (value: string) => {
+  const handleToggle = (value: string, option: MultiSelectOption) => {
+    if (option.disabled) return; // Don't allow toggling disabled options
+    
     if (selected.includes(value)) {
       onChange(selected.filter(item => item !== value))
     } else {
@@ -111,7 +114,11 @@ export function MultiSelect({
                 <CommandItem
                   key={option.value}
                   value={option.value}
-                  onSelect={() => handleToggle(option.value)}
+                  onSelect={() => handleToggle(option.value, option)}
+                  className={cn(
+                    option.disabled && "opacity-50 cursor-not-allowed text-muted-foreground"
+                  )}
+                  disabled={option.disabled}
                 >
                   <Check
                     className={cn(
@@ -119,7 +126,12 @@ export function MultiSelect({
                       selected.includes(option.value) ? "opacity-100" : "opacity-0"
                     )}
                   />
-                  {option.label}
+                  <span className={cn(option.disabled && "line-through")}>
+                    {option.label}
+                  </span>
+                  {option.disabled && (
+                    <span className="ml-auto text-xs text-muted-foreground">Already added</span>
+                  )}
                 </CommandItem>
               ))}
             </CommandGroup>
