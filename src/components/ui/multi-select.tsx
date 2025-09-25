@@ -51,6 +51,10 @@ export function MultiSelect({
     }
   }
 
+  const maxDisplay = 3; // Maximum number of badges to show before showing count
+  const showCount = selected.length > maxDisplay;
+  const displayItems = showCount ? selected.slice(0, maxDisplay) : selected;
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -58,28 +62,38 @@ export function MultiSelect({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={cn("w-full justify-between min-h-10", className)}
+          className={cn("w-full justify-between min-h-10 h-auto py-2", className)}
         >
-          <div className="flex flex-wrap gap-1">
+          <div className="flex flex-wrap gap-1 flex-1 mr-2">
             {selected.length > 0 ? (
-              selected.map((item) => {
-                const option = options.find(opt => opt.value === item)
-                return (
-                  <Badge
-                    variant="secondary"
-                    key={item}
-                    className="mr-1 mb-1 text-xs"
-                    onClick={(e) => {
-                      e.preventDefault()
-                      e.stopPropagation()
-                      handleUnselect(item)
-                    }}
+              <>
+                {displayItems.map((item) => {
+                  const option = options.find(opt => opt.value === item)
+                  return (
+                    <Badge
+                      variant="secondary"
+                      key={item}
+                      className="text-xs px-2 py-1 hover:bg-secondary/80"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        handleUnselect(item)
+                      }}
+                    >
+                      {option?.label}
+                      <X className="ml-1 h-3 w-3 cursor-pointer hover:text-destructive" />
+                    </Badge>
+                  )
+                })}
+                {showCount && (
+                  <Badge 
+                    variant="outline" 
+                    className="text-xs px-2 py-1 text-muted-foreground"
                   >
-                    {option?.label}
-                    <X className="ml-1 h-3 w-3 cursor-pointer" />
+                    +{selected.length - maxDisplay} more
                   </Badge>
-                )
-              })
+                )}
+              </>
             ) : (
               <span className="text-muted-foreground">{placeholder}</span>
             )}
