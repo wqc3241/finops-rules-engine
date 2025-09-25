@@ -285,17 +285,16 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({
                </p>
             </div>
             <div className="flex gap-2">
-              {selectedDocuments.size > 0 && (
-                <Button 
-                  size="sm" 
-                  onClick={handleSendForSignature}
-                  className="text-xs"
-                  variant="outline"
-                >
-                  <PenTool className="h-3 w-3 mr-1" />
-                  Send for Signature ({selectedDocuments.size})
-                </Button>
-              )}
+              <Button 
+                size="sm" 
+                onClick={handleSendForSignature}
+                className="text-xs"
+                disabled={selectedDocuments.size === 0}
+                variant={selectedDocuments.size > 0 ? "default" : "outline"}
+              >
+                <PenTool className="h-3 w-3 mr-1" />
+                Send for Signature {selectedDocuments.size > 0 && `(${selectedDocuments.size})`}
+              </Button>
               {(() => {
                 const selectedCategoryData = availableCategories.find(cat => cat.name === selectedCategory);
                 const canAddToThisCategory = selectedCategory === 'all' || selectedCategoryData && canAddDocumentToCategory(selectedCategoryData.id);
