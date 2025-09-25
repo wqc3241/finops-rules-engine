@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { FileText, Car, User, AlertCircle, Shield, Folder, Upload, Download, Eye, CheckCircle, Clock, XCircle, Calendar, Plus, Database, GitBranch, History } from 'lucide-react';
+import { FileText, Car, User, AlertCircle, Shield, Folder, Upload, Download, Eye, CheckCircle, Clock, XCircle, Calendar, Plus, Database, GitBranch, History, FilePlus } from 'lucide-react';
 import { DocumentItem, DocumentCategory, DocumentItemStatus, DocumentCategoryInfo } from '@/types/application/documents';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
@@ -339,7 +339,7 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({
                              <Tooltip>
                                <TooltipTrigger asChild>
                                  <Button size="icon" variant="default" className="h-8 w-8" onClick={() => handleGenerateDocument(document)} disabled={generateVersion.isPending}>
-                                   <FileText className="h-4 w-4" />
+                                   <FilePlus className="h-4 w-4" />
                                  </Button>
                                </TooltipTrigger>
                                <TooltipContent>
