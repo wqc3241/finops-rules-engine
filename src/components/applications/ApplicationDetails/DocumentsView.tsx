@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { FileText, Car, User, AlertCircle, Shield, Folder, Upload, Download, Eye, CheckCircle, Clock, XCircle, Calendar, Plus, Database, GitBranch, History } from 'lucide-react';
 import { DocumentItem, DocumentCategory, DocumentItemStatus, DocumentCategoryInfo } from '@/types/application/documents';
 import { cn } from '@/lib/utils';
+import { format } from 'date-fns';
 import AddDocumentCategoryModal from './DocumentsView/AddDocumentCategoryModal';
 import AddDocumentModal from './DocumentsView/AddDocumentModal';
 import DocumentFileUploadModal from './DocumentsView/DocumentFileUploadModal';
@@ -186,6 +188,15 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({
     if (requiredDocs.length === 0) return 100;
     return completedDocs.length / requiredDocs.length * 100;
   };
+
+  const formatUploadDate = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      return format(date, 'MM/dd/yy, HH:mm');
+    } catch {
+      return dateString;
+    }
+  };
   if (documentsError) {
     return <div className="text-center py-8">
         <p className="text-red-600 mb-4">Error loading documents: {documentsError.message}</p>
@@ -268,19 +279,20 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({
               {consolidatedDocuments.map(document => <TableRow key={`${document.document_type_id}_${document._rootDocumentId}`} className="hover:bg-muted/30">
                   <TableCell className="py-4">
                     <div className="flex items-center gap-3">
-                      
                       <div>
                         <div className="flex items-center gap-2">
                           <span className="font-medium text-sm cursor-pointer hover:text-primary underline-offset-4 hover:underline" onClick={() => handleViewHistory(document)} title="Click to view all versions">
                             {document.name}
                           </span>
-                          <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
-                            v{document.version_number || 1} of {document._totalVersions}
-                          </Badge>
                           {document.is_generated && <GitBranch className="h-3 w-3 text-blue-600" />}
                           {document._totalVersions > 1 && <History className="h-3 w-3 text-muted-foreground" />}
                         </div>
-                        {document.file_name && <div className="text-xs text-muted-foreground">
+                        <div className="mt-1">
+                          <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+                            v{document.version_number || 1} of {document._totalVersions}
+                          </Badge>
+                        </div>
+                        {document.file_name && <div className="text-xs text-muted-foreground mt-1">
                             {document.file_name} {document.file_size_mb && `(${document.file_size_mb} MB)`}
                           </div>}
                         {document.notes && <div className="text-xs text-muted-foreground mt-1 p-2 bg-muted/50 rounded-md max-w-xs">
@@ -308,7 +320,7 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({
                   </TableCell>
                   <TableCell className="text-sm">
                     {document.uploaded_date ? <div>
-                        <div className="font-medium">{document.uploaded_date}</div>
+                        <div className="font-medium">{formatUploadDate(document.uploaded_date)}</div>
                         <div className="text-xs text-muted-foreground">by {document.uploaded_by}</div>
                       </div> : <span className="text-muted-foreground">-</span>}
                   </TableCell>
@@ -319,70 +331,111 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({
                       </div> : <span className="text-muted-foreground">-</span>}
                   </TableCell>
                    <TableCell className="text-right">
-                     <div className="flex items-center gap-2 justify-end">
-                       {/* Template Documents */}
-                       {document.document_type?.template_id ? <>
-                           {/* Generate/Regenerate Button */}
-                           <Button size="sm" variant="default" className="text-xs" onClick={() => handleGenerateDocument(document)} disabled={generateVersion.isPending}>
-                             <FileText className="h-3 w-3 mr-1" />
-                             {document.generation_count > 1 ? 'Regenerate' : 'Generate'}
-                           </Button>
-                           
-                           {/* View/Download for generated documents */}
-                           {document.file_url && <>
-                               <Button size="sm" variant="outline" className="text-xs" onClick={() => window.open(document.file_url, '_blank')}>
-                                 <Eye className="h-3 w-3 mr-1" />
-                                 View
-                               </Button>
-                               <Button size="sm" variant="outline" className="text-xs" onClick={() => {
-                        const link = document.createElement('a');
-                        link.href = document.file_url!;
-                        link.download = document.file_name || document.name;
-                        link.click();
-                      }}>
-                                 <Download className="h-3 w-3 mr-1" />
-                                 Download
-                               </Button>
-                             </>}
-                         </> : (/* Non-Template Documents */
-                  <>
-                           {/* Upload Button */}
-                           {!document.file_url && <Button size="sm" className="text-xs" onClick={() => {
-                      setSelectedDocument(document);
-                      setShowUploadModal(true);
-                    }}>
-                               <Upload className="h-3 w-3 mr-1" />
-                               Upload
-                             </Button>}
-                           
-                           {/* View/Download for uploaded documents */}
-                           {document.file_url && <>
-                               <Button size="sm" className="text-xs" onClick={() => {
-                        setSelectedDocument(document);
-                        setShowUploadModal(true);
-                      }}>
-                                 <Upload className="h-3 w-3 mr-1" />
-                                 Upload New
-                               </Button>
-                               <Button size="sm" variant="outline" className="text-xs" onClick={() => window.open(document.file_url, '_blank')}>
-                                 <Eye className="h-3 w-3 mr-1" />
-                                 View
-                               </Button>
-                               <Button size="sm" variant="outline" className="text-xs" onClick={() => {
-                        const link = document.createElement('a');
-                        link.href = document.file_url!;
-                        link.download = document.file_name || document.name;
-                        link.click();
-                      }}>
-                                 <Download className="h-3 w-3 mr-1" />
-                                 Download
-                               </Button>
-                             </>}
-                         </>)}
-                       
-                       {/* Version History Button (for all documents) */}
-                       
-                     </div>
+                     <TooltipProvider>
+                       <div className="flex items-center gap-1 justify-end">
+                         {/* Template Documents */}
+                         {document.document_type?.template_id ? <>
+                             {/* Generate/Regenerate Button */}
+                             <Tooltip>
+                               <TooltipTrigger asChild>
+                                 <Button size="icon" variant="default" className="h-8 w-8" onClick={() => handleGenerateDocument(document)} disabled={generateVersion.isPending}>
+                                   <FileText className="h-4 w-4" />
+                                 </Button>
+                               </TooltipTrigger>
+                               <TooltipContent>
+                                 <p>{document.generation_count > 1 ? 'Regenerate' : 'Generate'}</p>
+                               </TooltipContent>
+                             </Tooltip>
+                             
+                             {/* View/Download for generated documents */}
+                             {document.file_url && <>
+                                 <Tooltip>
+                                   <TooltipTrigger asChild>
+                                     <Button size="icon" variant="outline" className="h-8 w-8" onClick={() => window.open(document.file_url, '_blank')}>
+                                       <Eye className="h-4 w-4" />
+                                     </Button>
+                                   </TooltipTrigger>
+                                   <TooltipContent>
+                                     <p>View</p>
+                                   </TooltipContent>
+                                 </Tooltip>
+                                 <Tooltip>
+                                   <TooltipTrigger asChild>
+                                     <Button size="icon" variant="outline" className="h-8 w-8" onClick={() => {
+                              const link = document.createElement('a');
+                              link.href = document.file_url!;
+                              link.download = document.file_name || document.name;
+                              link.click();
+                            }}>
+                                       <Download className="h-4 w-4" />
+                                     </Button>
+                                   </TooltipTrigger>
+                                   <TooltipContent>
+                                     <p>Download</p>
+                                   </TooltipContent>
+                                 </Tooltip>
+                               </>}
+                           </> : (/* Non-Template Documents */
+                    <>
+                             {/* Upload Button */}
+                             {!document.file_url && <Tooltip>
+                                 <TooltipTrigger asChild>
+                                   <Button size="icon" className="h-8 w-8" onClick={() => {
+                            setSelectedDocument(document);
+                            setShowUploadModal(true);
+                          }}>
+                                     <Upload className="h-4 w-4" />
+                                   </Button>
+                                 </TooltipTrigger>
+                                 <TooltipContent>
+                                   <p>Upload</p>
+                                 </TooltipContent>
+                               </Tooltip>}
+                             
+                             {/* View/Download for uploaded documents */}
+                             {document.file_url && <>
+                                 <Tooltip>
+                                   <TooltipTrigger asChild>
+                                     <Button size="icon" className="h-8 w-8" onClick={() => {
+                              setSelectedDocument(document);
+                              setShowUploadModal(true);
+                            }}>
+                                       <Upload className="h-4 w-4" />
+                                     </Button>
+                                   </TooltipTrigger>
+                                   <TooltipContent>
+                                     <p>Upload New</p>
+                                   </TooltipContent>
+                                 </Tooltip>
+                                 <Tooltip>
+                                   <TooltipTrigger asChild>
+                                     <Button size="icon" variant="outline" className="h-8 w-8" onClick={() => window.open(document.file_url, '_blank')}>
+                                       <Eye className="h-4 w-4" />
+                                     </Button>
+                                   </TooltipTrigger>
+                                   <TooltipContent>
+                                     <p>View</p>
+                                   </TooltipContent>
+                                 </Tooltip>
+                                 <Tooltip>
+                                   <TooltipTrigger asChild>
+                                     <Button size="icon" variant="outline" className="h-8 w-8" onClick={() => {
+                              const link = document.createElement('a');
+                              link.href = document.file_url!;
+                              link.download = document.file_name || document.name;
+                              link.click();
+                            }}>
+                                       <Download className="h-4 w-4" />
+                                     </Button>
+                                   </TooltipTrigger>
+                                   <TooltipContent>
+                                     <p>Download</p>
+                                   </TooltipContent>
+                                 </Tooltip>
+                               </>}
+                           </>)}
+                       </div>
+                     </TooltipProvider>
                    </TableCell>
                 </TableRow>)}
             </TableBody>
