@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,25 +6,57 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus } from 'lucide-react';
-import { useCreateDocumentTemplate, CreateDocumentTemplateData } from '@/hooks/useDocumentTemplates';
+import { useCreateDocumentTemplate, useUpdateDocumentTemplate, CreateDocumentTemplateData } from '@/hooks/useDocumentTemplates';
+
+interface DocumentTemplate {
+  id: string;
+  name: string;
+  template_type: 'docusign' | 'lucid_html';
+  description?: string;
+  docusign_template_id?: string;
+  template_content?: string;
+  template_id: string;
+}
 
 interface CreateTemplateModalProps {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   trigger?: React.ReactNode;
+  template?: DocumentTemplate; // For editing mode
+  mode?: 'create' | 'edit';
 }
 
-export function CreateTemplateModal({ open, onOpenChange, trigger }: CreateTemplateModalProps) {
+export function CreateTemplateModal({ 
+  open, 
+  onOpenChange, 
+  trigger, 
+  template, 
+  mode = 'create' 
+}: CreateTemplateModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [formData, setFormData] = useState<CreateDocumentTemplateData>({
-    name: '',
-    template_type: 'docusign',
-    description: '',
-    docusign_template_id: '',
-    template_content: ''
+    name: template?.name || '',
+    template_type: template?.template_type || 'docusign',
+    description: template?.description || '',
+    docusign_template_id: template?.docusign_template_id || '',
+    template_content: template?.template_content || ''
   });
 
   const createTemplate = useCreateDocumentTemplate();
+  const updateTemplate = useUpdateDocumentTemplate();
+
+  // Update form data when template changes (for edit mode)
+  useEffect(() => {
+    if (template && mode === 'edit') {
+      setFormData({
+        name: template.name,
+        template_type: template.template_type,
+        description: template.description || '',
+        docusign_template_id: template.docusign_template_id || '',
+        template_content: template.template_content || ''
+      });
+    }
+  }, [template, mode]);
 
   const handleOpenChange = (newOpen: boolean) => {
     if (onOpenChange) {
@@ -34,14 +66,16 @@ export function CreateTemplateModal({ open, onOpenChange, trigger }: CreateTempl
     }
     
     if (!newOpen) {
-      // Reset form when closing
-      setFormData({
-        name: '',
-        template_type: 'docusign',
-        description: '',
-        docusign_template_id: '',
-        template_content: ''
-      });
+      // Reset form when closing (only for create mode)
+      if (mode === 'create') {
+        setFormData({
+          name: '',
+          template_type: 'docusign',
+          description: '',
+          docusign_template_id: '',
+          template_content: ''
+        });
+      }
     }
   };
 
@@ -65,13 +99,21 @@ export function CreateTemplateModal({ open, onOpenChange, trigger }: CreateTempl
     }
 
     try {
-      await createTemplate.mutateAsync(submitData);
+      if (mode === 'edit' && template) {
+        await updateTemplate.mutateAsync({
+          id: template.id,
+          data: submitData
+        });
+      } else {
+        await createTemplate.mutateAsync(submitData);
+      }
       handleOpenChange(false);
     } catch (error) {
       // Error handling is done in the hook
     }
   };
 
+  const isLoading = mode === 'edit' ? updateTemplate.isPending : createTemplate.isPending;
   const isControlled = open !== undefined && onOpenChange !== undefined;
   const modalOpen = isControlled ? open : isOpen;
 
@@ -92,7 +134,9 @@ export function CreateTemplateModal({ open, onOpenChange, trigger }: CreateTempl
       
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>Create Document Template</DialogTitle>
+          <DialogTitle>
+            {mode === 'edit' ? 'Edit Document Template' : 'Create Document Template'}
+          </DialogTitle>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -166,8 +210,11 @@ export function CreateTemplateModal({ open, onOpenChange, trigger }: CreateTempl
             <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit" disabled={createTemplate.isPending || !formData.name.trim()}>
-              {createTemplate.isPending ? 'Creating...' : 'Create Template'}
+            <Button type="submit" disabled={isLoading || !formData.name.trim()}>
+              {isLoading 
+                ? (mode === 'edit' ? 'Updating...' : 'Creating...') 
+                : (mode === 'edit' ? 'Update Template' : 'Create Template')
+              }
             </Button>
           </div>
         </form>

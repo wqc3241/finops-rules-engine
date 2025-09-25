@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Edit, Trash2, FileText, Code } from 'lucide-react';
-import { useDocumentTemplates, useDeleteDocumentTemplate, useTemplateUsage } from '@/hooks/useDocumentTemplates';
+import { useDocumentTemplates, useDeleteDocumentTemplate, useTemplateUsage, DocumentTemplate } from '@/hooks/useDocumentTemplates';
 import { CreateTemplateModal } from './CreateTemplateModal';
 import { format } from 'date-fns';
 
@@ -14,12 +14,24 @@ export function DocumentTemplatesSection() {
   const deleteTemplate = useDeleteDocumentTemplate();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [templateToDelete, setTemplateToDelete] = useState<string | null>(null);
+  const [editingTemplate, setEditingTemplate] = useState<DocumentTemplate | null>(null);
+  const [editModalOpen, setEditModalOpen] = useState(false);
 
   const { data: templateUsage } = useTemplateUsage(templateToDelete || '');
 
   const handleDeleteClick = (templateId: string) => {
     setTemplateToDelete(templateId);
     setDeleteDialogOpen(true);
+  };
+
+  const handleEditClick = (template: DocumentTemplate) => {
+    setEditingTemplate(template);
+    setEditModalOpen(true);
+  };
+
+  const handleEditModalClose = () => {
+    setEditModalOpen(false);
+    setEditingTemplate(null);
   };
 
   const handleConfirmDelete = async () => {
@@ -117,7 +129,12 @@ export function DocumentTemplatesSection() {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
-                          <Button size="sm" variant="outline" className="h-8 w-8 p-0">
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="h-8 w-8 p-0"
+                            onClick={() => handleEditClick(template)}
+                          >
                             <Edit className="h-4 w-4" />
                           </Button>
                           <Button 
@@ -138,6 +155,14 @@ export function DocumentTemplatesSection() {
           )}
         </CardContent>
       </Card>
+
+      {/* Edit Template Modal */}
+      <CreateTemplateModal
+        open={editModalOpen}
+        onOpenChange={handleEditModalClose}
+        template={editingTemplate}
+        mode="edit"
+      />
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
