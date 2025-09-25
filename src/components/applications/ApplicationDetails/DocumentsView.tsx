@@ -284,16 +284,33 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({
                  {consolidatedDocuments.reduce((acc, doc) => acc + doc._totalVersions, 0) > consolidatedDocuments.length && ` (${consolidatedDocuments.reduce((acc, doc) => acc + doc._totalVersions, 0)} total versions)`}
                </p>
             </div>
-            {(() => {
-            const selectedCategoryData = availableCategories.find(cat => cat.name === selectedCategory);
-            const canAddToThisCategory = selectedCategory === 'all' || selectedCategoryData && canAddDocumentToCategory(selectedCategoryData.id);
-            return canAddToThisCategory ? <Button size="sm" onClick={() => setShowAddDocumentModal(true)} className="text-xs">
-                  <Plus className="h-3 w-3 mr-1" />
-                  Add Document
-                </Button> : <div className="text-xs text-muted-foreground px-3 py-2">
-                  No permission to add documents
-                </div>;
-          })()}
+            <div className="flex gap-2">
+              {selectedDocuments.size > 0 && (
+                <Button 
+                  size="sm" 
+                  onClick={handleSendForSignature}
+                  className="text-xs"
+                  variant="outline"
+                >
+                  <PenTool className="h-3 w-3 mr-1" />
+                  Send for Signature ({selectedDocuments.size})
+                </Button>
+              )}
+              {(() => {
+                const selectedCategoryData = availableCategories.find(cat => cat.name === selectedCategory);
+                const canAddToThisCategory = selectedCategory === 'all' || selectedCategoryData && canAddDocumentToCategory(selectedCategoryData.id);
+                return canAddToThisCategory ? (
+                  <Button size="sm" onClick={() => setShowAddDocumentModal(true)} className="text-xs">
+                    <Plus className="h-3 w-3 mr-1" />
+                    Add Document
+                  </Button>
+                ) : (
+                  <div className="text-xs text-muted-foreground px-3 py-2">
+                    No permission to add documents
+                  </div>
+                );
+              })()}
+            </div>
           </div>
         </div>
         
