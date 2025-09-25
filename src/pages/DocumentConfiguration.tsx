@@ -622,6 +622,30 @@ const DocumentTypeForm: React.FC<{
     </form>;
 };
 
+// Common file format options
+const FILE_FORMAT_OPTIONS = [
+  { value: '.pdf', label: 'PDF (.pdf)' },
+  { value: '.jpg', label: 'JPEG (.jpg)' },
+  { value: '.jpeg', label: 'JPEG (.jpeg)' },
+  { value: '.png', label: 'PNG (.png)' },
+  { value: '.gif', label: 'GIF (.gif)' },
+  { value: '.webp', label: 'WebP (.webp)' },
+  { value: '.doc', label: 'Word 97-2003 (.doc)' },
+  { value: '.docx', label: 'Word (.docx)' },
+  { value: '.xls', label: 'Excel 97-2003 (.xls)' },
+  { value: '.xlsx', label: 'Excel (.xlsx)' },
+  { value: '.ppt', label: 'PowerPoint 97-2003 (.ppt)' },
+  { value: '.pptx', label: 'PowerPoint (.pptx)' },
+  { value: '.txt', label: 'Text (.txt)' },
+  { value: '.csv', label: 'CSV (.csv)' },
+  { value: '.zip', label: 'ZIP Archive (.zip)' },
+  { value: '.rar', label: 'RAR Archive (.rar)' },
+  { value: '.mp3', label: 'MP3 Audio (.mp3)' },
+  { value: '.mp4', label: 'MP4 Video (.mp4)' },
+  { value: '.avi', label: 'AVI Video (.avi)' },
+  { value: '.mov', label: 'QuickTime (.mov)' }
+];
+
 // Acceptable File Form Component
 const AcceptableFileForm: React.FC<{
   documentTypeId: string;
@@ -635,22 +659,34 @@ const AcceptableFileForm: React.FC<{
   isLoading
 }) => {
   const [formData, setFormData] = useState({
-    file_extension: acceptableFile?.file_extension || '',
+    file_extension: acceptableFile?.file_extension ? [acceptableFile.file_extension] : [],
     max_file_size_mb: acceptableFile?.max_file_size_mb || 10,
     document_type_id: documentTypeId
   });
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    // Submit each file extension as a separate entry
+    formData.file_extension.forEach(extension => {
+      onSubmit({
+        ...formData,
+        file_extension: extension
+      });
+    });
   };
   return <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <Label htmlFor="file_extension">File Extension</Label>
-          <Input id="file_extension" value={formData.file_extension} onChange={e => setFormData(prev => ({
-          ...prev,
-          file_extension: e.target.value
-        }))} placeholder="e.g., .pdf, .jpg, .docx" required />
+          <Label htmlFor="file_extension">File Extensions</Label>
+          <MultiSelect
+            options={FILE_FORMAT_OPTIONS}
+            selected={formData.file_extension}
+            onChange={(extensions) => setFormData(prev => ({
+              ...prev,
+              file_extension: extensions
+            }))}
+            placeholder="Select file extensions"
+            className="w-full"
+          />
         </div>
         <div>
           <Label htmlFor="max_file_size_mb">Max Size (MB)</Label>
