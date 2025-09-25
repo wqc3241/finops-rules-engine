@@ -192,7 +192,7 @@ const DocumentsView: React.FC<DocumentsViewProps> = ({
   const formatUploadDate = (dateString: string) => {
     try {
       const date = new Date(dateString);
-      return format(date, 'MM/dd/yy, HH:mm');
+      return format(date, 'MM/dd/yy, HH:mm zzz');
     } catch {
       return dateString;
     }
