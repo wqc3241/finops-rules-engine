@@ -647,7 +647,7 @@ const CategoryForm: React.FC<{
       </div>
 
       <div>
-        <Label htmlFor="teams">Allowed Teams</Label>
+        <Label htmlFor="teams">Owner</Label>
         <MultiSelect
           options={TEAM_OPTIONS}
           selected={formData.allowed_teams}
