@@ -220,7 +220,7 @@ const DocumentConfiguration: React.FC = () => {
                                      </Badge>}
                                  </div>
                                <div className="flex items-center gap-2">
-                                 {type.is_required && <Badge variant="secondary" className="text-xs">Required</Badge>}
+                                 {type.is_required && <Badge variant="secondary" className="text-xs">Mandatory</Badge>}
                                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                    <Button size="sm" variant="ghost" onClick={e => {
                             e.stopPropagation();
