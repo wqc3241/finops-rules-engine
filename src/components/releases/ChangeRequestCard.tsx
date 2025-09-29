@@ -61,7 +61,7 @@ const ChangeRequestCard = ({
                 </p>
               </div>
               {getStatusBadge(request.status)}
-              {request.deployment_version_id && (
+              {request.deploymentVersionId && (
                 <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
                   Deployed
                 </Badge>
@@ -100,7 +100,7 @@ const ChangeRequestCard = ({
                   Reject
                 </Button>
               </>
-            ) : showDeployButton && request.status === 'APPROVED' && !request.deployment_version_id ? (
+            ) : showDeployButton && request.status === 'APPROVED' && !request.deploymentVersionId ? (
               <Button
                 size="sm"
                 onClick={() => onViewDetails(request.id)}

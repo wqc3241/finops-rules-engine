@@ -25,7 +25,7 @@ const PendingChangesList = ({
   const { deployApprovedChanges, isLoading } = useDeploymentVersions();
 
   const pendingApproval = changeRequests.filter(r => r.status === 'PENDING' || r.status === 'IN_REVIEW');
-  const approved = changeRequests.filter(r => r.status === 'APPROVED' && !r.deployment_version_id);
+  const approved = changeRequests.filter(r => r.status === 'APPROVED' && !r.deploymentVersionId);
   const rejected = changeRequests.filter(r => r.status === 'REJECTED');
 
   const handleDeployAll = async (notes?: string) => {
@@ -39,14 +39,14 @@ const PendingChangesList = ({
   // Calculate summary for approved changes
   const approvedSummary = approved.length > 0
     ? (() => {
-        const allDetails: any[] = [];
+        const allChanges: any[] = [];
         approved.forEach(req => {
-          // Assuming change_details are loaded with the request
-          if (req.change_details) {
-            allDetails.push(...req.change_details);
-          }
+          // Get changes from tableChanges
+          req.tableChanges?.forEach(tableChange => {
+            allChanges.push(...(tableChange.changes || []));
+          });
         });
-        return calculateSnapshotMetadata(allDetails);
+        return calculateSnapshotMetadata(allChanges);
       })()
     : { totalTables: 0, totalChanges: 0, tables: {} };
 

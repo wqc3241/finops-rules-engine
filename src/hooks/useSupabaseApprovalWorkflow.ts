@@ -80,7 +80,8 @@ export const useSupabaseApprovalWorkflow = () => {
         comment: item.comment,
         submittedAt: item.submitted_at,
         reviewedBy: item.reviewed_by,
-        reviewedAt: item.reviewed_at
+        reviewedAt: item.reviewed_at,
+        deploymentVersionId: item.deployment_version_id
       }));
       
       setChangeRequests(mappedData);
@@ -673,6 +674,12 @@ export const useSupabaseApprovalWorkflow = () => {
       .filter(Boolean) as ChangeRequestWithDetails[];
   }, [changeRequests, changeDetails, getChangeRequestWithDetails]);
 
+  const getAllChangeRequestsForAdmin = useCallback((): ChangeRequestWithDetails[] => {
+    return changeRequests
+      .map(request => getChangeRequestWithDetails(request.id))
+      .filter(Boolean) as ChangeRequestWithDetails[];
+  }, [changeRequests, getChangeRequestWithDetails]);
+
   const isTableLocked = useCallback((schemaId: string): boolean => {
     return lockedTables.includes(schemaId);
   }, [lockedTables]);
@@ -813,6 +820,7 @@ export const useSupabaseApprovalWorkflow = () => {
     rejectTableChanges,
     finalizeChangeRequest,
     getPendingRequestsForAdmin,
+    getAllChangeRequestsForAdmin,
     approveAllPendingRequests,
     rejectAllPendingRequests,
     approveChangeRequest,

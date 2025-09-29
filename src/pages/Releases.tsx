@@ -15,14 +15,14 @@ const Releases = () => {
   const [activeItem, setActiveItem] = useState('Releases');
   const { versions, schedule, isLoading: versionsLoading } = useDeploymentVersions();
   const { 
-    getPendingRequestsForAdmin, 
+    getAllChangeRequestsForAdmin,
     approveChangeRequest, 
     rejectChangeRequest,
     loading: isLoadingRequests
   } = useSupabaseApprovalWorkflow();
   
-  // Get pending requests directly - this will automatically update via real-time subscriptions
-  const changeRequests = getPendingRequestsForAdmin();
+  // Get all change requests (pending, approved, rejected) - this will automatically update via real-time subscriptions
+  const changeRequests = getAllChangeRequestsForAdmin();
 
   const handleApprove = async (requestId: string) => {
     await approveChangeRequest(requestId);

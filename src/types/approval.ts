@@ -12,6 +12,7 @@ export interface ChangeRequest {
   submittedAt: string;
   reviewedBy?: string;
   reviewedAt?: string;
+  deploymentVersionId?: string;
 }
 
 export interface ChangeDetail {
