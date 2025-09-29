@@ -148,13 +148,20 @@ export const useDeploymentVersions = () => {
       
       // Remove locks and update version
       if (schemaIds.length > 0) {
-        for (const schemaId of schemaIds) {
-          await supabase.from('table_locks').delete().eq('table_schema_id', schemaId);
-        }
+        // Delete locks - type assertion to avoid TS recursion
+        const deleteQuery = supabase.from('table_locks').delete();
+        const { error: lockDeleteError } = await (deleteQuery as any).in('table_schema_id', schemaIds);
+        
+        if (lockDeleteError) console.error('Error deleting locks:', lockDeleteError);
       }
 
-      // @ts-ignore - Supabase type inference issue
-      await supabase.from('deployment_versions').update({ status: 'active' }).eq('id', version.id);
+      // Update version status
+      const { error: versionUpdateError } = await supabase
+        .from('deployment_versions')
+        .update({ status: 'active' })
+        .eq('id', version.id);
+      
+      if (versionUpdateError) console.error('Error updating version:', versionUpdateError);
 
       toast.success('Changes deployed successfully');
       await getDeploymentVersions();
