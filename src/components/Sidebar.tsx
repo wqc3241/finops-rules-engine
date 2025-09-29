@@ -9,8 +9,10 @@ import {
   ListTodo, 
   Settings, 
   Receipt,
-  FileCheck
+  FileCheck,
+  GitBranch
 } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 
 interface NavItemProps {
   title: string;
@@ -46,11 +48,15 @@ const Sidebar = ({ open, activeItem, setActiveItem }: SidebarProps) => {
   
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAuth();
 
   const handleItemClick = (title: string, path: string) => {
     setActiveItem(title);
     navigate(path);
   };
+
+  // @ts-ignore - role type mismatch with user_profiles enum
+  const isFSAdmin = user?.role === 'FS_ADMIN' || user?.role === 'admin';
 
   const navItems = [
     {
@@ -63,6 +69,11 @@ const Sidebar = ({ open, activeItem, setActiveItem }: SidebarProps) => {
       icon: <LayoutDashboard className="h-5 w-5" />,
       path: '/dashboard'
     },
+    ...(isFSAdmin ? [{
+      title: 'Releases',
+      icon: <GitBranch className="h-5 w-5" />,
+      path: '/releases'
+    }] : []),
     {
       title: 'Document Configuration',
       icon: <FileCheck className="h-5 w-5" />,

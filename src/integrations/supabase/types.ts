@@ -600,6 +600,8 @@ export type Database = {
           comment: string | null
           created_at: string
           created_by: string
+          deployed_at: string | null
+          deployment_version_id: string | null
           id: string
           reviewed_at: string | null
           reviewed_by: string | null
@@ -612,6 +614,8 @@ export type Database = {
           comment?: string | null
           created_at?: string
           created_by: string
+          deployed_at?: string | null
+          deployment_version_id?: string | null
           id?: string
           reviewed_at?: string | null
           reviewed_by?: string | null
@@ -624,6 +628,8 @@ export type Database = {
           comment?: string | null
           created_at?: string
           created_by?: string
+          deployed_at?: string | null
+          deployment_version_id?: string | null
           id?: string
           reviewed_at?: string | null
           reviewed_by?: string | null
@@ -632,7 +638,15 @@ export type Database = {
           table_schema_ids?: string[] | null
           version_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "change_requests_deployment_version_id_fkey"
+            columns: ["deployment_version_id"]
+            isOneToOne: false
+            referencedRelation: "deployment_versions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       countries: {
         Row: {
@@ -914,6 +928,92 @@ export type Database = {
           selling_state?: string | null
         }
         Relationships: []
+      }
+      deployment_schedule: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_enabled: boolean | null
+          last_run_at: string | null
+          next_run_at: string | null
+          schedule_time: string
+          timezone: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_enabled?: boolean | null
+          last_run_at?: string | null
+          next_run_at?: string | null
+          schedule_time?: string
+          timezone?: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_enabled?: boolean | null
+          last_run_at?: string | null
+          next_run_at?: string | null
+          schedule_time?: string
+          timezone?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      deployment_versions: {
+        Row: {
+          change_request_ids: Json | null
+          created_at: string | null
+          deployed_at: string
+          deployed_by: string | null
+          deployment_type: string
+          id: string
+          is_rollback: boolean | null
+          notes: string | null
+          parent_version_id: string | null
+          snapshot_metadata: Json | null
+          status: string
+          version_number: string
+        }
+        Insert: {
+          change_request_ids?: Json | null
+          created_at?: string | null
+          deployed_at?: string
+          deployed_by?: string | null
+          deployment_type: string
+          id?: string
+          is_rollback?: boolean | null
+          notes?: string | null
+          parent_version_id?: string | null
+          snapshot_metadata?: Json | null
+          status?: string
+          version_number: string
+        }
+        Update: {
+          change_request_ids?: Json | null
+          created_at?: string | null
+          deployed_at?: string
+          deployed_by?: string | null
+          deployment_type?: string
+          id?: string
+          is_rollback?: boolean | null
+          notes?: string | null
+          parent_version_id?: string | null
+          snapshot_metadata?: Json | null
+          status?: string
+          version_number?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deployment_versions_parent_version_id_fkey"
+            columns: ["parent_version_id"]
+            isOneToOne: false
+            referencedRelation: "deployment_versions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       discount_rules: {
         Row: {

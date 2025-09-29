@@ -21,6 +21,7 @@ import SalesPricingRulesPage from "./pages/SalesPricingRulesPage";
 import ProfileSettings from "./pages/ProfileSettings";
 import UserPermissions from "./pages/UserPermissions";
 import AdminSettings from "./pages/AdminSettings";
+import Releases from "./pages/Releases";
 import AuthPage from "./pages/AuthPage";
 import DocumentConfiguration from "./pages/DocumentConfiguration";
 import AIAgentButton from "./components/ai-agent/AIAgentButton";
@@ -74,6 +75,7 @@ const App = () => (
               <Route path="/user-permissions" element={<ProtectedRoute><UserPermissions /></ProtectedRoute>} />
               <Route path="/admin-settings" element={<ProtectedRoute><AdminSettings /></ProtectedRoute>} />
               <Route path="/document-configuration" element={<ProtectedRoute><DocumentConfiguration /></ProtectedRoute>} />
+              <Route path="/releases" element={<ProtectedRoute><Releases /></ProtectedRoute>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
