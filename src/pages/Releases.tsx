@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import Navbar from '@/components/Navbar';
+import Sidebar from '@/components/Sidebar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { GitBranch } from 'lucide-react';
@@ -9,6 +11,8 @@ import { useDeploymentVersions } from '@/hooks/useDeploymentVersions';
 import { useSupabaseApprovalWorkflow } from '@/hooks/useSupabaseApprovalWorkflow';
 
 const Releases = () => {
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [activeItem, setActiveItem] = useState('Releases');
   const { versions, schedule, isLoading: versionsLoading } = useDeploymentVersions();
   const { 
     getPendingRequestsForAdmin, 
@@ -46,7 +50,12 @@ const Releases = () => {
   };
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="h-screen flex flex-col bg-gray-50">
+      <Navbar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+      <div className="flex flex-1 overflow-hidden">
+        <Sidebar open={sidebarOpen} activeItem={activeItem} setActiveItem={setActiveItem} />
+        <main className="flex-1 overflow-y-auto">
+          <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center gap-3">
         <GitBranch className="h-8 w-8 text-primary" />
         <div>
@@ -110,6 +119,9 @@ const Releases = () => {
           )}
         </TabsContent>
       </Tabs>
+          </div>
+        </main>
+      </div>
     </div>
   );
 };
