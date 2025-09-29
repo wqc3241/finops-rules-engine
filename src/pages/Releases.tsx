@@ -17,31 +17,19 @@ const Releases = () => {
   const { 
     getPendingRequestsForAdmin, 
     approveChangeRequest, 
-    rejectChangeRequest 
+    rejectChangeRequest,
+    loading: isLoadingRequests
   } = useSupabaseApprovalWorkflow();
   
-  const [changeRequests, setChangeRequests] = useState<any[]>([]);
-  const [isLoadingRequests, setIsLoadingRequests] = useState(false);
-
-  useEffect(() => {
-    loadChangeRequests();
-  }, []);
-
-  const loadChangeRequests = async () => {
-    setIsLoadingRequests(true);
-    const requests = await getPendingRequestsForAdmin();
-    setChangeRequests(requests);
-    setIsLoadingRequests(false);
-  };
+  // Get pending requests directly - this will automatically update via real-time subscriptions
+  const changeRequests = getPendingRequestsForAdmin();
 
   const handleApprove = async (requestId: string) => {
     await approveChangeRequest(requestId);
-    await loadChangeRequests();
   };
 
   const handleReject = async (requestId: string) => {
     await rejectChangeRequest(requestId);
-    await loadChangeRequests();
   };
 
   const handleViewDetails = (requestId: string) => {
