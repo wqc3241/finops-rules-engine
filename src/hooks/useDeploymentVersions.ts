@@ -155,7 +155,16 @@ export const useDeploymentVersions = () => {
         if (lockDeleteError) console.error('Error deleting locks:', lockDeleteError);
       }
 
-      // Update version status
+      
+      // First, expire all currently active versions
+      const { error: expireError } = await supabase
+        .from('deployment_versions')
+        .update({ status: 'expired' })
+        .eq('status', 'active');
+      
+      if (expireError) console.error('Error expiring previous versions:', expireError);
+
+      // Then set the new version as active
       const { error: versionUpdateError } = await supabase
         .from('deployment_versions')
         .update({ status: 'active' })
