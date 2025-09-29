@@ -12,7 +12,7 @@ import {
   FileCheck,
   GitBranch
 } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/useSupabaseAuth';
 
 interface NavItemProps {
   title: string;
@@ -48,15 +48,14 @@ const Sidebar = ({ open, activeItem, setActiveItem }: SidebarProps) => {
   
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useAuth();
+  const { isFSAdmin } = useAuth();
 
   const handleItemClick = (title: string, path: string) => {
     setActiveItem(title);
     navigate(path);
   };
 
-  // @ts-ignore - role type mismatch with user_profiles enum
-  const isFSAdmin = user?.role === 'FS_ADMIN' || user?.role === 'admin';
+  const showReleases = isFSAdmin();
 
   const navItems = [
     {
@@ -69,7 +68,7 @@ const Sidebar = ({ open, activeItem, setActiveItem }: SidebarProps) => {
       icon: <LayoutDashboard className="h-5 w-5" />,
       path: '/dashboard'
     },
-    ...(isFSAdmin ? [{
+    ...(showReleases ? [{
       title: 'Releases',
       icon: <GitBranch className="h-5 w-5" />,
       path: '/releases'
