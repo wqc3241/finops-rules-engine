@@ -37,13 +37,9 @@ const ChangeRequestCard = ({
     }
   };
 
-  // Mock data for change details - in real app, would fetch from change_details table
-  const changeDetails = request.change_details || [];
-  const tableChanges = changeDetails.reduce((acc: any, detail: any) => {
-    const table = detail.table_name || 'unknown';
-    acc[table] = (acc[table] || 0) + 1;
-    return acc;
-  }, {});
+  // Get table changes from the request
+  const tableChanges = request.tableChanges || [];
+  const totalChanges = request.totalChanges || 0;
 
   return (
     <Card className="p-4">
@@ -57,9 +53,11 @@ const ChangeRequestCard = ({
                 </Button>
               </CollapsibleTrigger>
               <div>
-                <p className="font-mono text-sm font-medium">Request #{request.version_id}</p>
+                <p className="font-mono text-sm font-medium">Request #{request.versionId}</p>
                 <p className="text-xs text-muted-foreground">
-                  Created {formatDistanceToNow(new Date(request.created_at), { addSuffix: true })}
+                  Created {request.createdAt && !isNaN(new Date(request.createdAt).getTime()) 
+                    ? formatDistanceToNow(new Date(request.createdAt), { addSuffix: true })
+                    : 'recently'}
                 </p>
               </div>
               {getStatusBadge(request.status)}
@@ -72,7 +70,7 @@ const ChangeRequestCard = ({
 
             <div className="ml-7 space-y-1">
               <p className="text-sm text-muted-foreground">
-                {Object.keys(tableChanges).length} table(s) affected • {changeDetails.length} total changes
+                {tableChanges.length} table(s) affected • {totalChanges} total changes
               </p>
               {request.comment && (
                 <p className="text-sm italic text-muted-foreground">"{request.comment}"</p>
@@ -125,10 +123,10 @@ const ChangeRequestCard = ({
         <CollapsibleContent className="ml-7 mt-4">
           <div className="border-l-2 border-muted pl-4 space-y-2">
             <p className="text-xs font-medium text-muted-foreground mb-2">Changes by Table:</p>
-            {Object.entries(tableChanges).map(([table, count]) => (
-              <div key={table} className="flex justify-between text-sm">
-                <span className="font-mono">{table}</span>
-                <span className="text-muted-foreground">{String(count)} changes</span>
+            {tableChanges.map((tableChange: any) => (
+              <div key={tableChange.table} className="flex justify-between text-sm">
+                <span className="font-mono">{tableChange.table}</span>
+                <span className="text-muted-foreground">{tableChange.changedRowsCount} changes</span>
               </div>
             ))}
           </div>
