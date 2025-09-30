@@ -22,6 +22,7 @@ import TaxRulesUploadModal from "./TaxRulesUploadModal";
 import DiscountRulesUploadModal from "./DiscountRulesUploadModal";
 import { exportSelectedProgramsBulletinPricing } from "@/utils/selectedProgramsBulletinExport";
 import { transformProgramDataForWizard } from "@/utils/financialProgramUtils";
+import AddCreditProfileModal from "./AddCreditProfileModal";
 
 interface DynamicFinancialSectionProps {
   schemaId: string;
@@ -51,6 +52,7 @@ const DynamicFinancialSection = ({
   const [showFeeRulesUploadModal, setShowFeeRulesUploadModal] = useState(false);
   const [showTaxRulesUploadModal, setShowTaxRulesUploadModal] = useState(false);
   const [showDiscountRulesUploadModal, setShowDiscountRulesUploadModal] = useState(false);
+  const [showCreditProfileModal, setShowCreditProfileModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(100);
   
@@ -90,10 +92,11 @@ const {
       console.log('🔍 First item sample:', data[0]);
     }
     
-    // Start change tracking when data is first loaded
+    // Start change tracking when data is first loaded with correct primary key
     if (!loading && data && data.length >= 0 && schema) {
       console.log('🎯 Starting change tracking for schemaId:', schemaId);
-      startTracking(schemaId, data, 'id');
+      const primaryKey = schemaId === 'credit-profile' ? 'profile_id' : 'id';
+      startTracking(schemaId, data, primaryKey);
     }
   }, [data, loading, schemaId, startTracking, schema]);
   
@@ -194,10 +197,16 @@ const {
     console.log('🚨 Schema ID:', schemaId);
     console.log('🚨 Schema exists:', !!schema);
     
-    // Use wizard for financial-program-config, regular add for others
+    // Use wizard for financial-program-config
     if (schemaId === 'financial-program-config') {
       setShowWizard(true);
-    } else {
+    } 
+    // Use modal for credit-profile
+    else if (schemaId === 'credit-profile') {
+      setShowCreditProfileModal(true);
+    } 
+    // Use generic add for other schemas
+    else {
       if (schema) {
         saveState(data, schema, 'add_record');
         // Save version when adding new record
@@ -213,16 +222,23 @@ const {
     console.log('📝 handleAddRecordFromModal called for schemaId:', schemaId);
     console.log('📝 New record:', newRecord);
     
-    // Generate a temporary ID for the new record
-    const tempId = `new_${Date.now()}`;
-    const recordWithId = { ...newRecord, id: tempId };
+    // Generate a temporary ID based on the primary key for the table
+    const tempId = `temp_${Date.now()}`;
+    
+    // For credit profiles, use profile_id as the key
+    const recordWithId = schemaId === 'credit-profile' 
+      ? { ...newRecord, profile_id: newRecord.profile_id || tempId }
+      : { ...newRecord, id: tempId };
     
     // Add to local state
     const newData = [...data, recordWithId];
     setData(newData);
     
-    // Update change tracking to mark this table as changed
+    // Update change tracking with correct primary key
     console.log('📝 Updating change tracking for schemaId:', schemaId);
+    const primaryKey = schemaId === 'credit-profile' ? 'profile_id' : 'id';
+    
+    // Force change tracking to recognize this as a new record
     updateTracking(schemaId, newData);
     
     // Save state for undo/redo
@@ -232,6 +248,7 @@ const {
     }
     
     console.log('📝 Change tracking updated. New data length:', newData.length);
+    toast.success('Record added. Submit for review to save changes.');
   };
 
   const handleVersionHistory = () => {
@@ -709,6 +726,13 @@ const {
         onRestore={handleRestoreVersion}
         canRestore={canRestore}
         isLoading={versionsLoading}
+      />
+      
+      {/* Credit Profile Modal */}
+      <AddCreditProfileModal
+        isOpen={showCreditProfileModal}
+        onClose={() => setShowCreditProfileModal(false)}
+        onAddRecord={handleAddRecordFromModal}
       />
     </div>
   );

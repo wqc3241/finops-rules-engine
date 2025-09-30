@@ -149,7 +149,8 @@ export const useDynamicFinancialData = ({
         console.error('Error loading data from Supabase:', error);
         toast.error(`Failed to load ${schemaId} data: ${error.message}`);
         setData([]);
-        startTracking(schemaId, []);
+        const pk = await getPrimaryKey(schemaId);
+        startTracking(schemaId, [], pk);
       } else {
         console.log('Loaded paginated data from Supabase:', supabaseData);
         const formattedData = supabaseData || [];
@@ -370,6 +371,8 @@ export const useDynamicFinancialData = ({
             break;
           case 'credit_profiles':
             if (!row['profile_id']) row['profile_id'] = `PROF_${Date.now()}`;
+            // Don't add 'id' for credit profiles - use profile_id as primary key
+            delete row['id'];
             break;
           case 'tax_rules':
             if (!row['tax_name']) row['tax_name'] = 'New Tax Rule';
