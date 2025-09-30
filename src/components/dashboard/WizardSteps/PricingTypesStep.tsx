@@ -25,9 +25,20 @@ const PricingTypesStep = ({ data, onUpdate }: PricingTypesStepProps) => {
   const [isLenderSpecific, setIsLenderSpecific] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Separate pricing types by category
-  const lenderSpecificTypes = pricingTypes.filter(type => type.isLenderSpecific);
-  const allPricingTypes = pricingTypes.filter(type => !type.isLenderSpecific);
+  // Separate pricing types by category and filter by selected financial product
+  const lenderSpecificTypes = pricingTypes
+    .filter(type => type.isLenderSpecific)
+    .filter(type => 
+      type.financialProducts.length === 0 || 
+      type.financialProducts.includes(data.financialProduct)
+    );
+  
+  const allPricingTypes = pricingTypes
+    .filter(type => !type.isLenderSpecific)
+    .filter(type => 
+      type.financialProducts.length === 0 || 
+      type.financialProducts.includes(data.financialProduct)
+    );
 
   // Get currently selected types
   const selectedLenderSpecific = data.lenderSpecificPricingTypes || [];
