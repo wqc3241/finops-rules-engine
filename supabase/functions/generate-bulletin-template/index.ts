@@ -57,20 +57,13 @@ serve(async (req) => {
     const pricingConfigs = pricingConfigsResult.data || [];
     const geoCodes = geoCodesResult.data || [];
 
-    console.log('Pricing types fetched:', pricingTypes.map(pt => ({ 
-      type_code: pt.type_code, 
-      is_lender_specific: pt.is_lender_specific 
-    })));
-
     // Create workbook
     const workbook = XLSX.utils.book_new();
 
     // Create a sheet for each pricing type
     for (const pricingType of pricingTypes) {
       const sheetName = `${programCode}_${pricingType.type_code}`;
-      const isLenderSpecific = pricingType.is_lender_specific === true; // Only true if explicitly set to true
-      
-      console.log(`Processing pricing type: ${pricingType.type_code}, is_lender_specific: ${pricingType.is_lender_specific}, using lender-specific template: ${isLenderSpecific}`);
+      const isLenderSpecific = pricingType.is_lender_specific === true;
       
       const worksheet = createTemplateSheet(
         programCode,
@@ -182,27 +175,26 @@ function createTemplateSheet(programCode: string, pricingType: string, creditPro
     // Row 1: Program information headers (no lender)
     const row1 = ['Program Code', 'Financial Product', 'Vehicle Style', 'Start Date', 'End Date'];
     // Fill remaining columns for credit profiles
-    for (let i = row1.length; i < creditProfiles.length; i++) {
+    for (let i = row1.length; i < creditProfiles.length + 1; i++) {
       row1.push('');
     }
     data.push(row1);
 
-    // Row 2: Credit profiles starting from column A
-    const row2: string[] = [];
+    // Row 2: Geo Code header + Credit profiles
+    const row2 = ['Geo Code'];
     creditProfiles.forEach(profile => row2.push(profile));
     data.push(row2);
 
-    // Row 3: Pricing configs aligned with credit profiles
-    const row3: string[] = [];
+    // Row 3: Empty first cell + Pricing configs aligned with credit profiles
+    const row3 = [''];
     pricingConfigs.slice(0, creditProfiles.length).forEach(config => row3.push(config));
     data.push(row3);
 
     // Sample geo code rows (empty pricing values for template)
-    // First column is geo code, rest are pricing values
     geoCodes.forEach(geoCode => {
       const row = [geoCode];
-      // Add empty cells for each credit profile column (minus 1 since geo is in first column)
-      for (let i = 0; i < creditProfiles.length - 1; i++) {
+      // Add empty cells for each credit profile column
+      for (let i = 0; i < creditProfiles.length; i++) {
         row.push('');
       }
       data.push(row);
@@ -211,7 +203,7 @@ function createTemplateSheet(programCode: string, pricingType: string, creditPro
     // Add a few more empty rows for user input
     for (let i = 0; i < 10; i++) {
       const row = [''];
-      for (let j = 0; j < creditProfiles.length - 1; j++) {
+      for (let j = 0; j < creditProfiles.length; j++) {
         row.push('');
       }
       data.push(row);
