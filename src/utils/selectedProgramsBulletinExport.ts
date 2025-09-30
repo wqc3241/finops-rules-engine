@@ -73,6 +73,19 @@ export async function exportSelectedProgramsBulletinPricing(selectedProgramCodes
 
     const workbook = XLSX.utils.book_new();
 
+    // Fetch pricing type metadata to determine if lender-specific
+    const { data: pricingTypesData, error: pricingTypesError } = await supabase
+      .from('pricing_types')
+      .select('type_code, is_lender_specific');
+    
+    if (pricingTypesError) {
+      console.error('Error fetching pricing types:', pricingTypesError);
+    }
+    
+    const pricingTypeMap = new Map(
+      (pricingTypesData || []).map((pt: any) => [pt.type_code, pt.is_lender_specific === true])
+    );
+
     // Create sheets for programs with existing data
     if (bulletinData && bulletinData.length > 0) {
       const groupedData = groupByProgramAndType(bulletinData);
@@ -80,7 +93,8 @@ export async function exportSelectedProgramsBulletinPricing(selectedProgramCodes
       for (const [programCode, typeData] of Object.entries(groupedData)) {
         for (const [pricingType, rows] of Object.entries(typeData)) {
           const sheetName = sanitizeSheetName(`${programCode}_${pricingType}`);
-          const worksheet = createDataWorksheet(programCode, pricingType, rows);
+          const isLenderSpecific = pricingTypeMap.get(pricingType) ?? true; // Default to true if not found
+          const worksheet = createDataWorksheet(programCode, pricingType, rows, isLenderSpecific);
           XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
         }
       }
@@ -139,7 +153,7 @@ function groupByProgramAndType(data: BulletinPricingRow[]) {
   return grouped;
 }
 
-function createDataWorksheet(programCode: string, pricingType: string, data: BulletinPricingRow[]) {
+function createDataWorksheet(programCode: string, pricingType: string, data: BulletinPricingRow[], isLenderSpecific: boolean) {
   // Get unique credit profiles and pricing configs from the data
   const creditProfiles = [...new Set(data.map(row => row.credit_profile))].sort();
   const pricingConfigs = [...new Set(data.map(row => row.pricing_config))].sort();
@@ -147,45 +161,85 @@ function createDataWorksheet(programCode: string, pricingType: string, data: Bul
   
   const worksheetData: any[][] = [];
   
-  // Header rows
-  const row1 = ['Program Code', 'Lender', 'Pricing Type', 'Upload Date', ...creditProfiles];
-  worksheetData.push(row1);
-  
-  const row2 = ['Geo Code', '', '', '', ...pricingConfigs.slice(0, creditProfiles.length)];
-  worksheetData.push(row2);
-  
-  // Data rows
-  for (const geoCode of geoCodes) {
-    const geoData = data.filter(row => row.geo_code === geoCode);
-    if (geoData.length === 0) continue;
+  if (isLenderSpecific) {
+    // LENDER-SPECIFIC FORMAT
+    // Header rows
+    const row1 = ['Program Code', 'Lender', 'Pricing Type', 'Upload Date', ...creditProfiles];
+    worksheetData.push(row1);
     
-    // Get representative row for metadata
-    const sampleRow = geoData[0];
-    const row = [
-      programCode,
-      sampleRow.lender_list,
-      pricingType,
-      new Date(sampleRow.upload_date).toLocaleDateString(),
-    ];
+    const row2 = ['Geo Code', '', '', '', ...pricingConfigs.slice(0, creditProfiles.length)];
+    worksheetData.push(row2);
     
-    // Add pricing values for each credit profile/config combination
-    for (let i = 0; i < creditProfiles.length; i++) {
-      const creditProfile = creditProfiles[i];
-      const pricingConfig = pricingConfigs[i] || pricingConfigs[0] || '';
+    // Data rows
+    for (const geoCode of geoCodes) {
+      const geoData = data.filter(row => row.geo_code === geoCode);
+      if (geoData.length === 0) continue;
       
-      const matchingRow = geoData.find(d => 
-        d.credit_profile === creditProfile && 
-        d.pricing_config === pricingConfig
-      );
+      // Get representative row for metadata
+      const sampleRow = geoData[0];
+      const row = [
+        programCode,
+        sampleRow.lender_list,
+        pricingType,
+        new Date(sampleRow.upload_date).toLocaleDateString(),
+      ];
       
-      row.push(matchingRow?.pricing_value?.toString() || '');
+      // Add pricing values for each credit profile/config combination
+      for (let i = 0; i < creditProfiles.length; i++) {
+        const creditProfile = creditProfiles[i];
+        const pricingConfig = pricingConfigs[i] || pricingConfigs[0] || '';
+        
+        const matchingRow = geoData.find(d => 
+          d.credit_profile === creditProfile && 
+          d.pricing_config === pricingConfig
+        );
+        
+        row.push(matchingRow?.pricing_value?.toString() || '');
+      }
+      
+      worksheetData.push(row);
     }
+  } else {
+    // UNIVERSAL FORMAT (no lender column)
+    // Header rows
+    const row1 = ['Program Code', 'Pricing Type', 'Upload Date', ...creditProfiles];
+    worksheetData.push(row1);
     
-    worksheetData.push(row);
+    const row2 = ['Geo Code', '', '', ...pricingConfigs.slice(0, creditProfiles.length)];
+    worksheetData.push(row2);
+    
+    // Data rows
+    for (const geoCode of geoCodes) {
+      const geoData = data.filter(row => row.geo_code === geoCode);
+      if (geoData.length === 0) continue;
+      
+      // Get representative row for metadata
+      const sampleRow = geoData[0];
+      const row = [
+        programCode,
+        pricingType,
+        new Date(sampleRow.upload_date).toLocaleDateString(),
+      ];
+      
+      // Add pricing values for each credit profile/config combination
+      for (let i = 0; i < creditProfiles.length; i++) {
+        const creditProfile = creditProfiles[i];
+        const pricingConfig = pricingConfigs[i] || pricingConfigs[0] || '';
+        
+        const matchingRow = geoData.find(d => 
+          d.credit_profile === creditProfile && 
+          d.pricing_config === pricingConfig
+        );
+        
+        row.push(matchingRow?.pricing_value?.toString() || '');
+      }
+      
+      worksheetData.push(row);
+    }
   }
   
   const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
-  applyWorksheetFormatting(worksheet, pricingType);
+  applyWorksheetFormatting(worksheet, pricingType, isLenderSpecific);
   
   return worksheet;
 }
@@ -333,19 +387,24 @@ function createTemplateSheet(programCode: string, pricingType: string, creditPro
   }
 }
 
-function applyWorksheetFormatting(worksheet: XLSX.WorkSheet, pricingType: string) {
+function applyWorksheetFormatting(worksheet: XLSX.WorkSheet, pricingType: string, isLenderSpecific: boolean) {
   const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1');
   
-  // Set column widths
+  // Set column widths based on format
   const colWidths = [
     { wch: 15 }, // Program Code
-    { wch: 20 }, // Lender
-    { wch: 12 }, // Pricing Type
-    { wch: 12 }, // Upload Date
   ];
   
+  if (isLenderSpecific) {
+    colWidths.push({ wch: 20 }); // Lender
+  }
+  
+  colWidths.push({ wch: 12 }); // Pricing Type
+  colWidths.push({ wch: 12 }); // Upload Date
+  
   // Add widths for credit profile columns
-  for (let i = 4; i <= range.e.c; i++) {
+  const startCol = isLenderSpecific ? 4 : 3;
+  for (let i = startCol; i <= range.e.c; i++) {
     colWidths.push({ wch: 12 });
   }
   
@@ -358,7 +417,7 @@ function applyWorksheetFormatting(worksheet: XLSX.WorkSheet, pricingType: string
   const numFmt = pricingType.toLowerCase().includes('rate') ? '0.00%' : '#,##0.00';
   
   for (let R = 2; R <= range.e.r; R++) {
-    for (let C = 4; C <= range.e.c; C++) {
+    for (let C = startCol; C <= range.e.c; C++) {
       const cellRef = XLSX.utils.encode_cell({ r: R, c: C });
       if (worksheet[cellRef]) {
         worksheet[cellRef].z = numFmt;
