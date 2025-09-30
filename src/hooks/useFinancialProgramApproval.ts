@@ -56,7 +56,8 @@ export const useFinancialProgramApproval = () => {
         advertised: 'N',
         order_types: programData.orderTypes.join(', '),
         template_metadata: {
-          pricingTypes: programData.pricingTypes,
+          lenderSpecificPricingTypes: programData.lenderSpecificPricingTypes,
+          allPricingTypes: programData.allPricingTypes,
           pricingTypeConfigs: programData.pricingTypeConfigs,
           lenders: programData.lenders,
           geoCodes: programData.geoCodes

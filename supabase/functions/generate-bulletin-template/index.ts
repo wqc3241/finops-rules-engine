@@ -44,15 +44,23 @@ serve(async (req) => {
       );
     }
 
-    // Get available pricing types, credit profiles, pricing configs, and geo codes
-    const [pricingTypesResult, creditProfilesResult, pricingConfigsResult, geoCodesResult] = await Promise.all([
-      supabase.from('pricing_types').select('type_code, type_name'),
+    const templateMetadata = programConfig.template_metadata || {};
+    const lenderSpecificTypes = templateMetadata.lenderSpecificPricingTypes || [];
+    const allPricingTypes = templateMetadata.allPricingTypes || [];
+    const selectedPricingTypes = [...lenderSpecificTypes, ...allPricingTypes];
+
+    // Get available pricing types with lender-specific flag
+    const { data: pricingTypesData } = await supabase
+      .from('pricing_types')
+      .select('type_code, type_name, is_lender_specific')
+      .in('type_code', selectedPricingTypes);
+
+    const [creditProfilesResult, pricingConfigsResult, geoCodesResult] = await Promise.all([
       supabase.from('credit_profiles').select('profile_id'),
       supabase.from('pricing_configs').select('pricing_rule_id'),
-      supabase.from('geo_location').select('geo_code').limit(10) // Sample geo codes
+      supabase.from('geo_location').select('geo_code').limit(10)
     ]);
 
-    const pricingTypes = pricingTypesResult.data || [];
     const creditProfiles = creditProfilesResult.data || [];
     const pricingConfigs = pricingConfigsResult.data || [];
     const geoCodes = geoCodesResult.data || [];
@@ -61,37 +69,24 @@ serve(async (req) => {
     const workbook = XLSX.utils.book_new();
 
     // Create a sheet for each pricing type
-    for (const pricingType of pricingTypes) {
-      const sheetName = `${programCode}_${pricingType.type_code}`;
+    for (const pricingTypeData of (pricingTypesData || [])) {
+      const isLenderSpecific = pricingTypeData.is_lender_specific ?? true;
+      const sheetName = `${programCode}_${pricingTypeData.type_code}`;
       const worksheet = createTemplateSheet(
         programCode,
-        pricingType.type_code,
+        pricingTypeData.type_code,
         creditProfiles.map(c => c.profile_id),
         pricingConfigs.map(p => p.pricing_rule_id),
-        geoCodes.map(g => g.geo_code)
+        geoCodes.map(g => g.geo_code),
+        isLenderSpecific
       );
       
       XLSX.utils.book_append_sheet(workbook, worksheet, sanitizeSheetName(sheetName));
     }
 
-    // Generate Excel file ArrayBuffer
+    // Generate Excel file
     const arrayBuffer = XLSX.write(workbook, { type: 'array', bookType: 'xlsx' });
 
-    // Update program config with template metadata
-    const templateMetadata = {
-      generated_at: new Date().toISOString(),
-      pricing_types: pricingTypes.map(p => p.type_code),
-      credit_profiles: creditProfiles.map(c => c.profile_id),
-      pricing_configs: pricingConfigs.map(p => p.pricing_rule_id),
-      sample_geo_codes: geoCodes.map(g => g.geo_code)
-    };
-
-    await supabase
-      .from('financial_program_configs')
-      .update({ template_metadata: templateMetadata })
-      .eq('program_code', programCode);
-
-    // Return Excel file
     const filename = `${programCode}_Bulletin_Pricing_Template.xlsx`;
     
     return new Response(arrayBuffer, {
@@ -111,38 +106,36 @@ serve(async (req) => {
   }
 });
 
-function createTemplateSheet(programCode: string, pricingType: string, creditProfiles: string[], pricingConfigs: string[], geoCodes: string[]) {
+function createTemplateSheet(programCode: string, pricingType: string, creditProfiles: string[], pricingConfigs: string[], geoCodes: string[], isLenderSpecific: boolean) {
   const data: any[][] = [];
 
   // Row 1: Program information headers
-  const row1 = ['Program Code', 'Lender', 'Financial Product', 'Vehicle Style', 'Start Date', 'End Date'];
-  // Fill remaining columns for credit profiles
+  const row1 = ['Program Code', isLenderSpecific ? 'Lender' : 'Applies to All Lenders', 'Financial Product', 'Vehicle Style', 'Start Date', 'End Date'];
   for (let i = row1.length; i < creditProfiles.length + 1; i++) {
     row1.push('');
   }
   data.push(row1);
 
   // Row 2: Credit profiles  
-  const row2 = ['Geo Code']; // First column header
+  const row2 = ['Geo Code'];
   creditProfiles.forEach(profile => row2.push(profile));
   data.push(row2);
 
   // Row 3: Pricing configs
-  const row3 = [''];  // Empty first cell
+  const row3 = [''];
   pricingConfigs.slice(0, creditProfiles.length).forEach(config => row3.push(config));
   data.push(row3);
 
-  // Sample geo code rows (empty pricing values for template)
+  // Sample geo code rows
   geoCodes.forEach(geoCode => {
     const row = [geoCode];
-    // Add empty cells for each credit profile column
     for (let i = 0; i < creditProfiles.length; i++) {
       row.push('');
     }
     data.push(row);
   });
 
-  // Add a few more empty rows for user input
+  // Add empty rows
   for (let i = 0; i < 10; i++) {
     const row = [''];
     for (let j = 0; j < creditProfiles.length; j++) {
@@ -153,24 +146,17 @@ function createTemplateSheet(programCode: string, pricingType: string, creditPro
 
   const worksheet = XLSX.utils.aoa_to_sheet(data);
 
-  // Apply formatting
-  const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1');
-  
-  // Set column widths
-  const colWidths = [{ wch: 15 }]; // Geo code column
+  const colWidths = [{ wch: 15 }];
   for (let i = 0; i < creditProfiles.length; i++) {
     colWidths.push({ wch: 12 });
   }
   worksheet['!cols'] = colWidths;
-
-  // Freeze panes (first 3 rows and first column)
   worksheet['!freeze'] = { xSplit: 1, ySplit: 3 };
 
   return worksheet;
 }
 
 function sanitizeSheetName(name: string): string {
-  // Excel sheet names have restrictions
   let sanitized = name.replace(/[\\\/\*\?\[\]:]/g, '_');
   if (sanitized.length > 31) {
     sanitized = sanitized.substring(0, 31);
