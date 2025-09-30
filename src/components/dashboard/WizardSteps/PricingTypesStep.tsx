@@ -122,7 +122,9 @@ const PricingTypesStep = ({ data, onUpdate }: PricingTypesStepProps) => {
       </Dialog>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {pricingTypes.map((type) => (
+        {pricingTypes.map((type) => {
+          console.log('Pricing Type:', type.typeCode, 'isLenderSpecific:', type.isLenderSpecific);
+          return (
           <div key={type.typeCode} className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-50">
             <Checkbox
               id={type.typeCode}
@@ -141,7 +143,8 @@ const PricingTypesStep = ({ data, onUpdate }: PricingTypesStepProps) => {
               <span className="text-xs text-muted-foreground self-center">Universal</span>
             )}
           </div>
-        ))}
+        );
+        })}
       </div>
 
       {data.pricingTypes.length > 0 && (
