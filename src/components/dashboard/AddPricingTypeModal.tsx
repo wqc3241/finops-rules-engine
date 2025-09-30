@@ -4,12 +4,13 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 
 interface AddPricingTypeModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onAddPricingType: (typeCode: string, typeName: string, financialProductIds?: string[]) => Promise<boolean>;
+  onAddPricingType: (typeCode: string, typeName: string, financialProductIds?: string[], isLenderSpecific?: boolean) => Promise<boolean>;
   selectedFinancialProduct?: string;
 }
 
@@ -21,6 +22,7 @@ const AddPricingTypeModal = ({
 }: AddPricingTypeModalProps) => {
   const [typeCode, setTypeCode] = useState("");
   const [typeName, setTypeName] = useState("");
+  const [isLenderSpecific, setIsLenderSpecific] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -40,11 +42,12 @@ const AddPricingTypeModal = ({
     
     try {
       const financialProductIds = selectedFinancialProduct ? [selectedFinancialProduct] : undefined;
-      const success = await onAddPricingType(typeCode.trim(), typeName.trim(), financialProductIds);
+      const success = await onAddPricingType(typeCode.trim(), typeName.trim(), financialProductIds, isLenderSpecific);
       if (success) {
         // Reset form
         setTypeCode("");
         setTypeName("");
+        setIsLenderSpecific(false);
         // Close modal
         onOpenChange(false);
         toast.success("Pricing Type added successfully");
@@ -83,6 +86,19 @@ const AddPricingTypeModal = ({
                 placeholder="Enter type name"
                 value={typeName}
                 onChange={(e) => setTypeName(e.target.value)}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label htmlFor="isLenderSpecific">Lender Specific</Label>
+                <p className="text-sm text-muted-foreground">
+                  This pricing type applies to specific lenders only
+                </p>
+              </div>
+              <Switch
+                id="isLenderSpecific"
+                checked={isLenderSpecific}
+                onCheckedChange={setIsLenderSpecific}
               />
             </div>
           </div>

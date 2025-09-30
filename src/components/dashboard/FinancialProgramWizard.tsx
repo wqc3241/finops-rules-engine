@@ -193,8 +193,8 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
   };
 
   // Wrapper function to add pricing type with selected financial product
-  const handleAddPricingType = async (typeCode: string, typeName: string, financialProductIds?: string[]) => {
-    return await addPricingType(typeCode, typeName, financialProductIds);
+  const handleAddPricingType = async (typeCode: string, typeName: string, financialProductIds?: string[], isLenderSpecific?: boolean) => {
+    return await addPricingType(typeCode, typeName, financialProductIds, isLenderSpecific);
   };
 
   // Load all data on mount

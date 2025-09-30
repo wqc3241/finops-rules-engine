@@ -39,7 +39,7 @@ export const usePricingTypes = () => {
     fetchTypes();
   }, []);
 
-  const addPricingType = async (typeCode: string, typeName: string, financialProductIds?: string[]) => {
+  const addPricingType = async (typeCode: string, typeName: string, financialProductIds?: string[], isLenderSpecific?: boolean) => {
     if (pricingTypes.some((pt) => pt.typeCode === typeCode)) {
       return false;
     }
@@ -48,7 +48,8 @@ export const usePricingTypes = () => {
       .insert({ 
         type_code: typeCode, 
         type_name: typeName,
-        financial_products_list: financialProductIds || []
+        financial_products_list: financialProductIds || [],
+        is_lender_specific: isLenderSpecific ?? false
       });
     if (error) return false;
     await fetchTypes();
