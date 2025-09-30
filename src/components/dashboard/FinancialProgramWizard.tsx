@@ -16,7 +16,6 @@ import { Plus } from "lucide-react";
 import AddCreditProfileModal from "./AddCreditProfileModal";
 import AddPricingConfigModal from "./AddPricingConfigModal";
 import AddPricingTypeModal from "./AddPricingTypeModal";
-import PricingTypesStep from "./WizardSteps/PricingTypesStep";
 
 import { usePricingTypes } from "@/hooks/usePricingTypes";
 import { generateProgramCode } from "@/utils/programCodeGenerator";
@@ -30,8 +29,7 @@ export interface WizardData {
   vehicleCondition: string;
   orderTypes: string[];
   financialProduct: string;
-  lenderSpecificPricingTypes: string[];
-  allPricingTypes: string[];
+  pricingTypes: string[];
   pricingTypeConfigs: Record<string, { creditProfiles: string[]; pricingConfigs: string[] }>;
   programStartDate: string;
   programEndDate: string;
@@ -56,8 +54,7 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
     vehicleCondition: "",
     orderTypes: [],
     financialProduct: "",
-    lenderSpecificPricingTypes: [],
-    allPricingTypes: [],
+    pricingTypes: [],
     pricingTypeConfigs: {},
     programStartDate: "",
     programEndDate: "",
@@ -86,8 +83,7 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
           vehicleCondition: transformed.vehicleCondition || "",
           orderTypes: Array.isArray(transformed.orderTypes) ? transformed.orderTypes : [],
           financialProduct: transformed.financialProduct || "",
-          lenderSpecificPricingTypes: Array.isArray(transformed.lenderSpecificPricingTypes) ? transformed.lenderSpecificPricingTypes : [],
-          allPricingTypes: Array.isArray(transformed.allPricingTypes) ? transformed.allPricingTypes : [],
+          pricingTypes: Array.isArray(transformed.pricingTypes) ? transformed.pricingTypes : [],
           pricingTypeConfigs: transformed.pricingTypeConfigs || {},
           programStartDate: transformed.programStartDate || "",
           programEndDate: transformed.programEndDate || "",
@@ -100,8 +96,7 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
           vehicleCondition: "",
           orderTypes: [],
           financialProduct: "",
-          lenderSpecificPricingTypes: [],
-          allPricingTypes: [],
+          pricingTypes: [],
           pricingTypeConfigs: {},
           programStartDate: "",
           programEndDate: "",
@@ -271,36 +266,29 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
       if (updates.geoCodes !== undefined || updates.lenders !== undefined) {
         // Clear financial product and pricing types when geo codes change
         newData.financialProduct = "";
-        newData.lenderSpecificPricingTypes = [];
-        newData.allPricingTypes = [];
+        newData.pricingTypes = [];
         newData.pricingTypeConfigs = {};
       }
       
       if (updates.financialProduct !== undefined && updates.financialProduct !== prev.financialProduct) {
         // Clear pricing types when financial product changes
-        newData.lenderSpecificPricingTypes = [];
-        newData.allPricingTypes = [];
+        newData.pricingTypes = [];
         newData.pricingTypeConfigs = {};
       }
       
-      const allSelectedPricingTypes = [
-        ...(updates.lenderSpecificPricingTypes ?? prev.lenderSpecificPricingTypes),
-        ...(updates.allPricingTypes ?? prev.allPricingTypes)
-      ];
-      
-      if (updates.lenderSpecificPricingTypes !== undefined || updates.allPricingTypes !== undefined) {
+      if (updates.pricingTypes !== undefined) {
         // Update pricingTypeConfigs when pricing types change
         const newConfigs = { ...prev.pricingTypeConfigs };
         
         // Remove configurations for unselected pricing types
         Object.keys(newConfigs).forEach(pricingType => {
-          if (!allSelectedPricingTypes.includes(pricingType)) {
+          if (!updates.pricingTypes!.includes(pricingType)) {
             delete newConfigs[pricingType];
           }
         });
         
         // Add empty configurations for newly selected pricing types
-        allSelectedPricingTypes.forEach(pricingType => {
+        updates.pricingTypes.forEach(pricingType => {
           if (!newConfigs[pricingType]) {
             newConfigs[pricingType] = { creditProfiles: [], pricingConfigs: [] };
           }
@@ -394,20 +382,18 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
   ];
 
   const isFormValid = () => {
-    const allSelectedPricingTypes = [...wizardData.lenderSpecificPricingTypes, ...wizardData.allPricingTypes];
-    
     const basicFieldsValid = wizardData.vehicleStyleIds.length > 0 && 
                              wizardData.vehicleCondition && 
                              wizardData.orderTypes.length > 0 && 
                              wizardData.financialProduct && 
-                             allSelectedPricingTypes.length > 0 && 
+                             wizardData.pricingTypes.length > 0 && 
                              wizardData.programStartDate && 
                              wizardData.programEndDate && 
                              wizardData.lenders.length > 0 && 
                              wizardData.geoCodes.length > 0;
     
     // Check that each selected pricing type has at least one credit profile and pricing config
-    const configsValid = allSelectedPricingTypes.every(pricingType => {
+    const configsValid = wizardData.pricingTypes.every(pricingType => {
       const config = wizardData.pricingTypeConfigs[pricingType];
       return config && config.creditProfiles.length > 0 && config.pricingConfigs.length > 0;
     });
@@ -772,11 +758,52 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
 
                 <Separator />
 
-                {/* Pricing Types Step Component */}
-                <PricingTypesStep 
-                  data={wizardData}
-                  onUpdate={updateWizardData}
-                />
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <Label className="text-sm font-medium">Available Pricing Types *</Label>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowPricingTypeModal(true)}
+                      className="flex items-center gap-2 text-xs"
+                    >
+                      <Plus className="h-3 w-3" />
+                      Pricing Type
+                    </Button>
+                  </div>
+                  {!wizardData.financialProduct ? (
+                    <div className="text-sm text-muted-foreground p-2 bg-muted rounded-lg">
+                      Please select a Financial Product first to see available Pricing Types.
+                    </div>
+                  ) : filteredPricingTypes.length === 0 ? (
+                    <div className="text-sm text-muted-foreground p-2 bg-muted rounded-lg">
+                      No pricing types available for the selected financial product.
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
+                      {[...filteredPricingTypes].sort((a, b) => a.typeName.localeCompare(b.typeName)).map((type) => (
+                        <div key={type.typeCode} className="flex items-start space-x-3 p-2 border rounded-lg hover:bg-accent/50 transition-colors h-10">
+                          <Checkbox
+                            id={type.typeCode}
+                            checked={wizardData.pricingTypes.includes(type.typeCode)}
+                            onCheckedChange={(checked) => {
+                              const updated = checked
+                                ? [...wizardData.pricingTypes, type.typeCode]
+                                : wizardData.pricingTypes.filter(code => code !== type.typeCode);
+                              updateWizardData({ pricingTypes: updated });
+                            }}
+                            className="mt-0.5 scale-75"
+                          />
+                          <Label htmlFor={type.typeCode} className="text-xs cursor-pointer flex-1 min-w-0">
+                            <div className="font-medium leading-tight">{type.typeName}</div>
+                            <div className="text-[10px] text-muted-foreground">{type.typeCode}</div>
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -787,7 +814,7 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
               <CardTitle className="text-base">Configuration</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {[...wizardData.lenderSpecificPricingTypes, ...wizardData.allPricingTypes].length === 0 ? (
+              {wizardData.pricingTypes.length === 0 ? (
                 <div className="text-sm text-muted-foreground p-2 bg-muted rounded-lg">
                   Please select Pricing Types first to configure Credit Profiles and Pricing Configurations.
                 </div>
@@ -810,9 +837,9 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
                     </div>
                     <div className="border rounded-lg overflow-hidden">
                       <div className="bg-muted/50 px-3 py-2 border-b">
-                        <div className="grid gap-2" style={{ gridTemplateColumns: `2fr ${[...wizardData.lenderSpecificPricingTypes, ...wizardData.allPricingTypes].map(() => '1fr').join(' ')}` }}>
+                        <div className="grid gap-2" style={{ gridTemplateColumns: `2fr ${wizardData.pricingTypes.map(() => '1fr').join(' ')}` }}>
                           <div className="text-xs font-medium">Profile Details</div>
-                          {[...wizardData.lenderSpecificPricingTypes, ...wizardData.allPricingTypes].map((pricingType) => {
+                          {wizardData.pricingTypes.map((pricingType) => {
                             const pricingTypeName = filteredPricingTypes.find(pt => pt.typeCode === pricingType)?.typeName || pricingType;
                             return (
                               <div key={pricingType} className="text-xs font-medium text-center">
@@ -825,7 +852,7 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
                       <div className="max-h-64 overflow-y-auto">
                         {creditProfiles.map((profile) => (
                           <div key={profile.id} className="px-3 py-2 border-b last:border-b-0 hover:bg-accent/20">
-                            <div className="grid gap-2" style={{ gridTemplateColumns: `2fr ${[...wizardData.lenderSpecificPricingTypes, ...wizardData.allPricingTypes].map(() => '1fr').join(' ')}` }}>
+                            <div className="grid gap-2" style={{ gridTemplateColumns: `2fr ${wizardData.pricingTypes.map(() => '1fr').join(' ')}` }}>
                               <div className="pr-4">
                                 <div className="font-medium text-sm">{profile.id}</div>
                                 <div className="text-xs text-muted-foreground flex flex-wrap gap-x-3 gap-y-1 mt-1">
@@ -835,7 +862,7 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
                                   <span>Employment: {profile.employmentType}</span>
                                 </div>
                               </div>
-                              {[...wizardData.lenderSpecificPricingTypes, ...wizardData.allPricingTypes].map((pricingType) => (
+                              {wizardData.pricingTypes.map((pricingType) => (
                                 <div key={pricingType} className="flex justify-center">
                                   <Checkbox
                                     checked={wizardData.pricingTypeConfigs[pricingType]?.creditProfiles.includes(profile.id) || false}
@@ -883,9 +910,9 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
                     </div>
                     <div className="border rounded-lg overflow-hidden">
                       <div className="bg-muted/50 px-3 py-2 border-b">
-                        <div className="grid gap-2" style={{ gridTemplateColumns: `2fr ${[...wizardData.lenderSpecificPricingTypes, ...wizardData.allPricingTypes].map(() => '1fr').join(' ')}` }}>
+                        <div className="grid gap-2" style={{ gridTemplateColumns: `2fr ${wizardData.pricingTypes.map(() => '1fr').join(' ')}` }}>
                           <div className="text-xs font-medium">Configuration Details</div>
-                          {[...wizardData.lenderSpecificPricingTypes, ...wizardData.allPricingTypes].map((pricingType) => {
+                          {wizardData.pricingTypes.map((pricingType) => {
                             const pricingTypeName = filteredPricingTypes.find(pt => pt.typeCode === pricingType)?.typeName || pricingType;
                             return (
                               <div key={pricingType} className="text-xs font-medium text-center">
@@ -898,7 +925,7 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
                       <div className="max-h-64 overflow-y-auto">
                         {pricingConfigs.map((config) => (
                           <div key={config.id} className="px-3 py-2 border-b last:border-b-0 hover:bg-accent/20">
-                            <div className="grid gap-2" style={{ gridTemplateColumns: `2fr ${[...wizardData.lenderSpecificPricingTypes, ...wizardData.allPricingTypes].map(() => '1fr').join(' ')}` }}>
+                            <div className="grid gap-2" style={{ gridTemplateColumns: `2fr ${wizardData.pricingTypes.map(() => '1fr').join(' ')}` }}>
                               <div className="pr-4">
                                 <div className="font-medium text-sm">{config.id}</div>
                                 <div className="text-xs text-muted-foreground flex flex-wrap gap-x-3 gap-y-1 mt-1">
@@ -907,7 +934,7 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
                                   <span>Term: {config.minTerm}-{config.maxTerm} months</span>
                                 </div>
                               </div>
-                              {[...wizardData.lenderSpecificPricingTypes, ...wizardData.allPricingTypes].map((pricingType) => (
+                              {wizardData.pricingTypes.map((pricingType) => (
                                 <div key={pricingType} className="flex justify-center">
                                   <Checkbox
                                     checked={wizardData.pricingTypeConfigs[pricingType]?.pricingConfigs.includes(config.id) || false}
@@ -942,7 +969,7 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
                   <div className="space-y-2">
                     <Label className="font-medium text-sm">Configuration Status</Label>
                     <div className="grid gap-2">
-                      {[...wizardData.lenderSpecificPricingTypes, ...wizardData.allPricingTypes].map((pricingType) => {
+                      {wizardData.pricingTypes.map((pricingType) => {
                         const pricingTypeName = filteredPricingTypes.find(pt => pt.typeCode === pricingType)?.typeName || pricingType;
                         const config = wizardData.pricingTypeConfigs[pricingType];
                         const isComplete = config && config.creditProfiles.length > 0 && config.pricingConfigs.length > 0;

@@ -76,11 +76,11 @@ const ConfirmationStep = ({ data, vehicleStyleOptions, financialProducts, progra
             <div>
               <div className="text-xs font-medium text-muted-foreground">Pricing Types</div>
               <div className="flex flex-wrap gap-1 mt-1">
-                {[...data.lenderSpecificPricingTypes, ...data.allPricingTypes].slice(0, 3).map((type) => (
+                {data.pricingTypes.slice(0, 3).map((type) => (
                   <Badge key={type} variant="secondary" className="text-xs">{type}</Badge>
                 ))}
-                {[...data.lenderSpecificPricingTypes, ...data.allPricingTypes].length > 3 && (
-                  <Badge variant="secondary" className="text-xs">+{[...data.lenderSpecificPricingTypes, ...data.allPricingTypes].length - 3}</Badge>
+                {data.pricingTypes.length > 3 && (
+                  <Badge variant="secondary" className="text-xs">+{data.pricingTypes.length - 3}</Badge>
                 )}
               </div>
             </div>

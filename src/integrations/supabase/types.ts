@@ -2231,7 +2231,6 @@ export type Database = {
           created_at: string | null
           financial_products_list: string[] | null
           id: string
-          is_lender_specific: boolean
           type_code: string
           type_name: string
         }
@@ -2239,7 +2238,6 @@ export type Database = {
           created_at?: string | null
           financial_products_list?: string[] | null
           id?: string
-          is_lender_specific?: boolean
           type_code: string
           type_name: string
         }
@@ -2247,7 +2245,6 @@ export type Database = {
           created_at?: string | null
           financial_products_list?: string[] | null
           id?: string
-          is_lender_specific?: boolean
           type_code?: string
           type_name?: string
         }
