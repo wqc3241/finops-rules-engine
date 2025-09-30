@@ -57,6 +57,11 @@ serve(async (req) => {
     const pricingConfigs = pricingConfigsResult.data || [];
     const geoCodes = geoCodesResult.data || [];
 
+    console.log('Pricing types fetched:', pricingTypes.map(pt => ({ 
+      type_code: pt.type_code, 
+      is_lender_specific: pt.is_lender_specific 
+    })));
+
     // Create workbook
     const workbook = XLSX.utils.book_new();
 
@@ -64,6 +69,9 @@ serve(async (req) => {
     for (const pricingType of pricingTypes) {
       const sheetName = `${programCode}_${pricingType.type_code}`;
       const isLenderSpecific = pricingType.is_lender_specific === true; // Only true if explicitly set to true
+      
+      console.log(`Processing pricing type: ${pricingType.type_code}, is_lender_specific: ${pricingType.is_lender_specific}, using lender-specific template: ${isLenderSpecific}`);
+      
       const worksheet = createTemplateSheet(
         programCode,
         pricingType.type_code,
