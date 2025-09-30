@@ -207,7 +207,7 @@ async function createTemplateSheets(workbook: XLSX.WorkBook, programCode: string
   // Create a template sheet for each pricing type
   for (const pricingType of pricingTypes) {
     const sheetName = sanitizeSheetName(`${programCode}_${(pricingType as any).type_code}_Template`);
-    const isLenderSpecific = (pricingType as any).is_lender_specific !== false;
+    const isLenderSpecific = (pricingType as any).is_lender_specific === true;
     const worksheet = createTemplateSheet(
       programCode,
       (pricingType as any).type_code,

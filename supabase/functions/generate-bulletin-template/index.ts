@@ -63,7 +63,7 @@ serve(async (req) => {
     // Create a sheet for each pricing type
     for (const pricingType of pricingTypes) {
       const sheetName = `${programCode}_${pricingType.type_code}`;
-      const isLenderSpecific = pricingType.is_lender_specific !== false; // Default to true if not specified
+      const isLenderSpecific = pricingType.is_lender_specific === true; // Only true if explicitly set to true
       const worksheet = createTemplateSheet(
         programCode,
         pricingType.type_code,
