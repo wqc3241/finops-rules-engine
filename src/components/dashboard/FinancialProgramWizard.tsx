@@ -125,6 +125,7 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
   // Function to refresh credit profiles data
   const refreshCreditProfiles = async () => {
     try {
+      // For wizard: insert directly to database as these are reference data
       const { data } = await supabase.from('credit_profiles').select('*');
       setCreditProfiles((data || []).map((r: any) => ({
         id: r.profile_id,
@@ -137,6 +138,23 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
       })));
     } catch (error) {
       console.error('Error refreshing credit profiles:', error);
+    }
+  };
+
+  // Function to add credit profile from modal (inserts to DB for wizard)
+  const handleAddCreditProfile = async (newRecord: any) => {
+    try {
+      const { error } = await supabase
+        .from('credit_profiles')
+        .insert(newRecord);
+
+      if (error) throw error;
+
+      await refreshCreditProfiles();
+      toast.success('Credit profile created successfully');
+    } catch (error) {
+      console.error('Error creating credit profile:', error);
+      toast.error('Failed to create credit profile');
     }
   };
 
@@ -154,6 +172,23 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
       })));
     } catch (error) {
       console.error('Error refreshing pricing configs:', error);
+    }
+  };
+
+  // Function to add pricing config from modal (inserts to DB for wizard)
+  const handleAddPricingConfig = async (newRecord: any) => {
+    try {
+      const { error } = await supabase
+        .from('pricing_configs')
+        .insert(newRecord);
+
+      if (error) throw error;
+
+      await refreshPricingConfigs();
+      toast.success('Pricing configuration created successfully');
+    } catch (error) {
+      console.error('Error creating pricing config:', error);
+      toast.error('Failed to create pricing configuration');
     }
   };
 
@@ -999,12 +1034,12 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
       <AddCreditProfileModal
         isOpen={showCreditProfileModal}
         onClose={() => setShowCreditProfileModal(false)}
-        onSave={refreshCreditProfiles}
+        onAddRecord={handleAddCreditProfile}
       />
       <AddPricingConfigModal
         isOpen={showPricingConfigModal}
         onClose={() => setShowPricingConfigModal(false)}
-        onSave={refreshPricingConfigs}
+        onAddRecord={handleAddPricingConfig}
       />
       <AddPricingTypeModal
         open={showPricingTypeModal}

@@ -345,18 +345,14 @@ export const useDynamicFinancialData = ({
     }
   }, [onSetBatchDuplicateCallback]);
 
-  // Function to add new record to Supabase
+  // Function to add new record to local state (will be tracked for approval)
   const handleAddNewSupabase = useCallback(async (schema: any) => {
-    console.log('🚨🚨🚨 HANDLEADDNEWSUPABASE CALLED 🚨🚨🚨');
-    console.log('🚨 Stack trace:', new Error().stack);
+    console.log('🚨 HANDLEADDNEWLOCAL CALLED');
     console.log('🚨 Schema ID:', schemaId);
     console.log('🚨 Schema:', schema);
-    console.log('🚨 Current user:', user);
-    console.log('🚨 Current profile:', profile);
     
-    // CRITICAL: Add safety check to prevent automatic calls
     if (!schema || !schemaId) {
-      console.error('🚨 BLOCKED: handleAddNewSupabase called without proper schema or schemaId');
+      console.error('🚨 BLOCKED: handleAddNew called without proper schema or schemaId');
       return;
     }
     
@@ -364,93 +360,70 @@ export const useDynamicFinancialData = ({
       const tableName = getTableName(schemaId);
       console.log('Table name:', tableName);
       
-      // Check current user authentication state
-      const { data: { user: currentUser }, error: userError } = await supabase.auth.getUser();
-      console.log('Auth check - Current user:', currentUser);
-      console.log('Auth check - User error:', userError);
-      
-      if (!currentUser) {
-        console.error('No authenticated user found');
-        toast.error('You must be logged in to add records');
-        return;
-      }
-      
       const newRow: any = {};
       
       // Handle table-specific required fields and defaults
       const handleTableSpecificFields = (tableName: string, row: any) => {
         switch (tableName) {
           case 'fee_rules':
-            // fee_rules has a required _id field that's not UUID
             row['_id'] = `fee_${Date.now()}`;
             break;
           case 'credit_profiles':
-            // profile_id is required
             if (!row['profile_id']) row['profile_id'] = `PROF_${Date.now()}`;
             break;
           case 'tax_rules':
-            // tax_rules requires tax_name and tax_type
             if (!row['tax_name']) row['tax_name'] = 'New Tax Rule';
             if (!row['tax_type']) row['tax_type'] = 'Percentage';
             break;
           case 'pricing_types':
-            // pricing_types requires type_code and type_name
             if (!row['type_code']) row['type_code'] = 'NEW';
             if (!row['type_name']) row['type_name'] = 'New Type';
             break;
           case 'financial_program_configs':
-            // program_code is required
             if (!row['program_code']) row['program_code'] = `PROG_${Date.now()}`;
             break;
           case 'pricing_configs':
-            // pricing_rule_id is required
             if (!row['pricing_rule_id']) row['pricing_rule_id'] = `RULE_${Date.now()}`;
             break;
           case 'financial_products':
-            // product_id and product_type are required
             if (!row['product_id']) row['product_id'] = `PROD_${Date.now()}`;
             if (!row['product_type']) row['product_type'] = 'Loan';
             break;
           case 'countries':
-            // country_code and country_name are required
             if (!row['country_code']) row['country_code'] = 'XX';
             if (!row['country_name']) row['country_name'] = 'New Country';
             break;
           case 'states':
-            // state_name is required
             if (!row['state_name']) row['state_name'] = 'New State';
             break;
           case 'order_types':
-            // type_code and type_name are required
             if (!row['type_code']) row['type_code'] = 'NEW';
             if (!row['type_name']) row['type_name'] = 'New Type';
             break;
           case 'stipulations':
-            // stipulation_name is required
             if (!row['stipulation_name']) row['stipulation_name'] = 'New Stipulation';
             break;
           case 'gateways':
-            // gateway_name is required
             if (!row['gateway_name']) row['gateway_name'] = 'New Gateway';
             break;
           case 'lenders':
-            // lender_name and Gateway lender ID are required
             if (!row['lender_name']) row['lender_name'] = 'New Lender';
             if (!row['Gateway lender ID']) row['Gateway lender ID'] = `GL_${Date.now()}`;
             break;
           case 'dealers':
-            // id is required and not auto-generated
             if (!row['id']) row['id'] = `D_${Date.now()}`;
             break;
         }
         return row;
       };
       
-      // Initialize based on schema column types (excluding primary keys which are auto-generated or manually handled)
-      const primaryKey = await getPrimaryKey(schemaId);
+      // Generate temporary ID for the new record
+      const tempId = `temp_${Date.now()}`;
+      newRow['id'] = tempId;
+      
+      // Initialize based on schema column types
       schema.columns.forEach((column: any) => {
-        console.log('Processing column:', column);
-        if (column.key !== primaryKey && column.editable) {
+        if (column.key !== 'id' && column.editable) {
           switch (column.type) {
             case 'boolean':
               newRow[column.key] = false;
@@ -467,44 +440,18 @@ export const useDynamicFinancialData = ({
       // Apply table-specific handling
       const finalRow = handleTableSpecificFields(tableName, newRow);
 
-      console.log('Final row to insert (pre-sanitize):', finalRow);
+      console.log('New row to add to local state:', finalRow);
 
-      // IMPORTANT: Remove empty-string values to avoid type errors on numeric/integer columns
-      const sanitizedRow = Object.fromEntries(
-        Object.entries(finalRow).filter(([, v]) => v !== '' && v !== undefined)
-      );
-
-      console.log('Final row to insert (sanitized):', sanitizedRow);
-      
-      const { data: insertedData, error } = await supabase
-        .from(tableName as any)
-        .insert([sanitizedRow])
-        .select()
-        .single();
-
-      console.log('Supabase insert result:', { insertedData, error });
-
-      if (error) {
-        console.error('Supabase insert error details:', {
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-          code: error.code
-        });
-        toast.error(`Failed to add new record: ${error.message}`);
-        return;
-      }
-
-      console.log('New row successfully inserted:', insertedData);
-      setData(prevData => [insertedData, ...prevData]);
-      toast.success('New record added successfully');
+      // Add to local state - will be tracked and submitted through approval workflow
+      setData(prevData => [finalRow, ...prevData]);
+      toast.success('New record added. Submit for review to save changes.');
     } catch (error) {
-      console.error('Catch block error in handleAddNewSupabase:', error);
+      console.error('Error in handleAddNewLocal:', error);
       toast.error(`Failed to add new record: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
-  }, [schemaId, getPrimaryKey]);
+  }, [schemaId]);
 
-  // Function to update a single cell in Supabase and local state
+  // Function to update a single cell in local state (will be tracked for approval)
   const updateCellSupabase = useCallback(async (rowId: string, columnKey: string, value: any) => {
     try {
       const tableName = getTableName(schemaId);
@@ -540,22 +487,14 @@ export const useDynamicFinancialData = ({
         preparedValue = normalizeToArray(value).join(',');
       }
 
-      const { error } = await supabase
-        .from(tableName as any)
-        .update({ [columnKey]: preparedValue })
-        .eq(primaryKey, rowId);
-
-      if (error) {
-        console.error('Supabase update error:', error);
-        toast.error(`Failed to update: ${error.message}`);
-        throw error;
-      }
-
-      // Merge into local state optimistically
+      // Update local state only - will be tracked and submitted through approval workflow
       setData((prev) => prev.map((r) => (r[primaryKey] === rowId ? { ...r, [columnKey]: preparedValue } : r)));
-      // no return to satisfy void
+      
+      // No toast here - let the user know changes need to be submitted
+      // toast.info('Change tracked. Submit for review to save changes.');
     } catch (err) {
-      // Already toasted above if Supabase error
+      console.error('Error updating cell:', err);
+      toast.error('Failed to update cell');
       throw err;
     }
   }, [schemaId, getPrimaryKey]);

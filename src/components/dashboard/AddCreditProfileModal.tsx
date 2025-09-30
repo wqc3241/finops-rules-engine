@@ -16,10 +16,10 @@ import { toast } from "sonner";
 interface AddCreditProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: () => void;
+  onAddRecord: (newRecord: any) => void;
 }
 
-const AddCreditProfileModal = ({ isOpen, onClose, onSave }: AddCreditProfileModalProps) => {
+const AddCreditProfileModal = ({ isOpen, onClose, onAddRecord }: AddCreditProfileModalProps) => {
   const [formData, setFormData] = useState({
     profile_id: "",
     priority: "",
@@ -46,13 +46,13 @@ const AddCreditProfileModal = ({ isOpen, onClose, onSave }: AddCreditProfileModa
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     try {
-      // Prepare data for database, converting empty strings to null for numeric fields
-      const dataToInsert = {
+      // Prepare data for local state, converting empty strings to null for numeric fields
+      const newRecord = {
         profile_id: formData.profile_id,
         priority: formData.priority ? parseInt(formData.priority) : null,
         min_credit_score: formData.min_credit_score ? parseInt(formData.min_credit_score) : null,
@@ -68,16 +68,12 @@ const AddCreditProfileModal = ({ isOpen, onClose, onSave }: AddCreditProfileModa
         employment_type: formData.employment_type || null,
       };
 
-      const { error } = await supabase
-        .from('credit_profiles')
-        .insert(dataToInsert);
-
-      if (error) throw error;
-
-      toast.success('Credit profile created successfully');
+      // Add to local state - will be tracked and submitted through approval workflow
+      onAddRecord(newRecord);
+      
+      toast.success('Credit profile added. Submit for review to save changes.');
       resetForm();
       onClose();
-      onSave(); // Refresh the data in parent component
     } catch (error) {
       console.error('Error creating credit profile:', error);
       toast.error('Failed to create credit profile');

@@ -16,10 +16,10 @@ import { toast } from "sonner";
 interface AddPricingConfigModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: () => void;
+  onAddRecord: (newRecord: any) => void;
 }
 
-const AddPricingConfigModal = ({ isOpen, onClose, onSave }: AddPricingConfigModalProps) => {
+const AddPricingConfigModal = ({ isOpen, onClose, onAddRecord }: AddPricingConfigModalProps) => {
   const [formData, setFormData] = useState({
     pricing_rule_id: "",
     min_ltv: "",
@@ -42,13 +42,13 @@ const AddPricingConfigModal = ({ isOpen, onClose, onSave }: AddPricingConfigModa
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     try {
-      // Prepare data for database, converting empty strings to null for numeric fields
-      const dataToInsert = {
+      // Prepare data for local state, converting empty strings to null for numeric fields
+      const newRecord = {
         pricing_rule_id: formData.pricing_rule_id,
         min_ltv: formData.min_ltv ? parseFloat(formData.min_ltv) : null,
         max_ltv: formData.max_ltv ? parseFloat(formData.max_ltv) : null,
@@ -60,16 +60,12 @@ const AddPricingConfigModal = ({ isOpen, onClose, onSave }: AddPricingConfigModa
         "Mark Up Percent": formData.mark_up_percent ? parseFloat(formData.mark_up_percent) : null,
       };
 
-      const { error } = await supabase
-        .from('pricing_configs')
-        .insert(dataToInsert);
-
-      if (error) throw error;
-
-      toast.success('Pricing configuration created successfully');
+      // Add to local state - will be tracked and submitted through approval workflow
+      onAddRecord(newRecord);
+      
+      toast.success('Pricing config added. Submit for review to save changes.');
       resetForm();
       onClose();
-      onSave(); // Refresh the data in parent component
     } catch (error) {
       console.error('Error creating pricing config:', error);
       toast.error('Failed to create pricing configuration');

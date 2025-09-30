@@ -177,16 +177,6 @@ useEffect(() => {
     console.log('🚨 Schema ID:', schemaId);
     console.log('🚨 Schema exists:', !!schema);
     
-    // Add user confirmation for critical tables
-    const criticalTables = ['credit-profile', 'financial-program-config', 'pricing-config'];
-    if (criticalTables.includes(schemaId)) {
-      const confirmed = window.confirm(`Are you sure you want to add a new ${title}? This action will create a new record in the database.`);
-      if (!confirmed) {
-        console.log('🚨 User cancelled add new record');
-        return;
-      }
-    }
-    
     // Use wizard for financial-program-config, regular add for others
     if (schemaId === 'financial-program-config') {
       setShowWizard(true);
@@ -199,6 +189,22 @@ useEffect(() => {
       }
       console.log('🚨 About to call handleAddNew with schema:', schema);
       handleAddNew(schema);
+    }
+  };
+
+  const handleAddRecordFromModal = (newRecord: any) => {
+    // Generate a temporary ID for the new record
+    const tempId = `new_${Date.now()}`;
+    const recordWithId = { ...newRecord, id: tempId };
+    
+    // Add to local state
+    const newData = [...data, recordWithId];
+    setData(newData);
+    
+    // Save state for undo/redo
+    if (schema) {
+      saveState(data, schema, 'add_record_modal');
+      saveVersion(newData, schema, 'Added new record via modal');
     }
   };
 
