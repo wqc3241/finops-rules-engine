@@ -51,11 +51,14 @@ export async function exportBulletinPricing(selectedProgramCodes?: string[]) {
       .in('program_code', targetProgramCodes);
     if (configError) throw new Error(`Failed to fetch program configurations: ${configError.message}`);
 
-    // Also fetch global pricing types for fallback template generation
+    // Fetch pricing types with lender-specific flags
     const { data: pricingTypesRows } = await supabase
       .from('pricing_types')
-      .select('type_code');
+      .select('type_code, is_lender_specific');
     const defaultPricingTypes: string[] = (pricingTypesRows || []).map((r: any) => r.type_code).filter(Boolean);
+    const pricingTypeMap = new Map(
+      (pricingTypesRows || []).map((pt: any) => [pt.type_code, pt.is_lender_specific === true])
+    );
 
     // 4) Create the workbook and sheet names tracker
     const workbook = XLSX.utils.book_new();
@@ -95,7 +98,8 @@ export async function exportBulletinPricing(selectedProgramCodes?: string[]) {
         const desiredName = `${programCode}_${pricingType}`;
         const sheetName = makeUniqueSheetName(desiredName, usedNames);
 
-        const worksheet = createUnifiedWorksheet(programCode, pricingType, rows, programConfig);
+        const isLenderSpecific = pricingTypeMap.get(pricingType) ?? false;
+        const worksheet = createUnifiedWorksheet(programCode, pricingType, rows, programConfig, isLenderSpecific);
         XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
         usedNames.add(sheetName);
       }
@@ -416,7 +420,8 @@ function createUnifiedWorksheet(
   programCode: string,
   pricingType: string,
   data: BulletinPricingRow[],
-  programConfig: any
+  programConfig: any,
+  isLenderSpecific: boolean
 ): XLSX.WorkSheet {
   const norm = (s?: string | null) =>
     (s ?? '')
@@ -501,45 +506,104 @@ function createUnifiedWorksheet(
   const headerRow1: any[] = [metadata];
   aoa[0] = headerRow1;
 
-  // Row 2 (index 1): Credit profiles starting at C2 (A2/B2 empty)
-  const headerRow2: any[] = ['', ''];
-  for (const cp of creditProfiles) {
-    for (let j = 0; j < pricingConfigs.length; j++) headerRow2.push(cp);
-  }
-  aoa[1] = headerRow2;
+  if (isLenderSpecific) {
+    // LENDER-SPECIFIC FORMAT
+    // Row 2 (index 1): Credit profiles starting at C2 (A2/B2 empty for LENDER/GEO_CODE)
+    const headerRow2: any[] = ['', ''];
+    for (const cp of creditProfiles) {
+      for (let j = 0; j < pricingConfigs.length; j++) headerRow2.push(cp);
+    }
+    aoa[1] = headerRow2;
 
-  // Row 3 (index 2): LENDER/GEO_CODE + Pricing Config headers starting at C3
-  const headerRow3: any[] = ['LENDER', 'GEO_CODE'];
-  for (let i = 0; i < creditProfiles.length; i++) {
-    for (const pc of pricingConfigs) headerRow3.push(pc);
+    // Row 3 (index 2): LENDER/GEO_CODE + Pricing Config headers starting at C3
+    const headerRow3: any[] = ['LENDER', 'GEO_CODE'];
+    for (let i = 0; i < creditProfiles.length; i++) {
+      for (const pc of pricingConfigs) headerRow3.push(pc);
+    }
+    aoa[2] = headerRow3;
+  } else {
+    // UNIVERSAL FORMAT (no lender column)
+    // Row 2 (index 1): Credit profiles starting at B2 (A2 empty for GEO_CODE)
+    const headerRow2: any[] = [''];
+    for (const cp of creditProfiles) {
+      for (let j = 0; j < pricingConfigs.length; j++) headerRow2.push(cp);
+    }
+    aoa[1] = headerRow2;
+
+    // Row 3 (index 2): GEO_CODE + Pricing Config headers starting at B3
+    const headerRow3: any[] = ['GEO_CODE'];
+    for (let i = 0; i < creditProfiles.length; i++) {
+      for (const pc of pricingConfigs) headerRow3.push(pc);
+    }
+    aoa[2] = headerRow3;
   }
-  aoa[2] = headerRow3;
 
   // Track comments to add after sheet creation
   const comments: Array<{ r: number; c: number; text: string }> = [];
 
   let outR = 3; // Data starts at Row 4 (index 3)
-  for (const lender of lenders) {
+  
+  if (isLenderSpecific) {
+    // LENDER-SPECIFIC DATA FORMAT (with lender column)
+    for (const lender of lenders) {
+      for (const geo of geoCodes) {
+        const rowArr: any[] = [lender, geo];
+        for (const cp of creditProfiles) {
+          for (const pc of pricingConfigs) {
+            const key = `${lender}|${geo}|${cp}|${pc}`;
+            const matches = index.get(key) || [];
+            let val: any = '';
+            if (matches.length === 1) {
+              val = matches[0].pricing_value as any;
+            } else if (matches.length > 1) {
+              // Conflict resolution: advertised desc, upload_date desc, updated_date desc
+              const toTime = (s?: string | null) => (s ? Date.parse(s) : 0);
+              matches.sort((a, b) => {
+                const adv = (Number(!!b.advertised) - Number(!!a.advertised));
+                if (adv !== 0) return adv;
+                const up = toTime(b.upload_date) - toTime(a.upload_date);
+                if (up !== 0) return up;
+                return toTime(b.updated_date) - toTime(a.updated_date);
+              });
+              val = matches[0].pricing_value as any;
+              // Add comment for duplicate resolution
+              comments.push({ r: outR, c: rowArr.length, text: 'Multiple matches—used most recent.' });
+            }
+            if (typeof val === 'string' && val.trim() !== '' && !isNaN(Number(val))) val = Number(val);
+            rowArr.push(val);
+          }
+        }
+        aoa[outR++] = rowArr;
+      }
+    }
+  } else {
+    // UNIVERSAL DATA FORMAT (no lender column, just geo codes)
     for (const geo of geoCodes) {
-      const rowArr: any[] = [lender, geo];
+      const rowArr: any[] = [geo];
       for (const cp of creditProfiles) {
         for (const pc of pricingConfigs) {
-          const key = `${lender}|${geo}|${cp}|${pc}`;
-          const matches = index.get(key) || [];
+          // For universal types, find any matching data regardless of lender
           let val: any = '';
-          if (matches.length === 1) {
-            val = matches[0].pricing_value as any;
-          } else if (matches.length > 1) {
+          const allMatches: BulletinPricingRow[] = [];
+          for (const lender of lenders.length > 0 ? lenders : ['']) {
+            const key = `${lender}|${geo}|${cp}|${pc}`;
+            const matches = index.get(key) || [];
+            allMatches.push(...matches);
+          }
+          
+          if (allMatches.length === 1) {
+            val = allMatches[0].pricing_value as any;
+          } else if (allMatches.length > 1) {
             // Conflict resolution: advertised desc, upload_date desc, updated_date desc
             const toTime = (s?: string | null) => (s ? Date.parse(s) : 0);
-            matches.sort((a, b) => {
+            allMatches.sort((a, b) => {
               const adv = (Number(!!b.advertised) - Number(!!a.advertised));
               if (adv !== 0) return adv;
               const up = toTime(b.upload_date) - toTime(a.upload_date);
               if (up !== 0) return up;
               return toTime(b.updated_date) - toTime(a.updated_date);
             });
-            val = matches[0].pricing_value as any;
+            val = allMatches[0].pricing_value as any;
             // Add comment for duplicate resolution
             comments.push({ r: outR, c: rowArr.length, text: 'Multiple matches—used most recent.' });
           }
@@ -561,8 +625,10 @@ function createUnifiedWorksheet(
   }
 
   // Columns widths
-  const numCols = 2 + creditProfiles.length * pricingConfigs.length;
-  (ws as any)['!cols'] = Array.from({ length: numCols }, (_, i) => ({ width: i < 2 ? 16 : 12 }));
+  const numCols = (isLenderSpecific ? 2 : 1) + creditProfiles.length * pricingConfigs.length;
+  (ws as any)['!cols'] = Array.from({ length: numCols }, (_, i) => ({ 
+    width: (isLenderSpecific && i < 2) || (!isLenderSpecific && i < 1) ? 16 : 12 
+  }));
 
   // Freeze panes at B4 (freeze Column A and Rows 1–3)
   (ws as any)['!freeze'] = { xSplit: 1, ySplit: 3 };
@@ -575,8 +641,9 @@ function createUnifiedWorksheet(
   else if (pt.includes('rv')) numFmt = '0.0%';
 
   const totalRows = aoa.length;
+  const dataStartCol = isLenderSpecific ? 2 : 1; // Column C for lender-specific, Column B for universal
   for (let r = 3; r < totalRows; r++) { // Data starts at Row 4 (index 3)
-    for (let c = 2; c < numCols; c++) {
+    for (let c = dataStartCol; c < numCols; c++) {
       const ref = XLSX.utils.encode_cell({ r, c });
       if ((ws as any)[ref] && typeof (ws as any)[ref].v === 'number') (ws as any)[ref].z = numFmt;
     }
