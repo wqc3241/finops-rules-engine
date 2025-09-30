@@ -32,7 +32,7 @@ export const useDynamicFinancialData = ({
   const [loading, setLoading] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
   const { isTableLocked } = useSupabaseApprovalWorkflow();
-  const { startTracking, updateTracking, getTableChanges } = useChangeTracking();
+  const { startTracking, updateTracking } = useChangeTracking();
   const { user, profile } = useAuth();
 
   // Map schema IDs to Supabase table names with type safety
@@ -115,52 +115,10 @@ export const useDynamicFinancialData = ({
     return fallbacks[tableName] || 'id';
   }, []);
 
-  // Get primary key name dynamically for a given schema
-  const getPrimaryKey = useCallback(async (schemaId: string): Promise<string> => {
-    try {
-      const tableName = getTableName(schemaId);
-      
-      // Try to get primary key from database schema
-      const { data: pkData, error } = await supabase.rpc('get_primary_keys', { 
-        table_name_param: tableName 
-      }) as { data: Array<{ column_name: string }> | null, error: any };
-
-      if (!error && pkData && pkData.length > 0) {
-        return pkData[0].column_name;
-      }
-    } catch (error) {
-      console.warn(`Failed to get primary key for ${schemaId}:`, error);
-    }
-
-    // Table-specific fallbacks for when primary key detection fails
-    const fallbacks: Record<string, string> = {
-      'geo_location': 'geo_code',
-      'credit_profiles': 'profile_id',
-      'pricing_configs': 'pricing_rule_id',
-      'financial_products': 'product_id',
-      'bulletin_pricing': 'bulletin_id',
-      'fee_rules': '_id',
-    };
-    
-    const tableName = getTableName(schemaId);
-    return fallbacks[tableName] || 'id';
-  }, []);
-
   // Load data from Supabase with pagination
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
-      // Check if there are tracked changes for this schema
-      const trackedChanges = getTableChanges(schemaId);
-      
-      // If there are unsaved changes, don't reload from database
-      if (trackedChanges && trackedChanges.hasChanges) {
-        console.log(`⚠️ Skipping data reload for ${schemaId} - has unsaved changes`);
-        setData(trackedChanges.currentData);
-        setLoading(false);
-        return;
-      }
-      
       const tableName = getTableName(schemaId);
       const orderByColumn = await getOrderByColumn(tableName);
       
@@ -191,26 +149,23 @@ export const useDynamicFinancialData = ({
         console.error('Error loading data from Supabase:', error);
         toast.error(`Failed to load ${schemaId} data: ${error.message}`);
         setData([]);
-        const pk = await getPrimaryKey(schemaId);
-        startTracking(schemaId, [], pk);
+        startTracking(schemaId, []);
       } else {
         console.log('Loaded paginated data from Supabase:', supabaseData);
         const formattedData = supabaseData || [];
         setData(formattedData);
         const pk = await getPrimaryKey(schemaId);
-        console.log(`📌 Starting tracking for ${schemaId} with primary key: ${pk}`);
         startTracking(schemaId, formattedData, pk);
       }
     } catch (error) {
       console.error('Error in loadData:', error);
       toast.error(`Failed to load ${schemaId} data`);
       setData([]);
-      const pk = await getPrimaryKey(schemaId);
-      startTracking(schemaId, [], pk);
+      startTracking(schemaId, []);
     } finally {
       setLoading(false);
     }
-  }, [schemaId, startTracking, getOrderByColumn, currentPage, pageSize, getPrimaryKey, getTableChanges]);
+  }, [schemaId, startTracking, getOrderByColumn, currentPage, pageSize]);
 
   useEffect(() => {
     loadData();
@@ -218,9 +173,39 @@ export const useDynamicFinancialData = ({
 
   // Update tracking when data changes
   useEffect(() => {
-    console.log(`🔄 Data changed for ${schemaId}, length: ${data.length}`);
     updateTracking(schemaId, data);
   }, [data, schemaId, updateTracking]);
+
+  // Get primary key name dynamically for a given schema
+  const getPrimaryKey = useCallback(async (schemaId: string): Promise<string> => {
+    try {
+      const tableName = getTableName(schemaId);
+      
+      // Try to get primary key from database schema
+      const { data: pkData, error } = await supabase.rpc('get_primary_keys', { 
+        table_name_param: tableName 
+      }) as { data: Array<{ column_name: string }> | null, error: any };
+
+      if (!error && pkData && pkData.length > 0) {
+        return pkData[0].column_name;
+      }
+    } catch (error) {
+      console.warn(`Failed to get primary key for ${schemaId}:`, error);
+    }
+
+    // Table-specific fallbacks for when primary key detection fails
+    const fallbacks: Record<string, string> = {
+      'geo_location': 'geo_code',
+      'credit_profiles': 'profile_id',
+      'pricing_configs': 'pricing_rule_id',
+      'financial_products': 'product_id',
+      'bulletin_pricing': 'bulletin_id',
+      'fee_rules': '_id',
+    };
+    
+    const tableName = getTableName(schemaId);
+    return fallbacks[tableName] || 'id';
+  }, []);
 
   // Batch delete function for Supabase data
   const supabaseBatchDeleteFunction = useCallback(async () => {
@@ -384,9 +369,7 @@ export const useDynamicFinancialData = ({
             row['_id'] = `fee_${Date.now()}`;
             break;
           case 'credit_profiles':
-            if (!row['profile_id']) row['profile_id'] = `temp_${Date.now()}`;
-            // Don't add 'id' for credit profiles - use profile_id as primary key
-            delete row['id'];
+            if (!row['profile_id']) row['profile_id'] = `PROF_${Date.now()}`;
             break;
           case 'tax_rules':
             if (!row['tax_name']) row['tax_name'] = 'New Tax Rule';
@@ -460,13 +443,7 @@ export const useDynamicFinancialData = ({
       console.log('New row to add to local state:', finalRow);
 
       // Add to local state - will be tracked and submitted through approval workflow
-      setData(prevData => {
-        const newData = [finalRow, ...prevData];
-        console.log('📝 New data array after adding:', newData.length);
-        // Update change tracking immediately
-        updateTracking(schemaId, newData);
-        return newData;
-      });
+      setData(prevData => [finalRow, ...prevData]);
       toast.success('New record added. Submit for review to save changes.');
     } catch (error) {
       console.error('Error in handleAddNewLocal:', error);

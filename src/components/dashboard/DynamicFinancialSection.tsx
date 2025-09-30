@@ -8,7 +8,6 @@ import { useDynamicTableSchemas } from "@/hooks/useDynamicTableSchemas";
 import { useDynamicFinancialData } from "@/hooks/useDynamicFinancialData";
 import { useUndoRedo } from "@/hooks/useUndoRedo";
 import { useTableVersions } from "@/hooks/useTableVersions";
-import { useChangeTracking } from "@/hooks/useChangeTracking";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Lock } from "lucide-react";
 import { FinancialProgramRecord } from "@/types/financialProgram";
@@ -22,7 +21,6 @@ import TaxRulesUploadModal from "./TaxRulesUploadModal";
 import DiscountRulesUploadModal from "./DiscountRulesUploadModal";
 import { exportSelectedProgramsBulletinPricing } from "@/utils/selectedProgramsBulletinExport";
 import { transformProgramDataForWizard } from "@/utils/financialProgramUtils";
-import AddCreditProfileModal from "./AddCreditProfileModal";
 
 interface DynamicFinancialSectionProps {
   schemaId: string;
@@ -52,12 +50,10 @@ const DynamicFinancialSection = ({
   const [showFeeRulesUploadModal, setShowFeeRulesUploadModal] = useState(false);
   const [showTaxRulesUploadModal, setShowTaxRulesUploadModal] = useState(false);
   const [showDiscountRulesUploadModal, setShowDiscountRulesUploadModal] = useState(false);
-  const [showCreditProfileModal, setShowCreditProfileModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(100);
   
   const { getSchema, getSyncSchema, updateSchema, loading: schemaLoading } = useDynamicTableSchemas();
-  const { startTracking, updateTracking } = useChangeTracking();
 const { 
   data, 
   setData, 
@@ -76,22 +72,22 @@ const {
   pageSize
 });
 
+// Debug logging for data loading (moved to useEffect to prevent render loops)
+useEffect(() => {
+  console.log('🔍 DynamicFinancialSection data from hook:', data);
+  console.log('🔍 DynamicFinancialSection data length:', data?.length);
+  console.log('🔍 DynamicFinancialSection loading:', loading);
+  console.log('🔍 DynamicFinancialSection schemaId:', schemaId);
+  if (data?.length > 0) {
+    console.log('🔍 First item sample:', data[0]);
+  }
+}, [data, loading, schemaId]);
+
   // Temporarily disable approval workflow to fix runtime error
   const isTableLocked = (schemaId: string) => false;
 
   // Load schema dynamically
   const [schema, setSchema] = useState(getSyncSchema(schemaId));
-  
-  // Initialize change tracking when data is loaded
-  useEffect(() => {
-    console.log('🔍 DynamicFinancialSection data from hook:', data);
-    console.log('🔍 DynamicFinancialSection data length:', data?.length);
-    console.log('🔍 DynamicFinancialSection loading:', loading);
-    console.log('🔍 DynamicFinancialSection schemaId:', schemaId);
-    if (data?.length > 0) {
-      console.log('🔍 First item sample:', data[0]);
-    }
-  }, [data, loading, schemaId]);
   
   // Version management
   const {
@@ -136,14 +132,6 @@ const {
     }
   }, [schemaId, onSetBatchDownloadBulletinPricingCallback]);
   const { saveState, undo, redo, canUndo, canRedo } = useUndoRedo(data, schema || { id: '', name: '', columns: [] });
-  
-  // Update change tracking whenever data changes
-  useEffect(() => {
-    if (data && data.length >= 0 && !loading) {
-      console.log('📊 Data changed, updating change tracking for:', schemaId, 'with', data.length, 'items');
-      updateTracking(schemaId, data);
-    }
-  }, [data, schemaId, updateTracking, loading]);
 
   const handleDataChange = (newData: any) => {
     if (schema) {
@@ -152,7 +140,6 @@ const {
       saveVersion(newData, schema, 'Data modification');
     }
     setData(newData);
-    // Change tracking will be updated by the useEffect above
   };
 
   const handleSchemaChange = (newSchema: any) => {
@@ -190,16 +177,10 @@ const {
     console.log('🚨 Schema ID:', schemaId);
     console.log('🚨 Schema exists:', !!schema);
     
-    // Use wizard for financial-program-config
+    // Use wizard for financial-program-config, regular add for others
     if (schemaId === 'financial-program-config') {
       setShowWizard(true);
-    } 
-    // Use modal for credit-profile
-    else if (schemaId === 'credit-profile') {
-      setShowCreditProfileModal(true);
-    } 
-    // Use generic add for other schemas
-    else {
+    } else {
       if (schema) {
         saveState(data, schema, 'add_record');
         // Save version when adding new record
@@ -212,38 +193,19 @@ const {
   };
 
   const handleAddRecordFromModal = (newRecord: any) => {
-    console.log('📝 handleAddRecordFromModal called for schemaId:', schemaId);
-    console.log('📝 New record:', newRecord);
+    // Generate a temporary ID for the new record
+    const tempId = `new_${Date.now()}`;
+    const recordWithId = { ...newRecord, id: tempId };
     
-    // Generate a temporary ID based on the primary key for the table
-    const tempId = `temp_${Date.now()}`;
-    
-    // For credit profiles, use profile_id as the key
-    const recordWithId = schemaId === 'credit-profile' 
-      ? { ...newRecord, profile_id: newRecord.profile_id || tempId }
-      : { ...newRecord, id: tempId };
-    
-    console.log('📝 Record with ID:', recordWithId);
-    
-    // Create the new data array
+    // Add to local state
     const newData = [...data, recordWithId];
-    console.log('📝 New data array length:', newData.length);
-    console.log('📝 First few items:', newData.slice(0, 3));
-    
-    // Update local state
     setData(newData);
-    
-    // Update change tracking immediately
-    updateTracking(schemaId, newData);
-    console.log('📝 Change tracking updated for:', schemaId);
     
     // Save state for undo/redo
     if (schema) {
       saveState(data, schema, 'add_record_modal');
       saveVersion(newData, schema, 'Added new record via modal');
     }
-    
-    toast.success('Record added. Submit for review to save changes.');
   };
 
   const handleVersionHistory = () => {
@@ -721,13 +683,6 @@ const {
         onRestore={handleRestoreVersion}
         canRestore={canRestore}
         isLoading={versionsLoading}
-      />
-      
-      {/* Credit Profile Modal */}
-      <AddCreditProfileModal
-        isOpen={showCreditProfileModal}
-        onClose={() => setShowCreditProfileModal(false)}
-        onAddRecord={handleAddRecordFromModal}
       />
     </div>
   );

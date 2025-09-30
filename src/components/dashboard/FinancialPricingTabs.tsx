@@ -43,15 +43,12 @@ const FinancialPricingTabs = ({
   const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
   const [showAddBulletinPricingModal, setShowAddBulletinPricingModal] = useState(false);
   
-  const { user } = useAuth();
+  const { isFSOps } = useAuth();
   const { submitForReview, getPendingRequestsForAdmin } = useSupabaseApprovalWorkflow();
   const { getChangedTables } = useChangeTracking();
   
   // Check if there are any changes
   const hasChanges = getChangedTables().length > 0;
-  
-  // Check if user has permission to submit changes
-  const canSubmitChanges = user?.role === 'FS_OPS' || user?.role === 'FS_ADMIN' || user?.role === 'admin';
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
@@ -150,7 +147,7 @@ const FinancialPricingTabs = ({
     <div className="bg-gray-50 p-4">
       <ApprovalNotificationBanner onOpenReview={handleOpenReview} />
       
-      {canSubmitChanges && hasChanges && (
+      {isFSOps && hasChanges && (
         <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
           <div className="flex items-center justify-between">
             <div>
@@ -181,8 +178,6 @@ const FinancialPricingTabs = ({
         onClose={() => setShowSubmitModal(false)}
         onSubmit={() => {
           toast.success("Changes submitted for review");
-          // Reload the page to fetch fresh data after submission
-          window.location.reload();
         }}
       />
 

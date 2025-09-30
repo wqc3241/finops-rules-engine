@@ -118,8 +118,7 @@ export const ChangeTrackingProvider: React.FC<React.PropsWithChildren> = ({ chil
     return {
       originalData: tracked.originalData,
       currentData: tracked.currentData,
-      hasChanges: tracked.hasChanges,
-      primaryKey: tracked.primaryKey
+      hasChanges: tracked.hasChanges
     };
   }, [trackedChanges]);
 
@@ -215,7 +214,7 @@ export const useChangeTracking = (): ChangeTrackingContextValue => {
   const getTableChanges = useCallback((schemaId: string) => {
     const tracked = trackedChanges[schemaId];
     if (!tracked) return null;
-    return { originalData: tracked.originalData, currentData: tracked.currentData, hasChanges: tracked.hasChanges, primaryKey: tracked.primaryKey };
+    return { originalData: tracked.originalData, currentData: tracked.currentData, hasChanges: tracked.hasChanges };
   }, [trackedChanges]);
 
   return { startTracking, updateTracking, getChangedTables, getChangesSummary, resetTracking, getTableChanges, trackedChanges };

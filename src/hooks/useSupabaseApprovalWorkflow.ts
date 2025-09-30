@@ -143,8 +143,6 @@ export const useSupabaseApprovalWorkflow = () => {
   ): Promise<string | null> => {
     if (!user) return null;
 
-    console.log('🔥 submitForReview called with:', { schemaIds, tableChangesKeys: Object.keys(tableChanges) });
-
     setLoading(true);
     try {
       // Pre-check for locked tables
@@ -168,27 +166,17 @@ export const useSupabaseApprovalWorkflow = () => {
 
       for (const [table, changes] of Object.entries(tableChanges)) {
         const { oldData, newData } = changes;
-        console.log(`🔍 Processing table: ${table}, oldData: ${oldData.length}, newData: ${newData.length}`);
         lockSchemas.add(table);
 
         // Compare old vs new data to create change details
-        // Get the primary key for this specific table
-        const tablePrimaryKeys: Record<string, string> = {
-          'credit-profile': 'profile_id',
-          'pricing-config': 'pricing_rule_id',
-          'financial-products': 'product_id',
-          'bulletin-pricing': 'bulletin_id',
-          'fee-rules': '_id',
-          'geo-location': 'geo_code',
-        };
-        
-        const primaryKeyField = tablePrimaryKeys[table] || 'id';
-        console.log(`🔑 Using primary key for ${table}: ${primaryKeyField}`);
-        
         const getPrimaryKey = (item: any) => {
-          const key = item?.[primaryKeyField] || item?.id || item?._id || Object.values(item || {})[0];
-          console.log(`  getPrimaryKey for item:`, item?.[primaryKeyField], '-> returning:', key);
-          return key;
+          return (
+            item?.id ||
+            item?._id ||
+            item?.pricing_rule_id ||
+            item?.profile_id ||
+            Object.values(item || {})[0]
+          ); // fallback to first value
         };
 
         const allKeys = new Set([
@@ -196,15 +184,12 @@ export const useSupabaseApprovalWorkflow = () => {
           ...newData.map(item => getPrimaryKey(item))
         ]);
 
-        console.log(`🔑 All keys for ${table}:`, Array.from(allKeys));
-
         for (const key of allKeys) {
           const oldItem = oldData.find(item => getPrimaryKey(item) === key);
           const newItem = newData.find(item => getPrimaryKey(item) === key);
 
           if (!oldItem && newItem) {
             // New item
-            console.log(`  ➕ New item detected: ${key}`);
             pendingDetails.push({
               table_name: table,
               rule_key: key,
@@ -213,7 +198,6 @@ export const useSupabaseApprovalWorkflow = () => {
             });
           } else if (oldItem && !newItem) {
             // Deleted item
-            console.log(`  ➖ Deleted item detected: ${key}`);
             pendingDetails.push({
               table_name: table,
               rule_key: key,
@@ -222,7 +206,6 @@ export const useSupabaseApprovalWorkflow = () => {
             });
           } else if (oldItem && newItem && JSON.stringify(oldItem) !== JSON.stringify(newItem)) {
             // Modified item
-            console.log(`  ✏️ Modified item detected: ${key}`);
             pendingDetails.push({
               table_name: table,
               rule_key: key,
@@ -232,8 +215,6 @@ export const useSupabaseApprovalWorkflow = () => {
           }
         }
       }
-
-      console.log(`📋 Total pending details: ${pendingDetails.length}`);
 
       // 2) If no actual changes, do NOT create a request
       if (pendingDetails.length === 0) {
@@ -291,13 +272,6 @@ export const useSupabaseApprovalWorkflow = () => {
 
       toast.success(`Changes submitted for review - ${changeDetailsToInsert.length} changes submitted successfully.`);
 
-      // Reload data and reset change tracking
-      await Promise.all([
-        loadChangeRequests(),
-        loadChangeDetails(),
-        loadLockedTables()
-      ]);
-
       return requestId;
     } catch (error) {
       console.error('Error submitting for review:', error);
@@ -307,7 +281,7 @@ export const useSupabaseApprovalWorkflow = () => {
     } finally {
       setLoading(false);
     }
-  }, [user, lockedTables, loadChangeRequests, loadChangeDetails, loadLockedTables]);
+  }, [user, lockedTables]);
 
   const getChangeRequestWithDetails = useCallback((requestId: string): ChangeRequestWithDetails | null => {
     const request = changeRequests.find(r => r.id === requestId);
@@ -371,31 +345,6 @@ export const useSupabaseApprovalWorkflow = () => {
 
       if (error) throw error;
 
-      // Update the change request overall status based on all change details
-      const { data: allDetails } = await supabase
-        .from('change_details')
-        .select('status')
-        .eq('request_id', requestId);
-
-      if (allDetails) {
-        let newStatus: ApprovalStatus;
-        const hasRejected = allDetails.some(d => d.status === 'REJECTED');
-        const allApproved = allDetails.every(d => d.status === 'APPROVED');
-        
-        if (hasRejected) {
-          newStatus = 'REJECTED';
-        } else if (allApproved) {
-          newStatus = 'APPROVED';
-        } else {
-          newStatus = 'IN_REVIEW';
-        }
-
-        await supabase
-          .from('change_requests')
-          .update({ status: newStatus })
-          .eq('id', requestId);
-      }
-
       // Force refresh data to sync with database
       await Promise.all([
         loadChangeRequests(),
@@ -437,31 +386,6 @@ export const useSupabaseApprovalWorkflow = () => {
         .eq('table_name', table);
 
       if (error) throw error;
-
-      // Update the change request overall status - if ANY table is rejected, mark entire request as rejected
-      const { data: allDetails } = await supabase
-        .from('change_details')
-        .select('status')
-        .eq('request_id', requestId);
-
-      if (allDetails) {
-        let newStatus: ApprovalStatus;
-        const hasRejected = allDetails.some(d => d.status === 'REJECTED');
-        const allApproved = allDetails.every(d => d.status === 'APPROVED');
-        
-        if (hasRejected) {
-          newStatus = 'REJECTED';
-        } else if (allApproved) {
-          newStatus = 'APPROVED';
-        } else {
-          newStatus = 'IN_REVIEW';
-        }
-
-        await supabase
-          .from('change_requests')
-          .update({ status: newStatus })
-          .eq('id', requestId);
-      }
 
       // Force refresh data to sync with database
       await Promise.all([
