@@ -32,7 +32,7 @@ export const useDynamicFinancialData = ({
   const [loading, setLoading] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
   const { isTableLocked } = useSupabaseApprovalWorkflow();
-  const { startTracking, updateTracking } = useChangeTracking();
+  const { startTracking, updateTracking, getTableChanges } = useChangeTracking();
   const { user, profile } = useAuth();
 
   // Map schema IDs to Supabase table names with type safety
@@ -150,6 +150,17 @@ export const useDynamicFinancialData = ({
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
+      // Check if there are tracked changes for this schema
+      const trackedChanges = getTableChanges(schemaId);
+      
+      // If there are unsaved changes, don't reload from database
+      if (trackedChanges && trackedChanges.hasChanges) {
+        console.log(`⚠️ Skipping data reload for ${schemaId} - has unsaved changes`);
+        setData(trackedChanges.currentData);
+        setLoading(false);
+        return;
+      }
+      
       const tableName = getTableName(schemaId);
       const orderByColumn = await getOrderByColumn(tableName);
       
@@ -199,7 +210,7 @@ export const useDynamicFinancialData = ({
     } finally {
       setLoading(false);
     }
-  }, [schemaId, startTracking, getOrderByColumn, currentPage, pageSize, getPrimaryKey]);
+  }, [schemaId, startTracking, getOrderByColumn, currentPage, pageSize, getPrimaryKey, getTableChanges]);
 
   useEffect(() => {
     loadData();
@@ -373,7 +384,7 @@ export const useDynamicFinancialData = ({
             row['_id'] = `fee_${Date.now()}`;
             break;
           case 'credit_profiles':
-            if (!row['profile_id']) row['profile_id'] = `PROF_${Date.now()}`;
+            if (!row['profile_id']) row['profile_id'] = `temp_${Date.now()}`;
             // Don't add 'id' for credit profiles - use profile_id as primary key
             delete row['id'];
             break;
@@ -449,7 +460,13 @@ export const useDynamicFinancialData = ({
       console.log('New row to add to local state:', finalRow);
 
       // Add to local state - will be tracked and submitted through approval workflow
-      setData(prevData => [finalRow, ...prevData]);
+      setData(prevData => {
+        const newData = [finalRow, ...prevData];
+        console.log('📝 New data array after adding:', newData.length);
+        // Update change tracking immediately
+        updateTracking(schemaId, newData);
+        return newData;
+      });
       toast.success('New record added. Submit for review to save changes.');
     } catch (error) {
       console.error('Error in handleAddNewLocal:', error);

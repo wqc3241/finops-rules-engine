@@ -53,6 +53,8 @@ const SubmitForReviewModal = ({ isOpen, onClose, onSubmit }: SubmitForReviewModa
       const requestId = await submitForReview(schemaIds, tableChanges);
       
       if (requestId) {
+        // Force refresh data after successful submission
+        await forceRefresh();
         onSubmit();
         onClose();
       } else {

@@ -291,6 +291,13 @@ export const useSupabaseApprovalWorkflow = () => {
 
       toast.success(`Changes submitted for review - ${changeDetailsToInsert.length} changes submitted successfully.`);
 
+      // Reload data and reset change tracking
+      await Promise.all([
+        loadChangeRequests(),
+        loadChangeDetails(),
+        loadLockedTables()
+      ]);
+
       return requestId;
     } catch (error) {
       console.error('Error submitting for review:', error);
@@ -300,7 +307,7 @@ export const useSupabaseApprovalWorkflow = () => {
     } finally {
       setLoading(false);
     }
-  }, [user, lockedTables]);
+  }, [user, lockedTables, loadChangeRequests, loadChangeDetails, loadLockedTables]);
 
   const getChangeRequestWithDetails = useCallback((requestId: string): ChangeRequestWithDetails | null => {
     const request = changeRequests.find(r => r.id === requestId);

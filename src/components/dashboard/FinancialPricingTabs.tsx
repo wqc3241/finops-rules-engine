@@ -181,6 +181,8 @@ const FinancialPricingTabs = ({
         onClose={() => setShowSubmitModal(false)}
         onSubmit={() => {
           toast.success("Changes submitted for review");
+          // Reload the page to fetch fresh data after submission
+          window.location.reload();
         }}
       />
 

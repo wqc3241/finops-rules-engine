@@ -223,15 +223,19 @@ const {
       ? { ...newRecord, profile_id: newRecord.profile_id || tempId }
       : { ...newRecord, id: tempId };
     
-    // Add to local state
+    console.log('📝 Record with ID:', recordWithId);
+    
+    // Create the new data array
     const newData = [...data, recordWithId];
     console.log('📝 New data array length:', newData.length);
-    console.log('📝 New record added:', recordWithId);
+    console.log('📝 First few items:', newData.slice(0, 3));
+    
+    // Update local state
     setData(newData);
     
-    // Update change tracking - it will use the primaryKey already set during startTracking
-    console.log('📝 Updating change tracking for schemaId:', schemaId);
+    // Update change tracking immediately
     updateTracking(schemaId, newData);
+    console.log('📝 Change tracking updated for:', schemaId);
     
     // Save state for undo/redo
     if (schema) {
@@ -239,7 +243,6 @@ const {
       saveVersion(newData, schema, 'Added new record via modal');
     }
     
-    console.log('📝 Change tracking updated. New data length:', newData.length);
     toast.success('Record added. Submit for review to save changes.');
   };
 
