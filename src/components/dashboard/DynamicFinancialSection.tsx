@@ -121,16 +121,6 @@ useEffect(() => {
     }
   }, [versions, persistVersions]);
 
-  // Set up batch download callback for financial-program-config
-  useEffect(() => {
-    console.log('🔄 useEffect for batch download callback running');
-    console.log('🔄 SchemaId:', schemaId);
-    console.log('🔄 Has callback:', !!onSetBatchDownloadBulletinPricingCallback);
-    
-    if (schemaId === 'financial-program-config' && onSetBatchDownloadBulletinPricingCallback) {
-      onSetBatchDownloadBulletinPricingCallback(handleSelectedBulletinPricingDownload);
-    }
-  }, [schemaId, onSetBatchDownloadBulletinPricingCallback]);
   const { saveState, undo, redo, canUndo, canRedo } = useUndoRedo(data, schema || { id: '', name: '', columns: [] });
 
   const handleDataChange = (newData: any) => {
@@ -548,6 +538,13 @@ useEffect(() => {
       }
     }
   };
+
+  // Set up batch download callback for financial-program-config
+  useEffect(() => {
+    if (schemaId === 'financial-program-config' && onSetBatchDownloadBulletinPricingCallback) {
+      onSetBatchDownloadBulletinPricingCallback(handleSelectedBulletinPricingDownload);
+    }
+  }, [schemaId, onSetBatchDownloadBulletinPricingCallback, handleSelectedBulletinPricingDownload]);
 
   // Determine if this section should have upload/download buttons
   const shouldShowUploadDownload = schemaId === 'fee-rules' || schemaId === 'tax-rules' || schemaId === 'discount-rules' || schemaId === 'bulletin-pricing' || schemaId === 'financial-program-config';
