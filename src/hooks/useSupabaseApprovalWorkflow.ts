@@ -345,6 +345,31 @@ export const useSupabaseApprovalWorkflow = () => {
 
       if (error) throw error;
 
+      // Update the change request overall status based on all change details
+      const { data: allDetails } = await supabase
+        .from('change_details')
+        .select('status')
+        .eq('request_id', requestId);
+
+      if (allDetails) {
+        let newStatus: ApprovalStatus;
+        const hasRejected = allDetails.some(d => d.status === 'REJECTED');
+        const allApproved = allDetails.every(d => d.status === 'APPROVED');
+        
+        if (hasRejected) {
+          newStatus = 'REJECTED';
+        } else if (allApproved) {
+          newStatus = 'APPROVED';
+        } else {
+          newStatus = 'IN_REVIEW';
+        }
+
+        await supabase
+          .from('change_requests')
+          .update({ status: newStatus })
+          .eq('id', requestId);
+      }
+
       // Force refresh data to sync with database
       await Promise.all([
         loadChangeRequests(),
@@ -386,6 +411,31 @@ export const useSupabaseApprovalWorkflow = () => {
         .eq('table_name', table);
 
       if (error) throw error;
+
+      // Update the change request overall status - if ANY table is rejected, mark entire request as rejected
+      const { data: allDetails } = await supabase
+        .from('change_details')
+        .select('status')
+        .eq('request_id', requestId);
+
+      if (allDetails) {
+        let newStatus: ApprovalStatus;
+        const hasRejected = allDetails.some(d => d.status === 'REJECTED');
+        const allApproved = allDetails.every(d => d.status === 'APPROVED');
+        
+        if (hasRejected) {
+          newStatus = 'REJECTED';
+        } else if (allApproved) {
+          newStatus = 'APPROVED';
+        } else {
+          newStatus = 'IN_REVIEW';
+        }
+
+        await supabase
+          .from('change_requests')
+          .update({ status: newStatus })
+          .eq('id', requestId);
+      }
 
       // Force refresh data to sync with database
       await Promise.all([
