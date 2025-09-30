@@ -123,7 +123,7 @@ const PricingTypesStep = ({ data, onUpdate }: PricingTypesStepProps) => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {pricingTypes.map((type) => (
-          <div key={type.typeCode} className="flex items-start space-x-3 p-3 border rounded-lg hover:bg-gray-50">
+          <div key={type.typeCode} className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-50">
             <Checkbox
               id={type.typeCode}
               checked={data.pricingTypes.includes(type.typeCode)}
