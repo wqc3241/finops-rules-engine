@@ -36,6 +36,11 @@ const SubmitForReviewModal = ({ isOpen, onClose, onSubmit }: SubmitForReviewModa
       changesSummary.forEach(summary => {
         const changes = getTableChanges(summary.schemaId);
         if (changes) {
+          console.log(`📋 Preparing changes for ${summary.schemaId}:`, {
+            originalCount: changes.originalData.length,
+            currentCount: changes.currentData.length,
+            primaryKey: changes.primaryKey
+          });
           tableChanges[summary.schemaId] = {
             oldData: changes.originalData,
             newData: changes.currentData
@@ -43,7 +48,7 @@ const SubmitForReviewModal = ({ isOpen, onClose, onSubmit }: SubmitForReviewModa
         }
       });
 
-      console.log('Submitting table changes:', tableChanges);
+      console.log('🚀 Submitting table changes:', tableChanges);
       const schemaIds = changesSummary.map(s => s.schemaId);
       const requestId = await submitForReview(schemaIds, tableChanges);
       

@@ -115,6 +115,37 @@ export const useDynamicFinancialData = ({
     return fallbacks[tableName] || 'id';
   }, []);
 
+  // Get primary key name dynamically for a given schema
+  const getPrimaryKey = useCallback(async (schemaId: string): Promise<string> => {
+    try {
+      const tableName = getTableName(schemaId);
+      
+      // Try to get primary key from database schema
+      const { data: pkData, error } = await supabase.rpc('get_primary_keys', { 
+        table_name_param: tableName 
+      }) as { data: Array<{ column_name: string }> | null, error: any };
+
+      if (!error && pkData && pkData.length > 0) {
+        return pkData[0].column_name;
+      }
+    } catch (error) {
+      console.warn(`Failed to get primary key for ${schemaId}:`, error);
+    }
+
+    // Table-specific fallbacks for when primary key detection fails
+    const fallbacks: Record<string, string> = {
+      'geo_location': 'geo_code',
+      'credit_profiles': 'profile_id',
+      'pricing_configs': 'pricing_rule_id',
+      'financial_products': 'product_id',
+      'bulletin_pricing': 'bulletin_id',
+      'fee_rules': '_id',
+    };
+    
+    const tableName = getTableName(schemaId);
+    return fallbacks[tableName] || 'id';
+  }, []);
+
   // Load data from Supabase with pagination
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -156,17 +187,19 @@ export const useDynamicFinancialData = ({
         const formattedData = supabaseData || [];
         setData(formattedData);
         const pk = await getPrimaryKey(schemaId);
+        console.log(`📌 Starting tracking for ${schemaId} with primary key: ${pk}`);
         startTracking(schemaId, formattedData, pk);
       }
     } catch (error) {
       console.error('Error in loadData:', error);
       toast.error(`Failed to load ${schemaId} data`);
       setData([]);
-      startTracking(schemaId, []);
+      const pk = await getPrimaryKey(schemaId);
+      startTracking(schemaId, [], pk);
     } finally {
       setLoading(false);
     }
-  }, [schemaId, startTracking, getOrderByColumn, currentPage, pageSize]);
+  }, [schemaId, startTracking, getOrderByColumn, currentPage, pageSize, getPrimaryKey]);
 
   useEffect(() => {
     loadData();
@@ -174,39 +207,9 @@ export const useDynamicFinancialData = ({
 
   // Update tracking when data changes
   useEffect(() => {
+    console.log(`🔄 Data changed for ${schemaId}, length: ${data.length}`);
     updateTracking(schemaId, data);
   }, [data, schemaId, updateTracking]);
-
-  // Get primary key name dynamically for a given schema
-  const getPrimaryKey = useCallback(async (schemaId: string): Promise<string> => {
-    try {
-      const tableName = getTableName(schemaId);
-      
-      // Try to get primary key from database schema
-      const { data: pkData, error } = await supabase.rpc('get_primary_keys', { 
-        table_name_param: tableName 
-      }) as { data: Array<{ column_name: string }> | null, error: any };
-
-      if (!error && pkData && pkData.length > 0) {
-        return pkData[0].column_name;
-      }
-    } catch (error) {
-      console.warn(`Failed to get primary key for ${schemaId}:`, error);
-    }
-
-    // Table-specific fallbacks for when primary key detection fails
-    const fallbacks: Record<string, string> = {
-      'geo_location': 'geo_code',
-      'credit_profiles': 'profile_id',
-      'pricing_configs': 'pricing_rule_id',
-      'financial_products': 'product_id',
-      'bulletin_pricing': 'bulletin_id',
-      'fee_rules': '_id',
-    };
-    
-    const tableName = getTableName(schemaId);
-    return fallbacks[tableName] || 'id';
-  }, []);
 
   // Batch delete function for Supabase data
   const supabaseBatchDeleteFunction = useCallback(async () => {

@@ -91,14 +91,7 @@ const {
     if (data?.length > 0) {
       console.log('🔍 First item sample:', data[0]);
     }
-    
-    // Start change tracking when data is first loaded with correct primary key
-    if (!loading && data && data.length >= 0 && schema) {
-      console.log('🎯 Starting change tracking for schemaId:', schemaId);
-      const primaryKey = schemaId === 'credit-profile' ? 'profile_id' : 'id';
-      startTracking(schemaId, data, primaryKey);
-    }
-  }, [data, loading, schemaId, startTracking, schema]);
+  }, [data, loading, schemaId]);
   
   // Version management
   const {
@@ -147,7 +140,7 @@ const {
   // Update change tracking whenever data changes
   useEffect(() => {
     if (data && data.length >= 0 && !loading) {
-      console.log('📊 Data changed, updating change tracking for:', schemaId);
+      console.log('📊 Data changed, updating change tracking for:', schemaId, 'with', data.length, 'items');
       updateTracking(schemaId, data);
     }
   }, [data, schemaId, updateTracking, loading]);
@@ -232,13 +225,12 @@ const {
     
     // Add to local state
     const newData = [...data, recordWithId];
+    console.log('📝 New data array length:', newData.length);
+    console.log('📝 New record added:', recordWithId);
     setData(newData);
     
-    // Update change tracking with correct primary key
+    // Update change tracking - it will use the primaryKey already set during startTracking
     console.log('📝 Updating change tracking for schemaId:', schemaId);
-    const primaryKey = schemaId === 'credit-profile' ? 'profile_id' : 'id';
-    
-    // Force change tracking to recognize this as a new record
     updateTracking(schemaId, newData);
     
     // Save state for undo/redo
