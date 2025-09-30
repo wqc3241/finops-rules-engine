@@ -136,10 +136,11 @@ const PricingTypesStep = ({ data, onUpdate }: PricingTypesStepProps) => {
               <p className="text-xs text-muted-foreground mt-1">
                 {type.typeName}
               </p>
-            </div>
-            {!type.isLenderSpecific && (
+                          {!type.isLenderSpecific && (
               <span className="text-xs text-muted-foreground self-center">Universal</span>
             )}
+            </div>
+
           </div>
         ))}
       </div>
