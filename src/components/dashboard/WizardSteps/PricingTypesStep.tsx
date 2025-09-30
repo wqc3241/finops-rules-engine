@@ -26,19 +26,24 @@ const PricingTypesStep = ({ data, onUpdate }: PricingTypesStepProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Separate pricing types by category and filter by selected financial product
-  const lenderSpecificTypes = pricingTypes
-    .filter(type => type.isLenderSpecific)
-    .filter(type => 
-      type.financialProducts.length === 0 || 
-      type.financialProducts.includes(data.financialProduct)
-    );
+  // Only show pricing types if a financial product is selected
+  const lenderSpecificTypes = data.financialProduct 
+    ? pricingTypes
+        .filter(type => type.isLenderSpecific)
+        .filter(type => 
+          type.financialProducts.length === 0 || 
+          type.financialProducts.includes(data.financialProduct)
+        )
+    : [];
   
-  const allPricingTypes = pricingTypes
-    .filter(type => !type.isLenderSpecific)
-    .filter(type => 
-      type.financialProducts.length === 0 || 
-      type.financialProducts.includes(data.financialProduct)
-    );
+  const allPricingTypes = data.financialProduct
+    ? pricingTypes
+        .filter(type => !type.isLenderSpecific)
+        .filter(type => 
+          type.financialProducts.length === 0 || 
+          type.financialProducts.includes(data.financialProduct)
+        )
+    : [];
 
   // Get currently selected types
   const selectedLenderSpecific = data.lenderSpecificPricingTypes || [];
@@ -179,9 +184,13 @@ const PricingTypesStep = ({ data, onUpdate }: PricingTypesStepProps) => {
           </p>
         </div>
 
-        {lenderSpecificTypes.length === 0 ? (
+        {!data.financialProduct ? (
           <div className="text-sm text-muted-foreground italic p-4 border rounded-lg bg-muted/20">
-            No lender-specific pricing types available
+            Please select a Financial Product first
+          </div>
+        ) : lenderSpecificTypes.length === 0 ? (
+          <div className="text-sm text-muted-foreground italic p-4 border rounded-lg bg-muted/20">
+            No lender-specific pricing types available for selected financial product
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -224,9 +233,13 @@ const PricingTypesStep = ({ data, onUpdate }: PricingTypesStepProps) => {
           </p>
         </div>
 
-        {allPricingTypes.length === 0 ? (
+        {!data.financialProduct ? (
           <div className="text-sm text-muted-foreground italic p-4 border rounded-lg bg-muted/20">
-            No universal pricing types available
+            Please select a Financial Product first
+          </div>
+        ) : allPricingTypes.length === 0 ? (
+          <div className="text-sm text-muted-foreground italic p-4 border rounded-lg bg-muted/20">
+            No universal pricing types available for selected financial product
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
