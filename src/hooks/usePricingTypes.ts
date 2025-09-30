@@ -7,6 +7,7 @@ export type PricingType = {
   typeCode: string;
   typeName: string;
   financialProducts: string[];
+  isLenderSpecific: boolean;
 };
 
 export const usePricingTypes = () => {
@@ -17,7 +18,7 @@ export const usePricingTypes = () => {
     setLoading(true);
     const { data, error } = await supabase
       .from("pricing_types")
-      .select("id, type_code, type_name, financial_products_list")
+      .select("id, type_code, type_name, financial_products_list, is_lender_specific")
       .order("type_code", { ascending: true });
 
     if (!error) {
@@ -27,6 +28,7 @@ export const usePricingTypes = () => {
           typeCode: r.type_code,
           typeName: r.type_name,
           financialProducts: r.financial_products_list || [],
+          isLenderSpecific: r.is_lender_specific || false,
         }))
       );
     }

@@ -129,6 +129,7 @@ const PricingTypeTable = () => {
               </TableHead>
               <TableHead>Type Code</TableHead>
               <TableHead>Type Name</TableHead>
+              <TableHead>Lender Specific</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -214,6 +215,18 @@ const PricingTypeTable = () => {
                   ) : (
                     <span>{item.typeName}</span>
                   )}
+                </TableCell>
+                <TableCell>
+                  <Checkbox
+                    checked={item.isLenderSpecific}
+                    onCheckedChange={(checked) => {
+                      setPricingTypes(prev =>
+                        prev.map((p) =>
+                          p.id === item.id ? { ...p, isLenderSpecific: checked as boolean } : p
+                        )
+                      );
+                    }}
+                  />
                 </TableCell>
                 <TableCell className="text-right space-x-2">
                   <Button
