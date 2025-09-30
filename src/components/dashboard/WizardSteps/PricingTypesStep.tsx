@@ -137,6 +137,9 @@ const PricingTypesStep = ({ data, onUpdate }: PricingTypesStepProps) => {
                 {type.typeName}
               </p>
             </div>
+            {!type.isLenderSpecific && (
+              <span className="text-xs text-muted-foreground self-center">Universal</span>
+            )}
           </div>
         ))}
       </div>
