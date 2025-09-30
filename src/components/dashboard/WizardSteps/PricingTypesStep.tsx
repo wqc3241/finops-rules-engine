@@ -121,9 +121,20 @@ const PricingTypesStep = ({ data, onUpdate }: PricingTypesStepProps) => {
         </DialogContent>
       </Dialog>
 
+      <div className="mb-4 p-3 bg-blue-100 border border-blue-300 rounded">
+        <p className="text-sm font-mono">
+          DEBUG: Total pricing types: {pricingTypes.length} | 
+          Non-lender-specific: {pricingTypes.filter(t => !t.isLenderSpecific).length}
+        </p>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {pricingTypes.map((type) => {
-          console.log('Pricing Type:', type.typeCode, 'isLenderSpecific:', type.isLenderSpecific);
+          console.log('🔍 DEBUG PRICING TYPE:', {
+            typeCode: type.typeCode,
+            isLenderSpecific: type.isLenderSpecific,
+            shouldShowUniversal: !type.isLenderSpecific
+          });
           return (
           <div key={type.typeCode} className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-50">
             <Checkbox
@@ -138,9 +149,15 @@ const PricingTypesStep = ({ data, onUpdate }: PricingTypesStepProps) => {
               <p className="text-xs text-muted-foreground mt-1">
                 {type.typeName}
               </p>
+              {/* Temporary debug display */}
+              <p className="text-xs font-mono text-purple-600 mt-1">
+                isLenderSpecific: {String(type.isLenderSpecific)}
+              </p>
             </div>
             {!type.isLenderSpecific && (
-              <span className="text-xs text-muted-foreground self-center">Universal</span>
+              <span className="text-sm font-bold text-green-600 self-center px-2 py-1 bg-green-100 rounded">
+                Universal
+              </span>
             )}
           </div>
         );
