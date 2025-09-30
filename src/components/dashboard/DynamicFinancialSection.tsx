@@ -8,6 +8,7 @@ import { useDynamicTableSchemas } from "@/hooks/useDynamicTableSchemas";
 import { useDynamicFinancialData } from "@/hooks/useDynamicFinancialData";
 import { useUndoRedo } from "@/hooks/useUndoRedo";
 import { useTableVersions } from "@/hooks/useTableVersions";
+import { useChangeTracking } from "@/hooks/useChangeTracking";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Lock } from "lucide-react";
 import { FinancialProgramRecord } from "@/types/financialProgram";
@@ -54,6 +55,7 @@ const DynamicFinancialSection = ({
   const [pageSize, setPageSize] = useState(100);
   
   const { getSchema, getSyncSchema, updateSchema, loading: schemaLoading } = useDynamicTableSchemas();
+  const { startTracking, updateTracking } = useChangeTracking();
 const { 
   data, 
   setData, 
@@ -72,22 +74,28 @@ const {
   pageSize
 });
 
-// Debug logging for data loading (moved to useEffect to prevent render loops)
-useEffect(() => {
-  console.log('🔍 DynamicFinancialSection data from hook:', data);
-  console.log('🔍 DynamicFinancialSection data length:', data?.length);
-  console.log('🔍 DynamicFinancialSection loading:', loading);
-  console.log('🔍 DynamicFinancialSection schemaId:', schemaId);
-  if (data?.length > 0) {
-    console.log('🔍 First item sample:', data[0]);
-  }
-}, [data, loading, schemaId]);
-
   // Temporarily disable approval workflow to fix runtime error
   const isTableLocked = (schemaId: string) => false;
 
   // Load schema dynamically
   const [schema, setSchema] = useState(getSyncSchema(schemaId));
+  
+  // Initialize change tracking when data is loaded
+  useEffect(() => {
+    console.log('🔍 DynamicFinancialSection data from hook:', data);
+    console.log('🔍 DynamicFinancialSection data length:', data?.length);
+    console.log('🔍 DynamicFinancialSection loading:', loading);
+    console.log('🔍 DynamicFinancialSection schemaId:', schemaId);
+    if (data?.length > 0) {
+      console.log('🔍 First item sample:', data[0]);
+    }
+    
+    // Start change tracking when data is first loaded
+    if (!loading && data && data.length >= 0 && schema) {
+      console.log('🎯 Starting change tracking for schemaId:', schemaId);
+      startTracking(schemaId, data, 'id');
+    }
+  }, [data, loading, schemaId, startTracking, schema]);
   
   // Version management
   const {
@@ -132,6 +140,14 @@ useEffect(() => {
     }
   }, [schemaId, onSetBatchDownloadBulletinPricingCallback]);
   const { saveState, undo, redo, canUndo, canRedo } = useUndoRedo(data, schema || { id: '', name: '', columns: [] });
+  
+  // Update change tracking whenever data changes
+  useEffect(() => {
+    if (data && data.length >= 0 && !loading) {
+      console.log('📊 Data changed, updating change tracking for:', schemaId);
+      updateTracking(schemaId, data);
+    }
+  }, [data, schemaId, updateTracking, loading]);
 
   const handleDataChange = (newData: any) => {
     if (schema) {
@@ -140,6 +156,7 @@ useEffect(() => {
       saveVersion(newData, schema, 'Data modification');
     }
     setData(newData);
+    // Change tracking will be updated by the useEffect above
   };
 
   const handleSchemaChange = (newSchema: any) => {
@@ -193,6 +210,9 @@ useEffect(() => {
   };
 
   const handleAddRecordFromModal = (newRecord: any) => {
+    console.log('📝 handleAddRecordFromModal called for schemaId:', schemaId);
+    console.log('📝 New record:', newRecord);
+    
     // Generate a temporary ID for the new record
     const tempId = `new_${Date.now()}`;
     const recordWithId = { ...newRecord, id: tempId };
@@ -201,11 +221,17 @@ useEffect(() => {
     const newData = [...data, recordWithId];
     setData(newData);
     
+    // Update change tracking to mark this table as changed
+    console.log('📝 Updating change tracking for schemaId:', schemaId);
+    updateTracking(schemaId, newData);
+    
     // Save state for undo/redo
     if (schema) {
       saveState(data, schema, 'add_record_modal');
       saveVersion(newData, schema, 'Added new record via modal');
     }
+    
+    console.log('📝 Change tracking updated. New data length:', newData.length);
   };
 
   const handleVersionHistory = () => {
