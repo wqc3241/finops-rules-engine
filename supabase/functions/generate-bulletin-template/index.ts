@@ -46,7 +46,7 @@ serve(async (req) => {
 
     // Get available pricing types, credit profiles, pricing configs, and geo codes
     const [pricingTypesResult, creditProfilesResult, pricingConfigsResult, geoCodesResult] = await Promise.all([
-      supabase.from('pricing_types').select('type_code, type_name'),
+      supabase.from('pricing_types').select('type_code, type_name, is_lender_specific'),
       supabase.from('credit_profiles').select('profile_id'),
       supabase.from('pricing_configs').select('pricing_rule_id'),
       supabase.from('geo_location').select('geo_code').limit(10) // Sample geo codes
@@ -63,12 +63,14 @@ serve(async (req) => {
     // Create a sheet for each pricing type
     for (const pricingType of pricingTypes) {
       const sheetName = `${programCode}_${pricingType.type_code}`;
+      const isLenderSpecific = pricingType.is_lender_specific !== false; // Default to true if not specified
       const worksheet = createTemplateSheet(
         programCode,
         pricingType.type_code,
         creditProfiles.map(c => c.profile_id),
         pricingConfigs.map(p => p.pricing_rule_id),
-        geoCodes.map(g => g.geo_code)
+        geoCodes.map(g => g.geo_code),
+        isLenderSpecific
       );
       
       XLSX.utils.book_append_sheet(workbook, worksheet, sanitizeSheetName(sheetName));
@@ -111,62 +113,116 @@ serve(async (req) => {
   }
 });
 
-function createTemplateSheet(programCode: string, pricingType: string, creditProfiles: string[], pricingConfigs: string[], geoCodes: string[]) {
+function createTemplateSheet(programCode: string, pricingType: string, creditProfiles: string[], pricingConfigs: string[], geoCodes: string[], isLenderSpecific: boolean) {
   const data: any[][] = [];
 
-  // Row 1: Program information headers
-  const row1 = ['Program Code', 'Lender', 'Financial Product', 'Vehicle Style', 'Start Date', 'End Date'];
-  // Fill remaining columns for credit profiles
-  for (let i = row1.length; i < creditProfiles.length + 1; i++) {
-    row1.push('');
-  }
-  data.push(row1);
+  if (isLenderSpecific) {
+    // LENDER-SPECIFIC TEMPLATE FORMAT
+    // Row 1: Program information headers
+    const row1 = ['Program Code', 'Lender', 'Financial Product', 'Vehicle Style', 'Start Date', 'End Date'];
+    // Fill remaining columns for credit profiles
+    for (let i = row1.length; i < creditProfiles.length + 1; i++) {
+      row1.push('');
+    }
+    data.push(row1);
 
-  // Row 2: Credit profiles  
-  const row2 = ['Geo Code']; // First column header
-  creditProfiles.forEach(profile => row2.push(profile));
-  data.push(row2);
+    // Row 2: Credit profiles  
+    const row2 = ['Geo Code']; // First column header
+    creditProfiles.forEach(profile => row2.push(profile));
+    data.push(row2);
 
-  // Row 3: Pricing configs
-  const row3 = [''];  // Empty first cell
-  pricingConfigs.slice(0, creditProfiles.length).forEach(config => row3.push(config));
-  data.push(row3);
+    // Row 3: Pricing configs
+    const row3 = [''];  // Empty first cell
+    pricingConfigs.slice(0, creditProfiles.length).forEach(config => row3.push(config));
+    data.push(row3);
 
-  // Sample geo code rows (empty pricing values for template)
-  geoCodes.forEach(geoCode => {
-    const row = [geoCode];
-    // Add empty cells for each credit profile column
+    // Sample geo code rows (empty pricing values for template)
+    geoCodes.forEach(geoCode => {
+      const row = [geoCode];
+      // Add empty cells for each credit profile column
+      for (let i = 0; i < creditProfiles.length; i++) {
+        row.push('');
+      }
+      data.push(row);
+    });
+
+    // Add a few more empty rows for user input
+    for (let i = 0; i < 10; i++) {
+      const row = [''];
+      for (let j = 0; j < creditProfiles.length; j++) {
+        row.push('');
+      }
+      data.push(row);
+    }
+
+    const worksheet = XLSX.utils.aoa_to_sheet(data);
+
+    // Set column widths
+    const colWidths = [{ wch: 15 }]; // Geo code column
     for (let i = 0; i < creditProfiles.length; i++) {
-      row.push('');
+      colWidths.push({ wch: 12 });
     }
-    data.push(row);
-  });
+    worksheet['!cols'] = colWidths;
 
-  // Add a few more empty rows for user input
-  for (let i = 0; i < 10; i++) {
-    const row = [''];
-    for (let j = 0; j < creditProfiles.length; j++) {
-      row.push('');
+    // Freeze panes (first 3 rows and first column)
+    worksheet['!freeze'] = { xSplit: 1, ySplit: 3 };
+
+    return worksheet;
+
+  } else {
+    // UNIVERSAL TEMPLATE FORMAT (no lender column)
+    // Row 1: Program information headers (no lender)
+    const row1 = ['Program Code', 'Financial Product', 'Vehicle Style', 'Start Date', 'End Date'];
+    // Fill remaining columns for credit profiles
+    for (let i = row1.length; i < creditProfiles.length; i++) {
+      row1.push('');
     }
-    data.push(row);
+    data.push(row1);
+
+    // Row 2: Credit profiles starting from column A
+    const row2: string[] = [];
+    creditProfiles.forEach(profile => row2.push(profile));
+    data.push(row2);
+
+    // Row 3: Pricing configs aligned with credit profiles
+    const row3: string[] = [];
+    pricingConfigs.slice(0, creditProfiles.length).forEach(config => row3.push(config));
+    data.push(row3);
+
+    // Sample geo code rows (empty pricing values for template)
+    // First column is geo code, rest are pricing values
+    geoCodes.forEach(geoCode => {
+      const row = [geoCode];
+      // Add empty cells for each credit profile column (minus 1 since geo is in first column)
+      for (let i = 0; i < creditProfiles.length - 1; i++) {
+        row.push('');
+      }
+      data.push(row);
+    });
+
+    // Add a few more empty rows for user input
+    for (let i = 0; i < 10; i++) {
+      const row = [''];
+      for (let j = 0; j < creditProfiles.length - 1; j++) {
+        row.push('');
+      }
+      data.push(row);
+    }
+
+    const worksheet = XLSX.utils.aoa_to_sheet(data);
+
+    // Set column widths
+    const colWidths: any[] = [];
+    for (let i = 0; i < creditProfiles.length; i++) {
+      colWidths.push({ wch: 12 });
+    }
+    worksheet['!cols'] = colWidths;
+
+    // Freeze panes (first 3 rows)
+    worksheet['!freeze'] = { xSplit: 0, ySplit: 3 };
+
+    return worksheet;
   }
-
-  const worksheet = XLSX.utils.aoa_to_sheet(data);
-
-  // Apply formatting
-  const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1');
-  
-  // Set column widths
-  const colWidths = [{ wch: 15 }]; // Geo code column
-  for (let i = 0; i < creditProfiles.length; i++) {
-    colWidths.push({ wch: 12 });
-  }
-  worksheet['!cols'] = colWidths;
-
-  // Freeze panes (first 3 rows and first column)
-  worksheet['!freeze'] = { xSplit: 1, ySplit: 3 };
-
-  return worksheet;
 }
 
 function sanitizeSheetName(name: string): string {

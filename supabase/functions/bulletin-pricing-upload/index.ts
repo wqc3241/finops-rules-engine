@@ -140,7 +140,7 @@ serve(async (req) => {
 
     // Get related configuration data
     const [pricingTypesResult, creditProfilesResult, pricingConfigsResult, lendersResult, geoLocationsResult] = await Promise.all([
-      supabase.from('pricing_types').select('type_code'),
+      supabase.from('pricing_types').select('type_code, is_lender_specific'),
       supabase.from('credit_profiles').select('profile_id'),
       supabase.from('pricing_configs').select('pricing_rule_id'),
       supabase.from('lenders').select('lender_name'),
@@ -148,6 +148,7 @@ serve(async (req) => {
     ]);
 
     const validPricingTypes = pricingTypesResult.data?.map(p => p.type_code) || [];
+    const pricingTypeMap = new Map(pricingTypesResult.data?.map(p => [p.type_code, p.is_lender_specific !== false]) || []);
     const validCreditProfiles = creditProfilesResult.data?.map(c => c.profile_id) || [];
     const validPricingConfigs = pricingConfigsResult.data?.map(p => p.pricing_rule_id) || [];
     const validLenders = (lendersResult.data?.map(l => l.lender_name) || []).filter(Boolean);
@@ -157,6 +158,7 @@ serve(async (req) => {
       workbook,
       session.id,
       validPricingTypes,
+      pricingTypeMap,
       validCreditProfiles,
       validPricingConfigs,
       validLenders,
@@ -165,7 +167,7 @@ serve(async (req) => {
     );
 
     if (validationResults.isValid) {
-      const bulletinRecords = await parseWorkbookData(workbook, session.id, user.id);
+      const bulletinRecords = await parseWorkbookData(workbook, session.id, user.id, pricingTypeMap);
       
       // Insert valid records into the pending_bulletin_pricing table for approval
       if (bulletinRecords.length > 0) {
@@ -329,6 +331,7 @@ async function validateWorkbook(
   workbook: any,
   sessionId: string,
   validPricingTypes: string[],
+  pricingTypeMap: Map<string, boolean>,
   validCreditProfiles: string[],
   validPricingConfigs: string[],
   validLenders: string[],
@@ -385,6 +388,9 @@ async function validateWorkbook(
       await pushError(sheetName, null, null, 'INVALID_PRICING_TYPE', `Pricing type ${pricingType} not found in system`);
       continue;
     }
+
+    // Check if this pricing type is lender-specific
+    const isLenderSpecific = pricingTypeMap.get(pricingType) !== false;
 
     const allowedPricingTypes = Array.isArray(programCfg.template_metadata?.pricingTypes)
       ? programCfg.template_metadata.pricingTypes as string[]
@@ -453,46 +459,69 @@ async function validateWorkbook(
       const rowData = (data[row] as any[]) || [];
       const rowNumber = row + 1;
 
-      // A column (index 0): lender, B column (index 1): geo code
-      const lenderRaw = rowData[0] !== undefined && rowData[0] !== null ? String(rowData[0]).trim() : '';
-      const geoRaw = rowData[1] !== undefined && rowData[1] !== null ? String(rowData[1]).trim() : '';
+      let lenderRaw: string;
+      let geoRaw: string;
+      let lenderPresent: boolean;
+      let geoPresent: boolean;
+      let lenderNorm: string;
+      let geoNorm: string;
+      let lenderOK: boolean;
+      let geoOK: boolean;
 
-      const lenderPresent = !!lenderRaw;
-      const geoPresent = !!geoRaw;
-      const lenderNorm = lenderPresent ? normalizeLender(lenderRaw) : '';
-      const geoNorm = geoPresent ? normalizeGeo(geoRaw) : '';
+      if (isLenderSpecific) {
+        // LENDER-SPECIFIC FORMAT: A = lender, B = geo code
+        lenderRaw = rowData[0] !== undefined && rowData[0] !== null ? String(rowData[0]).trim() : '';
+        geoRaw = rowData[1] !== undefined && rowData[1] !== null ? String(rowData[1]).trim() : '';
 
-      // Prioritize template allowlists: if present, we validate against them; otherwise, fall back to global system lists
-      const lenderAllowedByTemplate = lenderPresent && allowedLenderSet.has(lenderNorm);
-      const lenderInSystem = lenderPresent && validLenderSet.has(lenderNorm);
-      const lenderOK = lenderPresent && (hasTemplateLenders ? lenderAllowedByTemplate : lenderInSystem);
+        lenderPresent = !!lenderRaw;
+        geoPresent = !!geoRaw;
+        lenderNorm = lenderPresent ? normalizeLender(lenderRaw) : '';
+        geoNorm = geoPresent ? normalizeGeo(geoRaw) : '';
 
-      if (!lenderPresent) {
-        await pushError(sheetName, rowNumber, 'Column A', 'MISSING_LENDER', 'Lender is required in column A');
-      } else if (!lenderOK) {
-        await pushError(
-          sheetName,
-          rowNumber,
-          'Column A',
-          hasTemplateLenders ? 'LENDER_NOT_ALLOWED' : 'INVALID_LENDER',
-          hasTemplateLenders
-            ? `Lender not allowed for program ${sheetProgramCode}: ${lenderRaw}`
-            : `Lender not found in system: ${lenderRaw}`,
-          lenderRaw
-        );
+        // Validate lender
+        const lenderAllowedByTemplate = lenderPresent && allowedLenderSet.has(lenderNorm);
+        const lenderInSystem = lenderPresent && validLenderSet.has(lenderNorm);
+        lenderOK = lenderPresent && (hasTemplateLenders ? lenderAllowedByTemplate : lenderInSystem);
+
+        if (!lenderPresent) {
+          await pushError(sheetName, rowNumber, 'Column A', 'MISSING_LENDER', 'Lender is required in column A');
+        } else if (!lenderOK) {
+          await pushError(
+            sheetName,
+            rowNumber,
+            'Column A',
+            hasTemplateLenders ? 'LENDER_NOT_ALLOWED' : 'INVALID_LENDER',
+            hasTemplateLenders
+              ? `Lender not allowed for program ${sheetProgramCode}: ${lenderRaw}`
+              : `Lender not found in system: ${lenderRaw}`,
+            lenderRaw
+          );
+        }
+      } else {
+        // UNIVERSAL FORMAT: A = geo code, no lender
+        geoRaw = rowData[0] !== undefined && rowData[0] !== null ? String(rowData[0]).trim() : '';
+        geoPresent = !!geoRaw;
+        geoNorm = geoPresent ? normalizeGeo(geoRaw) : '';
+
+        // No lender for universal pricing types
+        lenderRaw = '';
+        lenderPresent = false;
+        lenderNorm = '';
+        lenderOK = true; // Not required for universal
       }
 
+      // Validate geo code
       const geoAllowedByTemplate = geoPresent && allowedGeoSet.has(geoNorm);
       const geoInSystem = geoPresent && validGeoSet.has(geoNorm);
-      const geoOK = geoPresent && (hasTemplateGeos ? geoAllowedByTemplate : geoInSystem);
+      geoOK = geoPresent && (hasTemplateGeos ? geoAllowedByTemplate : geoInSystem);
 
       if (!geoPresent) {
-        await pushError(sheetName, rowNumber, 'Column B', 'MISSING_GEO_CODE', 'Geo code is required in column B');
+        await pushError(sheetName, rowNumber, isLenderSpecific ? 'Column B' : 'Column A', 'MISSING_GEO_CODE', 'Geo code is required');
       } else if (!geoOK) {
         await pushError(
           sheetName,
           rowNumber,
-          'Column B',
+          isLenderSpecific ? 'Column B' : 'Column A',
           hasTemplateGeos ? 'GEO_CODE_NOT_ALLOWED' : 'INVALID_GEO_CODE',
           hasTemplateGeos
             ? `Geo code not allowed for program ${sheetProgramCode}: ${geoRaw}`
@@ -501,7 +530,7 @@ async function validateWorkbook(
         );
       }
 
-      // Scan value cells C.. across this row
+      // Scan value cells across this row
       for (const h of headerInfo) {
         const col = h.col;
         const cell = rowData[col];
@@ -519,14 +548,14 @@ async function validateWorkbook(
         if (!(lenderOK && geoOK)) {
           invalidRecords++;
           // Prefer row-level error type in message
-          const reason = !lenderPresent
+          const reason = isLenderSpecific && !lenderPresent
             ? 'MISSING_LENDER'
-            : !lenderOK
+            : isLenderSpecific && !lenderOK
               ? (hasTemplateLenders ? 'LENDER_NOT_ALLOWED' : 'INVALID_LENDER')
               : !geoPresent
                 ? 'MISSING_GEO_CODE'
                 : (hasTemplateGeos ? 'GEO_CODE_NOT_ALLOWED' : 'INVALID_GEO_CODE');
-          await pushError(sheetName, rowNumber, colName, reason, `Cannot accept value without valid lender/geo. Value: ${cell}`);
+          await pushError(sheetName, rowNumber, colName, reason, `Cannot accept value without valid ${isLenderSpecific ? 'lender/geo' : 'geo'}. Value: ${cell}`);
           continue;
         }
 
@@ -562,7 +591,7 @@ async function validateWorkbook(
   };
 }
 
-async function parseWorkbookData(workbook: any, sessionId: string, userId: string) {
+async function parseWorkbookData(workbook: any, sessionId: string, userId: string, pricingTypeMap: Map<string, boolean>) {
   const bulletinRecords: any[] = [];
 
   for (const sheetName of workbook.SheetNames) {
@@ -574,6 +603,9 @@ async function parseWorkbookData(workbook: any, sessionId: string, userId: strin
     const lastUnderscoreIndex = sheetName.lastIndexOf('_');
     const pricingType = sheetName.substring(lastUnderscoreIndex + 1).trim();
     const sheetProgramCode = sheetName.substring(0, lastUnderscoreIndex).trim();
+    
+    // Check if this pricing type is lender-specific
+    const isLenderSpecific = pricingTypeMap.get(pricingType) !== false;
 
     const creditProfileRow = (data[1] as any[]) || [];
     const pricingConfigRow = (data[2] as any[]) || [];
@@ -581,14 +613,33 @@ async function parseWorkbookData(workbook: any, sessionId: string, userId: strin
     // Data rows start at row index 3 (row 4 in Excel)
     const normalizeLender = (s: string) => s?.toString().trim().toUpperCase();
     const normalizeGeo = (s: string) => s?.toString().trim().toUpperCase().replace(/_/g, '-');
+    
     for (let row = 3; row < data.length; row++) {
       const rowData = (data[row] as any[]) || [];
-      const lenderRaw = rowData[0] !== undefined && rowData[0] !== null ? String(rowData[0]).trim() : '';
-      const geoRaw = rowData[1] !== undefined && rowData[1] !== null ? String(rowData[1]).trim() : '';
-
-      if (!lenderRaw || !geoRaw) continue;
-      const lenderNorm = normalizeLender(lenderRaw);
-      const geoNorm = normalizeGeo(geoRaw);
+      
+      let lenderRaw: string;
+      let geoRaw: string;
+      let lenderNorm: string;
+      let geoNorm: string;
+      
+      if (isLenderSpecific) {
+        // LENDER-SPECIFIC FORMAT: A = lender, B = geo
+        lenderRaw = rowData[0] !== undefined && rowData[0] !== null ? String(rowData[0]).trim() : '';
+        geoRaw = rowData[1] !== undefined && rowData[1] !== null ? String(rowData[1]).trim() : '';
+        
+        if (!lenderRaw || !geoRaw) continue;
+        
+        lenderNorm = normalizeLender(lenderRaw);
+        geoNorm = normalizeGeo(geoRaw);
+      } else {
+        // UNIVERSAL FORMAT: A = geo, no lender
+        geoRaw = rowData[0] !== undefined && rowData[0] !== null ? String(rowData[0]).trim() : '';
+        
+        if (!geoRaw) continue;
+        
+        lenderNorm = ''; // Empty for universal pricing types
+        geoNorm = normalizeGeo(geoRaw);
+      }
 
       // Scan columns from C onward (index 2)
       const maxCols = Math.max(creditProfileRow.length, pricingConfigRow.length, rowData.length);
@@ -605,7 +656,7 @@ async function parseWorkbookData(workbook: any, sessionId: string, userId: strin
         if (isNaN(num)) continue;
 
         bulletinRecords.push({
-          bulletin_id: `${sheetProgramCode}_${lenderNorm}_${geoNorm}_${pricingType}_${cp}_${pcfg}_${Date.now()}`,
+          bulletin_id: `${sheetProgramCode}_${lenderNorm || 'UNIVERSAL'}_${geoNorm}_${pricingType}_${cp}_${pcfg}_${Date.now()}`,
           financial_program_code: sheetProgramCode,
           geo_code: geoNorm,
           pricing_type: pricingType,
@@ -616,7 +667,7 @@ async function parseWorkbookData(workbook: any, sessionId: string, userId: strin
           updated_date: new Date().toISOString(),
           advertised: false,
           created_by: userId,
-          lender_list: lenderNorm
+          lender_list: lenderNorm // Empty string for universal pricing types
         });
       }
     }
