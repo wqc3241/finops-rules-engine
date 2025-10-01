@@ -83,7 +83,7 @@ const ProgramConfigurationStep = ({ data, onUpdate }: ProgramConfigurationStepPr
             const pricingResult: any = await supabase
               .from('pricing_configs')
               .select('min_term, max_term')
-              .in('pricing_config', Array.from(pricingConfigIds));
+              .in('pricing_rule_id', Array.from(pricingConfigIds));
             
             const termsSet = new Set<number>();
             (pricingResult.data || []).forEach((config: any) => {
@@ -160,7 +160,7 @@ const ProgramConfigurationStep = ({ data, onUpdate }: ProgramConfigurationStepPr
             const conditionResult: any = await supabase
               .from('vehicle_conditions')
               .select('advertised_condition')
-              .eq('type', programData.financing_vehicle_condition)
+              .eq('financing_vehicle_condition_type', programData.financing_vehicle_condition)
               .maybeSingle();
             condition = conditionResult.data?.advertised_condition || programData.financing_vehicle_condition;
           }
