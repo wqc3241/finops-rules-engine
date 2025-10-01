@@ -22,6 +22,19 @@ const AdvertisedOfferSection = ({
 }: AdvertisedOfferSectionProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [wizardOpen, setWizardOpen] = useState(false);
+  const [editingOffer, setEditingOffer] = useState<any>(null);
+
+  const handleEdit = (offer: any) => {
+    setEditingOffer(offer);
+    setWizardOpen(true);
+  };
+
+  const handleWizardClose = (open: boolean) => {
+    setWizardOpen(open);
+    if (!open) {
+      setEditingOffer(null);
+    }
+  };
   
   return (
     <div className="p-6">
@@ -33,11 +46,13 @@ const AdvertisedOfferSection = ({
         <Button onClick={() => setWizardOpen(true)}>Create Advertised Offers</Button>
       </SectionHeader>
       
-      {!isCollapsed && <AdvertisedOfferTable />}
+      {!isCollapsed && <AdvertisedOfferTable onEdit={handleEdit} />}
       
       <AdvertisedOffersWizard 
         open={wizardOpen}
-        onOpenChange={setWizardOpen}
+        onOpenChange={handleWizardClose}
+        editOffer={editingOffer}
+        isEditMode={!!editingOffer}
       />
     </div>
   );

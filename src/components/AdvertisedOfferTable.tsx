@@ -16,7 +16,11 @@ import { AdvertisedOffer } from "@/types/advertisedOffer";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 
-const AdvertisedOfferTable = () => {
+interface AdvertisedOfferTableProps {
+  onEdit?: (offer: AdvertisedOffer) => void;
+}
+
+const AdvertisedOfferTable = ({ onEdit }: AdvertisedOfferTableProps) => {
   const { offers, loading, deleteOffer } = useAdvertisedOffers();
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
 
@@ -37,10 +41,10 @@ const AdvertisedOfferTable = () => {
     }
   };
 
-  const handleEdit = (id: string) => {
-    console.log(`Editing item with ID: ${id}`);
-    toast.info(`Editing advertised offer with ID: ${id}`);
-    // Implement edit functionality
+  const handleEdit = (offer: AdvertisedOffer) => {
+    if (onEdit) {
+      onEdit(offer);
+    }
   };
 
   const handleCopy = (offer: AdvertisedOffer) => {
@@ -119,7 +123,7 @@ const AdvertisedOfferTable = () => {
                   </Badge>
                 </TableCell>
                 <TableCell className="space-x-2">
-                  <Button size="icon" variant="ghost" onClick={() => handleEdit(offer.id)}>
+                  <Button size="icon" variant="ghost" onClick={() => handleEdit(offer)}>
                     <Edit className="h-4 w-4" />
                   </Button>
                   <Button size="icon" variant="ghost" onClick={() => handleCopy(offer)}>

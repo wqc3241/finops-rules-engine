@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -9,13 +9,15 @@ import ProgramConfigurationStep from './WizardSteps/ProgramConfigurationStep';
 import FinancialCalculationStep from './WizardSteps/FinancialCalculationStep';
 import MarketingDisclosureStep from './WizardSteps/MarketingDisclosureStep';
 import OfferConfirmationStep from './WizardSteps/OfferConfirmationStep';
-import { AdvertisedOfferWizardData } from '@/types/advertisedOffer';
+import { AdvertisedOfferWizardData, AdvertisedOffer } from '@/types/advertisedOffer';
 import { useAdvertisedOffers } from '@/hooks/useAdvertisedOffers';
 import { toast } from 'sonner';
 
 interface AdvertisedOffersWizardProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  editOffer?: AdvertisedOffer | null;
+  isEditMode?: boolean;
 }
 
 const STEPS = [
@@ -27,7 +29,7 @@ const STEPS = [
   { id: 6, title: 'Review & Confirm', component: OfferConfirmationStep },
 ];
 
-const AdvertisedOffersWizard = ({ open, onOpenChange }: AdvertisedOffersWizardProps) => {
+const AdvertisedOffersWizard = ({ open, onOpenChange, editOffer, isEditMode = false }: AdvertisedOffersWizardProps) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [wizardData, setWizardData] = useState<AdvertisedOfferWizardData>({
     offer_start_date: '',
@@ -37,7 +39,43 @@ const AdvertisedOffersWizard = ({ open, onOpenChange }: AdvertisedOffersWizardPr
     offer_details: {}
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { createOffers } = useAdvertisedOffers();
+  const { createOffers, updateOffer } = useAdvertisedOffers();
+
+  // Pre-populate data when editing
+  useEffect(() => {
+    if (isEditMode && editOffer && open) {
+      setWizardData({
+        offer_start_date: editOffer.offer_start_date,
+        offer_end_date: editOffer.offer_end_date,
+        selected_programs: [editOffer.financial_program_code],
+        program_configs: {
+          [editOffer.financial_program_code]: {
+            financial_program_code: editOffer.financial_program_code,
+            order_type: editOffer.order_type,
+            term: editOffer.term,
+            down_payment: editOffer.down_payment,
+            credit_score_min: editOffer.credit_score_min,
+            credit_score_max: editOffer.credit_score_max,
+            annual_mileage: editOffer.annual_mileage,
+          }
+        },
+        offer_details: {
+          [editOffer.financial_program_code]: {
+            offer_name: editOffer.offer_name,
+            marketing_description: editOffer.marketing_description,
+            disclosure: editOffer.disclosure,
+            monthly_payment: editOffer.monthly_payment,
+            apr: editOffer.apr,
+            loan_amount_per_10k: editOffer.loan_amount_per_10k,
+            total_cost_of_credit: editOffer.total_cost_of_credit,
+            lender: editOffer.lender,
+          }
+        }
+      });
+    } else if (!open) {
+      resetWizard();
+    }
+  }, [isEditMode, editOffer, open]);
 
   const CurrentStepComponent = STEPS[currentStep - 1].component;
   const progress = (currentStep / STEPS.length) * 100;
@@ -80,11 +118,13 @@ const AdvertisedOffersWizard = ({ open, onOpenChange }: AdvertisedOffersWizardPr
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
-      const offersToCreate = wizardData.selected_programs.map(programCode => {
+      if (isEditMode && editOffer) {
+        // Update existing offer
+        const programCode = wizardData.selected_programs[0];
         const config = wizardData.program_configs[programCode];
         const details = wizardData.offer_details[programCode] || {};
 
-        return {
+        await updateOffer(editOffer.id, {
           offer_name: details.offer_name || `${programCode} - ${config.order_type} - ${config.term}mo`,
           financial_program_code: programCode,
           lender: details.lender,
@@ -102,15 +142,42 @@ const AdvertisedOffersWizard = ({ open, onOpenChange }: AdvertisedOffersWizardPr
           marketing_description: details.marketing_description,
           offer_start_date: wizardData.offer_start_date,
           offer_end_date: wizardData.offer_end_date,
-          is_active: true
-        };
-      });
+        });
+      } else {
+        // Create new offers
+        const offersToCreate = wizardData.selected_programs.map(programCode => {
+          const config = wizardData.program_configs[programCode];
+          const details = wizardData.offer_details[programCode] || {};
 
-      await createOffers(offersToCreate);
+          return {
+            offer_name: details.offer_name || `${programCode} - ${config.order_type} - ${config.term}mo`,
+            financial_program_code: programCode,
+            lender: details.lender,
+            order_type: config.order_type,
+            term: config.term,
+            down_payment: config.down_payment,
+            credit_score_min: config.credit_score_min,
+            credit_score_max: config.credit_score_max,
+            annual_mileage: config.annual_mileage,
+            monthly_payment: details.monthly_payment,
+            apr: details.apr,
+            loan_amount_per_10k: details.loan_amount_per_10k,
+            total_cost_of_credit: details.total_cost_of_credit,
+            disclosure: details.disclosure,
+            marketing_description: details.marketing_description,
+            offer_start_date: wizardData.offer_start_date,
+            offer_end_date: wizardData.offer_end_date,
+            is_active: true
+          };
+        });
+
+        await createOffers(offersToCreate);
+      }
+      
       onOpenChange(false);
       resetWizard();
     } catch (error) {
-      console.error('Error creating offers:', error);
+      console.error('Error saving offers:', error);
     } finally {
       setIsSubmitting(false);
     }
@@ -142,7 +209,9 @@ const AdvertisedOffersWizard = ({ open, onOpenChange }: AdvertisedOffersWizardPr
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl">Create Advertised Offers</DialogTitle>
+          <DialogTitle className="text-2xl">
+            {isEditMode ? 'Edit Advertised Offer' : 'Create Advertised Offers'}
+          </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6">
@@ -195,7 +264,10 @@ const AdvertisedOffersWizard = ({ open, onOpenChange }: AdvertisedOffersWizardPr
                   onClick={handleSubmit}
                   disabled={isSubmitting || !canProceed()}
                 >
-                  {isSubmitting ? 'Creating...' : 'Create Offers'}
+                  {isSubmitting 
+                    ? (isEditMode ? 'Updating...' : 'Creating...') 
+                    : (isEditMode ? 'Update Offer' : 'Create Offers')
+                  }
                 </Button>
               )}
             </div>
