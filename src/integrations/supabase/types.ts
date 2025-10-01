@@ -1653,7 +1653,7 @@ export type Database = {
           financial_product_id: string | null
           financing_vehicle_condition: string | null
           id: string
-          is_active: string | null
+          is_active: boolean | null
           order_types: string | null
           priority: number | null
           product_type: string | null
@@ -1674,7 +1674,7 @@ export type Database = {
           financial_product_id?: string | null
           financing_vehicle_condition?: string | null
           id?: string
-          is_active?: string | null
+          is_active?: boolean | null
           order_types?: string | null
           priority?: number | null
           product_type?: string | null
@@ -1695,7 +1695,7 @@ export type Database = {
           financial_product_id?: string | null
           financing_vehicle_condition?: string | null
           id?: string
-          is_active?: string | null
+          is_active?: boolean | null
           order_types?: string | null
           priority?: number | null
           product_type?: string | null
