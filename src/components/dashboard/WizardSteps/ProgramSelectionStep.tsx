@@ -148,13 +148,20 @@ const ProgramSelectionStep = ({ data, onUpdate }: ProgramSelectionStepProps) => 
   const fetchPrograms = async () => {
     setLoading(true);
     try {
+      console.log('Fetching programs with date range:', {
+        offer_start_date: data.offer_start_date,
+        offer_end_date: data.offer_end_date
+      });
+
       const { data: programsData, error } = await supabase
         .from('financial_program_configs')
         .select('*')
-        .in('is_active', ['TRUE', 'Y', 'Active', 'true', '1'])
+        .eq('is_active', true as any) // Type mismatch: DB is boolean, generated types expect string
         .gte('program_end_date', data.offer_start_date)
         .lte('program_start_date', data.offer_end_date)
         .order('program_code', { ascending: true });
+
+      console.log('Programs fetched:', programsData?.length || 0);
 
       if (error) throw error;
 
