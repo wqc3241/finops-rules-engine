@@ -27,6 +27,7 @@ interface ProgramMetadata {
     year: string;
     trim: string;
   };
+  vehicleDisplay?: string;
   productType?: string;
   condition?: string;
   dateRange?: {
@@ -80,21 +81,31 @@ const ProgramConfigurationStep = ({ data, onUpdate }: ProgramConfigurationStepPr
               .eq('product_id', programData.financial_product_id)
               .maybeSingle();
             productType = productResult.data?.product_type || 'N/A';
+            console.log('Product type lookup for', programData.financial_product_id, ':', productResult.data);
           }
 
           // Fetch vehicle information
           let vehicleInfo = { make: 'N/A', model: 'N/A', year: 'N/A', trim: 'N/A' };
+          let vehicleDisplay = 'N/A';
           if (programData.vehicle_style_id) {
             const vehicleResult: any = await supabase
               .from('vehicle_style_coding')
               .select('make, model, model_year, trim')
-              .eq('style_id', programData.vehicle_style_id)
+              .eq('vehicle_style_id', programData.vehicle_style_id)
               .maybeSingle();
+            console.log('Vehicle lookup for', programData.vehicle_style_id, ':', vehicleResult.data);
             if (vehicleResult.data) {
+              const parts = [];
+              if (vehicleResult.data.model_year) parts.push(vehicleResult.data.model_year.toString());
+              if (vehicleResult.data.make) parts.push(vehicleResult.data.make);
+              if (vehicleResult.data.model) parts.push(vehicleResult.data.model);
+              if (vehicleResult.data.trim) parts.push(vehicleResult.data.trim);
+              vehicleDisplay = parts.length > 0 ? parts.join(' ') : 'N/A';
+              
               vehicleInfo = {
                 make: vehicleResult.data.make || 'N/A',
                 model: vehicleResult.data.model || 'N/A',
-                year: vehicleResult.data.model_year || 'N/A',
+                year: vehicleResult.data.model_year?.toString() || 'N/A',
                 trim: vehicleResult.data.trim || 'N/A'
               };
             }
@@ -109,6 +120,7 @@ const ProgramConfigurationStep = ({ data, onUpdate }: ProgramConfigurationStepPr
               .eq('type', programData.financing_vehicle_condition)
               .maybeSingle();
             condition = conditionResult.data?.advertised_condition || programData.financing_vehicle_condition;
+            console.log('Condition lookup for', programData.financing_vehicle_condition, ':', conditionResult.data);
           }
 
           // Format date range
@@ -127,6 +139,7 @@ const ProgramConfigurationStep = ({ data, onUpdate }: ProgramConfigurationStepPr
               max: c.max_credit_score
             })),
             vehicleInfo,
+            vehicleDisplay,
             productType,
             condition,
             dateRange
@@ -194,49 +207,33 @@ const ProgramConfigurationStep = ({ data, onUpdate }: ProgramConfigurationStepPr
                 </div>
               </AccordionTrigger>
               <AccordionContent>
-                {/* Program Information Section */}
-                {meta && (
-                  <Card className="p-6 mb-4 bg-muted/30">
-                    <h3 className="text-sm font-semibold mb-4">Program Information</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {/* Vehicle Information */}
-                      <div className="flex items-start gap-3">
-                        <Car className="h-5 w-5 text-muted-foreground mt-0.5" />
-                        <div>
-                          <p className="text-xs text-muted-foreground mb-1">Vehicle</p>
-                          <p className="text-sm font-medium">
-                            {meta.vehicleInfo?.year} {meta.vehicleInfo?.make} {meta.vehicleInfo?.model}
-                          </p>
-                          {meta.vehicleInfo?.trim && meta.vehicleInfo.trim !== 'N/A' && (
-                            <p className="text-xs text-muted-foreground">{meta.vehicleInfo.trim}</p>
-                          )}
+                {/* Combined Program Information and Configuration */}
+                <Card className="p-6">
+                  {meta && (
+                    <div className="mb-6 pb-6 border-b">
+                      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
+                        <div className="flex items-center gap-2">
+                          <Car className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-muted-foreground">Vehicle:</span>
+                          <span className="font-medium">{meta.vehicleDisplay}</span>
                         </div>
-                      </div>
-
-                      {/* Product Type */}
-                      <div className="flex items-start gap-3">
-                        <Package className="h-5 w-5 text-muted-foreground mt-0.5" />
-                        <div>
-                          <p className="text-xs text-muted-foreground mb-1">Product Type</p>
+                        
+                        <div className="flex items-center gap-2">
+                          <Package className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-muted-foreground">Product:</span>
                           <Badge variant="secondary">{meta.productType}</Badge>
                         </div>
-                      </div>
-
-                      {/* Vehicle Condition */}
-                      <div className="flex items-start gap-3">
-                        <Tag className="h-5 w-5 text-muted-foreground mt-0.5" />
-                        <div>
-                          <p className="text-xs text-muted-foreground mb-1">Condition</p>
+                        
+                        <div className="flex items-center gap-2">
+                          <Tag className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-muted-foreground">Condition:</span>
                           <Badge variant="outline">{meta.condition}</Badge>
                         </div>
-                      </div>
-
-                      {/* Date Range */}
-                      <div className="flex items-start gap-3">
-                        <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
-                        <div>
-                          <p className="text-xs text-muted-foreground mb-1">Program Dates</p>
-                          <p className="text-sm font-medium">
+                        
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-muted-foreground">Period:</span>
+                          <span className="font-medium">
                             {new Date(meta.dateRange?.start || '').toLocaleDateString('en-US', { 
                               month: 'short', 
                               day: 'numeric', 
@@ -248,17 +245,16 @@ const ProgramConfigurationStep = ({ data, onUpdate }: ProgramConfigurationStepPr
                               day: 'numeric', 
                               year: 'numeric' 
                             })}
-                          </p>
+                          </span>
                         </div>
                       </div>
                     </div>
-                  </Card>
-                )}
+                  )}
 
-                {/* Configuration Fields */}
-                <Card className="p-6">
-                  <h3 className="text-sm font-semibold mb-4">Offer Configuration</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Configuration Fields */}
+                  <div>
+                    <h3 className="text-sm font-semibold mb-4">Offer Configuration</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Order Type */}
                     <div className="space-y-2">
                       <Label>Order Type *</Label>
@@ -337,6 +333,7 @@ const ProgramConfigurationStep = ({ data, onUpdate }: ProgramConfigurationStepPr
                         />
                       </div>
                     )}
+                    </div>
                   </div>
                 </Card>
               </AccordionContent>
