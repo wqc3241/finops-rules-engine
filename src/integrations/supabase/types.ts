@@ -16,30 +16,75 @@ export type Database = {
     Tables: {
       advertised_offers: {
         Row: {
+          annual_mileage: number | null
+          apr: number | null
           created_at: string | null
-          financial_program_code: string | null
+          created_by: string | null
+          credit_score_max: number | null
+          credit_score_min: number | null
+          disclosure: string | null
+          down_payment: number | null
+          financial_program_code: string
           id: string
           is_active: boolean | null
           lender: string | null
-          term: number | null
+          loan_amount_per_10k: string | null
+          marketing_description: string | null
+          monthly_payment: number | null
+          offer_end_date: string | null
+          offer_name: string
+          offer_start_date: string | null
+          order_type: string
+          term: number
+          total_cost_of_credit: string | null
           updated_at: string | null
         }
         Insert: {
+          annual_mileage?: number | null
+          apr?: number | null
           created_at?: string | null
-          financial_program_code?: string | null
+          created_by?: string | null
+          credit_score_max?: number | null
+          credit_score_min?: number | null
+          disclosure?: string | null
+          down_payment?: number | null
+          financial_program_code: string
           id?: string
           is_active?: boolean | null
           lender?: string | null
-          term?: number | null
+          loan_amount_per_10k?: string | null
+          marketing_description?: string | null
+          monthly_payment?: number | null
+          offer_end_date?: string | null
+          offer_name: string
+          offer_start_date?: string | null
+          order_type: string
+          term: number
+          total_cost_of_credit?: string | null
           updated_at?: string | null
         }
         Update: {
+          annual_mileage?: number | null
+          apr?: number | null
           created_at?: string | null
-          financial_program_code?: string | null
+          created_by?: string | null
+          credit_score_max?: number | null
+          credit_score_min?: number | null
+          disclosure?: string | null
+          down_payment?: number | null
+          financial_program_code?: string
           id?: string
           is_active?: boolean | null
           lender?: string | null
-          term?: number | null
+          loan_amount_per_10k?: string | null
+          marketing_description?: string | null
+          monthly_payment?: number | null
+          offer_end_date?: string | null
+          offer_name?: string
+          offer_start_date?: string | null
+          order_type?: string
+          term?: number
+          total_cost_of_credit?: string | null
           updated_at?: string | null
         }
         Relationships: []
@@ -2231,6 +2276,7 @@ export type Database = {
           created_at: string | null
           financial_products_list: string[] | null
           id: string
+          is_lender_specific: boolean
           type_code: string
           type_name: string
         }
@@ -2238,6 +2284,7 @@ export type Database = {
           created_at?: string | null
           financial_products_list?: string[] | null
           id?: string
+          is_lender_specific?: boolean
           type_code: string
           type_name: string
         }
@@ -2245,6 +2292,7 @@ export type Database = {
           created_at?: string | null
           financial_products_list?: string[] | null
           id?: string
+          is_lender_specific?: boolean
           type_code?: string
           type_name?: string
         }
