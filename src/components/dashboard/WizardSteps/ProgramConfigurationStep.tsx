@@ -254,85 +254,87 @@ const ProgramConfigurationStep = ({ data, onUpdate }: ProgramConfigurationStepPr
                   {/* Configuration Fields */}
                   <div>
                     <h3 className="text-sm font-semibold mb-4">Offer Configuration</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Order Type */}
-                    <div className="space-y-2">
-                      <Label>Order Type *</Label>
-                      <Select
-                        value={config?.order_type || ''}
-                        onValueChange={(value) => handleConfigUpdate(programCode, 'order_type', value)}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select order type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {meta?.orderTypes.map((type) => (
-                            <SelectItem key={type} value={type}>{type}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
+                    <div className="space-y-4">
+                      {/* Order Type and Term in one row */}
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label>Order Type *</Label>
+                          <Select
+                            value={config?.order_type || ''}
+                            onValueChange={(value) => handleConfigUpdate(programCode, 'order_type', value)}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select order type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {meta?.orderTypes.map((type) => (
+                                <SelectItem key={type} value={type}>{type}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
 
-                    {/* Term */}
-                    <div className="space-y-2">
-                      <Label>Term (months) *</Label>
-                      <Select
-                        value={config?.term?.toString() || ''}
-                        onValueChange={(value) => handleConfigUpdate(programCode, 'term', parseInt(value))}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select term" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {getAvailableTerms(programCode).map((term) => (
-                            <SelectItem key={term} value={term.toString()}>{term} months</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {/* Down Payment */}
-                    <div className="space-y-2">
-                      <Label>Down Payment ($)</Label>
-                      <Input
-                        type="number"
-                        placeholder="0.00"
-                        value={config?.down_payment || ''}
-                        onChange={(e) => handleConfigUpdate(programCode, 'down_payment', parseFloat(e.target.value) || 0)}
-                      />
-                    </div>
-
-                    {/* Credit Score Range */}
-                    <div className="space-y-2">
-                      <Label>Credit Score Range</Label>
-                      <div className="grid grid-cols-2 gap-2">
-                        <Input
-                          type="number"
-                          placeholder="Min"
-                          value={config?.credit_score_min || ''}
-                          onChange={(e) => handleConfigUpdate(programCode, 'credit_score_min', parseInt(e.target.value) || undefined)}
-                        />
-                        <Input
-                          type="number"
-                          placeholder="Max"
-                          value={config?.credit_score_max || ''}
-                          onChange={(e) => handleConfigUpdate(programCode, 'credit_score_max', parseInt(e.target.value) || undefined)}
-                        />
+                        <div className="space-y-2">
+                          <Label>Term (months) *</Label>
+                          <Select
+                            value={config?.term?.toString() || ''}
+                            onValueChange={(value) => handleConfigUpdate(programCode, 'term', parseInt(value))}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select term" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {getAvailableTerms(programCode).map((term) => (
+                                <SelectItem key={term} value={term.toString()}>{term} months</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </div>
-                    </div>
 
-                    {/* Annual Mileage (Lease only) */}
-                    {meta?.isLease && (
-                      <div className="space-y-2">
-                        <Label>Annual Mileage</Label>
-                        <Input
-                          type="number"
-                          placeholder="12000"
-                          value={config?.annual_mileage || ''}
-                          onChange={(e) => handleConfigUpdate(programCode, 'annual_mileage', parseInt(e.target.value) || undefined)}
-                        />
+                      {/* Down Payment and Credit Score in one row */}
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label>Down Payment ($)</Label>
+                          <Input
+                            type="number"
+                            placeholder="0.00"
+                            value={config?.down_payment || ''}
+                            onChange={(e) => handleConfigUpdate(programCode, 'down_payment', parseFloat(e.target.value) || 0)}
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label>Credit Score Range</Label>
+                          <div className="grid grid-cols-2 gap-2">
+                            <Input
+                              type="number"
+                              placeholder="Min"
+                              value={config?.credit_score_min || ''}
+                              onChange={(e) => handleConfigUpdate(programCode, 'credit_score_min', parseInt(e.target.value) || undefined)}
+                            />
+                            <Input
+                              type="number"
+                              placeholder="Max"
+                              value={config?.credit_score_max || ''}
+                              onChange={(e) => handleConfigUpdate(programCode, 'credit_score_max', parseInt(e.target.value) || undefined)}
+                            />
+                          </div>
+                        </div>
                       </div>
-                    )}
+
+                      {/* Annual Mileage (Lease only) */}
+                      {meta?.isLease && (
+                        <div className="space-y-2">
+                          <Label>Annual Mileage</Label>
+                          <Input
+                            type="number"
+                            placeholder="12000"
+                            value={config?.annual_mileage || ''}
+                            onChange={(e) => handleConfigUpdate(programCode, 'annual_mileage', parseInt(e.target.value) || undefined)}
+                          />
+                        </div>
+                      )}
                     </div>
                   </div>
                 </Card>
