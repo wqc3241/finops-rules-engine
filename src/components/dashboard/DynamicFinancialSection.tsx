@@ -276,6 +276,12 @@ useEffect(() => {
       setEditData(transformedData);
       setIsEditMode(true);
       setShowWizard(true);
+    } else if (schemaId === 'advertised-offers') {
+      console.log('🔧 Setting advertised offer edit data');
+      // The rowData is already in the correct AdvertisedOffer format from the table
+      setEditData(rowData);
+      setIsEditMode(true);
+      setShowAdvertisedOffersWizard(true);
     }
   };
 
@@ -680,7 +686,15 @@ useEffect(() => {
       {schemaId === 'advertised-offers' && (
         <AdvertisedOffersWizard
           open={showAdvertisedOffersWizard}
-          onOpenChange={setShowAdvertisedOffersWizard}
+          onOpenChange={(open) => {
+            setShowAdvertisedOffersWizard(open);
+            if (!open) {
+              setEditData(null);
+              setIsEditMode(false);
+            }
+          }}
+          editOffer={editData}
+          isEditMode={isEditMode}
         />
       )}
 
