@@ -56,7 +56,10 @@ const ProgramConfigurationStep = ({ data, onUpdate }: ProgramConfigurationStepPr
         const programData = programResult.data;
 
         if (programData) {
-          const orderTypes = programData.order_types ? programData.order_types.split(', ') : ['INV'];
+          // Parse order types from comma-separated string
+          const orderTypes = programData.order_types 
+            ? programData.order_types.split(',').map((type: string) => type.trim()) 
+            : ['INV'];
           
           const pricingResult: any = await supabase
             .from('pricing_configs')
@@ -182,6 +185,31 @@ const ProgramConfigurationStep = ({ data, onUpdate }: ProgramConfigurationStepPr
     return terms;
   };
 
+  const getOrderTypeOptions = (programCode: string) => {
+    const meta = programMetadata[programCode];
+    if (!meta || !meta.orderTypes) return [];
+
+    const orderTypeLabels: Record<string, string> = {
+      'INV': 'INV (Inventory)',
+      'CON': 'CON (Configurator)'
+    };
+
+    const options = meta.orderTypes.map(type => ({
+      value: type,
+      label: orderTypeLabels[type] || type
+    }));
+
+    // Add "Both" option if there are multiple order types
+    if (meta.orderTypes.length > 1) {
+      options.push({
+        value: meta.orderTypes.join(','),
+        label: 'Both'
+      });
+    }
+
+    return options;
+  };
+
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
@@ -266,8 +294,10 @@ const ProgramConfigurationStep = ({ data, onUpdate }: ProgramConfigurationStepPr
                             <SelectValue placeholder="Select order type" />
                           </SelectTrigger>
                           <SelectContent>
-                            {meta?.orderTypes.map((type) => (
-                              <SelectItem key={type} value={type}>{type}</SelectItem>
+                            {getOrderTypeOptions(programCode).map((option) => (
+                              <SelectItem key={option.value} value={option.value}>
+                                {option.label}
+                              </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
