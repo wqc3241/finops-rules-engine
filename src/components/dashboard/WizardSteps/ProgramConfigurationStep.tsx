@@ -17,10 +17,9 @@ interface ProgramConfigurationStepProps {
 
 interface ProgramMetadata {
   orderTypes: string[];
-  minTerm: number;
-  maxTerm: number;
+  availableTerms: number[];
   isLease: boolean;
-  creditScoreRanges: { min: number; max: number }[];
+  creditScoreRanges: string[];
   vehicleInfo?: {
     make: string;
     model: string;
@@ -61,19 +60,62 @@ const ProgramConfigurationStep = ({ data, onUpdate }: ProgramConfigurationStepPr
             ? programData.order_types.split(',').map((type: string) => type.trim()) 
             : ['INV'];
           
-          const pricingResult: any = await supabase
-            .from('pricing_configs')
-            .select('min_term, max_term')
-            .eq('financial_program_code', programCode)
-            .limit(1)
-            .maybeSingle();
-          const pricingData = pricingResult.data;
+          // Extract pricing configs and credit profiles from template_metadata
+          const templateMetadata = programData.template_metadata || {};
+          const pricingTypeConfigs = templateMetadata.pricingTypeConfigs || {};
+          
+          // Collect all unique pricing config IDs
+          const pricingConfigIds = new Set<string>();
+          const creditProfileIds = new Set<string>();
+          
+          Object.values(pricingTypeConfigs).forEach((config: any) => {
+            if (config.pricingConfigs && Array.isArray(config.pricingConfigs)) {
+              config.pricingConfigs.forEach((id: string) => pricingConfigIds.add(id));
+            }
+            if (config.creditProfiles && Array.isArray(config.creditProfiles)) {
+              config.creditProfiles.forEach((id: string) => creditProfileIds.add(id));
+            }
+          });
 
-          const creditResult: any = await supabase
-            .from('credit_profiles')
-            .select('min_credit_score, max_credit_score')
-            .order('min_credit_score', { ascending: true });
-          const creditData = creditResult.data || [];
+          // Fetch all pricing configs to get terms
+          let availableTerms: number[] = [];
+          if (pricingConfigIds.size > 0) {
+            const pricingResult: any = await supabase
+              .from('pricing_configs')
+              .select('min_term, max_term')
+              .in('pricing_config', Array.from(pricingConfigIds));
+            
+            const termsSet = new Set<number>();
+            (pricingResult.data || []).forEach((config: any) => {
+              if (config.min_term && config.max_term) {
+                for (let term = config.min_term; term <= config.max_term; term += 12) {
+                  termsSet.add(term);
+                }
+              }
+            });
+            availableTerms = Array.from(termsSet).sort((a, b) => a - b);
+          }
+
+          // Fetch all credit profiles to get score ranges
+          let creditScoreRanges: string[] = [];
+          if (creditProfileIds.size > 0) {
+            const creditResult: any = await supabase
+              .from('credit_profiles')
+              .select('min_credit_score, max_credit_score')
+              .in('profile_id', Array.from(creditProfileIds));
+            
+            const rangesSet = new Set<string>();
+            (creditResult.data || []).forEach((profile: any) => {
+              if (profile.min_credit_score !== null && profile.max_credit_score !== null) {
+                rangesSet.add(`${profile.min_credit_score}-${profile.max_credit_score}`);
+              }
+            });
+            creditScoreRanges = Array.from(rangesSet).sort((a, b) => {
+              const [minA] = a.split('-').map(Number);
+              const [minB] = b.split('-').map(Number);
+              return minA - minB;
+            });
+          }
 
           // Fetch product type
           let productType = 'N/A';
@@ -84,7 +126,6 @@ const ProgramConfigurationStep = ({ data, onUpdate }: ProgramConfigurationStepPr
               .eq('product_id', programData.financial_product_id)
               .maybeSingle();
             productType = productResult.data?.product_type || 'N/A';
-            console.log('Product type lookup for', programData.financial_product_id, ':', productResult.data);
           }
 
           // Fetch vehicle information
@@ -96,7 +137,6 @@ const ProgramConfigurationStep = ({ data, onUpdate }: ProgramConfigurationStepPr
               .select('make, model, model_year, trim')
               .eq('vehicle_style_id', programData.vehicle_style_id)
               .maybeSingle();
-            console.log('Vehicle lookup for', programData.vehicle_style_id, ':', vehicleResult.data);
             if (vehicleResult.data) {
               const parts = [];
               if (vehicleResult.data.model_year) parts.push(vehicleResult.data.model_year.toString());
@@ -123,7 +163,6 @@ const ProgramConfigurationStep = ({ data, onUpdate }: ProgramConfigurationStepPr
               .eq('type', programData.financing_vehicle_condition)
               .maybeSingle();
             condition = conditionResult.data?.advertised_condition || programData.financing_vehicle_condition;
-            console.log('Condition lookup for', programData.financing_vehicle_condition, ':', conditionResult.data);
           }
 
           // Format date range
@@ -134,13 +173,9 @@ const ProgramConfigurationStep = ({ data, onUpdate }: ProgramConfigurationStepPr
 
           metadata[programCode] = {
             orderTypes,
-            minTerm: pricingData?.min_term || 12,
-            maxTerm: pricingData?.max_term || 84,
+            availableTerms,
             isLease: programData.financial_product_id?.toLowerCase().includes('lease') || false,
-            creditScoreRanges: creditData.map((c: any) => ({
-              min: c.min_credit_score,
-              max: c.max_credit_score
-            })),
+            creditScoreRanges,
             vehicleInfo,
             vehicleDisplay,
             productType,
@@ -176,13 +211,12 @@ const ProgramConfigurationStep = ({ data, onUpdate }: ProgramConfigurationStepPr
 
   const getAvailableTerms = (programCode: string) => {
     const meta = programMetadata[programCode];
-    if (!meta) return [];
+    return meta?.availableTerms || [];
+  };
 
-    const terms = [];
-    for (let term = meta.minTerm; term <= meta.maxTerm; term += 12) {
-      terms.push(term);
-    }
-    return terms;
+  const getCreditScoreRangeOptions = (programCode: string) => {
+    const meta = programMetadata[programCode];
+    return meta?.creditScoreRanges || [];
   };
 
   const getOrderTypeOptions = (programCode: string) => {
@@ -335,20 +369,27 @@ const ProgramConfigurationStep = ({ data, onUpdate }: ProgramConfigurationStepPr
                       {/* Credit Score Range */}
                       <div className="space-y-2">
                         <Label>Credit Score Range</Label>
-                        <div className="flex gap-2">
-                          <Input
-                            type="number"
-                            placeholder="Min"
-                            value={config?.credit_score_min || ''}
-                            onChange={(e) => handleConfigUpdate(programCode, 'credit_score_min', parseInt(e.target.value) || undefined)}
-                          />
-                          <Input
-                            type="number"
-                            placeholder="Max"
-                            value={config?.credit_score_max || ''}
-                            onChange={(e) => handleConfigUpdate(programCode, 'credit_score_max', parseInt(e.target.value) || undefined)}
-                          />
-                        </div>
+                        <Select
+                          value={config?.credit_score_min && config?.credit_score_max 
+                            ? `${config.credit_score_min}-${config.credit_score_max}` 
+                            : ''}
+                          onValueChange={(value) => {
+                            const [min, max] = value.split('-').map(Number);
+                            handleConfigUpdate(programCode, 'credit_score_min', min);
+                            handleConfigUpdate(programCode, 'credit_score_max', max);
+                          }}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select range" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {getCreditScoreRangeOptions(programCode).map((range) => (
+                              <SelectItem key={range} value={range}>
+                                {range}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
                     </div>
 
