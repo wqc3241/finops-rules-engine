@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { AdvertisedOfferWizardData, AdvertisedOfferConfig } from '@/types/advertisedOffer';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
+import { Calendar, Car, Package, Tag } from 'lucide-react';
 
 interface ProgramConfigurationStepProps {
   data: AdvertisedOfferWizardData;
@@ -20,6 +21,18 @@ interface ProgramMetadata {
   maxTerm: number;
   isLease: boolean;
   creditScoreRanges: { min: number; max: number }[];
+  vehicleInfo?: {
+    make: string;
+    model: string;
+    year: string;
+    trim: string;
+  };
+  productType?: string;
+  condition?: string;
+  dateRange?: {
+    start: string;
+    end: string;
+  };
 }
 
 const ProgramConfigurationStep = ({ data, onUpdate }: ProgramConfigurationStepProps) => {
@@ -58,6 +71,52 @@ const ProgramConfigurationStep = ({ data, onUpdate }: ProgramConfigurationStepPr
             .order('min_credit_score', { ascending: true });
           const creditData = creditResult.data || [];
 
+          // Fetch product type
+          let productType = 'N/A';
+          if (programData.financial_product_id) {
+            const productResult: any = await supabase
+              .from('financial_products')
+              .select('product_type')
+              .eq('product_id', programData.financial_product_id)
+              .maybeSingle();
+            productType = productResult.data?.product_type || 'N/A';
+          }
+
+          // Fetch vehicle information
+          let vehicleInfo = { make: 'N/A', model: 'N/A', year: 'N/A', trim: 'N/A' };
+          if (programData.vehicle_style_id) {
+            const vehicleResult: any = await supabase
+              .from('vehicle_style_coding')
+              .select('make, model, model_year, trim')
+              .eq('style_id', programData.vehicle_style_id)
+              .maybeSingle();
+            if (vehicleResult.data) {
+              vehicleInfo = {
+                make: vehicleResult.data.make || 'N/A',
+                model: vehicleResult.data.model || 'N/A',
+                year: vehicleResult.data.model_year || 'N/A',
+                trim: vehicleResult.data.trim || 'N/A'
+              };
+            }
+          }
+
+          // Fetch vehicle condition
+          let condition = programData.financing_vehicle_condition || 'N/A';
+          if (programData.financing_vehicle_condition) {
+            const conditionResult: any = await supabase
+              .from('vehicle_conditions')
+              .select('advertised_condition')
+              .eq('type', programData.financing_vehicle_condition)
+              .maybeSingle();
+            condition = conditionResult.data?.advertised_condition || programData.financing_vehicle_condition;
+          }
+
+          // Format date range
+          const dateRange = {
+            start: programData.program_start_date || 'N/A',
+            end: programData.program_end_date || 'N/A'
+          };
+
           metadata[programCode] = {
             orderTypes,
             minTerm: pricingData?.min_term || 12,
@@ -66,7 +125,11 @@ const ProgramConfigurationStep = ({ data, onUpdate }: ProgramConfigurationStepPr
             creditScoreRanges: creditData.map((c: any) => ({
               min: c.min_credit_score,
               max: c.max_credit_score
-            }))
+            })),
+            vehicleInfo,
+            productType,
+            condition,
+            dateRange
           };
         }
       } catch (error) {
@@ -131,7 +194,70 @@ const ProgramConfigurationStep = ({ data, onUpdate }: ProgramConfigurationStepPr
                 </div>
               </AccordionTrigger>
               <AccordionContent>
+                {/* Program Information Section */}
+                {meta && (
+                  <Card className="p-6 mb-4 bg-muted/30">
+                    <h3 className="text-sm font-semibold mb-4">Program Information</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Vehicle Information */}
+                      <div className="flex items-start gap-3">
+                        <Car className="h-5 w-5 text-muted-foreground mt-0.5" />
+                        <div>
+                          <p className="text-xs text-muted-foreground mb-1">Vehicle</p>
+                          <p className="text-sm font-medium">
+                            {meta.vehicleInfo?.year} {meta.vehicleInfo?.make} {meta.vehicleInfo?.model}
+                          </p>
+                          {meta.vehicleInfo?.trim && meta.vehicleInfo.trim !== 'N/A' && (
+                            <p className="text-xs text-muted-foreground">{meta.vehicleInfo.trim}</p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Product Type */}
+                      <div className="flex items-start gap-3">
+                        <Package className="h-5 w-5 text-muted-foreground mt-0.5" />
+                        <div>
+                          <p className="text-xs text-muted-foreground mb-1">Product Type</p>
+                          <Badge variant="secondary">{meta.productType}</Badge>
+                        </div>
+                      </div>
+
+                      {/* Vehicle Condition */}
+                      <div className="flex items-start gap-3">
+                        <Tag className="h-5 w-5 text-muted-foreground mt-0.5" />
+                        <div>
+                          <p className="text-xs text-muted-foreground mb-1">Condition</p>
+                          <Badge variant="outline">{meta.condition}</Badge>
+                        </div>
+                      </div>
+
+                      {/* Date Range */}
+                      <div className="flex items-start gap-3">
+                        <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
+                        <div>
+                          <p className="text-xs text-muted-foreground mb-1">Program Dates</p>
+                          <p className="text-sm font-medium">
+                            {new Date(meta.dateRange?.start || '').toLocaleDateString('en-US', { 
+                              month: 'short', 
+                              day: 'numeric', 
+                              year: 'numeric' 
+                            })}
+                            {' - '}
+                            {new Date(meta.dateRange?.end || '').toLocaleDateString('en-US', { 
+                              month: 'short', 
+                              day: 'numeric', 
+                              year: 'numeric' 
+                            })}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                )}
+
+                {/* Configuration Fields */}
                 <Card className="p-6">
+                  <h3 className="text-sm font-semibold mb-4">Offer Configuration</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Order Type */}
                     <div className="space-y-2">
