@@ -424,7 +424,7 @@ export const useSupabaseApprovalWorkflow = () => {
             financial_product_id: record.financial_product_id,
             program_start_date: record.program_start_date,
             program_end_date: record.program_end_date,
-            is_active: record.is_active,
+            is_active: typeof record.is_active === 'string' ? record.is_active === 'true' || record.is_active === 'Yes' : record.is_active,
             advertised: record.advertised,
             version: record.version,
             priority: record.priority,

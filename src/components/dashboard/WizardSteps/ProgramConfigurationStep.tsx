@@ -230,23 +230,23 @@ const ProgramConfigurationStep = ({ data, onUpdate }: ProgramConfigurationStepPr
                           <Badge variant="outline">{meta.condition}</Badge>
                         </div>
                         
-                        <div className="flex items-center gap-2">
-                          <Calendar className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-muted-foreground">Period:</span>
-                          <span className="font-medium">
-                            {new Date(meta.dateRange?.start || '').toLocaleDateString('en-US', { 
-                              month: 'short', 
-                              day: 'numeric', 
-                              year: 'numeric' 
-                            })}
-                            {' - '}
-                            {new Date(meta.dateRange?.end || '').toLocaleDateString('en-US', { 
-                              month: 'short', 
-                              day: 'numeric', 
-                              year: 'numeric' 
-                            })}
-                          </span>
-                        </div>
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-muted-foreground">Period:</span>
+                        <span className="font-medium">
+                          {meta.dateRange?.start ? new Date(meta.dateRange.start + 'T00:00:00').toLocaleDateString('en-US', { 
+                            month: 'short', 
+                            day: 'numeric', 
+                            year: 'numeric' 
+                          }) : 'N/A'}
+                          {' - '}
+                          {meta.dateRange?.end ? new Date(meta.dateRange.end + 'T00:00:00').toLocaleDateString('en-US', { 
+                            month: 'short', 
+                            day: 'numeric', 
+                            year: 'numeric' 
+                          }) : 'N/A'}
+                        </span>
+                      </div>
                       </div>
                     </div>
                   )}
