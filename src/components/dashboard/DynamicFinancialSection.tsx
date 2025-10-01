@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import SectionHeader from "./SectionHeader";
 import DynamicFinancialSectionContent from "./DynamicFinancialSectionContent";
 import FinancialProgramWizard, { WizardData } from "./FinancialProgramWizard";
+import AdvertisedOffersWizard from "./AdvertisedOffersWizard";
 import TableVersionHistory from "@/components/version-management/TableVersionHistory";
 import { useDynamicTableSchemas } from "@/hooks/useDynamicTableSchemas";
 import { useDynamicFinancialData } from "@/hooks/useDynamicFinancialData";
@@ -43,6 +44,7 @@ const DynamicFinancialSection = ({
 }: DynamicFinancialSectionProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showWizard, setShowWizard] = useState(false);
+  const [showAdvertisedOffersWizard, setShowAdvertisedOffersWizard] = useState(false);
   const [editData, setEditData] = useState<any>(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [showVersionHistory, setShowVersionHistory] = useState(false);
@@ -167,9 +169,11 @@ useEffect(() => {
     console.log('🚨 Schema ID:', schemaId);
     console.log('🚨 Schema exists:', !!schema);
     
-    // Use wizard for financial-program-config, regular add for others
+    // Use wizard for financial-program-config and advertised-offers
     if (schemaId === 'financial-program-config') {
       setShowWizard(true);
+    } else if (schemaId === 'advertised-offers') {
+      setShowAdvertisedOffersWizard(true);
     } else {
       if (schema) {
         saveState(data, schema, 'add_record');
@@ -669,6 +673,14 @@ useEffect(() => {
           onComplete={handleWizardComplete}
           editData={editData}
           isEditMode={isEditMode}
+        />
+      )}
+
+      {/* Advertised Offers Wizard */}
+      {schemaId === 'advertised-offers' && (
+        <AdvertisedOffersWizard
+          open={showAdvertisedOffersWizard}
+          onOpenChange={setShowAdvertisedOffersWizard}
         />
       )}
 
