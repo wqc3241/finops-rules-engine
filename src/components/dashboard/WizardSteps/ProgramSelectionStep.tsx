@@ -1,13 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
+import { Table, TableHeader as TableHeaderUI, TableRow, TableBody, TableCell } from '@/components/ui/table';
 import { AdvertisedOfferWizardData, FinancialProgramOption } from '@/types/advertisedOffer';
-import { Loader2, Search } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { useTableFilters } from '@/hooks/useTableFilters';
+import { useTableSort } from '@/hooks/useTableSort';
+import { ColumnDefinition, TableData } from '@/types/dynamicTable';
+import TableHeaderComponent from '@/components/dynamic-table/TableHeader';
 
 interface ProgramSelectionStepProps {
   data: AdvertisedOfferWizardData;
@@ -16,14 +18,107 @@ interface ProgramSelectionStepProps {
 
 const ProgramSelectionStep = ({ data, onUpdate }: ProgramSelectionStepProps) => {
   const [programs, setPrograms] = useState<FinancialProgramOption[]>([]);
-  const [filteredPrograms, setFilteredPrograms] = useState<FinancialProgramOption[]>([]);
   const [loading, setLoading] = useState(false);
-  const [filters, setFilters] = useState({
-    programCode: '',
-    vehicleStyle: '',
-    condition: '',
-    financialProduct: ''
-  });
+
+  // Transform programs to TableData format
+  const tableData: TableData[] = useMemo(() => 
+    programs.map(p => ({
+      id: p.program_code,
+      program_code: p.program_code,
+      vehicle_style_id: p.vehicle_style_id,
+      financing_vehicle_condition: p.financing_vehicle_condition,
+      financial_product_id: p.financial_product_id,
+      program_start_date: p.program_start_date,
+      program_end_date: p.program_end_date,
+      order_types: p.order_types || 'N/A'
+    })),
+    [programs]
+  );
+
+  // Define columns with filter options
+  const columns: ColumnDefinition[] = useMemo(() => [
+    { 
+      id: 'program_code', 
+      key: 'program_code', 
+      name: 'Program Code', 
+      type: 'string',
+      inputType: 'Output' as const,
+      isRequired: false,
+      sortable: true,
+      filterable: true,
+      editable: false
+    },
+    { 
+      id: 'vehicle_style_id', 
+      key: 'vehicle_style_id', 
+      name: 'Vehicle Style', 
+      type: 'string',
+      inputType: 'Output' as const,
+      isRequired: false,
+      sortable: true,
+      filterable: true,
+      editable: false
+    },
+    { 
+      id: 'financing_vehicle_condition', 
+      key: 'financing_vehicle_condition', 
+      name: 'Condition', 
+      type: 'string',
+      inputType: 'Output' as const,
+      isRequired: false,
+      sortable: true,
+      filterable: true,
+      editable: false
+    },
+    { 
+      id: 'financial_product_id', 
+      key: 'financial_product_id', 
+      name: 'Financial Product', 
+      type: 'string',
+      inputType: 'Output' as const,
+      isRequired: false,
+      sortable: true,
+      filterable: true,
+      editable: false
+    },
+    { 
+      id: 'program_start_date', 
+      key: 'program_start_date', 
+      name: 'Start Date', 
+      type: 'string',
+      inputType: 'Output' as const,
+      isRequired: false,
+      sortable: true,
+      filterable: true,
+      editable: false
+    },
+    { 
+      id: 'program_end_date', 
+      key: 'program_end_date', 
+      name: 'End Date', 
+      type: 'string',
+      inputType: 'Output' as const,
+      isRequired: false,
+      sortable: true,
+      filterable: true,
+      editable: false
+    },
+    { 
+      id: 'order_types', 
+      key: 'order_types', 
+      name: 'Order Types', 
+      type: 'string',
+      inputType: 'Output' as const,
+      isRequired: false,
+      sortable: true,
+      filterable: true,
+      editable: false
+    }
+  ], []);
+
+  // Use filter and sort hooks
+  const { filters, filteredData, addFilter, removeFilter, getFilter } = useTableFilters(tableData);
+  const { sorts, sortedData, toggleSort, getSort } = useTableSort(filteredData);
 
   useEffect(() => {
     if (data.offer_start_date && data.offer_end_date) {
@@ -31,17 +126,13 @@ const ProgramSelectionStep = ({ data, onUpdate }: ProgramSelectionStepProps) => 
     }
   }, [data.offer_start_date, data.offer_end_date]);
 
-  useEffect(() => {
-    applyFilters();
-  }, [filters, programs]);
-
   const fetchPrograms = async () => {
     setLoading(true);
     try {
       const { data: programsData, error } = await supabase
         .from('financial_program_configs')
         .select('*')
-        .eq('is_active', 'TRUE')
+        .in('is_active', ['TRUE', 'Y', 'Active', 'true', '1'])
         .gte('program_end_date', data.offer_start_date)
         .lte('program_start_date', data.offer_end_date)
         .order('program_code', { ascending: true });
@@ -63,7 +154,6 @@ const ProgramSelectionStep = ({ data, onUpdate }: ProgramSelectionStepProps) => 
       }));
 
       setPrograms(formatted);
-      setFilteredPrograms(formatted);
     } catch (error) {
       console.error('Error fetching programs:', error);
     } finally {
@@ -71,35 +161,9 @@ const ProgramSelectionStep = ({ data, onUpdate }: ProgramSelectionStepProps) => 
     }
   };
 
-  const applyFilters = () => {
-    let filtered = [...programs];
-
-    if (filters.programCode) {
-      filtered = filtered.filter(p => 
-        p.program_code.toLowerCase().includes(filters.programCode.toLowerCase())
-      );
-    }
-    if (filters.vehicleStyle) {
-      filtered = filtered.filter(p => 
-        p.vehicle_style_id.toLowerCase().includes(filters.vehicleStyle.toLowerCase())
-      );
-    }
-    if (filters.condition) {
-      filtered = filtered.filter(p => 
-        p.financing_vehicle_condition.toLowerCase().includes(filters.condition.toLowerCase())
-      );
-    }
-    if (filters.financialProduct) {
-      filtered = filtered.filter(p => 
-        p.financial_product_id.toLowerCase().includes(filters.financialProduct.toLowerCase())
-      );
-    }
-
-    setFilteredPrograms(filtered);
-  };
-
-  const handleSelectProgram = (programCode: string, checked: boolean) => {
-    const newSelected = checked
+  const handleSelectProgram = (programCode: string, checked: boolean | 'indeterminate') => {
+    const isChecked = checked === true;
+    const newSelected = isChecked
       ? [...data.selected_programs, programCode]
       : data.selected_programs.filter(p => p !== programCode);
     
@@ -107,10 +171,19 @@ const ProgramSelectionStep = ({ data, onUpdate }: ProgramSelectionStepProps) => 
   };
 
   const handleSelectAll = () => {
-    if (data.selected_programs.length === filteredPrograms.length) {
+    const currentPrograms = sortedData.map(p => String(p.program_code));
+    if (data.selected_programs.length === currentPrograms.length && currentPrograms.length > 0) {
       onUpdate({ selected_programs: [] });
     } else {
-      onUpdate({ selected_programs: filteredPrograms.map(p => p.program_code) });
+      onUpdate({ selected_programs: currentPrograms });
+    }
+  };
+
+  const handleFilterChange = (columnKey: string, filter: any) => {
+    if (filter) {
+      addFilter(filter);
+    } else {
+      removeFilter(columnKey);
     }
   };
 
@@ -124,83 +197,65 @@ const ProgramSelectionStep = ({ data, onUpdate }: ProgramSelectionStepProps) => 
 
   return (
     <div className="space-y-4">
-      <Card className="p-4">
-        <div className="flex items-center gap-2 mb-4">
-          <Search className="w-5 h-5 text-muted-foreground" />
-          <Label className="text-base font-medium">Filter Programs</Label>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Input
-            placeholder="Program Code..."
-            value={filters.programCode}
-            onChange={(e) => setFilters(prev => ({ ...prev, programCode: e.target.value }))}
-          />
-          <Input
-            placeholder="Vehicle Style..."
-            value={filters.vehicleStyle}
-            onChange={(e) => setFilters(prev => ({ ...prev, vehicleStyle: e.target.value }))}
-          />
-          <Input
-            placeholder="Condition..."
-            value={filters.condition}
-            onChange={(e) => setFilters(prev => ({ ...prev, condition: e.target.value }))}
-          />
-          <Input
-            placeholder="Financial Product..."
-            value={filters.financialProduct}
-            onChange={(e) => setFilters(prev => ({ ...prev, financialProduct: e.target.value }))}
-          />
-        </div>
-      </Card>
-
       <Card>
         <div className="p-4 border-b flex justify-between items-center">
           <div>
             <p className="font-medium">Available Programs</p>
             <p className="text-sm text-muted-foreground">
-              {filteredPrograms.length} programs found | {data.selected_programs.length} selected
+              {sortedData.length} programs found | {data.selected_programs.length} selected
             </p>
           </div>
           <Checkbox
-            checked={data.selected_programs.length === filteredPrograms.length && filteredPrograms.length > 0}
+            checked={data.selected_programs.length === sortedData.length && sortedData.length > 0}
             onCheckedChange={handleSelectAll}
           />
         </div>
 
         <div className="overflow-x-auto">
           <Table>
-            <TableHeader>
+            <TableHeaderUI>
               <TableRow>
-                <TableHead className="w-12"></TableHead>
-                <TableHead>Program Code</TableHead>
-                <TableHead>Vehicle Style</TableHead>
-                <TableHead>Condition</TableHead>
-                <TableHead>Financial Product</TableHead>
-                <TableHead>Start Date</TableHead>
-                <TableHead>End Date</TableHead>
-                <TableHead>Order Types</TableHead>
+                <TableHeaderComponent
+                  columns={columns}
+                  allowColumnManagement={false}
+                  hoveredDeleteButton={null}
+                  setHoveredDeleteButton={() => {}}
+                  hoveredDivider={null}
+                  setHoveredDivider={() => {}}
+                  onRemoveColumn={() => {}}
+                  onDividerClick={() => {}}
+                  filters={filters}
+                  sorts={sorts}
+                  onFilterChange={handleFilterChange}
+                  onSortChange={toggleSort}
+                />
               </TableRow>
-            </TableHeader>
+            </TableHeaderUI>
             <TableBody>
-              {filteredPrograms.map((program) => (
-                <TableRow key={program.program_code}>
-                  <TableCell>
-                    <Checkbox
-                      checked={data.selected_programs.includes(program.program_code)}
-                      onCheckedChange={(checked) => handleSelectProgram(program.program_code, checked as boolean)}
-                    />
-                  </TableCell>
-                  <TableCell className="font-medium">{program.program_code}</TableCell>
-                  <TableCell>{program.vehicle_style_id}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline">{program.financing_vehicle_condition}</Badge>
-                  </TableCell>
-                  <TableCell>{program.financial_product_id}</TableCell>
-                  <TableCell>{new Date(program.program_start_date).toLocaleDateString()}</TableCell>
-                  <TableCell>{new Date(program.program_end_date).toLocaleDateString()}</TableCell>
-                  <TableCell>{program.order_types || 'N/A'}</TableCell>
-                </TableRow>
-              ))}
+              {sortedData.map((row) => {
+                const program = programs.find(p => p.program_code === row.program_code);
+                if (!program) return null;
+                
+                return (
+                  <TableRow key={program.program_code}>
+                    <TableCell className="w-10">
+                      <Checkbox
+                        checked={data.selected_programs.includes(program.program_code)}
+                        onCheckedChange={(checked) => handleSelectProgram(program.program_code, checked)}
+                      />
+                    </TableCell>
+                    <TableCell className="font-medium">{program.program_code}</TableCell>
+                    <TableCell>{program.vehicle_style_id}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline">{program.financing_vehicle_condition}</Badge>
+                    </TableCell>
+                    <TableCell>{program.financial_product_id}</TableCell>
+                    <TableCell>{new Date(program.program_start_date).toLocaleDateString()}</TableCell>
+                    <TableCell>{new Date(program.program_end_date).toLocaleDateString()}</TableCell>
+                    <TableCell>{program.order_types || 'N/A'}</TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </div>
