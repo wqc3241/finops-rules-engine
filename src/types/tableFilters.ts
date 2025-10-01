@@ -1,8 +1,8 @@
 export interface TableFilter {
   columnKey: string;
   type: 'text' | 'number' | 'boolean' | 'date';
-  operator: 'contains' | 'equals' | 'startsWith' | 'endsWith' | 'gt' | 'lt' | 'gte' | 'lte' | 'between' | 'is' | 'isNot';
-  value: string | number | boolean | Date | null;
+  operator: 'contains' | 'equals' | 'startsWith' | 'endsWith' | 'gt' | 'lt' | 'gte' | 'lte' | 'between' | 'is' | 'isNot' | 'in';
+  value: string | number | boolean | Date | string[] | null;
   value2?: string | number | Date; // For 'between' operator
 }
 
@@ -18,6 +18,7 @@ export interface FilterOperatorConfig {
 }
 
 export const TEXT_OPERATORS: FilterOperatorConfig[] = [
+  { label: 'In list', value: 'in' },
   { label: 'Contains', value: 'contains' },
   { label: 'Equals', value: 'equals' },
   { label: 'Starts with', value: 'startsWith' },

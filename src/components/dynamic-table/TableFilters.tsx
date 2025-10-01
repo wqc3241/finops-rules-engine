@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Filter, X } from 'lucide-react';
 import { ColumnDefinition } from '@/types/dynamicTable';
 import { TableFilter, TEXT_OPERATORS, NUMBER_OPERATORS, BOOLEAN_OPERATORS, DATE_OPERATORS } from '@/types/tableFilters';
+import { MultiSelect } from '@/components/ui/multi-select';
 
 interface TableFiltersProps {
   column: ColumnDefinition;
@@ -25,16 +26,16 @@ const TableFilters = ({ column, filter, onFilterChange }: TableFiltersProps) => 
     }
   );
 
-  function getDefaultOperator(type: string) {
+  function getDefaultOperator(type: string, hasOptions: boolean = false) {
     switch (type) {
       case 'string':
-        return 'contains';
+        return hasOptions ? 'in' : 'contains';
       case 'number':
         return 'equals';
       case 'boolean':
         return 'is';
       default:
-        return 'contains';
+        return hasOptions ? 'in' : 'contains';
     }
   }
 
@@ -52,11 +53,15 @@ const TableFilters = ({ column, filter, onFilterChange }: TableFiltersProps) => 
   };
 
   const handleApplyFilter = () => {
-    if (tempFilter.value !== null && tempFilter.value !== undefined && tempFilter.value !== '') {
+    const hasValue = Array.isArray(tempFilter.value) 
+      ? tempFilter.value.length > 0 
+      : tempFilter.value !== null && tempFilter.value !== undefined && tempFilter.value !== '';
+    
+    if (hasValue) {
       onFilterChange({
         columnKey: column.key,
         type: column.type as any,
-        operator: tempFilter.operator || getDefaultOperator(column.type as any),
+        operator: tempFilter.operator || getDefaultOperator(column.type as any, !!column.filterOptions),
         value: tempFilter.value,
         value2: tempFilter.value2,
       } as TableFilter);
@@ -70,14 +75,29 @@ const TableFilters = ({ column, filter, onFilterChange }: TableFiltersProps) => 
     setTempFilter({
       columnKey: column.key,
       type: column.type as any,
-      operator: getDefaultOperator(column.type as any),
-      value: null,
+      operator: getDefaultOperator(column.type as any, !!column.filterOptions),
+      value: column.filterOptions ? [] : null,
     });
     onFilterChange(null);
     setIsOpen(false);
   };
 
   const renderValueInput = () => {
+    // If column has filterOptions and operator is 'in', show MultiSelect
+    if (column.filterOptions && tempFilter.operator === 'in') {
+      const options = column.filterOptions.map(opt => ({ label: opt, value: opt }));
+      const selected = Array.isArray(tempFilter.value) ? tempFilter.value : [];
+      
+      return (
+        <MultiSelect
+          options={options}
+          selected={selected}
+          onChange={(values) => setTempFilter(prev => ({ ...prev, value: values }))}
+          placeholder="Select values..."
+        />
+      );
+    }
+    
     switch (column.type) {
       case 'number':
         return (

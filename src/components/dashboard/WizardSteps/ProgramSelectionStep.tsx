@@ -35,6 +35,18 @@ const ProgramSelectionStep = ({ data, onUpdate }: ProgramSelectionStepProps) => 
     [programs]
   );
 
+  // Generate unique values for filterable columns
+  const getUniqueValues = (key: string): string[] => {
+    const values = new Set<string>();
+    tableData.forEach(row => {
+      const value = row[key];
+      if (value !== null && value !== undefined && value !== '') {
+        values.add(String(value));
+      }
+    });
+    return Array.from(values).sort();
+  };
+
   // Define columns with filter options
   const columns: ColumnDefinition[] = useMemo(() => [
     { 
@@ -46,7 +58,8 @@ const ProgramSelectionStep = ({ data, onUpdate }: ProgramSelectionStepProps) => 
       isRequired: false,
       sortable: true,
       filterable: true,
-      editable: false
+      editable: false,
+      filterOptions: getUniqueValues('program_code')
     },
     { 
       id: 'vehicle_style_id', 
@@ -57,7 +70,8 @@ const ProgramSelectionStep = ({ data, onUpdate }: ProgramSelectionStepProps) => 
       isRequired: false,
       sortable: true,
       filterable: true,
-      editable: false
+      editable: false,
+      filterOptions: getUniqueValues('vehicle_style_id')
     },
     { 
       id: 'financing_vehicle_condition', 
@@ -68,7 +82,8 @@ const ProgramSelectionStep = ({ data, onUpdate }: ProgramSelectionStepProps) => 
       isRequired: false,
       sortable: true,
       filterable: true,
-      editable: false
+      editable: false,
+      filterOptions: getUniqueValues('financing_vehicle_condition')
     },
     { 
       id: 'financial_product_id', 
@@ -79,7 +94,8 @@ const ProgramSelectionStep = ({ data, onUpdate }: ProgramSelectionStepProps) => 
       isRequired: false,
       sortable: true,
       filterable: true,
-      editable: false
+      editable: false,
+      filterOptions: getUniqueValues('financial_product_id')
     },
     { 
       id: 'program_start_date', 
@@ -90,7 +106,8 @@ const ProgramSelectionStep = ({ data, onUpdate }: ProgramSelectionStepProps) => 
       isRequired: false,
       sortable: true,
       filterable: true,
-      editable: false
+      editable: false,
+      filterOptions: getUniqueValues('program_start_date')
     },
     { 
       id: 'program_end_date', 
@@ -101,7 +118,8 @@ const ProgramSelectionStep = ({ data, onUpdate }: ProgramSelectionStepProps) => 
       isRequired: false,
       sortable: true,
       filterable: true,
-      editable: false
+      editable: false,
+      filterOptions: getUniqueValues('program_end_date')
     },
     { 
       id: 'order_types', 
@@ -112,9 +130,10 @@ const ProgramSelectionStep = ({ data, onUpdate }: ProgramSelectionStepProps) => 
       isRequired: false,
       sortable: true,
       filterable: true,
-      editable: false
+      editable: false,
+      filterOptions: getUniqueValues('order_types')
     }
-  ], []);
+  ], [tableData]);
 
   // Use filter and sort hooks
   const { filters, filteredData, addFilter, removeFilter, getFilter } = useTableFilters(tableData);

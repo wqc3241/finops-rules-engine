@@ -41,17 +41,22 @@ export const useTableFilters = (data: TableData[]) => {
     switch (filter.type) {
       case 'text':
         const textValue = String(value).toLowerCase();
-        const filterText = String(filterValue).toLowerCase();
         
         switch (filter.operator) {
+          case 'in':
+            if (Array.isArray(filterValue)) {
+              return filterValue.some(fv => String(fv).toLowerCase() === textValue);
+            }
+            return false;
           case 'contains':
+            const filterText = String(filterValue).toLowerCase();
             return textValue.includes(filterText);
           case 'equals':
-            return textValue === filterText;
+            return textValue === String(filterValue).toLowerCase();
           case 'startsWith':
-            return textValue.startsWith(filterText);
+            return textValue.startsWith(String(filterValue).toLowerCase());
           case 'endsWith':
-            return textValue.endsWith(filterText);
+            return textValue.endsWith(String(filterValue).toLowerCase());
           default:
             return true;
         }
