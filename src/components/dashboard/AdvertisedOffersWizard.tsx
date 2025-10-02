@@ -3,11 +3,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import OfferTimeRangeStep from './WizardSteps/OfferTimeRangeStep';
-import ProgramSelectionStep from './WizardSteps/ProgramSelectionStep';
-import ProgramConfigurationStep from './WizardSteps/ProgramConfigurationStep';
-import FinancialCalculationStep from './WizardSteps/FinancialCalculationStep';
-import MarketingDisclosureStep from './WizardSteps/MarketingDisclosureStep';
+import SetupAndProgramsStep from './WizardSteps/SetupAndProgramsStep';
+import ConfigurationAndDetailsStep from './WizardSteps/ConfigurationAndDetailsStep';
 import OfferConfirmationStep from './WizardSteps/OfferConfirmationStep';
 import { AdvertisedOfferWizardData, AdvertisedOffer } from '@/types/advertisedOffer';
 import { useAdvertisedOffers } from '@/hooks/useAdvertisedOffers';
@@ -21,12 +18,9 @@ interface AdvertisedOffersWizardProps {
 }
 
 const STEPS = [
-  { id: 1, title: 'Offer Time Range', component: OfferTimeRangeStep },
-  { id: 2, title: 'Select Programs', component: ProgramSelectionStep },
-  { id: 3, title: 'Configure Offers', component: ProgramConfigurationStep },
-  { id: 4, title: 'Financial Details', component: FinancialCalculationStep },
-  { id: 5, title: 'Marketing & Disclosure', component: MarketingDisclosureStep },
-  { id: 6, title: 'Review & Confirm', component: OfferConfirmationStep },
+  { id: 1, title: 'Setup & Programs', component: SetupAndProgramsStep },
+  { id: 2, title: 'Configuration & Details', component: ConfigurationAndDetailsStep },
+  { id: 3, title: 'Review & Confirm', component: OfferConfirmationStep },
 ];
 
 const AdvertisedOffersWizard = ({ open, onOpenChange, editOffer, isEditMode = false }: AdvertisedOffersWizardProps) => {
@@ -87,16 +81,14 @@ const AdvertisedOffersWizard = ({ open, onOpenChange, editOffer, isEditMode = fa
   const canProceed = () => {
     switch (currentStep) {
       case 1:
-        return wizardData.offer_start_date && wizardData.offer_end_date;
+        // Step 1: Setup & Programs - require dates and at least one selected program
+        return wizardData.offer_start_date && wizardData.offer_end_date && wizardData.selected_programs.length > 0;
       case 2:
-        return wizardData.selected_programs.length > 0;
+        // Step 2: Configuration & Details - require all programs configured
+        return Object.keys(wizardData.program_configs).length === wizardData.selected_programs.length &&
+               Object.keys(wizardData.offer_details).length > 0;
       case 3:
-        return Object.keys(wizardData.program_configs).length === wizardData.selected_programs.length;
-      case 4:
-        return Object.keys(wizardData.offer_details).length > 0;
-      case 5:
-        return true;
-      case 6:
+        // Step 3: Review & Confirm
         return true;
       default:
         return false;
