@@ -35,6 +35,13 @@ const AdvertisedOffersWizard = ({ open, onOpenChange, editOffer, isEditMode = fa
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { createOffers, updateOffer } = useAdvertisedOffers();
 
+  // Update current step when dialog opens based on mode
+  useEffect(() => {
+    if (open) {
+      setCurrentStep(isEditMode ? 2 : 1);
+    }
+  }, [open, isEditMode]);
+
   // Pre-populate data when editing
   useEffect(() => {
     if (isEditMode && editOffer && open) {
