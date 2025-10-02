@@ -24,7 +24,7 @@ const STEPS = [
 ];
 
 const AdvertisedOffersWizard = ({ open, onOpenChange, editOffer, isEditMode = false }: AdvertisedOffersWizardProps) => {
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(isEditMode ? 2 : 1);
   const [wizardData, setWizardData] = useState<AdvertisedOfferWizardData>({
     offer_start_date: '',
     offer_end_date: '',
@@ -72,7 +72,11 @@ const AdvertisedOffersWizard = ({ open, onOpenChange, editOffer, isEditMode = fa
   }, [isEditMode, editOffer, open]);
 
   const CurrentStepComponent = STEPS[currentStep - 1].component;
-  const progress = (currentStep / STEPS.length) * 100;
+  
+  // Calculate progress based on mode (edit mode skips step 1)
+  const totalSteps = isEditMode ? 2 : STEPS.length;
+  const displayStep = isEditMode ? currentStep - 1 : currentStep;
+  const progress = (displayStep / totalSteps) * 100;
 
   const handleUpdate = (updates: Partial<AdvertisedOfferWizardData>) => {
     setWizardData(prev => ({ ...prev, ...updates }));
@@ -102,7 +106,8 @@ const AdvertisedOffersWizard = ({ open, onOpenChange, editOffer, isEditMode = fa
   };
 
   const handleBack = () => {
-    if (currentStep > 1) {
+    const minStep = isEditMode ? 2 : 1;
+    if (currentStep > minStep) {
       setCurrentStep(prev => prev - 1);
     }
   };
@@ -176,7 +181,7 @@ const AdvertisedOffersWizard = ({ open, onOpenChange, editOffer, isEditMode = fa
   };
 
   const resetWizard = () => {
-    setCurrentStep(1);
+    setCurrentStep(isEditMode ? 2 : 1);
     setWizardData({
       offer_start_date: '',
       offer_end_date: '',
@@ -187,7 +192,8 @@ const AdvertisedOffersWizard = ({ open, onOpenChange, editOffer, isEditMode = fa
   };
 
   const handleClose = () => {
-    if (currentStep > 1) {
+    const minStep = isEditMode ? 2 : 1;
+    if (currentStep > minStep) {
       if (confirm('Are you sure you want to close? All progress will be lost.')) {
         resetWizard();
         onOpenChange(false);
@@ -210,7 +216,7 @@ const AdvertisedOffersWizard = ({ open, onOpenChange, editOffer, isEditMode = fa
           {/* Progress Bar */}
           <div className="space-y-2">
             <div className="flex justify-between text-sm text-muted-foreground">
-              <span>Step {currentStep} of {STEPS.length}</span>
+              <span>Step {displayStep} of {totalSteps}</span>
               <span>{STEPS[currentStep - 1].title}</span>
             </div>
             <Progress value={progress} className="h-2" />
@@ -229,7 +235,7 @@ const AdvertisedOffersWizard = ({ open, onOpenChange, editOffer, isEditMode = fa
             <Button
               variant="outline"
               onClick={handleBack}
-              disabled={currentStep === 1}
+              disabled={currentStep === (isEditMode ? 2 : 1)}
             >
               <ChevronLeft className="w-4 h-4 mr-2" />
               Back
