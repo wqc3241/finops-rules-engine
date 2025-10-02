@@ -370,9 +370,11 @@ const ProgramConfigurationStep = ({ data, onUpdate }: ProgramConfigurationStepPr
                       <div className="space-y-2">
                         <Label>Credit Score Range</Label>
                         <Select
-                          value={config?.credit_score_min && config?.credit_score_max 
-                            ? `${config.credit_score_min}-${config.credit_score_max}` 
-                            : ''}
+                          value={
+                            config?.credit_score_max !== undefined && config?.credit_score_max !== null
+                              ? `${config.credit_score_min ?? 0}-${config.credit_score_max}` 
+                              : ''
+                          }
                           onValueChange={(value) => {
                             const [min, max] = value.split('-').map(Number);
                             handleConfigUpdate(programCode, 'credit_score_min', min);
