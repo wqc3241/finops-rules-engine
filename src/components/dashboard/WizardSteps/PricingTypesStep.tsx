@@ -1,5 +1,6 @@
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 import { WizardData } from "../FinancialProgramWizard";
 import { useState } from "react";
 import { usePricingTypes } from "@/hooks/usePricingTypes";
@@ -21,6 +22,14 @@ const PricingTypesStep = ({ data, onUpdate }: PricingTypesStepProps) => {
   const [typeCode, setTypeCode] = useState("");
   const [typeName, setTypeName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Filter state for lender-specific toggle
+  const [showOnlyLenderSpecific, setShowOnlyLenderSpecific] = useState(false);
+
+  // Filter pricing types based on toggle
+  const filteredPricingTypes = showOnlyLenderSpecific
+    ? pricingTypes.filter(type => type.isLenderSpecific)
+    : pricingTypes;
 
   const handlePricingTypeToggle = (typeCode: string, checked: boolean) => {
     const updatedTypes = checked
@@ -63,6 +72,17 @@ const PricingTypesStep = ({ data, onUpdate }: PricingTypesStepProps) => {
         <p className="text-sm text-muted-foreground mb-6">
           Select the pricing types that will be available for this financial program.
         </p>
+      </div>
+
+      <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg mb-4">
+        <Label htmlFor="lender-filter" className="text-sm font-medium cursor-pointer">
+          Show Lender-Specific Only
+        </Label>
+        <Switch
+          id="lender-filter"
+          checked={showOnlyLenderSpecific}
+          onCheckedChange={setShowOnlyLenderSpecific}
+        />
       </div>
 
       <div className="flex justify-end mb-4">
@@ -122,7 +142,7 @@ const PricingTypesStep = ({ data, onUpdate }: PricingTypesStepProps) => {
       </Dialog>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {pricingTypes.map((type) => (
+        {filteredPricingTypes.map((type) => (
           <div key={type.typeCode} className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-50">
             <Checkbox
               id={type.typeCode}
