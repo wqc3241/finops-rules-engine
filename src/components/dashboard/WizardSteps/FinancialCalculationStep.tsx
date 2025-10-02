@@ -101,45 +101,57 @@ const FinancialCalculationStep = ({ data, onUpdate }: FinancialCalculationStepPr
           const config = data.program_configs[programCode];
           const calc = calculations[programCode];
 
-          if (!calc) return null;
-
           return (
             <Card key={programCode} className="p-6">
               <div className="space-y-4">
                 <div>
                   <h3 className="font-semibold text-lg">{programCode}</h3>
                   <div className="flex gap-2 mt-2">
-                    <Badge variant="outline">{config.order_type}</Badge>
-                    <Badge variant="outline">{config.term} months</Badge>
+                    {config?.order_type && (
+                      <Badge variant="outline">{config.order_type}</Badge>
+                    )}
+                    {config?.term && (
+                      <Badge variant="outline">{config.term} months</Badge>
+                    )}
                   </div>
                 </div>
 
-                <div className="space-y-3 border-t pt-4">
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Monthly Payment</span>
-                    <span className="font-semibold">${calc.monthly_payment.toFixed(2)}</span>
+                {!config ? (
+                  <div className="text-sm text-muted-foreground py-4">
+                    Configuration not set for this program
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">APR</span>
-                    <span className="font-semibold">{calc.apr}%</span>
+                ) : !calc ? (
+                  <div className="text-sm text-muted-foreground py-4">
+                    No pricing data available for this program
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Total Cost</span>
-                    <span className="font-semibold">${calc.total_cost_of_credit}</span>
-                  </div>
-                  {config.down_payment && (
+                ) : (
+                  <div className="space-y-3 border-t pt-4">
                     <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Down Payment</span>
-                      <span className="font-semibold">${config.down_payment}</span>
+                      <span className="text-sm text-muted-foreground">Monthly Payment</span>
+                      <span className="font-semibold">${calc.monthly_payment.toFixed(2)}</span>
                     </div>
-                  )}
-                  {calc.lender && (
                     <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Lender</span>
-                      <span className="font-semibold">{calc.lender}</span>
+                      <span className="text-sm text-muted-foreground">APR</span>
+                      <span className="font-semibold">{calc.apr}%</span>
                     </div>
-                  )}
-                </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-muted-foreground">Total Cost</span>
+                      <span className="font-semibold">${calc.total_cost_of_credit}</span>
+                    </div>
+                    {config.down_payment && (
+                      <div className="flex justify-between">
+                        <span className="text-sm text-muted-foreground">Down Payment</span>
+                        <span className="font-semibold">${config.down_payment}</span>
+                      </div>
+                    )}
+                    {calc.lender && (
+                      <div className="flex justify-between">
+                        <span className="text-sm text-muted-foreground">Lender</span>
+                        <span className="font-semibold">{calc.lender}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </Card>
           );
