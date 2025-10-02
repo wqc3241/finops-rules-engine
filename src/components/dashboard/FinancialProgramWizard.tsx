@@ -9,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Plus } from "lucide-react";
@@ -121,6 +122,9 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
   const [showCreditProfileModal, setShowCreditProfileModal] = useState(false);
   const [showPricingConfigModal, setShowPricingConfigModal] = useState(false);
   const [showPricingTypeModal, setShowPricingTypeModal] = useState(false);
+  
+  // Filter state for lender-specific pricing types
+  const [showOnlyLenderSpecific, setShowOnlyLenderSpecific] = useState(false);
 
   // Function to refresh credit profiles data
   const refreshCreditProfiles = async () => {
@@ -357,17 +361,24 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
     return filtered;
   }, [financialProducts, wizardData.geoCodes]);
 
-  // Filter pricing types based on selected financial product
+  // Filter pricing types based on selected financial product and lender-specific toggle
   const filteredPricingTypes = useMemo(() => {
     const selectedId = wizardData.financialProduct?.trim();
     if (!selectedId) {
       return pricingTypes;
     }
     
-    return pricingTypes.filter(type => 
+    let filtered = pricingTypes.filter(type => 
       (type.financialProducts || []).some(fp => (fp || '').trim() === selectedId)
     );
-  }, [pricingTypes, wizardData.financialProduct]);
+    
+    // Apply lender-specific filter if enabled
+    if (showOnlyLenderSpecific) {
+      filtered = filtered.filter(type => type.isLenderSpecific);
+    }
+    
+    return filtered;
+  }, [pricingTypes, wizardData.financialProduct, showOnlyLenderSpecific]);
 
   const vehicleConditions = [
     { id: "New", label: "New" },
@@ -772,6 +783,18 @@ const FinancialProgramWizard = ({ open, onOpenChange, onComplete, editData, isEd
                       Pricing Type
                     </Button>
                   </div>
+                  
+                  <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                    <Label htmlFor="lender-filter" className="text-sm font-medium cursor-pointer">
+                      Show Lender-Specific Only
+                    </Label>
+                    <Switch
+                      id="lender-filter"
+                      checked={showOnlyLenderSpecific}
+                      onCheckedChange={setShowOnlyLenderSpecific}
+                    />
+                  </div>
+                  
                   {!wizardData.financialProduct ? (
                     <div className="text-sm text-muted-foreground p-2 bg-muted rounded-lg">
                       Please select a Financial Product first to see available Pricing Types.
