@@ -265,16 +265,9 @@ export const useDynamicFinancialData = ({
         
         // Special handling for financial-program-config
         if (schemaId === 'financial-program-config') {
-          // Import getNextFPCId function logic directly since we can't import from utils
-          const fpIds = data
-            .map(row => typeof row.id === "string" && row.id.match(/^FPC(\d{2})$/) ? Number(row.id.slice(3)) : null)
-            .filter((v): v is number => v !== null);
-          const nextNumber = fpIds.length > 0 ? Math.max(...fpIds) + 1 : 1;
-          const newId = `FPC${String(nextNumber).padStart(2, "0")}`;
-          
-          newItem.id = newId;
+          // Let database auto-generate UUID for id
           newItem.version = ((item.version || 1) + 1);
-          newItem.cloneFrom = item.programCode || item.program_code || null;
+          newItem.clone_from = item.programCode || item.program_code || null;
         } else {
           // For other tables, increment version if it exists
           if (item.version) {
