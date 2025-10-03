@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Calendar, Car, Package, Tag, DollarSign, Percent } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
+import { format } from 'date-fns';
 interface ConfigurationAndDetailsStepProps {
   data: AdvertisedOfferWizardData;
   onUpdate: (updates: Partial<AdvertisedOfferWizardData>) => void;
@@ -412,8 +413,8 @@ const ConfigurationAndDetailsStep = ({
                           <Percent className="h-4 w-4 text-muted-foreground" />
                           <Label>Advertised Discount</Label>
                         </div>
-                        <div className="border rounded-md p-3 space-y-2 max-h-48 overflow-y-auto bg-background">
-                          {(availableDiscounts[programCode] || []).length > 0 ? (availableDiscounts[programCode] || []).map(discount => <div key={discount.id} className="flex items-start space-x-3 p-2 rounded hover:bg-secondary/50 transition-colors cursor-pointer" onClick={() => {
+                        <div className="border rounded-md p-3 space-y-3 max-h-64 overflow-y-auto bg-background">
+                          {(availableDiscounts[programCode] || []).length > 0 ? (availableDiscounts[programCode] || []).map(discount => <div key={discount.id} className="flex items-start gap-3 p-3 rounded-md border hover:bg-accent cursor-pointer transition-colors" onClick={() => {
                             const currentDiscounts = config?.applicable_discounts || [];
                             const isSelected = currentDiscounts.includes(discount.id);
                             const newDiscounts = isSelected ? currentDiscounts.filter(id => id !== discount.id) : [...currentDiscounts, discount.id];
@@ -423,9 +424,40 @@ const ConfigurationAndDetailsStep = ({
                             const currentDiscounts = config?.applicable_discounts || [];
                             const newDiscounts = checked ? [...currentDiscounts, discount.id] : currentDiscounts.filter(id => id !== discount.id);
                             handleConfigUpdate(programCode, 'applicable_discounts', newDiscounts);
-                          }} className="mt-0.5" />
-                              <div className="flex-1 text-sm">
-                                <span className="font-medium">[{discount.category || 'N/A'}]</span> {discount.name || 'Unnamed'} - <span className="font-semibold">${discount.discountAmount || 0}</span>
+                          }} className="mt-1" />
+                              <div className="flex-1 space-y-1">
+                                <div className="flex items-start gap-2 flex-wrap">
+                                  <Badge variant="secondary" className="shrink-0">
+                                    {discount.category || "N/A"}
+                                  </Badge>
+                                  <span className="font-semibold text-sm">
+                                    {discount.name || "N/A"}
+                                  </span>
+                                </div>
+                                
+                                <div className="text-xs text-muted-foreground">
+                                  {discount.type && (
+                                    <span>Type: {discount.type}</span>
+                                  )}
+                                  {discount.subcategory && (
+                                    <span> | Subcategory: {discount.subcategory}</span>
+                                  )}
+                                </div>
+                                
+                                <div className="flex items-center gap-2 flex-wrap text-sm">
+                                  <span className="font-semibold text-primary">
+                                    Amount: ${discount.discountAmount || 0}
+                                  </span>
+                                  <span className="text-xs text-muted-foreground">
+                                    | Valid: {discount.startDate ? format(new Date(discount.startDate), "MM/dd/yyyy") : "No start"} - {discount.endDate ? format(new Date(discount.endDate), "MM/dd/yyyy") : "No expiration"}
+                                  </span>
+                                </div>
+                                
+                                {discount.description && (
+                                  <p className="text-xs text-muted-foreground mt-1">
+                                    {discount.description}
+                                  </p>
+                                )}
                               </div>
                             </div>) : <p className="text-sm text-muted-foreground text-center py-2">
                               {!availableDiscounts[programCode] ? 'Loading discounts...' : 'No applicable discounts found'}
