@@ -11,7 +11,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Badge } from '@/components/ui/badge';
 import { Calendar, Car, Package, Tag, DollarSign, Percent } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-import { MultiSelect } from '@/components/ui/multi-select';
+import { Checkbox } from '@/components/ui/checkbox';
 interface ConfigurationAndDetailsStepProps {
   data: AdvertisedOfferWizardData;
   onUpdate: (updates: Partial<AdvertisedOfferWizardData>) => void;
@@ -330,27 +330,27 @@ const ConfigurationAndDetailsStep = ({
                   {isConfigured ? <Badge variant="default">Configured</Badge> : <Badge variant="outline">Pending</Badge>}
                 </div>
               </AccordionTrigger>
-              <AccordionContent>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* Left: Configuration */}
-                  <Card className="p-6">
-                    <h3 className="text-lg font-semibold mb-4">Configuration</h3>
-                    
-                    {meta && <div className="mb-6 pb-6 border-b space-y-2">
-                        <div className="flex items-center gap-2 text-sm">
-                          <Car className="h-4 w-4 text-muted-foreground" />
-                          <span className="font-medium">{meta.vehicleDisplay}</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-sm">
-                          <Package className="h-4 w-4 text-muted-foreground" />
-                          <Badge variant="secondary">{meta.productType}</Badge>
-                          <Tag className="h-4 w-4 text-muted-foreground ml-2" />
-                          <Badge variant="outline">{meta.condition}</Badge>
-                        </div>
-                      </div>}
+              <AccordionContent className="pt-4">
+                <div className="space-y-4">
+                  {/* Configuration Card */}
+                  <Card className="p-4">
+                    <div className="space-y-3">
+                      {/* Vehicle Info Section */}
+                      {meta && <div className="mb-4 p-3 bg-secondary/50 rounded-lg space-y-1">
+                          <div className="flex items-center gap-2 text-sm">
+                            <Car className="h-4 w-4 text-muted-foreground" />
+                            <span className="font-medium">{meta.vehicleDisplay}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm">
+                            <Package className="h-4 w-4 text-muted-foreground" />
+                            <Badge variant="secondary">{meta.productType}</Badge>
+                            <Tag className="h-4 w-4 text-muted-foreground ml-2" />
+                            <Badge variant="outline">{meta.condition}</Badge>
+                          </div>
+                        </div>}
 
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
+                      {/* Form Fields */}
+                      <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-2">
                           <Label>Order Type *</Label>
                           <Select value={config?.order_type || ''} onValueChange={value => handleConfigUpdate(programCode, 'order_type', value)}>
@@ -376,9 +376,7 @@ const ConfigurationAndDetailsStep = ({
                             </SelectContent>
                           </Select>
                         </div>
-                      </div>
 
-                      <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label>Down Payment</Label>
                           <Input type="number" placeholder="0.00" value={config?.down_payment || ''} onChange={e => handleConfigUpdate(programCode, 'down_payment', parseFloat(e.target.value) || 0)} />
@@ -399,25 +397,40 @@ const ConfigurationAndDetailsStep = ({
                             </SelectContent>
                           </Select>
                         </div>
+
+                        {meta?.isLease && <div className="space-y-2 col-span-2">
+                            <Label>Annual Mileage</Label>
+                            <Input type="number" placeholder="12000" value={config?.annual_mileage || ''} onChange={e => handleConfigUpdate(programCode, 'annual_mileage', parseInt(e.target.value) || undefined)} />
+                          </div>}
                       </div>
 
-                      {meta?.isLease && <div className="space-y-2">
-                          <Label>Annual Mileage</Label>
-                          <Input type="number" placeholder="12000" value={config?.annual_mileage || ''} onChange={e => handleConfigUpdate(programCode, 'annual_mileage', parseInt(e.target.value) || undefined)} />
-                        </div>}
+                      <Separator className="my-3" />
 
-                      <Separator className="my-4" />
-
-                      {/* Advertised Discount Section */}
+                      {/* Advertised Discount List */}
                       <div className="space-y-2">
                         <div className="flex items-center gap-2">
                           <Percent className="h-4 w-4 text-muted-foreground" />
                           <Label>Advertised Discount</Label>
                         </div>
-                        <MultiSelect options={(availableDiscounts[programCode] || []).map(discount => ({
-                      label: `[${discount.category || 'N/A'}] ${discount.name || 'Unnamed'} - $${discount.discountAmount || 0}`,
-                      value: discount.id
-                    }))} selected={config?.applicable_discounts || []} onChange={selected => handleConfigUpdate(programCode, 'applicable_discounts', selected)} placeholder={!availableDiscounts[programCode] ? "Loading discounts..." : availableDiscounts[programCode].length === 0 ? "No applicable discounts found" : "Select discounts..."} />
+                        <div className="border rounded-md p-3 space-y-2 max-h-48 overflow-y-auto bg-background">
+                          {(availableDiscounts[programCode] || []).length > 0 ? (availableDiscounts[programCode] || []).map(discount => <div key={discount.id} className="flex items-start space-x-3 p-2 rounded hover:bg-secondary/50 transition-colors cursor-pointer" onClick={() => {
+                            const currentDiscounts = config?.applicable_discounts || [];
+                            const isSelected = currentDiscounts.includes(discount.id);
+                            const newDiscounts = isSelected ? currentDiscounts.filter(id => id !== discount.id) : [...currentDiscounts, discount.id];
+                            handleConfigUpdate(programCode, 'applicable_discounts', newDiscounts);
+                          }}>
+                              <Checkbox checked={(config?.applicable_discounts || []).includes(discount.id)} onCheckedChange={checked => {
+                            const currentDiscounts = config?.applicable_discounts || [];
+                            const newDiscounts = checked ? [...currentDiscounts, discount.id] : currentDiscounts.filter(id => id !== discount.id);
+                            handleConfigUpdate(programCode, 'applicable_discounts', newDiscounts);
+                          }} className="mt-0.5" />
+                              <div className="flex-1 text-sm">
+                                <span className="font-medium">[{discount.category || 'N/A'}]</span> {discount.name || 'Unnamed'} - <span className="font-semibold">${discount.discountAmount || 0}</span>
+                              </div>
+                            </div>) : <p className="text-sm text-muted-foreground text-center py-2">
+                              {!availableDiscounts[programCode] ? 'Loading discounts...' : 'No applicable discounts found'}
+                            </p>}
+                        </div>
                         {availableDiscounts[programCode] && <p className="text-xs text-muted-foreground">
                             {availableDiscounts[programCode].length} applicable discount(s) found
                           </p>}
@@ -425,42 +438,36 @@ const ConfigurationAndDetailsStep = ({
                     </div>
                   </Card>
 
-                  {/* Right: Financial Details + Marketing */}
-                  <div className="space-y-6">
-                    {/* Financial Summary */}
-                    <Card className="p-6">
-                      <div className="flex items-center gap-2 mb-4">
-                        <DollarSign className="h-5 w-5 text-primary" />
-                        <h3 className="text-lg font-semibold">Financial Details</h3>
-                      </div>
-                      
-                      {!config ? <div className="text-sm text-muted-foreground py-4">
-                          Configure the program first
-                        </div> : !calc ? <div className="text-sm text-muted-foreground py-4">
-                          {loading ? 'Calculating...' : 'No pricing data available'}
-                        </div> : <div className="space-y-3">
-                          <div className="flex justify-between">
-                            <span className="text-sm text-muted-foreground">Monthly Payment</span>
-                            <span className="font-semibold">${calc.monthly_payment.toFixed(2)}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-sm text-muted-foreground">APR</span>
-                            <span className="font-semibold">{calc.apr}%</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-sm text-muted-foreground">Total Cost</span>
-                            <span className="font-semibold">${calc.total_cost_of_credit}</span>
-                          </div>
-                          {calc.lender && <div className="flex justify-between">
-                              <span className="text-sm text-muted-foreground">Lender</span>
-                              <span className="font-semibold">{calc.lender}</span>
-                            </div>}
-                        </div>}
-                    </Card>
-
-                    {/* Marketing & Disclosure */}
+                  {/* Financial Details Card */}
+                  <Card className="p-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <DollarSign className="h-5 w-5 text-primary" />
+                      <h3 className="text-lg font-semibold">Financial Details</h3>
+                    </div>
                     
-                  </div>
+                    {!config ? <div className="text-sm text-muted-foreground py-4">
+                        Configure the program first
+                      </div> : !calc ? <div className="text-sm text-muted-foreground py-4">
+                        {loading ? 'Calculating...' : 'No pricing data available'}
+                      </div> : <div className="space-y-2">
+                        <div className="flex justify-between">
+                          <span className="text-sm text-muted-foreground">Monthly Payment</span>
+                          <span className="font-semibold">${calc.monthly_payment.toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-sm text-muted-foreground">APR</span>
+                          <span className="font-semibold">{calc.apr}%</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-sm text-muted-foreground">Total Cost</span>
+                          <span className="font-semibold">${calc.total_cost_of_credit}</span>
+                        </div>
+                        {calc.lender && <div className="flex justify-between">
+                            <span className="text-sm text-muted-foreground">Lender</span>
+                            <span className="font-semibold">{calc.lender}</span>
+                          </div>}
+                      </div>}
+                  </Card>
                 </div>
               </AccordionContent>
             </AccordionItem>;
