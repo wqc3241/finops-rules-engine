@@ -413,55 +413,94 @@ const ConfigurationAndDetailsStep = ({
                           <Percent className="h-4 w-4 text-muted-foreground" />
                           <Label>Advertised Discount</Label>
                         </div>
-                        <div className="border rounded-md p-3 space-y-3 max-h-64 overflow-y-auto bg-background">
-                          {(availableDiscounts[programCode] || []).length > 0 ? (availableDiscounts[programCode] || []).map(discount => <div key={discount.id} className="flex items-start gap-3 p-3 rounded-md border hover:bg-accent cursor-pointer transition-colors" onClick={() => {
-                            const currentDiscounts = config?.applicable_discounts || [];
-                            const isSelected = currentDiscounts.includes(discount.id);
-                            const newDiscounts = isSelected ? currentDiscounts.filter(id => id !== discount.id) : [...currentDiscounts, discount.id];
-                            handleConfigUpdate(programCode, 'applicable_discounts', newDiscounts);
-                          }}>
-                              <Checkbox checked={(config?.applicable_discounts || []).includes(discount.id)} onCheckedChange={checked => {
-                            const currentDiscounts = config?.applicable_discounts || [];
-                            const newDiscounts = checked ? [...currentDiscounts, discount.id] : currentDiscounts.filter(id => id !== discount.id);
-                            handleConfigUpdate(programCode, 'applicable_discounts', newDiscounts);
-                          }} className="mt-1" />
-                              <div className="flex-1 space-y-1">
-                                <div className="flex items-start gap-2 flex-wrap">
-                                  <Badge variant="secondary" className="shrink-0">
-                                    {discount.category || "N/A"}
-                                  </Badge>
-                                  <span className="font-semibold text-sm">
-                                    {discount.name || "N/A"}
-                                  </span>
-                                </div>
-                                
-                                <div className="text-xs text-muted-foreground">
-                                  {discount.type && (
-                                    <span>Type: {discount.type}</span>
-                                  )}
-                                  {discount.subcategory && (
-                                    <span> | Subcategory: {discount.subcategory}</span>
-                                  )}
-                                </div>
-                                
-                                <div className="flex items-center gap-2 flex-wrap text-sm">
-                                  <span className="font-semibold text-primary">
-                                    Amount: ${discount.discountAmount || 0}
-                                  </span>
-                                  <span className="text-xs text-muted-foreground">
-                                    | Valid: {discount.startDate ? format(new Date(discount.startDate), "MM/dd/yyyy") : "No start"} - {discount.endDate ? format(new Date(discount.endDate), "MM/dd/yyyy") : "No expiration"}
-                                  </span>
-                                </div>
-                                
-                                {discount.description && (
-                                  <p className="text-xs text-muted-foreground mt-1">
-                                    {discount.description}
-                                  </p>
-                                )}
+                        <div className="border rounded-md bg-background overflow-x-auto">
+                          {(availableDiscounts[programCode] || []).length > 0 ? (
+                            <>
+                              {/* Header Row */}
+                              <div className="grid grid-cols-[40px_100px_200px_100px_150px_100px_110px_110px_1fr] gap-3 px-3 py-2 bg-muted/50 border-b font-semibold text-xs">
+                                <div></div>
+                                <div>Category</div>
+                                <div>Name</div>
+                                <div>Type</div>
+                                <div>Subcategory</div>
+                                <div>Amount</div>
+                                <div>Start Date</div>
+                                <div>End Date</div>
+                                <div>Description</div>
                               </div>
-                            </div>) : <p className="text-sm text-muted-foreground text-center py-2">
+                              
+                              {/* Data Rows */}
+                              <div className="max-h-64 overflow-y-auto">
+                                {(availableDiscounts[programCode] || []).map(discount => {
+                                  const currentDiscounts = config?.applicable_discounts || [];
+                                  const isSelected = currentDiscounts.includes(discount.id);
+                                  
+                                  return (
+                                    <div 
+                                      key={discount.id} 
+                                      className="grid grid-cols-[40px_100px_200px_100px_150px_100px_110px_110px_1fr] gap-3 px-3 py-2 border-b hover:bg-accent cursor-pointer transition-colors items-center text-sm"
+                                      onClick={() => {
+                                        const newDiscounts = isSelected 
+                                          ? currentDiscounts.filter(id => id !== discount.id) 
+                                          : [...currentDiscounts, discount.id];
+                                        handleConfigUpdate(programCode, 'applicable_discounts', newDiscounts);
+                                      }}
+                                    >
+                                      <div className="flex items-center justify-center">
+                                        <Checkbox
+                                          checked={isSelected}
+                                          onCheckedChange={(checked) => {
+                                            const newDiscounts = checked 
+                                              ? [...currentDiscounts, discount.id] 
+                                              : currentDiscounts.filter(id => id !== discount.id);
+                                            handleConfigUpdate(programCode, 'applicable_discounts', newDiscounts);
+                                          }}
+                                        />
+                                      </div>
+                                      
+                                      <div>
+                                        <Badge variant="secondary" className="text-xs">
+                                          {discount.category || "N/A"}
+                                        </Badge>
+                                      </div>
+                                      
+                                      <div className="truncate font-medium" title={discount.name || "N/A"}>
+                                        {discount.name || "N/A"}
+                                      </div>
+                                      
+                                      <div className="truncate text-muted-foreground" title={discount.type || "N/A"}>
+                                        {discount.type || "N/A"}
+                                      </div>
+                                      
+                                      <div className="truncate text-muted-foreground" title={discount.subcategory || "N/A"}>
+                                        {discount.subcategory || "N/A"}
+                                      </div>
+                                      
+                                      <div className="font-semibold text-primary">
+                                        ${discount.discountAmount || 0}
+                                      </div>
+                                      
+                                      <div className="text-xs text-muted-foreground">
+                                        {discount.startDate ? format(new Date(discount.startDate), "MM/dd/yyyy") : "N/A"}
+                                      </div>
+                                      
+                                      <div className="text-xs text-muted-foreground">
+                                        {discount.endDate ? format(new Date(discount.endDate), "MM/dd/yyyy") : "Never"}
+                                      </div>
+                                      
+                                      <div className="truncate text-xs text-muted-foreground" title={discount.description || ""}>
+                                        {discount.description || "—"}
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </>
+                          ) : (
+                            <p className="text-sm text-muted-foreground text-center py-4">
                               {!availableDiscounts[programCode] ? 'Loading discounts...' : 'No applicable discounts found'}
-                            </p>}
+                            </p>
+                          )}
                         </div>
                         {availableDiscounts[programCode] && <p className="text-xs text-muted-foreground">
                             {availableDiscounts[programCode].length} applicable discount(s) found
