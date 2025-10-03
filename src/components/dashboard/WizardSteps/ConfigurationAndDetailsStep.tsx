@@ -12,12 +12,10 @@ import { Badge } from '@/components/ui/badge';
 import { Calendar, Car, Package, Tag, DollarSign, Percent } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { MultiSelect } from '@/components/ui/multi-select';
-
 interface ConfigurationAndDetailsStepProps {
   data: AdvertisedOfferWizardData;
   onUpdate: (updates: Partial<AdvertisedOfferWizardData>) => void;
 }
-
 interface ProgramMetadata {
   orderTypes: string[];
   availableTerms: number[];
@@ -40,52 +38,39 @@ interface ProgramMetadata {
   vehicleYear?: number;
   vehicleModel?: string;
 }
-
-const ConfigurationAndDetailsStep = ({ data, onUpdate }: ConfigurationAndDetailsStepProps) => {
+const ConfigurationAndDetailsStep = ({
+  data,
+  onUpdate
+}: ConfigurationAndDetailsStepProps) => {
   const [programMetadata, setProgramMetadata] = useState<Record<string, ProgramMetadata>>({});
   const [calculations, setCalculations] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(false);
   const [availableDiscounts, setAvailableDiscounts] = useState<Record<string, any[]>>({});
-
   useEffect(() => {
     fetchProgramMetadata();
   }, [data.selected_programs]);
-
   useEffect(() => {
     if (Object.keys(data.program_configs).length > 0) {
       calculateFinancials();
     }
   }, [data.program_configs]);
-
   useEffect(() => {
     if (Object.keys(programMetadata).length > 0) {
       fetchApplicableDiscounts();
     }
   }, [programMetadata, data.offer_start_date, data.offer_end_date]);
-
   const fetchProgramMetadata = async () => {
     const metadata: Record<string, ProgramMetadata> = {};
-
     for (const programCode of data.selected_programs) {
       try {
-        const programResult: any = await supabase
-          .from('financial_program_configs')
-          .select('*')
-          .eq('program_code', programCode)
-          .maybeSingle();
+        const programResult: any = await supabase.from('financial_program_configs').select('*').eq('program_code', programCode).maybeSingle();
         const programData = programResult.data;
-
         if (programData) {
-          const orderTypes = programData.order_types 
-            ? programData.order_types.split(',').map((type: string) => type.trim()) 
-            : ['INV'];
-          
+          const orderTypes = programData.order_types ? programData.order_types.split(',').map((type: string) => type.trim()) : ['INV'];
           const templateMetadata = programData.template_metadata || {};
           const pricingTypeConfigs = templateMetadata.pricingTypeConfigs || {};
-          
           const pricingConfigIds = new Set<string>();
           const creditProfileIds = new Set<string>();
-          
           Object.values(pricingTypeConfigs).forEach((config: any) => {
             if (config.pricingConfigs && Array.isArray(config.pricingConfigs)) {
               config.pricingConfigs.forEach((id: string) => pricingConfigIds.add(id));
@@ -94,14 +79,9 @@ const ConfigurationAndDetailsStep = ({ data, onUpdate }: ConfigurationAndDetails
               config.creditProfiles.forEach((id: string) => creditProfileIds.add(id));
             }
           });
-
           let availableTerms: number[] = [];
           if (pricingConfigIds.size > 0) {
-            const pricingResult: any = await supabase
-              .from('pricing_configs')
-              .select('min_term, max_term')
-              .in('pricing_rule_id', Array.from(pricingConfigIds));
-            
+            const pricingResult: any = await supabase.from('pricing_configs').select('min_term, max_term').in('pricing_rule_id', Array.from(pricingConfigIds));
             const termsSet = new Set<number>();
             (pricingResult.data || []).forEach((config: any) => {
               if (config.min_term && config.max_term) {
@@ -112,14 +92,9 @@ const ConfigurationAndDetailsStep = ({ data, onUpdate }: ConfigurationAndDetails
             });
             availableTerms = Array.from(termsSet).sort((a, b) => a - b);
           }
-
           let creditScoreRanges: string[] = [];
           if (creditProfileIds.size > 0) {
-            const creditResult: any = await supabase
-              .from('credit_profiles')
-              .select('min_credit_score, max_credit_score')
-              .in('profile_id', Array.from(creditProfileIds));
-            
+            const creditResult: any = await supabase.from('credit_profiles').select('min_credit_score, max_credit_score').in('profile_id', Array.from(creditProfileIds));
             const rangesSet = new Set<string>();
             (creditResult.data || []).forEach((profile: any) => {
               if (profile.min_credit_score !== null && profile.max_credit_score !== null) {
@@ -132,24 +107,14 @@ const ConfigurationAndDetailsStep = ({ data, onUpdate }: ConfigurationAndDetails
               return minA - minB;
             });
           }
-
           let productType = 'N/A';
           if (programData.financial_product_id) {
-            const productResult: any = await supabase
-              .from('financial_products')
-              .select('product_type')
-              .eq('product_id', programData.financial_product_id)
-              .maybeSingle();
+            const productResult: any = await supabase.from('financial_products').select('product_type').eq('product_id', programData.financial_product_id).maybeSingle();
             productType = productResult.data?.product_type || 'N/A';
           }
-
           let vehicleDisplay = 'N/A';
           if (programData.vehicle_style_id) {
-            const vehicleResult: any = await supabase
-              .from('vehicle_style_coding')
-              .select('make, model, model_year, trim')
-              .eq('vehicle_style_id', programData.vehicle_style_id)
-              .maybeSingle();
+            const vehicleResult: any = await supabase.from('vehicle_style_coding').select('make, model, model_year, trim').eq('vehicle_style_id', programData.vehicle_style_id).maybeSingle();
             if (vehicleResult.data) {
               const parts = [];
               if (vehicleResult.data.model_year) parts.push(vehicleResult.data.model_year.toString());
@@ -159,17 +124,11 @@ const ConfigurationAndDetailsStep = ({ data, onUpdate }: ConfigurationAndDetails
               vehicleDisplay = parts.length > 0 ? parts.join(' ') : 'N/A';
             }
           }
-
           let condition = programData.financing_vehicle_condition || 'N/A';
           if (programData.financing_vehicle_condition) {
-            const conditionResult: any = await supabase
-              .from('vehicle_conditions')
-              .select('advertised_condition')
-              .eq('financing_vehicle_condition_type', programData.financing_vehicle_condition)
-              .maybeSingle();
+            const conditionResult: any = await supabase.from('vehicle_conditions').select('advertised_condition').eq('financing_vehicle_condition_type', programData.financing_vehicle_condition).maybeSingle();
             condition = conditionResult.data?.advertised_condition || programData.financing_vehicle_condition;
           }
-
           const dateRange = {
             start: programData.program_start_date || 'N/A',
             end: programData.program_end_date || 'N/A'
@@ -179,15 +138,10 @@ const ConfigurationAndDetailsStep = ({ data, onUpdate }: ConfigurationAndDetails
           let vehicleYear: number | undefined;
           let vehicleModel: string | undefined;
           if (programData.vehicle_style_id) {
-            const vehicleResult: any = await supabase
-              .from('vehicle_style_coding')
-              .select('model, model_year')
-              .eq('vehicle_style_id', programData.vehicle_style_id)
-              .maybeSingle();
+            const vehicleResult: any = await supabase.from('vehicle_style_coding').select('model, model_year').eq('vehicle_style_id', programData.vehicle_style_id).maybeSingle();
             vehicleYear = vehicleResult.data?.model_year;
             vehicleModel = vehicleResult.data?.model;
           }
-
           metadata[programCode] = {
             orderTypes,
             availableTerms,
@@ -206,32 +160,25 @@ const ConfigurationAndDetailsStep = ({ data, onUpdate }: ConfigurationAndDetails
         console.error(`Error fetching metadata for ${programCode}:`, error);
       }
     }
-
     setProgramMetadata(metadata);
   };
-
   const fetchApplicableDiscounts = async () => {
     const discounts: Record<string, any[]> = {};
-
     for (const programCode of data.selected_programs) {
       const meta = programMetadata[programCode];
       if (!meta) continue;
-
       try {
         // Fetch all active discount rules
-        const { data: allDiscounts, error } = await supabase
-          .from('discount_rules')
-          .select('*')
-          .eq('feeActive', true);
-
+        const {
+          data: allDiscounts,
+          error
+        } = await supabase.from('discount_rules').select('*').eq('feeActive', true);
         if (error) throw error;
 
         // Filter discounts based on matching criteria
         const filtered = (allDiscounts || []).filter((discount: any) => {
           // Check geo code match
-          const geoMatch = !discount.discount_geo || 
-                          discount.discount_geo === 'ALL' || 
-                          discount.discount_geo === meta.geoCode;
+          const geoMatch = !discount.discount_geo || discount.discount_geo === 'ALL' || discount.discount_geo === meta.geoCode;
           if (!geoMatch) return false;
 
           // Check date range overlap
@@ -239,76 +186,52 @@ const ConfigurationAndDetailsStep = ({ data, onUpdate }: ConfigurationAndDetails
           const offerEnd = new Date(data.offer_end_date);
           const discountStart = discount.startDate ? new Date(discount.startDate) : null;
           const discountEnd = discount.endDate ? new Date(discount.endDate) : null;
-          
-          const dateMatch = (!discountStart || discountStart <= offerEnd) &&
-                           (!discountEnd || discountEnd >= offerStart);
+          const dateMatch = (!discountStart || discountStart <= offerEnd) && (!discountEnd || discountEnd >= offerStart);
           if (!dateMatch) return false;
 
           // Check vehicle year match
-          const yearMatch = !discount.applicable_vehicle_year || 
-                           discount.applicable_vehicle_year.length === 0 ||
-                           discount.applicable_vehicle_year.includes('All') ||
-                           (meta.vehicleYear && discount.applicable_vehicle_year.includes(meta.vehicleYear));
+          const yearMatch = !discount.applicable_vehicle_year || discount.applicable_vehicle_year.length === 0 || discount.applicable_vehicle_year.includes('All') || meta.vehicleYear && discount.applicable_vehicle_year.includes(meta.vehicleYear);
           if (!yearMatch) return false;
 
           // Check vehicle model match
-          const modelMatch = !discount.applicable_vehicle_model ||
-                            discount.applicable_vehicle_model.length === 0 ||
-                            discount.applicable_vehicle_model.includes('All') ||
-                            (meta.vehicleModel && discount.applicable_vehicle_model.includes(meta.vehicleModel));
+          const modelMatch = !discount.applicable_vehicle_model || discount.applicable_vehicle_model.length === 0 || discount.applicable_vehicle_model.includes('All') || meta.vehicleModel && discount.applicable_vehicle_model.includes(meta.vehicleModel);
           if (!modelMatch) return false;
 
           // Check purchase type match (order type)
           const config = data.program_configs[programCode];
           const orderTypes = config?.order_type?.split(',').map(t => t.trim()) || [];
-          const purchaseMatch = !discount.applicable_purchase_type ||
-                               discount.applicable_purchase_type.length === 0 ||
-                               discount.applicable_purchase_type.includes('All') ||
-                               orderTypes.some(ot => discount.applicable_purchase_type.includes(ot));
+          const purchaseMatch = !discount.applicable_purchase_type || discount.applicable_purchase_type.length === 0 || discount.applicable_purchase_type.includes('All') || orderTypes.some(ot => discount.applicable_purchase_type.includes(ot));
           if (!purchaseMatch) return false;
 
           // Check title status match (condition)
-          const statusMatch = !discount.applicable_title_status ||
-                             discount.applicable_title_status.length === 0 ||
-                             discount.applicable_title_status.includes('All') ||
-                             (meta.condition && discount.applicable_title_status.includes(meta.condition));
+          const statusMatch = !discount.applicable_title_status || discount.applicable_title_status.length === 0 || discount.applicable_title_status.includes('All') || meta.condition && discount.applicable_title_status.includes(meta.condition);
           if (!statusMatch) return false;
-
           return true;
         });
-
         discounts[programCode] = filtered;
       } catch (error) {
         console.error(`Error fetching discounts for ${programCode}:`, error);
         discounts[programCode] = [];
       }
     }
-
     setAvailableDiscounts(discounts);
   };
-
   const calculateFinancials = async () => {
     setLoading(true);
     const newCalculations: Record<string, any> = {};
-
     try {
       for (const programCode of Object.keys(data.program_configs)) {
         const config = data.program_configs[programCode];
-        
-        // Fetch bulletin pricing for calculation
-        const { data: pricingData } = await supabase
-          .from('bulletin_pricing')
-          .select('*')
-          .eq('financial_program_code', programCode)
-          .limit(1)
-          .maybeSingle();
 
+        // Fetch bulletin pricing for calculation
+        const {
+          data: pricingData
+        } = await supabase.from('bulletin_pricing').select('*').eq('financial_program_code', programCode).limit(1).maybeSingle();
         if (pricingData) {
           // Simplified calculation (replace with actual logic)
-          const monthlyPayment = 450.00 + (Math.random() * 100);
-          const apr = 3.99 + (Math.random() * 2);
+          const monthlyPayment = 450.00 + Math.random() * 100;
+          const apr = 3.99 + Math.random() * 2;
           const totalCost = monthlyPayment * config.term;
-
           newCalculations[programCode] = {
             monthly_payment: monthlyPayment,
             apr: apr.toFixed(2),
@@ -317,41 +240,45 @@ const ConfigurationAndDetailsStep = ({ data, onUpdate }: ConfigurationAndDetails
           };
         }
       }
-
       setCalculations(newCalculations);
-      
+
       // Update offer_details with calculations
-      const updatedDetails = { ...data.offer_details };
+      const updatedDetails = {
+        ...data.offer_details
+      };
       Object.keys(newCalculations).forEach(programCode => {
         updatedDetails[programCode] = {
           ...(updatedDetails[programCode] || {}),
           ...newCalculations[programCode]
         };
       });
-      onUpdate({ offer_details: updatedDetails });
+      onUpdate({
+        offer_details: updatedDetails
+      });
     } catch (error) {
       console.error('Error calculating financials:', error);
     } finally {
       setLoading(false);
     }
   };
-
   const handleConfigUpdate = (programCode: string, field: string, value: any) => {
     const currentConfig = data.program_configs[programCode] || {
       financial_program_code: programCode,
       order_type: '',
       term: 0
     };
-
-    const newConfig: any = { ...currentConfig, [field]: value };
+    const newConfig: any = {
+      ...currentConfig,
+      [field]: value
+    };
     const updatedConfigs: Record<string, AdvertisedOfferConfig> = {
       ...data.program_configs,
       [programCode]: newConfig
     };
-
-    onUpdate({ program_configs: updatedConfigs });
+    onUpdate({
+      program_configs: updatedConfigs
+    });
   };
-
   const handleOfferDetailUpdate = (programCode: string, field: string, value: string) => {
     const currentDetails = data.offer_details[programCode] || {};
     const updatedDetails = {
@@ -361,57 +288,46 @@ const ConfigurationAndDetailsStep = ({ data, onUpdate }: ConfigurationAndDetails
         [field]: value
       }
     };
-    onUpdate({ offer_details: updatedDetails });
+    onUpdate({
+      offer_details: updatedDetails
+    });
   };
-
   const getOrderTypeOptions = (programCode: string) => {
     const meta = programMetadata[programCode];
     if (!meta || !meta.orderTypes) return [];
-
     const orderTypeLabels: Record<string, string> = {
       'INV': 'INV (Inventory)',
       'CON': 'CON (Configurator)'
     };
-
     const options = meta.orderTypes.map(type => ({
       value: type,
       label: orderTypeLabels[type] || type
     }));
-
     if (meta.orderTypes.length > 1) {
       options.push({
         value: meta.orderTypes.join(','),
         label: 'Both'
       });
     }
-
     return options;
   };
-
-  return (
-    <div className="space-y-4">
+  return <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
         Configure offers and add financial details for each selected program
       </p>
 
       <Accordion type="multiple" className="space-y-2">
-        {data.selected_programs.map((programCode) => {
-          const config = data.program_configs[programCode];
-          const details = data.offer_details[programCode] || {};
-          const meta = programMetadata[programCode];
-          const calc = calculations[programCode];
-          const isConfigured = config && config.order_type && config.term;
-
-          return (
-            <AccordionItem key={programCode} value={programCode}>
+        {data.selected_programs.map(programCode => {
+        const config = data.program_configs[programCode];
+        const details = data.offer_details[programCode] || {};
+        const meta = programMetadata[programCode];
+        const calc = calculations[programCode];
+        const isConfigured = config && config.order_type && config.term;
+        return <AccordionItem key={programCode} value={programCode}>
               <AccordionTrigger className="hover:no-underline">
                 <div className="flex items-center justify-between w-full pr-4">
                   <span className="font-medium">{programCode}</span>
-                  {isConfigured ? (
-                    <Badge variant="default">Configured</Badge>
-                  ) : (
-                    <Badge variant="outline">Pending</Badge>
-                  )}
+                  {isConfigured ? <Badge variant="default">Configured</Badge> : <Badge variant="outline">Pending</Badge>}
                 </div>
               </AccordionTrigger>
               <AccordionContent>
@@ -420,8 +336,7 @@ const ConfigurationAndDetailsStep = ({ data, onUpdate }: ConfigurationAndDetails
                   <Card className="p-6">
                     <h3 className="text-lg font-semibold mb-4">Configuration</h3>
                     
-                    {meta && (
-                      <div className="mb-6 pb-6 border-b space-y-2">
+                    {meta && <div className="mb-6 pb-6 border-b space-y-2">
                         <div className="flex items-center gap-2 text-sm">
                           <Car className="h-4 w-4 text-muted-foreground" />
                           <span className="font-medium">{meta.vehicleDisplay}</span>
@@ -432,43 +347,32 @@ const ConfigurationAndDetailsStep = ({ data, onUpdate }: ConfigurationAndDetails
                           <Tag className="h-4 w-4 text-muted-foreground ml-2" />
                           <Badge variant="outline">{meta.condition}</Badge>
                         </div>
-                      </div>
-                    )}
+                      </div>}
 
                     <div className="space-y-4">
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label>Order Type *</Label>
-                          <Select
-                            value={config?.order_type || ''}
-                            onValueChange={(value) => handleConfigUpdate(programCode, 'order_type', value)}
-                          >
+                          <Select value={config?.order_type || ''} onValueChange={value => handleConfigUpdate(programCode, 'order_type', value)}>
                             <SelectTrigger>
                               <SelectValue placeholder="Select" />
                             </SelectTrigger>
                             <SelectContent>
-                              {getOrderTypeOptions(programCode).map((option) => (
-                                <SelectItem key={option.value} value={option.value}>
+                              {getOrderTypeOptions(programCode).map(option => <SelectItem key={option.value} value={option.value}>
                                   {option.label}
-                                </SelectItem>
-                              ))}
+                                </SelectItem>)}
                             </SelectContent>
                           </Select>
                         </div>
 
                         <div className="space-y-2">
                           <Label>Term *</Label>
-                          <Select
-                            value={config?.term?.toString() || ''}
-                            onValueChange={(value) => handleConfigUpdate(programCode, 'term', parseInt(value))}
-                          >
+                          <Select value={config?.term?.toString() || ''} onValueChange={value => handleConfigUpdate(programCode, 'term', parseInt(value))}>
                             <SelectTrigger>
                               <SelectValue placeholder="Select" />
                             </SelectTrigger>
                             <SelectContent>
-                              {(meta?.availableTerms || []).map((term) => (
-                                <SelectItem key={term} value={term.toString()}>{term} mo</SelectItem>
-                              ))}
+                              {(meta?.availableTerms || []).map(term => <SelectItem key={term} value={term.toString()}>{term} mo</SelectItem>)}
                             </SelectContent>
                           </Select>
                         </div>
@@ -477,51 +381,30 @@ const ConfigurationAndDetailsStep = ({ data, onUpdate }: ConfigurationAndDetails
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label>Down Payment</Label>
-                          <Input
-                            type="number"
-                            placeholder="0.00"
-                            value={config?.down_payment || ''}
-                            onChange={(e) => handleConfigUpdate(programCode, 'down_payment', parseFloat(e.target.value) || 0)}
-                          />
+                          <Input type="number" placeholder="0.00" value={config?.down_payment || ''} onChange={e => handleConfigUpdate(programCode, 'down_payment', parseFloat(e.target.value) || 0)} />
                         </div>
 
                         <div className="space-y-2">
                           <Label>Credit Score</Label>
-                          <Select
-                            value={
-                              config?.credit_score_max !== undefined && config?.credit_score_max !== null
-                                ? `${config.credit_score_min ?? 0}-${config.credit_score_max}` 
-                                : ''
-                            }
-                            onValueChange={(value) => {
-                              const [min, max] = value.split('-').map(Number);
-                              handleConfigUpdate(programCode, 'credit_score_min', min);
-                              handleConfigUpdate(programCode, 'credit_score_max', max);
-                            }}
-                          >
+                          <Select value={config?.credit_score_max !== undefined && config?.credit_score_max !== null ? `${config.credit_score_min ?? 0}-${config.credit_score_max}` : ''} onValueChange={value => {
+                        const [min, max] = value.split('-').map(Number);
+                        handleConfigUpdate(programCode, 'credit_score_min', min);
+                        handleConfigUpdate(programCode, 'credit_score_max', max);
+                      }}>
                             <SelectTrigger>
                               <SelectValue placeholder="Select" />
                             </SelectTrigger>
                             <SelectContent>
-                              {(meta?.creditScoreRanges || []).map((range) => (
-                                <SelectItem key={range} value={range}>{range}</SelectItem>
-                              ))}
+                              {(meta?.creditScoreRanges || []).map(range => <SelectItem key={range} value={range}>{range}</SelectItem>)}
                             </SelectContent>
                           </Select>
                         </div>
                       </div>
 
-                      {meta?.isLease && (
-                        <div className="space-y-2">
+                      {meta?.isLease && <div className="space-y-2">
                           <Label>Annual Mileage</Label>
-                          <Input
-                            type="number"
-                            placeholder="12000"
-                            value={config?.annual_mileage || ''}
-                            onChange={(e) => handleConfigUpdate(programCode, 'annual_mileage', parseInt(e.target.value) || undefined)}
-                          />
-                        </div>
-                      )}
+                          <Input type="number" placeholder="12000" value={config?.annual_mileage || ''} onChange={e => handleConfigUpdate(programCode, 'annual_mileage', parseInt(e.target.value) || undefined)} />
+                        </div>}
 
                       <Separator className="my-4" />
 
@@ -531,26 +414,13 @@ const ConfigurationAndDetailsStep = ({ data, onUpdate }: ConfigurationAndDetails
                           <Percent className="h-4 w-4 text-muted-foreground" />
                           <Label>Advertised Discount</Label>
                         </div>
-                        <MultiSelect
-                          options={(availableDiscounts[programCode] || []).map(discount => ({
-                            label: `[${discount.category || 'N/A'}] ${discount.name || 'Unnamed'} - $${discount.discountAmount || 0}`,
-                            value: discount.id
-                          }))}
-                          selected={config?.applicable_discounts || []}
-                          onChange={(selected) => handleConfigUpdate(programCode, 'applicable_discounts', selected)}
-                          placeholder={
-                            !availableDiscounts[programCode] 
-                              ? "Loading discounts..." 
-                              : availableDiscounts[programCode].length === 0 
-                                ? "No applicable discounts found" 
-                                : "Select discounts..."
-                          }
-                        />
-                        {availableDiscounts[programCode] && (
-                          <p className="text-xs text-muted-foreground">
+                        <MultiSelect options={(availableDiscounts[programCode] || []).map(discount => ({
+                      label: `[${discount.category || 'N/A'}] ${discount.name || 'Unnamed'} - $${discount.discountAmount || 0}`,
+                      value: discount.id
+                    }))} selected={config?.applicable_discounts || []} onChange={selected => handleConfigUpdate(programCode, 'applicable_discounts', selected)} placeholder={!availableDiscounts[programCode] ? "Loading discounts..." : availableDiscounts[programCode].length === 0 ? "No applicable discounts found" : "Select discounts..."} />
+                        {availableDiscounts[programCode] && <p className="text-xs text-muted-foreground">
                             {availableDiscounts[programCode].length} applicable discount(s) found
-                          </p>
-                        )}
+                          </p>}
                       </div>
                     </div>
                   </Card>
@@ -564,16 +434,11 @@ const ConfigurationAndDetailsStep = ({ data, onUpdate }: ConfigurationAndDetails
                         <h3 className="text-lg font-semibold">Financial Details</h3>
                       </div>
                       
-                      {!config ? (
-                        <div className="text-sm text-muted-foreground py-4">
+                      {!config ? <div className="text-sm text-muted-foreground py-4">
                           Configure the program first
-                        </div>
-                      ) : !calc ? (
-                        <div className="text-sm text-muted-foreground py-4">
+                        </div> : !calc ? <div className="text-sm text-muted-foreground py-4">
                           {loading ? 'Calculating...' : 'No pricing data available'}
-                        </div>
-                      ) : (
-                        <div className="space-y-3">
+                        </div> : <div className="space-y-3">
                           <div className="flex justify-between">
                             <span className="text-sm text-muted-foreground">Monthly Payment</span>
                             <span className="font-semibold">${calc.monthly_payment.toFixed(2)}</span>
@@ -586,53 +451,21 @@ const ConfigurationAndDetailsStep = ({ data, onUpdate }: ConfigurationAndDetails
                             <span className="text-sm text-muted-foreground">Total Cost</span>
                             <span className="font-semibold">${calc.total_cost_of_credit}</span>
                           </div>
-                          {calc.lender && (
-                            <div className="flex justify-between">
+                          {calc.lender && <div className="flex justify-between">
                               <span className="text-sm text-muted-foreground">Lender</span>
                               <span className="font-semibold">{calc.lender}</span>
-                            </div>
-                          )}
-                        </div>
-                      )}
+                            </div>}
+                        </div>}
                     </Card>
 
                     {/* Marketing & Disclosure */}
-                    <Card className="p-6">
-                      <h3 className="text-lg font-semibold mb-4">Marketing & Disclosure</h3>
-                      
-                      <div className="space-y-4">
-                        <div className="space-y-2">
-                          <Label>Marketing Description</Label>
-                          <Textarea
-                            placeholder="Enter marketing description..."
-                            value={details.marketing_description || ''}
-                            onChange={(e) => handleOfferDetailUpdate(programCode, 'marketing_description', e.target.value)}
-                            rows={3}
-                            className="resize-none"
-                          />
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label>Legal Disclosure</Label>
-                          <Textarea
-                            placeholder="Enter legal disclosure..."
-                            value={details.disclosure || ''}
-                            onChange={(e) => handleOfferDetailUpdate(programCode, 'disclosure', e.target.value)}
-                            rows={3}
-                            className="resize-none"
-                          />
-                        </div>
-                      </div>
-                    </Card>
+                    
                   </div>
                 </div>
               </AccordionContent>
-            </AccordionItem>
-          );
-        })}
+            </AccordionItem>;
+      })}
       </Accordion>
-    </div>
-  );
+    </div>;
 };
-
 export default ConfigurationAndDetailsStep;
