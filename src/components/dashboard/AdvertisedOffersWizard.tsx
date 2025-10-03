@@ -58,6 +58,7 @@ const AdvertisedOffersWizard = ({ open, onOpenChange, editOffer, isEditMode = fa
             credit_score_min: editOffer.credit_score_min,
             credit_score_max: editOffer.credit_score_max,
             annual_mileage: editOffer.annual_mileage,
+            applicable_discounts: editOffer.applicable_discounts || [],
           }
         },
         offer_details: {
@@ -146,6 +147,7 @@ const AdvertisedOffersWizard = ({ open, onOpenChange, editOffer, isEditMode = fa
           marketing_description: details.marketing_description,
           offer_start_date: wizardData.offer_start_date,
           offer_end_date: wizardData.offer_end_date,
+          applicable_discounts: config.applicable_discounts || [],
         });
       } else {
         // Create new offers
@@ -171,7 +173,8 @@ const AdvertisedOffersWizard = ({ open, onOpenChange, editOffer, isEditMode = fa
             marketing_description: details.marketing_description,
             offer_start_date: wizardData.offer_start_date,
             offer_end_date: wizardData.offer_end_date,
-            is_active: true
+            is_active: true,
+            applicable_discounts: config.applicable_discounts || [],
           };
         });
 

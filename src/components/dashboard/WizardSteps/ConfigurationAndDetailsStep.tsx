@@ -9,8 +9,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { AdvertisedOfferWizardData, AdvertisedOfferConfig } from '@/types/advertisedOffer';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Car, Package, Tag, DollarSign } from 'lucide-react';
+import { Calendar, Car, Package, Tag, DollarSign, Percent } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import { MultiSelect } from '@/components/ui/multi-select';
 
 interface ConfigurationAndDetailsStepProps {
   data: AdvertisedOfferWizardData;
@@ -35,12 +36,16 @@ interface ProgramMetadata {
     start: string;
     end: string;
   };
+  geoCode?: string;
+  vehicleYear?: number;
+  vehicleModel?: string;
 }
 
 const ConfigurationAndDetailsStep = ({ data, onUpdate }: ConfigurationAndDetailsStepProps) => {
   const [programMetadata, setProgramMetadata] = useState<Record<string, ProgramMetadata>>({});
   const [calculations, setCalculations] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(false);
+  const [availableDiscounts, setAvailableDiscounts] = useState<Record<string, any[]>>({});
 
   useEffect(() => {
     fetchProgramMetadata();
@@ -51,6 +56,12 @@ const ConfigurationAndDetailsStep = ({ data, onUpdate }: ConfigurationAndDetails
       calculateFinancials();
     }
   }, [data.program_configs]);
+
+  useEffect(() => {
+    if (Object.keys(programMetadata).length > 0) {
+      fetchApplicableDiscounts();
+    }
+  }, [programMetadata, data.offer_start_date, data.offer_end_date]);
 
   const fetchProgramMetadata = async () => {
     const metadata: Record<string, ProgramMetadata> = {};
@@ -164,6 +175,19 @@ const ConfigurationAndDetailsStep = ({ data, onUpdate }: ConfigurationAndDetails
             end: programData.program_end_date || 'N/A'
           };
 
+          // Extract vehicle year and model for discount filtering
+          let vehicleYear: number | undefined;
+          let vehicleModel: string | undefined;
+          if (programData.vehicle_style_id) {
+            const vehicleResult: any = await supabase
+              .from('vehicle_style_coding')
+              .select('model, model_year')
+              .eq('vehicle_style_id', programData.vehicle_style_id)
+              .maybeSingle();
+            vehicleYear = vehicleResult.data?.model_year;
+            vehicleModel = vehicleResult.data?.model;
+          }
+
           metadata[programCode] = {
             orderTypes,
             availableTerms,
@@ -172,7 +196,10 @@ const ConfigurationAndDetailsStep = ({ data, onUpdate }: ConfigurationAndDetails
             vehicleDisplay,
             productType,
             condition,
-            dateRange
+            dateRange,
+            geoCode: programData.geo_code,
+            vehicleYear,
+            vehicleModel
           };
         }
       } catch (error) {
@@ -181,6 +208,83 @@ const ConfigurationAndDetailsStep = ({ data, onUpdate }: ConfigurationAndDetails
     }
 
     setProgramMetadata(metadata);
+  };
+
+  const fetchApplicableDiscounts = async () => {
+    const discounts: Record<string, any[]> = {};
+
+    for (const programCode of data.selected_programs) {
+      const meta = programMetadata[programCode];
+      if (!meta) continue;
+
+      try {
+        // Fetch all active discount rules
+        const { data: allDiscounts, error } = await supabase
+          .from('discount_rules')
+          .select('*')
+          .eq('feeActive', true);
+
+        if (error) throw error;
+
+        // Filter discounts based on matching criteria
+        const filtered = (allDiscounts || []).filter((discount: any) => {
+          // Check geo code match
+          const geoMatch = !discount.discount_geo || 
+                          discount.discount_geo === 'ALL' || 
+                          discount.discount_geo === meta.geoCode;
+          if (!geoMatch) return false;
+
+          // Check date range overlap
+          const offerStart = new Date(data.offer_start_date);
+          const offerEnd = new Date(data.offer_end_date);
+          const discountStart = discount.startDate ? new Date(discount.startDate) : null;
+          const discountEnd = discount.endDate ? new Date(discount.endDate) : null;
+          
+          const dateMatch = (!discountStart || discountStart <= offerEnd) &&
+                           (!discountEnd || discountEnd >= offerStart);
+          if (!dateMatch) return false;
+
+          // Check vehicle year match
+          const yearMatch = !discount.applicable_vehicle_year || 
+                           discount.applicable_vehicle_year.length === 0 ||
+                           discount.applicable_vehicle_year.includes('All') ||
+                           (meta.vehicleYear && discount.applicable_vehicle_year.includes(meta.vehicleYear));
+          if (!yearMatch) return false;
+
+          // Check vehicle model match
+          const modelMatch = !discount.applicable_vehicle_model ||
+                            discount.applicable_vehicle_model.length === 0 ||
+                            discount.applicable_vehicle_model.includes('All') ||
+                            (meta.vehicleModel && discount.applicable_vehicle_model.includes(meta.vehicleModel));
+          if (!modelMatch) return false;
+
+          // Check purchase type match (order type)
+          const config = data.program_configs[programCode];
+          const orderTypes = config?.order_type?.split(',').map(t => t.trim()) || [];
+          const purchaseMatch = !discount.applicable_purchase_type ||
+                               discount.applicable_purchase_type.length === 0 ||
+                               discount.applicable_purchase_type.includes('All') ||
+                               orderTypes.some(ot => discount.applicable_purchase_type.includes(ot));
+          if (!purchaseMatch) return false;
+
+          // Check title status match (condition)
+          const statusMatch = !discount.applicable_title_status ||
+                             discount.applicable_title_status.length === 0 ||
+                             discount.applicable_title_status.includes('All') ||
+                             (meta.condition && discount.applicable_title_status.includes(meta.condition));
+          if (!statusMatch) return false;
+
+          return true;
+        });
+
+        discounts[programCode] = filtered;
+      } catch (error) {
+        console.error(`Error fetching discounts for ${programCode}:`, error);
+        discounts[programCode] = [];
+      }
+    }
+
+    setAvailableDiscounts(discounts);
   };
 
   const calculateFinancials = async () => {
@@ -418,6 +522,36 @@ const ConfigurationAndDetailsStep = ({ data, onUpdate }: ConfigurationAndDetails
                           />
                         </div>
                       )}
+
+                      <Separator className="my-4" />
+
+                      {/* Advertised Discount Section */}
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <Percent className="h-4 w-4 text-muted-foreground" />
+                          <Label>Advertised Discount</Label>
+                        </div>
+                        <MultiSelect
+                          options={(availableDiscounts[programCode] || []).map(discount => ({
+                            label: `[${discount.category || 'N/A'}] ${discount.name || 'Unnamed'} - $${discount.discountAmount || 0}`,
+                            value: discount.id
+                          }))}
+                          selected={config?.applicable_discounts || []}
+                          onChange={(selected) => handleConfigUpdate(programCode, 'applicable_discounts', selected)}
+                          placeholder={
+                            !availableDiscounts[programCode] 
+                              ? "Loading discounts..." 
+                              : availableDiscounts[programCode].length === 0 
+                                ? "No applicable discounts found" 
+                                : "Select discounts..."
+                          }
+                        />
+                        {availableDiscounts[programCode] && (
+                          <p className="text-xs text-muted-foreground">
+                            {availableDiscounts[programCode].length} applicable discount(s) found
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </Card>
 

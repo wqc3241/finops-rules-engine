@@ -6,6 +6,7 @@ export interface AdvertisedOfferConfig {
   credit_score_min?: number;
   credit_score_max?: number;
   annual_mileage?: number;
+  applicable_discounts?: string[];
 }
 
 export interface AdvertisedOfferWizardData {
@@ -61,4 +62,5 @@ export interface AdvertisedOffer {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  applicable_discounts?: string[];
 }
