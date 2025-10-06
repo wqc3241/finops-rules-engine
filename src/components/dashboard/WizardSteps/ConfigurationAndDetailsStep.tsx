@@ -341,7 +341,8 @@ const ConfigurationAndDetailsStep = ({
                 </div>
               </AccordionTrigger>
               <AccordionContent className="pt-4">
-                <div className="space-y-4">
+                {/* Grid Layout: Configuration + Financial Details */}
+                <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4 mb-4">
                   {/* Configuration Card */}
                   <Card className="p-4">
                     <div className="space-y-3">
@@ -413,146 +414,147 @@ const ConfigurationAndDetailsStep = ({
                             <Input type="number" placeholder="12000" value={config?.annual_mileage || ''} onChange={e => handleConfigUpdate(programCode, 'annual_mileage', parseInt(e.target.value) || undefined)} />
                           </div>}
                       </div>
-
-                      <Separator className="my-3" />
-
-                      {/* Advertised Discount List */}
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <Percent className="h-4 w-4 text-muted-foreground" />
-                          <Label>Advertised Discount</Label>
-                        </div>
-                        <div className="border rounded-md bg-background overflow-x-auto">
-                          {(availableDiscounts[programCode] || []).length > 0 ? (
-                            <>
-                              {/* Header Row */}
-                              <div className="grid grid-cols-[40px_100px_200px_100px_150px_100px_110px_110px_1fr] gap-3 px-3 py-2 bg-muted/50 border-b font-semibold text-xs">
-                                <div></div>
-                                <div>Category</div>
-                                <div>Name</div>
-                                <div>Type</div>
-                                <div>Subcategory</div>
-                                <div>Amount</div>
-                                <div>Start Date</div>
-                                <div>End Date</div>
-                                <div>Description</div>
-                              </div>
-                              
-                              {/* Data Rows */}
-                              <div className="max-h-64 overflow-y-auto">
-                                {(availableDiscounts[programCode] || []).map(discount => {
-                                  const currentDiscounts = config?.applicable_discounts || [];
-                                  const isSelected = currentDiscounts.includes(discount.id);
-                                  
-                                  return (
-                                    <div 
-                                      key={discount.id} 
-                                      className="grid grid-cols-[40px_100px_200px_100px_150px_100px_110px_110px_1fr] gap-3 px-3 py-2 border-b hover:bg-accent cursor-pointer transition-colors items-center text-sm"
-                                      onClick={() => {
-                                        const newDiscounts = isSelected 
-                                          ? currentDiscounts.filter(id => id !== discount.id) 
-                                          : [...currentDiscounts, discount.id];
-                                        handleConfigUpdate(programCode, 'applicable_discounts', newDiscounts);
-                                      }}
-                                    >
-                                      <div className="flex items-center justify-center">
-                                        <Checkbox
-                                          checked={isSelected}
-                                          onCheckedChange={(checked) => {
-                                            const newDiscounts = checked 
-                                              ? [...currentDiscounts, discount.id] 
-                                              : currentDiscounts.filter(id => id !== discount.id);
-                                            handleConfigUpdate(programCode, 'applicable_discounts', newDiscounts);
-                                          }}
-                                        />
-                                      </div>
-                                      
-                                      <div>
-                                        <Badge variant="secondary" className="text-xs">
-                                          {discount.category || "N/A"}
-                                        </Badge>
-                                      </div>
-                                      
-                                      <div className="truncate font-medium" title={discount.name || "N/A"}>
-                                        {discount.name || "N/A"}
-                                      </div>
-                                      
-                                      <div className="truncate text-muted-foreground" title={discount.type || "N/A"}>
-                                        {discount.type || "N/A"}
-                                      </div>
-                                      
-                                      <div className="truncate text-muted-foreground" title={discount.subcategory || "N/A"}>
-                                        {discount.subcategory || "N/A"}
-                                      </div>
-                                      
-                                      <div className="font-semibold text-primary">
-                                        ${discount.discountAmount || 0}
-                                      </div>
-                                      
-                                      <div className="text-xs text-muted-foreground">
-                                        {discount.startDate ? format(new Date(discount.startDate), "MM/dd/yyyy") : "N/A"}
-                                      </div>
-                                      
-                                      <div className="text-xs text-muted-foreground">
-                                        {discount.endDate ? format(new Date(discount.endDate), "MM/dd/yyyy") : "Never"}
-                                      </div>
-                                      
-                                      <div className="truncate text-xs text-muted-foreground" title={discount.description || ""}>
-                                        {discount.description || "—"}
-                                      </div>
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            </>
-                          ) : (
-                            <p className="text-sm text-muted-foreground text-center py-4">
-                              {!availableDiscounts[programCode] ? 'Loading discounts...' : 'No applicable discounts found'}
-                            </p>
-                          )}
-                        </div>
-                        {availableDiscounts[programCode] && <p className="text-xs text-muted-foreground">
-                            {availableDiscounts[programCode].length} applicable discount(s) found
-                          </p>}
-                      </div>
                     </div>
                   </Card>
 
-                  {/* Financial Details Card */}
-                  <Card className="p-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <DollarSign className="h-5 w-5 text-primary" />
-                      <h3 className="text-lg font-semibold">Financial Details</h3>
+                  {/* Financial Details Card - Compact */}
+                  <Card className="p-3 h-fit">
+                    <div className="flex items-center gap-2 mb-2">
+                      <DollarSign className="h-4 w-4 text-primary" />
+                      <h3 className="text-base font-semibold">Financial Details</h3>
                     </div>
                     
-                    {!config ? <div className="text-sm text-muted-foreground py-4">
+                    {!config ? <div className="text-xs text-muted-foreground py-3">
                         Configure the program first
-                      </div> : !calc ? <div className="text-sm text-muted-foreground py-4">
+                      </div> : !calc ? <div className="text-xs text-muted-foreground py-3">
                         {loading ? 'Calculating...' : 'No pricing data available'}
-                      </div> : <div className="space-y-2">
-                        <div className="flex justify-between py-2 border-b">
-                          <span className="text-sm font-medium text-foreground">Base Price</span>
-                          <span className="font-semibold text-lg">${calc.base_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                      </div> : <div className="space-y-1.5">
+                        <div className="flex justify-between py-1.5">
+                          <span className="text-xs font-medium">Base Price</span>
+                          <span className="font-semibold text-sm">${calc.base_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                         </div>
-                        <div className="flex justify-between pt-2">
-                          <span className="text-sm text-muted-foreground">Monthly Payment</span>
-                          <span className="font-semibold">${calc.monthly_payment.toFixed(2)}</span>
+                        <Separator />
+                        <div className="flex justify-between py-1">
+                          <span className="text-xs text-muted-foreground">Monthly Payment</span>
+                          <span className="font-semibold text-sm">${calc.monthly_payment.toFixed(2)}</span>
                         </div>
-                        <div className="flex justify-between">
-                          <span className="text-sm text-muted-foreground">APR</span>
-                          <span className="font-semibold">{calc.apr}%</span>
+                        <div className="flex justify-between py-1">
+                          <span className="text-xs text-muted-foreground">APR</span>
+                          <span className="font-semibold text-sm">{calc.apr}%</span>
                         </div>
-                        <div className="flex justify-between">
-                          <span className="text-sm text-muted-foreground">Total Cost</span>
-                          <span className="font-semibold">${calc.total_cost_of_credit}</span>
+                        <div className="flex justify-between py-1">
+                          <span className="text-xs text-muted-foreground">Total Cost</span>
+                          <span className="font-semibold text-sm">${calc.total_cost_of_credit}</span>
                         </div>
-                        {calc.lender && <div className="flex justify-between">
-                            <span className="text-sm text-muted-foreground">Lender</span>
-                            <span className="font-semibold">{calc.lender}</span>
+                        {calc.lender && <div className="flex justify-between py-1">
+                            <span className="text-xs text-muted-foreground">Lender</span>
+                            <span className="font-semibold text-sm">{calc.lender}</span>
                           </div>}
                       </div>}
                   </Card>
                 </div>
+
+                {/* Advertised Discount Section - Full Width */}
+                <Card className="p-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Percent className="h-4 w-4 text-muted-foreground" />
+                      <Label>Advertised Discount</Label>
+                    </div>
+                    <div className="border rounded-md bg-background overflow-x-auto">
+                      {(availableDiscounts[programCode] || []).length > 0 ? (
+                        <>
+                          {/* Header Row */}
+                          <div className="grid grid-cols-[40px_100px_200px_100px_150px_100px_110px_110px_1fr] gap-3 px-3 py-2 bg-muted/50 border-b font-semibold text-xs">
+                            <div></div>
+                            <div>Category</div>
+                            <div>Name</div>
+                            <div>Type</div>
+                            <div>Subcategory</div>
+                            <div>Amount</div>
+                            <div>Start Date</div>
+                            <div>End Date</div>
+                            <div>Description</div>
+                          </div>
+                          
+                          {/* Data Rows */}
+                          <div className="max-h-64 overflow-y-auto">
+                            {(availableDiscounts[programCode] || []).map(discount => {
+                              const currentDiscounts = config?.applicable_discounts || [];
+                              const isSelected = currentDiscounts.includes(discount.id);
+                              
+                              return (
+                                <div 
+                                  key={discount.id} 
+                                  className="grid grid-cols-[40px_100px_200px_100px_150px_100px_110px_110px_1fr] gap-3 px-3 py-2 border-b hover:bg-accent cursor-pointer transition-colors items-center text-sm"
+                                  onClick={() => {
+                                    const newDiscounts = isSelected 
+                                      ? currentDiscounts.filter(id => id !== discount.id) 
+                                      : [...currentDiscounts, discount.id];
+                                    handleConfigUpdate(programCode, 'applicable_discounts', newDiscounts);
+                                  }}
+                                >
+                                  <div className="flex items-center justify-center">
+                                    <Checkbox
+                                      checked={isSelected}
+                                      onCheckedChange={(checked) => {
+                                        const newDiscounts = checked 
+                                          ? [...currentDiscounts, discount.id] 
+                                          : currentDiscounts.filter(id => id !== discount.id);
+                                        handleConfigUpdate(programCode, 'applicable_discounts', newDiscounts);
+                                      }}
+                                    />
+                                  </div>
+                                  
+                                  <div>
+                                    <Badge variant="secondary" className="text-xs">
+                                      {discount.category || "N/A"}
+                                    </Badge>
+                                  </div>
+                                  
+                                  <div className="truncate font-medium" title={discount.name || "N/A"}>
+                                    {discount.name || "N/A"}
+                                  </div>
+                                  
+                                  <div className="truncate text-muted-foreground" title={discount.type || "N/A"}>
+                                    {discount.type || "N/A"}
+                                  </div>
+                                  
+                                  <div className="truncate text-muted-foreground" title={discount.subcategory || "N/A"}>
+                                    {discount.subcategory || "N/A"}
+                                  </div>
+                                  
+                                  <div className="font-semibold text-primary">
+                                    ${discount.discountAmount || 0}
+                                  </div>
+                                  
+                                  <div className="text-xs text-muted-foreground">
+                                    {discount.startDate ? format(new Date(discount.startDate), "MM/dd/yyyy") : "N/A"}
+                                  </div>
+                                  
+                                  <div className="text-xs text-muted-foreground">
+                                    {discount.endDate ? format(new Date(discount.endDate), "MM/dd/yyyy") : "Never"}
+                                  </div>
+                                  
+                                  <div className="truncate text-xs text-muted-foreground" title={discount.description || ""}>
+                                    {discount.description || "—"}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </>
+                      ) : (
+                        <p className="text-sm text-muted-foreground text-center py-4">
+                          {!availableDiscounts[programCode] ? 'Loading discounts...' : 'No applicable discounts found'}
+                        </p>
+                      )}
+                    </div>
+                    {availableDiscounts[programCode] && <p className="text-xs text-muted-foreground">
+                        {availableDiscounts[programCode].length} applicable discount(s) found
+                      </p>}
+                  </div>
+                </Card>
               </AccordionContent>
             </AccordionItem>;
       })}
