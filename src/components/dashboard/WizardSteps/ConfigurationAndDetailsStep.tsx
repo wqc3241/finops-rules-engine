@@ -229,8 +229,8 @@ const ConfigurationAndDetailsStep = ({
           data: pricingData
         } = await supabase.from('bulletin_pricing').select('*').eq('financial_program_code', programCode).limit(1).maybeSingle();
         if (pricingData) {
-          // Use base_price for calculation (default to 50000 if not set)
-          const basePrice = config.base_price || 50000;
+          // Fixed base price for sample calculations
+          const basePrice = 70000;
           const downPayment = config.down_payment || 0;
           const financedAmount = basePrice - downPayment;
           
@@ -385,16 +385,6 @@ const ConfigurationAndDetailsStep = ({
                               {(meta?.availableTerms || []).map(term => <SelectItem key={term} value={term.toString()}>{term} mo</SelectItem>)}
                             </SelectContent>
                           </Select>
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label>Base Price (Sample Calculation)</Label>
-                          <Input 
-                            type="number" 
-                            placeholder="50000.00" 
-                            value={config?.base_price || ''} 
-                            onChange={e => handleConfigUpdate(programCode, 'base_price', parseFloat(e.target.value) || 0)} 
-                          />
                         </div>
 
                         <div className="space-y-2">
