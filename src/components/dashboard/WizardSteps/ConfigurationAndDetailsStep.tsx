@@ -229,11 +229,20 @@ const ConfigurationAndDetailsStep = ({
           data: pricingData
         } = await supabase.from('bulletin_pricing').select('*').eq('financial_program_code', programCode).limit(1).maybeSingle();
         if (pricingData) {
-          // Simplified calculation (replace with actual logic)
-          const monthlyPayment = 450.00 + Math.random() * 100;
+          // Use base_price for calculation (default to 50000 if not set)
+          const basePrice = config.base_price || 50000;
+          const downPayment = config.down_payment || 0;
+          const financedAmount = basePrice - downPayment;
+          
+          // Simplified APR calculation
           const apr = 3.99 + Math.random() * 2;
+          
+          // Calculate monthly payment: financed amount * (1 + apr/100) / term
+          const monthlyPayment = (financedAmount * (1 + apr / 100)) / config.term;
           const totalCost = monthlyPayment * config.term;
+          
           newCalculations[programCode] = {
+            base_price: basePrice,
             monthly_payment: monthlyPayment,
             apr: apr.toFixed(2),
             total_cost_of_credit: totalCost.toFixed(2),
@@ -379,6 +388,16 @@ const ConfigurationAndDetailsStep = ({
                         </div>
 
                         <div className="space-y-2">
+                          <Label>Base Price (Sample Calculation)</Label>
+                          <Input 
+                            type="number" 
+                            placeholder="50000.00" 
+                            value={config?.base_price || ''} 
+                            onChange={e => handleConfigUpdate(programCode, 'base_price', parseFloat(e.target.value) || 0)} 
+                          />
+                        </div>
+
+                        <div className="space-y-2">
                           <Label>Down Payment</Label>
                           <Input type="number" placeholder="0.00" value={config?.down_payment || ''} onChange={e => handleConfigUpdate(programCode, 'down_payment', parseFloat(e.target.value) || 0)} />
                         </div>
@@ -521,7 +540,11 @@ const ConfigurationAndDetailsStep = ({
                       </div> : !calc ? <div className="text-sm text-muted-foreground py-4">
                         {loading ? 'Calculating...' : 'No pricing data available'}
                       </div> : <div className="space-y-2">
-                        <div className="flex justify-between">
+                        <div className="flex justify-between py-2 border-b">
+                          <span className="text-sm font-medium text-foreground">Base Price</span>
+                          <span className="font-semibold text-lg">${calc.base_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                        </div>
+                        <div className="flex justify-between pt-2">
                           <span className="text-sm text-muted-foreground">Monthly Payment</span>
                           <span className="font-semibold">${calc.monthly_payment.toFixed(2)}</span>
                         </div>

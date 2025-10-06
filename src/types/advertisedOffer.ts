@@ -2,6 +2,7 @@ export interface AdvertisedOfferConfig {
   financial_program_code: string;
   order_type: string;
   term: number;
+  base_price?: number;
   down_payment?: number;
   credit_score_min?: number;
   credit_score_max?: number;
