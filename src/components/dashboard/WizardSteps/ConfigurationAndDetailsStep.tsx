@@ -110,8 +110,21 @@ const ConfigurationAndDetailsStep = ({
           }
           let productType = 'N/A';
           if (programData.financial_product_id) {
-            const productResult: any = await supabase.from('financial_products').select('product_type').eq('product_id', programData.financial_product_id).maybeSingle();
+            console.log('Fetching product type for:', programData.financial_product_id);
+            const productResult: any = await supabase
+              .from('financial_products')
+              .select('product_type')
+              .eq('product_id', programData.financial_product_id)
+              .maybeSingle();
+            
+            console.log('Product result:', productResult);
+            
+            if (productResult.error) {
+              console.error('Error fetching product:', productResult.error);
+            }
+            
             productType = productResult.data?.product_type || 'N/A';
+            console.log('Final productType:', productType);
           }
           let vehicleDisplay = 'N/A';
           if (programData.vehicle_style_id) {
