@@ -110,11 +110,14 @@ const ConfigurationAndDetailsStep = ({
           }
           let productType = 'N/A';
           if (programData.financial_product_id) {
-            console.log('Fetching product type for:', programData.financial_product_id);
+            // Trim the product ID in case it has whitespace/newlines
+            const productId = programData.financial_product_id.trim();
+            console.log('Fetching product type for:', productId);
+            
             const productResult: any = await supabase
               .from('financial_products')
               .select('product_type')
-              .eq('product_id', programData.financial_product_id)
+              .eq('product_id', productId)
               .maybeSingle();
             
             console.log('Product result:', productResult);
@@ -123,7 +126,8 @@ const ConfigurationAndDetailsStep = ({
               console.error('Error fetching product:', productResult.error);
             }
             
-            productType = productResult.data?.product_type || 'N/A';
+            // Trim whitespace/newlines from product_type as well
+            productType = productResult.data?.product_type?.trim() || 'N/A';
             console.log('Final productType:', productType);
           }
           let vehicleDisplay = 'N/A';
