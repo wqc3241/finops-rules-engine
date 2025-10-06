@@ -271,15 +271,19 @@ const ConfigurationAndDetailsStep = ({
       setLoading(false);
     }
   };
-  const handleConfigUpdate = (programCode: string, field: string, value: any) => {
+const handleConfigUpdate = (programCode: string, field: string | Record<string, any>, value?: any) => {
     const currentConfig = data.program_configs[programCode] || {
       financial_program_code: programCode,
       order_type: '',
       term: 0
     };
+    
+    // Allow updating multiple fields at once
+    const updates = typeof field === 'object' ? field : { [field]: value };
+    
     const newConfig: any = {
       ...currentConfig,
-      [field]: value
+      ...updates
     };
     const updatedConfigs: Record<string, AdvertisedOfferConfig> = {
       ...data.program_configs,
@@ -347,18 +351,24 @@ const ConfigurationAndDetailsStep = ({
                   <Card className="p-4">
                     <div className="space-y-3">
                       {/* Vehicle Info Section */}
-                      {meta && <div className="mb-4 p-3 bg-secondary/50 rounded-lg space-y-1">
+                      {meta ? (
+                        <div className="mb-4 p-3 bg-secondary/50 rounded-lg space-y-1">
                           <div className="flex items-center gap-2 text-sm">
                             <Car className="h-4 w-4 text-muted-foreground" />
                             <span className="font-medium">{meta.vehicleDisplay}</span>
                           </div>
                           <div className="flex items-center gap-2 text-sm">
                             <Package className="h-4 w-4 text-muted-foreground" />
-                            <Badge variant="secondary">{meta.productType}</Badge>
+                            <Badge variant="secondary">{meta.productType || 'Loading...'}</Badge>
                             <Tag className="h-4 w-4 text-muted-foreground ml-2" />
-                            <Badge variant="outline">{meta.condition}</Badge>
+                            <Badge variant="outline">{meta.condition || 'Loading...'}</Badge>
                           </div>
-                        </div>}
+                        </div>
+                      ) : (
+                        <div className="mb-4 p-3 bg-secondary/50 rounded-lg">
+                          <span className="text-sm text-muted-foreground">Loading program details...</span>
+                        </div>
+                      )}
 
                       {/* Form Fields */}
                       <div className="grid grid-cols-2 gap-3">
@@ -395,11 +405,22 @@ const ConfigurationAndDetailsStep = ({
 
                         <div className="space-y-2">
                           <Label>Credit Score</Label>
-                          <Select value={config?.credit_score_min !== undefined && config?.credit_score_max !== undefined ? `${config.credit_score_min}-${config.credit_score_max}` : undefined} onValueChange={value => {
-                        const [min, max] = value.split('-').map(Number);
-                        handleConfigUpdate(programCode, 'credit_score_min', min);
-                        handleConfigUpdate(programCode, 'credit_score_max', max);
-                      }}>
+                          <Select 
+                            value={
+                              config?.credit_score_min !== undefined && 
+                              config?.credit_score_max !== undefined 
+                                ? `${config.credit_score_min}-${config.credit_score_max}` 
+                                : undefined
+                            } 
+                            onValueChange={value => {
+                              const [min, max] = value.split('-').map(Number);
+                              // Update both values simultaneously to avoid race condition
+                              handleConfigUpdate(programCode, {
+                                credit_score_min: min,
+                                credit_score_max: max
+                              });
+                            }}
+                          >
                             <SelectTrigger>
                               <SelectValue placeholder="Select" />
                             </SelectTrigger>
