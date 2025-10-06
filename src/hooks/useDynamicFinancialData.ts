@@ -7,6 +7,8 @@ import { useChangeTracking } from "./useChangeTracking";
 import { useAuth } from "./useSupabaseAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useCountry } from "./useCountry";
+import { getGeoCodeFilter, formatGeoCode } from "@/utils/geoCodeFilter";
 
 interface UseDynamicFinancialDataProps {
   schemaId: string;
@@ -34,6 +36,7 @@ export const useDynamicFinancialData = ({
   const { isTableLocked } = useSupabaseApprovalWorkflow();
   const { startTracking, updateTracking } = useChangeTracking();
   const { user, profile } = useAuth();
+  const { selectedCountry } = useCountry();
 
   // Map schema IDs to Supabase table names with type safety
   const getTableName = (schemaId: string) => {
@@ -126,10 +129,25 @@ export const useDynamicFinancialData = ({
       const startIndex = (currentPage - 1) * pageSize;
       const endIndex = startIndex + pageSize - 1;
       
-      // Get total count
-      const { count, error: countError } = await supabase
+      // Get total count with geo filtering
+      let countQuery = supabase
         .from(tableName as any)
         .select('*', { count: 'exact', head: true });
+      
+      // Apply geo code filtering for count
+      const tablesWithGeoCode = [
+        'bulletin_pricing', 'dealers', 'financial_products', 'gateways', 
+        'geo_location', 'lease_configs', 'routing_rules', 'stipulations', 
+        'vehicle_conditions', 'vehicle_style_coding', 'tax_rules'
+      ];
+      
+      if (tableName === 'discount_rules') {
+        countQuery = countQuery.ilike('discount_geo', getGeoCodeFilter(selectedCountry.code));
+      } else if (tablesWithGeoCode.includes(tableName)) {
+        countQuery = countQuery.ilike('geo_code', getGeoCodeFilter(selectedCountry.code));
+      }
+
+      const { count, error: countError } = await countQuery;
 
       if (countError) {
         console.error('Error getting count:', countError);
@@ -138,12 +156,22 @@ export const useDynamicFinancialData = ({
         setTotalCount(count || 0);
       }
 
-      // Get paginated data
-      const { data: supabaseData, error } = await supabase
+      // Get paginated data with geo filtering
+      let dataQuery = supabase
         .from(tableName as any)
         .select('*')
-        .order(orderByColumn, { ascending: false })
-        .range(startIndex, endIndex);
+        .order(orderByColumn, { ascending: false });
+      
+      // Apply same geo code filtering for data
+      if (tableName === 'discount_rules') {
+        dataQuery = dataQuery.ilike('discount_geo', getGeoCodeFilter(selectedCountry.code));
+      } else if (tablesWithGeoCode.includes(tableName)) {
+        dataQuery = dataQuery.ilike('geo_code', getGeoCodeFilter(selectedCountry.code));
+      }
+      
+      dataQuery = dataQuery.range(startIndex, endIndex);
+
+      const { data: supabaseData, error } = await dataQuery;
 
       if (error) {
         console.error('Error loading data from Supabase:', error);
@@ -169,7 +197,7 @@ export const useDynamicFinancialData = ({
 
   useEffect(() => {
     loadData();
-  }, [loadData]);
+  }, [loadData, selectedCountry.code]);
 
   // Update tracking when data changes
   useEffect(() => {
@@ -357,6 +385,22 @@ export const useDynamicFinancialData = ({
       
       // Handle table-specific required fields and defaults
       const handleTableSpecificFields = (tableName: string, row: any) => {
+        // Auto-populate geo_code based on selected country
+        const geoCodeTables = [
+          'financial_products', 'dealers', 'gateways', 'geo_location', 
+          'lease_configs', 'routing_rules', 'stipulations', 
+          'vehicle_conditions', 'vehicle_style_coding', 'tax_rules'
+        ];
+        
+        if (geoCodeTables.includes(tableName) && !row['geo_code']) {
+          row['geo_code'] = formatGeoCode(selectedCountry.code);
+        }
+        
+        // For discount_rules, use discount_geo instead
+        if (tableName === 'discount_rules' && !row['discount_geo']) {
+          row['discount_geo'] = formatGeoCode(selectedCountry.code);
+        }
+        
         switch (tableName) {
           case 'fee_rules':
             row['_id'] = `fee_${Date.now()}`;

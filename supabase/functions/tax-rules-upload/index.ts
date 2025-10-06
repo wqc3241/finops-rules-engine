@@ -68,12 +68,27 @@ serve(async (req) => {
         }
 
         // Map CSV columns to database columns (based on tax_rules schema)
+        const geoCodeValue = values[headers.indexOf('Geo Code')] || '';
+        
+        // Validate and format geo_code to standard format
+        let geoCode = 'NA-US';
+        if (geoCodeValue) {
+          if (geoCodeValue.startsWith('NA-')) {
+            geoCode = geoCodeValue.toUpperCase();
+          } else if (geoCodeValue.length === 2) {
+            // Assume 2-letter codes are US states
+            geoCode = `NA-US-${geoCodeValue.toUpperCase()}`;
+          } else {
+            geoCode = `NA-US-${geoCodeValue.toUpperCase()}`;
+          }
+        }
+        
         const record: any = {
           tax_name: values[headers.indexOf('Tax Name')] || '',
           tax_type: values[headers.indexOf('Tax Type')] || '',
           rate: parseFloat(values[headers.indexOf('Tax Rate')] || '0'),
           is_active: (values[headers.indexOf('Tax Active')] || '').toLowerCase() === 'yes',
-          geo_code: values[headers.indexOf('Geo Code')] || '',
+          geo_code: geoCode,
           created_at: new Date().toISOString()
         };
 

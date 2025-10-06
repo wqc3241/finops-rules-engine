@@ -19,13 +19,13 @@ serve(async (req) => {
       'Geo Code'
     ];
 
-    // Sample data row
+    // Sample data row with correct geo code format
     const sampleRow = [
       'California Sales Tax',
       'Percentage',
       '8.75',
       'Yes',
-      'CA'
+      'NA-US-CA'
     ];
 
     // Create CSV content

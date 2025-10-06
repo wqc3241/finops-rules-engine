@@ -16,7 +16,7 @@ serve(async (req) => {
       'Discount Type',
       'Discount Amount',
       'Discount Active',
-      'Discount State',
+      'Discount Geo',
       'Taxable',
       'Category',
       'Subcategory',
@@ -30,13 +30,13 @@ serve(async (req) => {
       'Applicable Title Status'
     ];
 
-    // Sample data row
+    // Sample data row with new geo code format
     const sampleRow = [
       'Military Discount',
       'Percentage',
       '5.00',
       'Yes',
-      'CA',
+      'NA-US',
       'No',
       'Customer',
       'Military',

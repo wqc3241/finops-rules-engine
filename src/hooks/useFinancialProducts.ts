@@ -1,6 +1,8 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useCountry } from "./useCountry";
+import { getGeoCodeFilter } from "@/utils/geoCodeFilter";
 
 export type FinancialProduct = {
   id: string;
@@ -13,6 +15,7 @@ export type FinancialProduct = {
 
 export function useFinancialProducts() {
   const [products, setProducts] = useState<FinancialProduct[]>([]);
+  const { selectedCountry } = useCountry();
 
   useEffect(() => {
     let isMounted = true;
@@ -21,6 +24,7 @@ export function useFinancialProducts() {
         .from("financial_products")
         .select("product_id, product_type, product_subtype, geo_code, category, is_active")
         .eq("is_active", true)
+        .ilike("geo_code", getGeoCodeFilter(selectedCountry.code))
         .order("product_id", { ascending: true });
 
       if (error) {
@@ -44,7 +48,7 @@ export function useFinancialProducts() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [selectedCountry.code]);
 
   return products;
 }

@@ -78,7 +78,6 @@ serve(async (req) => {
           type: values[headers.indexOf('Discount Type')] || '',
           discountAmount: parseFloat(values[headers.indexOf('Discount Amount')] || '0'),
           feeActive: (values[headers.indexOf('Discount Active')] || '').toLowerCase() === 'yes',
-          feeState: values[headers.indexOf('Discount State')] || '',
           feeTaxable: (values[headers.indexOf('Taxable')] || '').toLowerCase() === 'yes',
           category: values[headers.indexOf('Category')] || '',
           subcategory: values[headers.indexOf('Subcategory')] || '',
@@ -93,6 +92,22 @@ serve(async (req) => {
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
         };
+
+        // Handle discount_geo conversion to standard format
+        let discountGeo = values[headers.indexOf('Discount Geo')] || values[headers.indexOf('Discount State')] || 'NA-US';
+        
+        // Convert legacy formats to standard geo_code format
+        if (discountGeo === 'ALL' || !discountGeo) {
+          discountGeo = 'NA-US';
+        } else if (discountGeo.length === 2) {
+          // Assume 2-letter codes are US states
+          discountGeo = `NA-US-${discountGeo.toUpperCase()}`;
+        } else if (!discountGeo.startsWith('NA-')) {
+          // If it doesn't start with NA-, assume US state
+          discountGeo = `NA-US-${discountGeo.toUpperCase()}`;
+        }
+        
+        record.discount_geo = discountGeo;
 
         // Validate required fields
         if (!record.name || !record.type) {
