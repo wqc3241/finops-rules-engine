@@ -208,11 +208,11 @@ const ConfigurationAndDetailsStep = ({
           if (!dateMatch) return false;
 
           // Check vehicle year match
-          const yearMatch = !discount.applicable_vehicle_year || discount.applicable_vehicle_year.length === 0 || discount.applicable_vehicle_year.includes('All') || meta.vehicleYear && discount.applicable_vehicle_year.includes(meta.vehicleYear);
+          const yearMatch = !discount.applicable_vehicle_year || discount.applicable_vehicle_year.length === 0 || discount.applicable_vehicle_year.includes('All') || !meta.vehicleYear || discount.applicable_vehicle_year.includes(meta.vehicleYear);
           if (!yearMatch) return false;
 
           // Check vehicle model match
-          const modelMatch = !discount.applicable_vehicle_model || discount.applicable_vehicle_model.length === 0 || discount.applicable_vehicle_model.includes('All') || meta.vehicleModel && discount.applicable_vehicle_model.includes(meta.vehicleModel);
+          const modelMatch = !discount.applicable_vehicle_model || discount.applicable_vehicle_model.length === 0 || discount.applicable_vehicle_model.includes('All') || !meta.vehicleModel || discount.applicable_vehicle_model.includes(meta.vehicleModel);
           if (!modelMatch) return false;
 
           // Check purchase type match (order type)
