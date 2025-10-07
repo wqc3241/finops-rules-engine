@@ -210,7 +210,7 @@ const CombinedApplicationView: React.FC<CombinedApplicationViewProps> = ({
             </div>
             <CollapsibleContent>
               <div className="px-3 pb-3">
-                <CombinedFinancialView financialSummary={getFinancialSummaryWithPresentedLender()} dealStructure={applicationFullDetails.dealStructure} applicationType={applicationType} allCardsExpanded={allCardsExpanded} onAllCardsExpandedChange={setAllCardsExpanded} />
+                <CombinedFinancialView financialSummary={getFinancialSummaryWithPresentedLender()} dealStructure={applicationFullDetails.dealStructure} applicationType={applicationType} allCardsExpanded={allCardsExpanded} onAllCardsExpandedChange={setAllCardsExpanded} orderNumber={applicationFullDetails.details.orderNumber} />
               </div>
             </CollapsibleContent>
           </div>

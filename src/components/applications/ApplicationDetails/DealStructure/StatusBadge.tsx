@@ -2,12 +2,15 @@
 import React from 'react';
 import { Check, X, Clock } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import StatusDropdown from './StatusDropdown';
 
 interface StatusBadgeProps {
   status?: string;
+  orderNumber?: string;
+  onStatusChange?: (newStatus: string) => void;
 }
 
-const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
+const StatusBadge: React.FC<StatusBadgeProps> = ({ status, orderNumber, onStatusChange }) => {
   if (!status) return null;
 
   const statusConfig: Record<string, { bgColor: string; textColor: string; icon: React.ReactNode }> = {
@@ -25,6 +28,15 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
 
   const config = statusConfig[status] || { bgColor: 'bg-gray-100', textColor: 'text-gray-600', icon: <Clock className="h-3 w-3 mr-1" /> };
 
+  // Check if this is a Canadian application by checking if orderNumber starts with "CA-"
+  const isCanadianApp = orderNumber?.startsWith('CA-');
+
+  // If Canadian app and onStatusChange is provided, render dropdown
+  if (isCanadianApp && onStatusChange) {
+    return <StatusDropdown status={status} onStatusChange={onStatusChange} />;
+  }
+
+  // Otherwise, render read-only badge
   return (
     <span className={`ml-4 px-3 py-1 text-sm font-medium ${config.bgColor} ${config.textColor} rounded-full flex items-center`}>
       {config.icon}

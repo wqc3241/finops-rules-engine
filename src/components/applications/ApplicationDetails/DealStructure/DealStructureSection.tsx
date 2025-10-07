@@ -16,6 +16,7 @@ interface DealStructureSectionProps {
   financialSummary?: FinancialSummary;
   allCardsExpanded?: boolean;
   onAllCardsExpandedChange?: (expanded: boolean) => void;
+  orderNumber?: string;
 }
 
 const DealStructureSection: React.FC<DealStructureSectionProps> = ({
@@ -25,7 +26,8 @@ const DealStructureSection: React.FC<DealStructureSectionProps> = ({
   showFinancialDetailButton = false,
   financialSummary,
   allCardsExpanded = false,
-  onAllCardsExpandedChange
+  onAllCardsExpandedChange,
+  orderNumber
 }) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const [selectedOfferLender, setSelectedOfferLender] = useState<string | null>(null);
@@ -164,7 +166,8 @@ const DealStructureSection: React.FC<DealStructureSectionProps> = ({
                 onViewApprovedFinancial={() => handleViewSection(offer.lenderName, 'approved')} 
                 onViewCustomerFinancial={() => handleViewSection(offer.lenderName, 'customer')} 
                 onCardToggle={(newState) => handleIndividualCardToggle(offer.lenderName, newState)}
-                financialSummary={financialSummary} 
+                financialSummary={financialSummary}
+                orderNumber={orderNumber}
               />
             </div>
           ))}

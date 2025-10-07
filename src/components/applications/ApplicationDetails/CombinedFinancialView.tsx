@@ -9,6 +9,7 @@ interface CombinedFinancialViewProps {
   applicationType: 'Lease' | 'Loan';
   allCardsExpanded?: boolean;
   onAllCardsExpandedChange?: (expanded: boolean) => void;
+  orderNumber?: string;
 }
 
 const CombinedFinancialView: React.FC<CombinedFinancialViewProps> = ({
@@ -16,7 +17,8 @@ const CombinedFinancialView: React.FC<CombinedFinancialViewProps> = ({
   dealStructure,
   applicationType,
   allCardsExpanded = false,
-  onAllCardsExpandedChange
+  onAllCardsExpandedChange,
+  orderNumber
 }) => {
   return (
     <div className="space-y-3">
@@ -28,6 +30,7 @@ const CombinedFinancialView: React.FC<CombinedFinancialViewProps> = ({
         financialSummary={financialSummary}
         allCardsExpanded={allCardsExpanded}
         onAllCardsExpandedChange={onAllCardsExpandedChange}
+        orderNumber={orderNumber}
       />
     </div>
   );

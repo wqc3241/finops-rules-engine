@@ -20,6 +20,7 @@ interface LenderOfferCardProps {
   onCardToggle?: (newState: boolean) => void;
   financialSummary?: FinancialSummary;
   onOfferUpdate?: (updatedOffer: DealStructureOffer) => void;
+  orderNumber?: string;
 }
 
 const LenderOfferCard: React.FC<LenderOfferCardProps> = ({ 
@@ -35,7 +36,8 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
   onViewCustomerFinancial,
   onCardToggle,
   financialSummary,
-  onOfferUpdate
+  onOfferUpdate,
+  orderNumber
 }) => {
   const [showFinancialSummary, setShowFinancialSummary] = useState(false);
   const [selectedSection, setSelectedSection] = useState<'requested' | 'approved' | 'customer'>('approved');
@@ -277,6 +279,25 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
     });
   };
 
+  const handleStatusChange = (newStatus: string) => {
+    const updatedOffer: DealStructureOffer = {
+      ...currentOffer,
+      status: newStatus
+    };
+
+    setCurrentOffer(updatedOffer);
+    
+    if (onOfferUpdate) {
+      onOfferUpdate(updatedOffer);
+    }
+
+    toast({
+      title: "Status Updated",
+      description: `Status has been changed to "${newStatus}".`,
+      duration: 3000
+    });
+  };
+
   const handleCardClick = (e: React.MouseEvent) => {
     // Stop event from bubbling up to parent sections
     e.stopPropagation();
@@ -317,7 +338,7 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
       <CardContent className="p-3 cursor-pointer" onClick={handleCardClick}>
         <CardHeader 
           lenderName={offer.lenderName}
-          status={offer.status}
+          status={currentOffer.status}
           isExpanded={cardIsExpanded}
           isSelected={isSelected}
           onToggleExpand={handleToggleExpand}
@@ -326,6 +347,8 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
           offer={currentOffer}
           showFinancialDetailButton={showFinancialDetailButton}
           onViewFinancialSummary={handleInlineFinancialSummary}
+          orderNumber={orderNumber}
+          onStatusChange={handleStatusChange}
         />
 
         <CollapsibleCardContent 

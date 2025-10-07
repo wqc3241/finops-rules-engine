@@ -17,6 +17,8 @@ interface CardHeaderProps {
   offer?: DealStructureOffer;
   showFinancialDetailButton?: boolean;
   onViewFinancialSummary?: () => void;
+  orderNumber?: string;
+  onStatusChange?: (newStatus: string) => void;
 }
 
 const CardHeader: React.FC<CardHeaderProps> = ({
@@ -29,14 +31,16 @@ const CardHeader: React.FC<CardHeaderProps> = ({
   onSendToDT,
   offer,
   showFinancialDetailButton = false,
-  onViewFinancialSummary
+  onViewFinancialSummary,
+  orderNumber,
+  onStatusChange
 }) => {
   return (
     <div className="space-y-2">
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-2">
           <h4 className="text-lg font-semibold">{lenderName}</h4>
-          <StatusBadge status={status} />
+          <StatusBadge status={status} orderNumber={orderNumber} onStatusChange={onStatusChange} />
         </div>
         <div className="flex space-x-1 items-center">
           <CardActions 
