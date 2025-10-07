@@ -2,10 +2,12 @@
 import { Application } from '../../../types/application';
 import { leaseApplications } from './leaseApplications';
 import { loanApplications } from './loanApplications';
+import { canadaApplications } from './canadaApplications';
 
 export const applications: Application[] = [
   ...leaseApplications,
-  ...loanApplications
+  ...loanApplications,
+  ...canadaApplications
 ];
 
 // Debug: Log all applications with reapply scenarios

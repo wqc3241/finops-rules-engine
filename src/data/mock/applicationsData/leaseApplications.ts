@@ -10,6 +10,7 @@ export const leaseApplications: Application[] = [
     name: 'Becca Yukelson',
     type: 'Loan',
     status: 'Void',
+    country: 'US',
     notes: 'Original loan application. Customer switched to lease application.',
     notesArray: [
       {
@@ -36,6 +37,7 @@ export const leaseApplications: Application[] = [
     name: 'Becca Yukelson',
     type: 'Lease',
     status: 'Approved',
+    country: 'US',
     notes: 'Customer confirmed delivery date for next Tuesday.',
     notesArray: [
       {
@@ -56,6 +58,7 @@ export const leaseApplications: Application[] = [
     name: 'Sarah Johnson',
     type: 'Lease',
     status: 'Void',
+    country: 'US',
     notes: 'Reapplication enabled. Customer considering switching to loan application.',
     notesArray: [
       {
@@ -82,6 +85,7 @@ export const leaseApplications: Application[] = [
     name: 'Aisha Washington',
     type: 'Lease',
     status: 'Void',
+    country: 'US',
     notes: 'Application declined due to insufficient credit history. Reapply enabled for customer to submit additional documentation.',
     notesArray: [
       {
@@ -113,6 +117,7 @@ export const leaseApplications: Application[] = [
     name: 'Carlos Rodriguez',
     type: 'Lease',
     status: 'Conditionally Approved',
+    country: 'US',
     notes: 'Approved pending proof of residence and most recent pay stub.',
     notesArray: [
       {
@@ -136,6 +141,7 @@ export const leaseApplications: Application[] = [
     name: 'Sophia Martinez',
     type: 'Lease',
     status: 'Funded',
+    country: 'US',
     notes: 'Funds disbursed. Vehicle delivered to customer.',
     notesArray: [
       {
@@ -159,6 +165,7 @@ export const leaseApplications: Application[] = [
     name: 'Olivia Thompson',
     type: 'Lease',
     status: 'Approved',
+    country: 'US',
     notes: 'Application approved. Customer selecting delivery options.',
     notesArray: [
       {
@@ -182,6 +189,7 @@ export const leaseApplications: Application[] = [
     name: 'Maria Garcia',
     type: 'Lease',
     status: 'Conditionally Approved',
+    country: 'US',
     notes: 'Approved with condition of increased down payment.',
     notesArray: [
       {

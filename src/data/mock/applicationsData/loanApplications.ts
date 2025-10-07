@@ -10,6 +10,7 @@ export const loanApplications: Application[] = [
     name: 'Sarah Johnson',
     type: 'Loan',
     status: 'Submitted',
+    country: 'US',
     notes: 'Reapplication - switched from lease to loan. Documentation under review.',
     notesArray: [
       {
@@ -36,6 +37,7 @@ export const loanApplications: Application[] = [
     name: 'Michael Torres',
     type: 'Loan',
     status: 'Void',
+    country: 'US',
     notes: 'Customer uploaded all required documentation. Waiting for credit check.',
     notesArray: [
       {
@@ -56,6 +58,7 @@ export const loanApplications: Application[] = [
     name: 'Michael Torres',
     type: 'Loan',
     status: 'Approved',
+    country: 'US',
     notes: 'Loan approved but customer now considering lease option. Reapply enabled by FS ops.',
     notesArray: [
       {
@@ -87,6 +90,7 @@ export const loanApplications: Application[] = [
     name: 'David Chen',
     type: 'Loan',
     status: 'Pending',
+    country: 'US',
     notes: 'Co-signer information needed before proceeding with application.',
     notesArray: [
       {
@@ -104,6 +108,7 @@ export const loanApplications: Application[] = [
     name: 'Emily Chang',
     type: 'Loan',
     status: 'Pending Signature',
+    country: 'US',
     notes: 'All documents approved. Contract sent for electronic signature.',
     notesArray: [
       {
@@ -127,6 +132,7 @@ export const loanApplications: Application[] = [
     name: 'James Wilson',
     type: 'Loan',
     status: 'Booked',
+    country: 'US',
     notes: 'Contract fully executed. Vehicle delivery scheduled for next week.',
     notesArray: [
       {
@@ -150,6 +156,7 @@ export const loanApplications: Application[] = [
     name: 'Robert Kim',
     type: 'Loan',
     status: 'Pending',
+    country: 'US',
     notes: 'Awaiting verification of employment history.',
     notesArray: [
       {
@@ -173,6 +180,7 @@ export const loanApplications: Application[] = [
     name: 'Daniel Patel',
     type: 'Loan',
     status: 'Submitted',
+    country: 'US',
     notes: 'Application submitted. Credit check in progress.',
     notesArray: [
       {
@@ -196,6 +204,7 @@ export const loanApplications: Application[] = [
     name: 'William Johnson',
     type: 'Loan',
     status: 'Funded',
+    country: 'US',
     notes: 'Loan funded. Vehicle delivered to customer.',
     notesArray: [
       {

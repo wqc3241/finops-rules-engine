@@ -3,6 +3,7 @@ import { useState, useMemo, useEffect, useCallback } from 'react';
 import { Application } from '@/types/application';
 import { sortByProperty } from '@/utils/sortFilterUtils';
 import { toast } from "sonner";
+import { useCountry } from '@/hooks/useCountry';
 import { 
   getSavedSortOption, 
   getSavedSortDirection, 
@@ -33,6 +34,8 @@ import {
 import { getMockApplicationDetailsById, orderDetails } from '@/data/mockApplications';
 
 export const useApplicationFiltering = (initialApplications: Application[]) => {
+  const { selectedCountry } = useCountry();
+  
   // Get initial applications from localStorage or use initial data
   const getInitialApplications = useCallback((): Application[] => {
     const savedApplications = getSavedApplications();
@@ -177,6 +180,12 @@ export const useApplicationFiltering = (initialApplications: Application[]) => {
   const filteredApplications = useMemo(() => {
     let filtered = [...applications];
     
+    // Apply country filter based on selected country
+    filtered = filtered.filter(app => {
+      const appCountry = app.country || 'US'; // Default to US for legacy data
+      return appCountry === selectedCountry.code;
+    });
+    
     // Apply status filter if any status is selected
     if (statusFilters.length > 0) {
       filtered = filtered.filter(app => statusFilters.includes(app.status));
@@ -194,7 +203,7 @@ export const useApplicationFiltering = (initialApplications: Application[]) => {
     
     // Apply sorting
     return sortByProperty(filtered, sortOption as keyof Application, sortDirection);
-  }, [applications, statusFilters, typeFilters, stateFilters, sortOption, sortDirection]);
+  }, [applications, statusFilters, typeFilters, stateFilters, sortOption, sortDirection, selectedCountry.code]);
   
   // Create filter toggle functions
   const toggleStatusFilter = createToggleStatusFilter(setStatusFilters);
