@@ -181,9 +181,15 @@ const ConfigurationAndDetailsStep = ({
     setProgramMetadata(metadata);
   };
   const fetchApplicableDiscounts = async () => {
+    console.log('=== fetchApplicableDiscounts START ===');
+    console.log('Selected programs:', data.selected_programs);
+    console.log('Program metadata:', programMetadata);
+    
     const discounts: Record<string, any[]> = {};
     for (const programCode of data.selected_programs) {
+      console.log(`\n--- Processing program: ${programCode} ---`);
       const meta = programMetadata[programCode];
+      console.log('Program meta:', meta);
       if (!meta) continue;
       try {
         // Fetch all active discount rules
@@ -192,11 +198,27 @@ const ConfigurationAndDetailsStep = ({
           error
         } = await supabase.from('discount_rules').select('*').eq('feeActive', true);
         if (error) throw error;
+        
+        console.log(`Total active discounts fetched: ${allDiscounts?.length || 0}`);
+        console.log('All discounts:', allDiscounts);
 
         // Filter discounts based on matching criteria
         const filtered = (allDiscounts || []).filter((discount: any) => {
+          console.log(`\nEvaluating discount: "${discount.name}"`);
+          console.log('Discount data:', {
+            name: discount.name,
+            discount_geo: discount.discount_geo,
+            applicable_vehicle_year: discount.applicable_vehicle_year,
+            applicable_vehicle_model: discount.applicable_vehicle_model,
+            applicable_purchase_type: discount.applicable_purchase_type,
+            applicable_title_status: discount.applicable_title_status,
+            startDate: discount.startDate,
+            endDate: discount.endDate
+          });
+          
           // Check geo code match
           const geoMatch = !discount.discount_geo || discount.discount_geo === 'ALL' || discount.discount_geo === meta.geoCode;
+          console.log(`  Geo match: ${geoMatch} (discount_geo: ${discount.discount_geo}, meta.geoCode: ${meta.geoCode})`);
           if (!geoMatch) return false;
 
           // Check date range overlap
@@ -205,33 +227,46 @@ const ConfigurationAndDetailsStep = ({
           const discountStart = discount.startDate ? new Date(discount.startDate) : null;
           const discountEnd = discount.endDate ? new Date(discount.endDate) : null;
           const dateMatch = (!discountStart || discountStart <= offerEnd) && (!discountEnd || discountEnd >= offerStart);
+          console.log(`  Date match: ${dateMatch} (offerStart: ${offerStart}, offerEnd: ${offerEnd}, discountStart: ${discountStart}, discountEnd: ${discountEnd})`);
           if (!dateMatch) return false;
 
           // Check vehicle year match
           const yearMatch = !discount.applicable_vehicle_year || discount.applicable_vehicle_year.length === 0 || !meta.vehicleYear || discount.applicable_vehicle_year.includes(Number(meta.vehicleYear));
+          console.log(`  Year match: ${yearMatch} (applicable_vehicle_year: ${JSON.stringify(discount.applicable_vehicle_year)}, meta.vehicleYear: ${meta.vehicleYear})`);
           if (!yearMatch) return false;
 
           // Check vehicle model match
           const modelMatch = !discount.applicable_vehicle_model || discount.applicable_vehicle_model.length === 0 || discount.applicable_vehicle_model.includes('All') || !meta.vehicleModel || discount.applicable_vehicle_model.includes(meta.vehicleModel);
+          console.log(`  Model match: ${modelMatch} (applicable_vehicle_model: ${JSON.stringify(discount.applicable_vehicle_model)}, meta.vehicleModel: ${meta.vehicleModel})`);
           if (!modelMatch) return false;
 
           // Check purchase type match (order type)
           const config = data.program_configs[programCode];
           const orderTypes = config?.order_type?.split(',').map(t => t.trim()) || [];
           const purchaseMatch = !discount.applicable_purchase_type || discount.applicable_purchase_type.length === 0 || discount.applicable_purchase_type.includes('All') || orderTypes.some(ot => discount.applicable_purchase_type.includes(ot));
+          console.log(`  Purchase match: ${purchaseMatch} (applicable_purchase_type: ${JSON.stringify(discount.applicable_purchase_type)}, orderTypes: ${JSON.stringify(orderTypes)})`);
           if (!purchaseMatch) return false;
 
           // Check title status match (condition)
           const statusMatch = !discount.applicable_title_status || discount.applicable_title_status.length === 0 || discount.applicable_title_status.includes('All') || meta.condition && discount.applicable_title_status.includes(meta.condition);
+          console.log(`  Status match: ${statusMatch} (applicable_title_status: ${JSON.stringify(discount.applicable_title_status)}, meta.condition: ${meta.condition})`);
           if (!statusMatch) return false;
+          
+          console.log(`  ✓ PASSED ALL FILTERS: ${discount.name}`);
           return true;
         });
+        
+        console.log(`\nFiltered discounts for ${programCode}:`, filtered);
+        console.log(`Total applicable: ${filtered.length}`);
         discounts[programCode] = filtered;
       } catch (error) {
         console.error(`Error fetching discounts for ${programCode}:`, error);
         discounts[programCode] = [];
       }
     }
+    
+    console.log('\n=== fetchApplicableDiscounts COMPLETE ===');
+    console.log('All discounts by program:', discounts);
     setAvailableDiscounts(discounts);
   };
   const calculateFinancials = async () => {
