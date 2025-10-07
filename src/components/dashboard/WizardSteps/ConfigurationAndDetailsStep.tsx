@@ -81,7 +81,7 @@ const ConfigurationAndDetailsStep = ({
             .maybeSingle();
           
           if (productResult.data) {
-            programData.geo_code = productResult.data.geo_code;
+            programData.geo_code = productResult.data.geo_code?.trim();
           }
         }
         
