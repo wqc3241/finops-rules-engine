@@ -208,7 +208,7 @@ const ConfigurationAndDetailsStep = ({
           if (!dateMatch) return false;
 
           // Check vehicle year match
-          const yearMatch = !discount.applicable_vehicle_year || discount.applicable_vehicle_year.length === 0 || discount.applicable_vehicle_year.includes('All') || !meta.vehicleYear || discount.applicable_vehicle_year.includes(meta.vehicleYear);
+          const yearMatch = !discount.applicable_vehicle_year || discount.applicable_vehicle_year.length === 0 || !meta.vehicleYear || discount.applicable_vehicle_year.includes(Number(meta.vehicleYear));
           if (!yearMatch) return false;
 
           // Check vehicle model match
