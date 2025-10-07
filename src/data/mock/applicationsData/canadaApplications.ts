@@ -11,6 +11,7 @@ export const canadaApplications: Application[] = [
     type: 'Lease',
     status: 'Approved',
     country: 'CA',
+    state: 'QC',
     notes: 'Application approved. Customer confirmed delivery to Quebec City.',
     notesArray: [
       {
@@ -35,6 +36,7 @@ export const canadaApplications: Application[] = [
     type: 'Lease',
     status: 'Pending',
     country: 'CA',
+    state: 'BC',
     notes: 'Awaiting additional income verification documents.',
     notesArray: [
       {
@@ -59,6 +61,7 @@ export const canadaApplications: Application[] = [
     type: 'Lease',
     status: 'Submitted',
     country: 'CA',
+    state: 'ON',
     notes: 'Application submitted. Credit check in progress.',
     notesArray: [
       {
@@ -83,6 +86,7 @@ export const canadaApplications: Application[] = [
     type: 'Lease',
     status: 'Conditionally Approved',
     country: 'CA',
+    state: 'AB',
     notes: 'Approved pending proof of Alberta residence.',
     notesArray: [
       {
@@ -107,6 +111,7 @@ export const canadaApplications: Application[] = [
     type: 'Lease',
     status: 'Funded',
     country: 'CA',
+    state: 'NS',
     notes: 'Lease funded. Vehicle delivered to customer in Halifax.',
     notesArray: [
       {
@@ -132,6 +137,7 @@ export const canadaApplications: Application[] = [
     type: 'Loan',
     status: 'Approved',
     country: 'CA',
+    state: 'QC',
     notes: 'Loan approved. Customer reviewing final terms.',
     notesArray: [
       {
@@ -156,6 +162,7 @@ export const canadaApplications: Application[] = [
     type: 'Loan',
     status: 'Pending',
     country: 'CA',
+    state: 'BC',
     notes: 'Co-applicant information required before proceeding.',
     notesArray: [
       {
@@ -180,6 +187,7 @@ export const canadaApplications: Application[] = [
     type: 'Loan',
     status: 'Submitted',
     country: 'CA',
+    state: 'ON',
     notes: 'Application submitted. Awaiting TransUnion credit report.',
     notesArray: [
       {
@@ -204,6 +212,7 @@ export const canadaApplications: Application[] = [
     type: 'Loan',
     status: 'Conditionally Approved',
     country: 'CA',
+    state: 'AB',
     notes: 'Approved pending increased down payment confirmation.',
     notesArray: [
       {
@@ -228,6 +237,7 @@ export const canadaApplications: Application[] = [
     type: 'Loan',
     status: 'Booked',
     country: 'CA',
+    state: 'MB',
     notes: 'Contract executed. Vehicle delivery scheduled for Winnipeg dealership.',
     notesArray: [
       {
