@@ -4,10 +4,14 @@ import { AppDTReferences } from '@/types/application';
 import DataField from './DataField';
 
 interface AppDTReferencesSectionProps {
-  appDtReferences: AppDTReferences;
+  appDtReferences?: AppDTReferences;
 }
 
 const AppDTReferencesSection: React.FC<AppDTReferencesSectionProps> = ({ appDtReferences }) => {
+  if (!appDtReferences) {
+    return null;
+  }
+  
   return (
     <section className="mt-3">
       <h4 className="text-base font-medium mb-2">App & DT References</h4>
