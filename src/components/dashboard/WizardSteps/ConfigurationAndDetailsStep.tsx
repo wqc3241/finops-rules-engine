@@ -64,8 +64,27 @@ const ConfigurationAndDetailsStep = ({
     const metadata: Record<string, ProgramMetadata> = {};
     for (const programCode of data.selected_programs) {
       try {
-        const programResult: any = await supabase.from('financial_program_configs').select('*, financial_products!inner(geo_code)').eq('program_code', programCode).maybeSingle();
-        const programData = programResult.data;
+        const programResult: any = await supabase
+          .from('financial_program_configs')
+          .select('*')
+          .eq('program_code', programCode)
+          .maybeSingle();
+        
+        let programData = programResult.data;
+        
+        // Manually fetch geo_code from financial_products
+        if (programData?.financial_product_id) {
+          const productResult = await supabase
+            .from('financial_products')
+            .select('geo_code')
+            .eq('product_id', programData.financial_product_id.trim())
+            .maybeSingle();
+          
+          if (productResult.data) {
+            programData.geo_code = productResult.data.geo_code;
+          }
+        }
+        
         if (programData) {
           const orderTypes = programData.order_types ? programData.order_types.split(',').map((type: string) => type.trim()) : ['INV'];
           const templateMetadata = programData.template_metadata || {};
@@ -169,7 +188,7 @@ const ConfigurationAndDetailsStep = ({
             productType,
             condition,
             dateRange,
-            geoCode: programData.financial_products?.geo_code,
+            geoCode: programData.geo_code,
             vehicleYear,
             vehicleModel
           };
