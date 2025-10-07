@@ -12,6 +12,10 @@ interface ApplicantSectionProps {
 }
 
 const ApplicantSection: React.FC<ApplicantSectionProps> = ({ applicantInfo, title, onViewCreditReport }) => {
+  // Detect if this is a Canadian address by checking postal code format
+  // Canadian postal codes contain letters (e.g., H2X 2T3), US zip codes are numeric (e.g., 94107)
+  const isCanadianAddress = /[A-Z]/i.test(applicantInfo.zipCode || '');
+  
   return (
     <section>
       <div className="flex justify-between items-center mb-2">
@@ -42,8 +46,8 @@ const ApplicantSection: React.FC<ApplicantSectionProps> = ({ applicantInfo, titl
         <DataField label="Housing Payment Amount (Monthly)" value={applicantInfo.housingPaymentAmount} />
         <DataField label="Address: House # & Street" value={applicantInfo.address} />
         <DataField label="City" value={applicantInfo.city} />
-        <DataField label="State" value={applicantInfo.state} />
-        <DataField label="Zip Code" value={applicantInfo.zipCode} />
+        <DataField label={isCanadianAddress ? "Province" : "State"} value={applicantInfo.state} />
+        <DataField label={isCanadianAddress ? "Postal Code" : "Zip Code"} value={applicantInfo.zipCode} />
         
         <h5 className="text-sm font-medium mt-2 mb-1">Employment Details</h5>
         <DataField label="Employment Type" value={applicantInfo.employmentType} />
