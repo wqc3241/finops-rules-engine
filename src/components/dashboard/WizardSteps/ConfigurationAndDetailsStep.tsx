@@ -64,7 +64,7 @@ const ConfigurationAndDetailsStep = ({
     const metadata: Record<string, ProgramMetadata> = {};
     for (const programCode of data.selected_programs) {
       try {
-        const programResult: any = await supabase.from('financial_program_configs').select('*').eq('program_code', programCode).maybeSingle();
+        const programResult: any = await supabase.from('financial_program_configs').select('*, financial_products!inner(geo_code)').eq('program_code', programCode).maybeSingle();
         const programData = programResult.data;
         if (programData) {
           const orderTypes = programData.order_types ? programData.order_types.split(',').map((type: string) => type.trim()) : ['INV'];
@@ -169,7 +169,7 @@ const ConfigurationAndDetailsStep = ({
             productType,
             condition,
             dateRange,
-            geoCode: programData.geo_code,
+            geoCode: programData.financial_products?.geo_code,
             vehicleYear,
             vehicleModel
           };
