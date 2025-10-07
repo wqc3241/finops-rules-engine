@@ -20,9 +20,12 @@ export const ca1ApprovedLease: ApplicationFullDetails = {
     ...applicantInfo,
     firstName: 'Marie',
     lastName: 'Dubois',
-    email: 'marie.dubois@email.ca',
-    phone: '(514) 555-0101',
-    address: '123 Rue Saint-Laurent, Montreal, QC H2X 2T3'
+    emailAddress: 'marie.dubois@email.ca',
+    contactNumber: '(514) 555-0101',
+    address: '123 Rue Saint-Laurent',
+    city: 'Montreal',
+    state: 'QC',
+    zipCode: 'H2X 2T3'
   },
   vehicleData: vehicleData,
   appDtReferences: appDtReferences,
@@ -56,9 +59,12 @@ export const ca6ApprovedLoan: ApplicationFullDetails = {
     ...applicantInfo,
     firstName: 'Pierre',
     lastName: 'Tremblay',
-    email: 'pierre.tremblay@email.ca',
-    phone: '(514) 555-0201',
-    address: '456 Avenue du Parc, Montreal, QC H2V 4E7'
+    emailAddress: 'pierre.tremblay@email.ca',
+    contactNumber: '(514) 555-0201',
+    address: '456 Avenue du Parc',
+    city: 'Montreal',
+    state: 'QC',
+    zipCode: 'H2V 4E7'
   },
   vehicleData: vehicleData,
   appDtReferences: appDtReferences,

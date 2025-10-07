@@ -19,9 +19,12 @@ export const ca5FundedLease: ApplicationFullDetails = {
     ...applicantInfo,
     firstName: 'Sarah',
     lastName: 'O\'Connor',
-    email: 'sarah.oconnor@email.ca',
-    phone: '(902) 555-0105',
-    address: '456 Spring Garden Road, Halifax, NS B3J 1G6'
+    emailAddress: 'sarah.oconnor@email.ca',
+    contactNumber: '(902) 555-0105',
+    address: '456 Spring Garden Road',
+    city: 'Halifax',
+    state: 'NS',
+    zipCode: 'B3J 1G6'
   },
   vehicleData: vehicleData,
   appDtReferences: appDtReferences,

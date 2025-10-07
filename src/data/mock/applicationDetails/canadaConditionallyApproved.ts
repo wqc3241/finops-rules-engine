@@ -20,9 +20,12 @@ export const ca4ConditionallyApprovedLease: ApplicationFullDetails = {
     ...applicantInfo,
     firstName: 'David',
     lastName: 'Martinez',
-    email: 'david.martinez@email.ca',
-    phone: '(403) 555-0104',
-    address: '2020 4th Street SW, Calgary, AB T2S 1W5'
+    emailAddress: 'david.martinez@email.ca',
+    contactNumber: '(403) 555-0104',
+    address: '2020 4th Street SW',
+    city: 'Calgary',
+    state: 'AB',
+    zipCode: 'T2S 1W5'
   },
   vehicleData: vehicleData,
   appDtReferences: appDtReferences,
@@ -56,9 +59,12 @@ export const ca9ConditionallyApprovedLoan: ApplicationFullDetails = {
     ...applicantInfo,
     firstName: 'Michelle',
     lastName: 'Lee',
-    email: 'michelle.lee@email.ca',
-    phone: '(403) 555-0204',
-    address: '789 17th Avenue SW, Calgary, AB T2T 0A1'
+    emailAddress: 'michelle.lee@email.ca',
+    contactNumber: '(403) 555-0204',
+    address: '789 17th Avenue SW',
+    city: 'Calgary',
+    state: 'AB',
+    zipCode: 'T2T 0A1'
   },
   vehicleData: vehicleData,
   appDtReferences: appDtReferences,

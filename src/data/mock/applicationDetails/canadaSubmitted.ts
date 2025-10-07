@@ -20,9 +20,12 @@ export const ca3SubmittedLease: ApplicationFullDetails = {
     ...applicantInfo,
     firstName: 'Robert',
     lastName: 'Kumar',
-    email: 'robert.kumar@email.ca',
-    phone: '(416) 555-0103',
-    address: '1010 Bay Street, Toronto, ON M5S 3A5'
+    emailAddress: 'robert.kumar@email.ca',
+    contactNumber: '(416) 555-0103',
+    address: '1010 Bay Street',
+    city: 'Toronto',
+    state: 'ON',
+    zipCode: 'M5S 3A5'
   },
   vehicleData: vehicleData,
   appDtReferences: appDtReferences,
@@ -54,9 +57,12 @@ export const ca8SubmittedLoan: ApplicationFullDetails = {
     ...applicantInfo,
     firstName: 'Emma',
     lastName: 'Thompson',
-    email: 'emma.thompson@email.ca',
-    phone: '(416) 555-0203',
-    address: '555 King Street West, Toronto, ON M5V 1M1'
+    emailAddress: 'emma.thompson@email.ca',
+    contactNumber: '(416) 555-0203',
+    address: '555 King Street West',
+    city: 'Toronto',
+    state: 'ON',
+    zipCode: 'M5V 1M1'
   },
   vehicleData: vehicleData,
   appDtReferences: appDtReferences,

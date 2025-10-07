@@ -20,9 +20,12 @@ export const ca2PendingLease: ApplicationFullDetails = {
     ...applicantInfo,
     firstName: 'Sophie',
     lastName: 'Chen',
-    email: 'sophie.chen@email.ca',
-    phone: '(604) 555-0102',
-    address: '789 Robson Street, Vancouver, BC V6Z 1A1'
+    emailAddress: 'sophie.chen@email.ca',
+    contactNumber: '(604) 555-0102',
+    address: '789 Robson Street',
+    city: 'Vancouver',
+    state: 'BC',
+    zipCode: 'V6Z 1A1'
   },
   vehicleData: vehicleData,
   appDtReferences: appDtReferences,
@@ -55,9 +58,12 @@ export const ca7PendingLoan: ApplicationFullDetails = {
     ...applicantInfo,
     firstName: 'James',
     lastName: 'Wilson',
-    email: 'james.wilson@email.ca',
-    phone: '(604) 555-0202',
-    address: '321 Burrard Street, Vancouver, BC V6C 3L7'
+    emailAddress: 'james.wilson@email.ca',
+    contactNumber: '(604) 555-0202',
+    address: '321 Burrard Street',
+    city: 'Vancouver',
+    state: 'BC',
+    zipCode: 'V6C 3L7'
   },
   vehicleData: vehicleData,
   appDtReferences: appDtReferences,

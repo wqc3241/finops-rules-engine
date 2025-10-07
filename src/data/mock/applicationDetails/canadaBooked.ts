@@ -19,9 +19,12 @@ export const ca10BookedLoan: ApplicationFullDetails = {
     ...applicantInfo,
     firstName: 'Thomas',
     lastName: 'Anderson',
-    email: 'thomas.anderson@email.ca',
-    phone: '(204) 555-0205',
-    address: '1234 Portage Avenue, Winnipeg, MB R3G 0T5'
+    emailAddress: 'thomas.anderson@email.ca',
+    contactNumber: '(204) 555-0205',
+    address: '1234 Portage Avenue',
+    city: 'Winnipeg',
+    state: 'MB',
+    zipCode: 'R3G 0T5'
   },
   vehicleData: vehicleData,
   appDtReferences: appDtReferences,
