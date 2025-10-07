@@ -1,6 +1,6 @@
 import { ApplicationFullDetails } from '@/types/application/details';
 import { applicantInfo } from '../applicantInfo';
-import { vehicleData } from '../vehicleData';
+import { vehicleData, appDtReferences } from '../vehicleData';
 import { orderDetails } from '../orderDetails';
 import { canadaLeaseFinancialSummary } from '../canadaLeaseFinancialSummary';
 import { sciLeaseDealStructure } from '../canadaDealStructure';
@@ -24,6 +24,7 @@ export const ca5FundedLease: ApplicationFullDetails = {
     address: '456 Spring Garden Road, Halifax, NS B3J 1G6'
   },
   vehicleData: vehicleData,
+  appDtReferences: appDtReferences,
   orderDetails: orderDetails,
   history: [
     { date: '2024-01-25', event: 'Lease Funded', user: 'System', details: 'Funds disbursed, vehicle delivered' },

@@ -1,6 +1,6 @@
 import { ApplicationFullDetails } from '@/types/application/details';
 import { applicantInfo } from '../applicantInfo';
-import { vehicleData } from '../vehicleData';
+import { vehicleData, appDtReferences } from '../vehicleData';
 import { orderDetails } from '../orderDetails';
 import { canadaLeaseFinancialSummary } from '../canadaLeaseFinancialSummary';
 import { canadaLoanFinancialSummary } from '../canadaLoanFinancialSummary';
@@ -25,6 +25,7 @@ export const ca1ApprovedLease: ApplicationFullDetails = {
     address: '123 Rue Saint-Laurent, Montreal, QC H2X 2T3'
   },
   vehicleData: vehicleData,
+  appDtReferences: appDtReferences,
   orderDetails: orderDetails,
   history: [
     { date: '2024-01-20', event: 'Application Approved', user: 'System', details: 'SCI approved lease application' },
@@ -60,6 +61,7 @@ export const ca6ApprovedLoan: ApplicationFullDetails = {
     address: '456 Avenue du Parc, Montreal, QC H2V 4E7'
   },
   vehicleData: vehicleData,
+  appDtReferences: appDtReferences,
   orderDetails: orderDetails,
   history: [
     { date: '2024-01-22', event: 'Application Approved', user: 'System', details: 'RBC approved loan application' },

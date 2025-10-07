@@ -1,6 +1,6 @@
 import { ApplicationFullDetails } from '@/types/application/details';
 import { applicantInfo } from '../applicantInfo';
-import { vehicleData } from '../vehicleData';
+import { vehicleData, appDtReferences } from '../vehicleData';
 import { orderDetails } from '../orderDetails';
 import { canadaLeaseFinancialSummary } from '../canadaLeaseFinancialSummary';
 import { canadaLoanFinancialSummary } from '../canadaLoanFinancialSummary';
@@ -25,6 +25,7 @@ export const ca2PendingLease: ApplicationFullDetails = {
     address: '789 Robson Street, Vancouver, BC V6Z 1A1'
   },
   vehicleData: vehicleData,
+  appDtReferences: appDtReferences,
   orderDetails: orderDetails,
   history: [
     { date: '2024-01-19', event: 'Additional Documents Requested', user: 'Underwriting', details: 'Income verification needed' },
@@ -59,6 +60,7 @@ export const ca7PendingLoan: ApplicationFullDetails = {
     address: '321 Burrard Street, Vancouver, BC V6C 3L7'
   },
   vehicleData: vehicleData,
+  appDtReferences: appDtReferences,
   orderDetails: orderDetails,
   history: [
     { date: '2024-01-20', event: 'Co-Applicant Information Requested', user: 'Underwriting', details: 'Co-applicant details needed' },

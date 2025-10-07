@@ -1,6 +1,6 @@
 import { ApplicationFullDetails } from '@/types/application/details';
 import { applicantInfo } from '../applicantInfo';
-import { vehicleData } from '../vehicleData';
+import { vehicleData, appDtReferences } from '../vehicleData';
 import { orderDetails } from '../orderDetails';
 import { canadaLeaseFinancialSummary } from '../canadaLeaseFinancialSummary';
 import { canadaLoanFinancialSummary } from '../canadaLoanFinancialSummary';
@@ -25,6 +25,7 @@ export const ca4ConditionallyApprovedLease: ApplicationFullDetails = {
     address: '2020 4th Street SW, Calgary, AB T2S 1W5'
   },
   vehicleData: vehicleData,
+  appDtReferences: appDtReferences,
   orderDetails: orderDetails,
   history: [
     { date: '2024-01-23', event: 'Conditional Approval', user: 'System', details: 'Approved pending proof of residence' },
@@ -60,6 +61,7 @@ export const ca9ConditionallyApprovedLoan: ApplicationFullDetails = {
     address: '789 17th Avenue SW, Calgary, AB T2T 0A1'
   },
   vehicleData: vehicleData,
+  appDtReferences: appDtReferences,
   orderDetails: orderDetails,
   history: [
     { date: '2024-01-24', event: 'Conditional Approval', user: 'System', details: 'Approved pending increased down payment' },

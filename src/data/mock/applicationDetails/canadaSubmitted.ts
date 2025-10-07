@@ -1,6 +1,6 @@
 import { ApplicationFullDetails } from '@/types/application/details';
 import { applicantInfo } from '../applicantInfo';
-import { vehicleData } from '../vehicleData';
+import { vehicleData, appDtReferences } from '../vehicleData';
 import { orderDetails } from '../orderDetails';
 import { canadaLeaseFinancialSummary } from '../canadaLeaseFinancialSummary';
 import { canadaLoanFinancialSummary } from '../canadaLoanFinancialSummary';
@@ -25,6 +25,7 @@ export const ca3SubmittedLease: ApplicationFullDetails = {
     address: '1010 Bay Street, Toronto, ON M5S 3A5'
   },
   vehicleData: vehicleData,
+  appDtReferences: appDtReferences,
   orderDetails: orderDetails,
   history: [
     { date: '2024-01-21', event: 'Application Submitted', user: 'Robert Kumar', details: 'Application sent to SCI for review' }
@@ -58,6 +59,7 @@ export const ca8SubmittedLoan: ApplicationFullDetails = {
     address: '555 King Street West, Toronto, ON M5V 1M1'
   },
   vehicleData: vehicleData,
+  appDtReferences: appDtReferences,
   orderDetails: orderDetails,
   history: [
     { date: '2024-01-22', event: 'Application Submitted', user: 'Emma Thompson', details: 'Application sent to RBC for review' }

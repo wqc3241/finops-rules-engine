@@ -1,6 +1,6 @@
 import { ApplicationFullDetails } from '@/types/application/details';
 import { applicantInfo } from '../applicantInfo';
-import { vehicleData } from '../vehicleData';
+import { vehicleData, appDtReferences } from '../vehicleData';
 import { orderDetails } from '../orderDetails';
 import { canadaLoanFinancialSummary } from '../canadaLoanFinancialSummary';
 import { rbcLoanDealStructure } from '../canadaDealStructure';
@@ -24,6 +24,7 @@ export const ca10BookedLoan: ApplicationFullDetails = {
     address: '1234 Portage Avenue, Winnipeg, MB R3G 0T5'
   },
   vehicleData: vehicleData,
+  appDtReferences: appDtReferences,
   orderDetails: orderDetails,
   history: [
     { date: '2024-01-26', event: 'Contract Booked', user: 'System', details: 'Loan contract executed and booked' },
