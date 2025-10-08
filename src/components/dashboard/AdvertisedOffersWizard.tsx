@@ -8,6 +8,7 @@ import ConfigurationAndDetailsStep from './WizardSteps/ConfigurationAndDetailsSt
 import OfferConfirmationStep from './WizardSteps/OfferConfirmationStep';
 import { AdvertisedOfferWizardData, AdvertisedOffer } from '@/types/advertisedOffer';
 import { useAdvertisedOffers } from '@/hooks/useAdvertisedOffers';
+import { useSupabaseApprovalWorkflow } from '@/hooks/useSupabaseApprovalWorkflow';
 import { toast } from 'sonner';
 
 interface AdvertisedOffersWizardProps {
@@ -34,6 +35,7 @@ const AdvertisedOffersWizard = ({ open, onOpenChange, editOffer, isEditMode = fa
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { createOffers, updateOffer } = useAdvertisedOffers();
+  const { submitForReview } = useSupabaseApprovalWorkflow();
 
   // Update current step when dialog opens based on mode
   useEffect(() => {
@@ -124,12 +126,12 @@ const AdvertisedOffersWizard = ({ open, onOpenChange, editOffer, isEditMode = fa
     setIsSubmitting(true);
     try {
       if (isEditMode && editOffer) {
-        // Update existing offer
+        // Update existing offer through approval workflow
         const programCode = wizardData.selected_programs[0];
         const config = wizardData.program_configs[programCode];
         const details = wizardData.offer_details[programCode] || {};
 
-        await updateOffer(editOffer.id, {
+        const newData = {
           offer_name: details.offer_name || `${programCode} - ${config.order_type} - ${config.term}mo`,
           financial_program_code: programCode,
           lender: details.lender,
@@ -148,9 +150,24 @@ const AdvertisedOffersWizard = ({ open, onOpenChange, editOffer, isEditMode = fa
           offer_start_date: wizardData.offer_start_date,
           offer_end_date: wizardData.offer_end_date,
           applicable_discounts: config.applicable_discounts || [],
-        });
+        };
+
+        // Submit through approval workflow
+        const tableChanges = {
+          'advertised_offers': {
+            oldData: [editOffer],
+            newData: [newData]
+          }
+        };
+
+        const requestId = await submitForReview(['advertised_offers'], tableChanges);
+        
+        if (requestId) {
+          await updateOffer(editOffer.id, newData, requestId);
+          toast.success('Changes submitted for admin review');
+        }
       } else {
-        // Create new offers
+        // Create new offers (no approval needed for new offers)
         const offersToCreate = wizardData.selected_programs.map(programCode => {
           const config = wizardData.program_configs[programCode];
           const details = wizardData.offer_details[programCode] || {};

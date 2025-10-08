@@ -332,6 +332,11 @@ export const useSupabaseApprovalWorkflow = () => {
         await approveFinancialProgramChanges(requestId, comment);
       }
 
+      // Handle advertised_offers table approval
+      if (table === 'advertised_offers') {
+        await approveAdvertisedOfferChanges(requestId, comment);
+      }
+
       const { error } = await supabase
         .from('change_details')
         .update({
@@ -372,6 +377,11 @@ export const useSupabaseApprovalWorkflow = () => {
       // Handle financial_program_configs table rejection
       if (table === 'financial_program_configs') {
         await rejectFinancialProgramChanges(requestId, comment);
+      }
+
+      // Handle advertised_offers table rejection
+      if (table === 'advertised_offers') {
+        await rejectAdvertisedOfferChanges(requestId, comment);
       }
 
       const { error } = await supabase
@@ -565,6 +575,138 @@ export const useSupabaseApprovalWorkflow = () => {
       console.log('✅ Successfully approved bulletin pricing changes');
     } catch (error) {
       console.error('❌ Error approving bulletin pricing changes:', error);
+      throw error;
+    }
+  };
+
+  // Handle advertised offers approval
+  const approveAdvertisedOfferChanges = async (requestId: string, comment?: string) => {
+    try {
+      console.log('🔄 Approving advertised offer changes for request:', requestId);
+      
+      // Get pending records
+      const { data: pendingRecords, error: fetchError } = await supabase
+        .from('pending_advertised_offers')
+        .select('*')
+        .eq('request_id', requestId);
+
+      if (fetchError) {
+        throw fetchError;
+      }
+
+      if (pendingRecords && pendingRecords.length > 0) {
+        for (const record of pendingRecords) {
+          if (record.original_offer_id) {
+            // This is an update - update existing offer
+            const { error: updateError } = await supabase
+              .from('advertised_offers')
+              .update({
+                offer_name: record.offer_name,
+                financial_program_code: record.financial_program_code,
+                lender: record.lender,
+                order_type: record.order_type,
+                term: record.term,
+                down_payment: record.down_payment,
+                credit_score_min: record.credit_score_min,
+                credit_score_max: record.credit_score_max,
+                annual_mileage: record.annual_mileage,
+                loan_amount_per_10k: record.loan_amount_per_10k,
+                total_cost_of_credit: record.total_cost_of_credit,
+                monthly_payment: record.monthly_payment,
+                apr: record.apr,
+                disclosure: record.disclosure,
+                marketing_description: record.marketing_description,
+                offer_start_date: record.offer_start_date,
+                offer_end_date: record.offer_end_date,
+                applicable_discounts: record.applicable_discounts,
+                updated_at: new Date().toISOString()
+              })
+              .eq('id', record.original_offer_id);
+
+            if (updateError) {
+              throw updateError;
+            }
+          } else {
+            // This is a new insert
+            const { error: insertError } = await supabase
+              .from('advertised_offers')
+              .insert({
+                offer_name: record.offer_name,
+                financial_program_code: record.financial_program_code,
+                lender: record.lender,
+                order_type: record.order_type,
+                term: record.term,
+                down_payment: record.down_payment,
+                credit_score_min: record.credit_score_min,
+                credit_score_max: record.credit_score_max,
+                annual_mileage: record.annual_mileage,
+                loan_amount_per_10k: record.loan_amount_per_10k,
+                total_cost_of_credit: record.total_cost_of_credit,
+                monthly_payment: record.monthly_payment,
+                apr: record.apr,
+                disclosure: record.disclosure,
+                marketing_description: record.marketing_description,
+                offer_start_date: record.offer_start_date,
+                offer_end_date: record.offer_end_date,
+                is_active: record.is_active,
+                applicable_discounts: record.applicable_discounts,
+                created_by: record.created_by
+              });
+
+            if (insertError) {
+              throw insertError;
+            }
+          }
+        }
+
+        // Delete from pending table
+        const { error: deleteError } = await supabase
+          .from('pending_advertised_offers')
+          .delete()
+          .eq('request_id', requestId);
+
+        if (deleteError) {
+          throw deleteError;
+        }
+
+        console.log('✅ Advertised offer changes approved successfully');
+      }
+
+      // Remove table lock
+      await supabase
+        .from('table_locks')
+        .delete()
+        .eq('schema_id', 'advertised_offers');
+    } catch (error) {
+      console.error('❌ Error approving advertised offer changes:', error);
+      throw error;
+    }
+  };
+
+  // Handle advertised offers rejection
+  const rejectAdvertisedOfferChanges = async (requestId: string, comment?: string) => {
+    try {
+      console.log('🔄 Rejecting advertised offer changes for request:', requestId);
+      
+      // Delete from pending table
+      const { error: deleteError } = await supabase
+        .from('pending_advertised_offers')
+        .delete()
+        .eq('request_id', requestId);
+
+      if (deleteError) {
+        throw deleteError;
+      }
+
+      console.log('✅ Advertised offer changes rejected successfully');
+
+      // Remove table lock
+      await supabase
+        .from('table_locks')
+        .delete()
+        .eq('schema_id', 'advertised_offers');
+    } catch (error) {
+      console.error('❌ Error rejecting advertised offer changes:', error);
       throw error;
     }
   };

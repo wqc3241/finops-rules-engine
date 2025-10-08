@@ -80,20 +80,25 @@ export const useAdvertisedOffers = () => {
     }
   };
 
-  const updateOffer = async (id: string, updates: Partial<AdvertisedOffer>) => {
+  const updateOffer = async (id: string, updates: Partial<AdvertisedOffer>, requestId: string) => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
       const { error } = await supabase
-        .from('advertised_offers')
-        .update(updates)
-        .eq('id', id);
+        .from('pending_advertised_offers')
+        .insert({
+          ...updates as any,
+          request_id: requestId,
+          original_offer_id: id,
+          created_by: user?.id
+        });
 
       if (error) throw error;
       
-      toast.success('Advertised offer updated successfully');
-      await fetchOffers();
+      toast.success('Changes submitted for review');
     } catch (error: any) {
-      console.error('Error updating advertised offer:', error);
-      toast.error('Failed to update advertised offer');
+      console.error('Error submitting offer changes:', error);
+      toast.error('Failed to submit changes for review');
       throw error;
     }
   };
@@ -117,7 +122,20 @@ export const useAdvertisedOffers = () => {
   };
 
   const toggleOfferStatus = async (id: string, isActive: boolean) => {
-    await updateOffer(id, { is_active: isActive });
+    try {
+      const { error } = await supabase
+        .from('advertised_offers')
+        .update({ is_active: isActive })
+        .eq('id', id);
+
+      if (error) throw error;
+      
+      await fetchOffers();
+    } catch (error: any) {
+      console.error('Error toggling offer status:', error);
+      toast.error('Failed to toggle offer status');
+      throw error;
+    }
   };
 
   return {

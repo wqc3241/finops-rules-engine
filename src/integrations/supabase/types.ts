@@ -2121,6 +2121,98 @@ export type Database = {
         }
         Relationships: []
       }
+      pending_advertised_offers: {
+        Row: {
+          annual_mileage: number | null
+          applicable_discounts: string[] | null
+          apr: number | null
+          created_at: string | null
+          created_by: string | null
+          credit_score_max: number | null
+          credit_score_min: number | null
+          disclosure: string | null
+          down_payment: number | null
+          financial_program_code: string
+          id: string
+          is_active: boolean | null
+          lender: string | null
+          loan_amount_per_10k: string | null
+          marketing_description: string | null
+          monthly_payment: number | null
+          offer_end_date: string | null
+          offer_name: string
+          offer_start_date: string | null
+          order_type: string
+          original_offer_id: string | null
+          request_id: string
+          term: number
+          total_cost_of_credit: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          annual_mileage?: number | null
+          applicable_discounts?: string[] | null
+          apr?: number | null
+          created_at?: string | null
+          created_by?: string | null
+          credit_score_max?: number | null
+          credit_score_min?: number | null
+          disclosure?: string | null
+          down_payment?: number | null
+          financial_program_code: string
+          id?: string
+          is_active?: boolean | null
+          lender?: string | null
+          loan_amount_per_10k?: string | null
+          marketing_description?: string | null
+          monthly_payment?: number | null
+          offer_end_date?: string | null
+          offer_name: string
+          offer_start_date?: string | null
+          order_type: string
+          original_offer_id?: string | null
+          request_id: string
+          term: number
+          total_cost_of_credit?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          annual_mileage?: number | null
+          applicable_discounts?: string[] | null
+          apr?: number | null
+          created_at?: string | null
+          created_by?: string | null
+          credit_score_max?: number | null
+          credit_score_min?: number | null
+          disclosure?: string | null
+          down_payment?: number | null
+          financial_program_code?: string
+          id?: string
+          is_active?: boolean | null
+          lender?: string | null
+          loan_amount_per_10k?: string | null
+          marketing_description?: string | null
+          monthly_payment?: number | null
+          offer_end_date?: string | null
+          offer_name?: string
+          offer_start_date?: string | null
+          order_type?: string
+          original_offer_id?: string | null
+          request_id?: string
+          term?: number
+          total_cost_of_credit?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pending_advertised_offers_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "change_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pending_bulletin_pricing: {
         Row: {
           advertised: boolean | null
