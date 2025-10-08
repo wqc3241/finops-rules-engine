@@ -596,35 +596,54 @@ export const useSupabaseApprovalWorkflow = () => {
 
       if (pendingRecords && pendingRecords.length > 0) {
         for (const record of pendingRecords) {
+          console.log('📋 [approveAdvertisedOfferChanges] Processing pending record:', {
+            original_offer_id: record.original_offer_id,
+            applicable_discounts: record.applicable_discounts,
+            applicable_discounts_type: typeof record.applicable_discounts,
+            applicable_discounts_isArray: Array.isArray(record.applicable_discounts),
+            fullRecord: record
+          });
+
           if (record.original_offer_id) {
             // This is an update - update existing offer
+            const updateData = {
+              offer_name: record.offer_name,
+              financial_program_code: record.financial_program_code,
+              order_type: record.order_type,
+              term: record.term,
+              down_payment: record.down_payment,
+              credit_score_min: record.credit_score_min,
+              credit_score_max: record.credit_score_max,
+              annual_mileage: record.annual_mileage,
+              loan_amount_per_10k: record.loan_amount_per_10k,
+              total_cost_of_credit: record.total_cost_of_credit,
+              monthly_payment: record.monthly_payment,
+              apr: record.apr,
+              disclosure: record.disclosure,
+              marketing_description: record.marketing_description,
+              offer_start_date: record.offer_start_date,
+              offer_end_date: record.offer_end_date,
+              applicable_discounts: record.applicable_discounts,
+              updated_at: new Date().toISOString()
+            };
+
+            console.log('🔄 [approveAdvertisedOfferChanges] Updating advertised_offers with:', {
+              offer_id: record.original_offer_id,
+              applicable_discounts: updateData.applicable_discounts,
+              fullUpdateData: updateData
+            });
+
             const { error: updateError } = await supabase
               .from('advertised_offers')
-              .update({
-                offer_name: record.offer_name,
-                financial_program_code: record.financial_program_code,
-                order_type: record.order_type,
-                term: record.term,
-                down_payment: record.down_payment,
-                credit_score_min: record.credit_score_min,
-                credit_score_max: record.credit_score_max,
-                annual_mileage: record.annual_mileage,
-                loan_amount_per_10k: record.loan_amount_per_10k,
-                total_cost_of_credit: record.total_cost_of_credit,
-                monthly_payment: record.monthly_payment,
-                apr: record.apr,
-                disclosure: record.disclosure,
-                marketing_description: record.marketing_description,
-                offer_start_date: record.offer_start_date,
-                offer_end_date: record.offer_end_date,
-                applicable_discounts: record.applicable_discounts,
-                updated_at: new Date().toISOString()
-              })
+              .update(updateData)
               .eq('id', record.original_offer_id);
 
             if (updateError) {
+              console.error('❌ [approveAdvertisedOfferChanges] Update error:', updateError);
               throw updateError;
             }
+
+            console.log('✅ [approveAdvertisedOfferChanges] Successfully updated offer:', record.original_offer_id);
           } else {
             // This is a new insert
             const { error: insertError } = await supabase

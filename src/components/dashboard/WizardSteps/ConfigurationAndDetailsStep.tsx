@@ -583,6 +583,13 @@ const handleConfigUpdate = (programCode: string, field: string | Record<string, 
                                     const newDiscounts = isSelected 
                                       ? currentDiscounts.filter(d => d.id !== discount.id) 
                                       : [...currentDiscounts, { id: discount.id, name: discount.name, amount: discount.discountAmount || 0 }];
+                                    console.log('🎯 [ConfigurationAndDetailsStep] Discount selection changed:', {
+                                      programCode,
+                                      discountName: discount.name,
+                                      isSelected: !isSelected,
+                                      newDiscounts,
+                                      discountObject: { id: discount.id, name: discount.name, amount: discount.discountAmount || 0 }
+                                    });
                                     handleConfigUpdate(programCode, 'applicable_discounts', newDiscounts);
                                   }}
                                 >
@@ -593,6 +600,13 @@ const handleConfigUpdate = (programCode: string, field: string | Record<string, 
                                         const newDiscounts = checked 
                                           ? [...currentDiscounts, { id: discount.id, name: discount.name, amount: discount.discountAmount || 0 }] 
                                           : currentDiscounts.filter(d => d.id !== discount.id);
+                                        console.log('🎯 [ConfigurationAndDetailsStep] Checkbox changed:', {
+                                          programCode,
+                                          discountName: discount.name,
+                                          checked,
+                                          newDiscounts,
+                                          discountObject: { id: discount.id, name: discount.name, amount: discount.discountAmount || 0 }
+                                        });
                                         handleConfigUpdate(programCode, 'applicable_discounts', newDiscounts);
                                       }}
                                     />

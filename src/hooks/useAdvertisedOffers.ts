@@ -91,16 +91,29 @@ export const useAdvertisedOffers = () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
+      const dataToInsert = {
+        ...updates as any,
+        request_id: requestId,
+        original_offer_id: id,
+        created_by: user?.id
+      };
+
+      console.log('💾 [useAdvertisedOffers] Inserting into pending_advertised_offers:', {
+        updates_applicable_discounts: updates.applicable_discounts,
+        dataToInsert_applicable_discounts: dataToInsert.applicable_discounts,
+        fullDataToInsert: dataToInsert
+      });
+      
       const { error } = await supabase
         .from('pending_advertised_offers')
-        .insert({
-          ...updates as any,
-          request_id: requestId,
-          original_offer_id: id,
-          created_by: user?.id
-        });
+        .insert(dataToInsert);
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ [useAdvertisedOffers] Error inserting into pending:', error);
+        throw error;
+      }
+
+      console.log('✅ [useAdvertisedOffers] Successfully inserted into pending_advertised_offers');
       
       toast.success('Changes submitted for review');
     } catch (error: any) {

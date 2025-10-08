@@ -150,6 +150,13 @@ const AdvertisedOffersWizard = ({ open, onOpenChange, editOffer, isEditMode = fa
           applicable_discounts: config.applicable_discounts || [],
         };
 
+        console.log('📝 [AdvertisedOffersWizard] Submitting edit offer data:', {
+          programCode,
+          config_applicable_discounts: config.applicable_discounts,
+          newData_applicable_discounts: newData.applicable_discounts,
+          fullNewData: newData
+        });
+
         // Submit through approval workflow
         const tableChanges = {
           'advertised_offers': {
