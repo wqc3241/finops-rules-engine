@@ -7,12 +7,14 @@ import { GitBranch } from 'lucide-react';
 import DeploymentScheduleBanner from '@/components/releases/DeploymentScheduleBanner';
 import PendingChangesList from '@/components/releases/PendingChangesList';
 import DeploymentHistoryList from '@/components/releases/DeploymentHistoryList';
+import ChangeRequestDetailsModal from '@/components/releases/ChangeRequestDetailsModal';
 import { useDeploymentVersions } from '@/hooks/useDeploymentVersions';
 import { useSupabaseApprovalWorkflow } from '@/hooks/useSupabaseApprovalWorkflow';
 
 const Releases = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeItem, setActiveItem] = useState('Releases');
+  const [viewingRequestId, setViewingRequestId] = useState<string | null>(null);
   const { versions, schedule, isLoading: versionsLoading } = useDeploymentVersions();
   const { 
     getAllChangeRequestsForAdmin,
@@ -33,8 +35,7 @@ const Releases = () => {
   };
 
   const handleViewDetails = (requestId: string) => {
-    // Navigate to approval workflow page with this request
-    window.location.href = `/approval-workflow?requestId=${requestId}`;
+    setViewingRequestId(requestId);
   };
 
   return (
@@ -107,6 +108,12 @@ const Releases = () => {
           )}
         </TabsContent>
       </Tabs>
+
+      <ChangeRequestDetailsModal
+        isOpen={viewingRequestId !== null}
+        onClose={() => setViewingRequestId(null)}
+        requestId={viewingRequestId}
+      />
           </div>
         </main>
       </div>
