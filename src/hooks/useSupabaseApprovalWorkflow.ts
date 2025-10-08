@@ -603,7 +603,6 @@ export const useSupabaseApprovalWorkflow = () => {
               .update({
                 offer_name: record.offer_name,
                 financial_program_code: record.financial_program_code,
-                lender: record.lender,
                 order_type: record.order_type,
                 term: record.term,
                 down_payment: record.down_payment,
@@ -633,7 +632,6 @@ export const useSupabaseApprovalWorkflow = () => {
               .insert({
                 offer_name: record.offer_name,
                 financial_program_code: record.financial_program_code,
-                lender: record.lender,
                 order_type: record.order_type,
                 term: record.term,
                 down_payment: record.down_payment,

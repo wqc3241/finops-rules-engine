@@ -571,9 +571,9 @@ const handleConfigUpdate = (programCode: string, field: string | Record<string, 
                           
                           {/* Data Rows */}
                           <div className="max-h-64 overflow-y-auto">
-                            {(availableDiscounts[programCode] || []).map(discount => {
+                          {(availableDiscounts[programCode] || []).map(discount => {
                               const currentDiscounts = config?.applicable_discounts || [];
-                              const isSelected = currentDiscounts.includes(discount.id);
+                              const isSelected = currentDiscounts.some(d => d.id === discount.id);
                               
                               return (
                                 <div 
@@ -581,8 +581,8 @@ const handleConfigUpdate = (programCode: string, field: string | Record<string, 
                                   className="grid grid-cols-[40px_100px_200px_100px_150px_100px_110px_110px_1fr] gap-3 px-3 py-2 border-b hover:bg-accent cursor-pointer transition-colors items-center text-sm"
                                   onClick={() => {
                                     const newDiscounts = isSelected 
-                                      ? currentDiscounts.filter(id => id !== discount.id) 
-                                      : [...currentDiscounts, discount.id];
+                                      ? currentDiscounts.filter(d => d.id !== discount.id) 
+                                      : [...currentDiscounts, { id: discount.id, name: discount.name, amount: discount.discountAmount || 0 }];
                                     handleConfigUpdate(programCode, 'applicable_discounts', newDiscounts);
                                   }}
                                 >
@@ -591,8 +591,8 @@ const handleConfigUpdate = (programCode: string, field: string | Record<string, 
                                       checked={isSelected}
                                       onCheckedChange={(checked) => {
                                         const newDiscounts = checked 
-                                          ? [...currentDiscounts, discount.id] 
-                                          : currentDiscounts.filter(id => id !== discount.id);
+                                          ? [...currentDiscounts, { id: discount.id, name: discount.name, amount: discount.discountAmount || 0 }] 
+                                          : currentDiscounts.filter(d => d.id !== discount.id);
                                         handleConfigUpdate(programCode, 'applicable_discounts', newDiscounts);
                                       }}
                                     />

@@ -72,7 +72,6 @@ const AdvertisedOffersWizard = ({ open, onOpenChange, editOffer, isEditMode = fa
             apr: editOffer.apr,
             loan_amount_per_10k: editOffer.loan_amount_per_10k,
             total_cost_of_credit: editOffer.total_cost_of_credit,
-            lender: editOffer.lender,
           }
         }
       });
@@ -134,7 +133,6 @@ const AdvertisedOffersWizard = ({ open, onOpenChange, editOffer, isEditMode = fa
         const newData = {
           offer_name: details.offer_name || `${programCode} - ${config.order_type} - ${config.term}mo`,
           financial_program_code: programCode,
-          lender: details.lender,
           order_type: config.order_type,
           term: config.term,
           down_payment: config.down_payment,
@@ -175,7 +173,6 @@ const AdvertisedOffersWizard = ({ open, onOpenChange, editOffer, isEditMode = fa
           return {
             offer_name: details.offer_name || `${programCode} - ${config.order_type} - ${config.term}mo`,
             financial_program_code: programCode,
-            lender: details.lender,
             order_type: config.order_type,
             term: config.term,
             down_payment: config.down_payment,

@@ -1,3 +1,9 @@
+export interface DiscountInfo {
+  id: string;
+  name: string;
+  amount: number;
+}
+
 export interface AdvertisedOfferConfig {
   financial_program_code: string;
   order_type: string;
@@ -7,7 +13,7 @@ export interface AdvertisedOfferConfig {
   credit_score_min?: number;
   credit_score_max?: number;
   annual_mileage?: number;
-  applicable_discounts?: string[];
+  applicable_discounts?: DiscountInfo[];
 }
 
 export interface AdvertisedOfferWizardData {
@@ -23,7 +29,6 @@ export interface AdvertisedOfferWizardData {
     apr?: number;
     loan_amount_per_10k?: string;
     total_cost_of_credit?: string;
-    lender?: string;
   }>;
 }
 
@@ -45,7 +50,6 @@ export interface AdvertisedOffer {
   id: string;
   offer_name: string;
   financial_program_code: string;
-  lender?: string;
   order_type: string;
   term: number;
   down_payment?: number;
@@ -63,5 +67,5 @@ export interface AdvertisedOffer {
   is_active: boolean;
   created_at: string;
   updated_at: string;
-  applicable_discounts?: string[];
+  applicable_discounts?: DiscountInfo[];
 }

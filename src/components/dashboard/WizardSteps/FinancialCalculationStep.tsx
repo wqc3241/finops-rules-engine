@@ -60,8 +60,7 @@ const FinancialCalculationStep = ({ data, onUpdate }: FinancialCalculationStepPr
           monthly_payment: monthlyPayment,
           apr: apr,
           total_cost_of_credit: totalCost.toFixed(2),
-          loan_amount_per_10k: loanAmountPer10k,
-          lender: pricing.lender_list
+          loan_amount_per_10k: loanAmountPer10k
         };
 
         newOfferDetails[programCode] = {
@@ -70,7 +69,6 @@ const FinancialCalculationStep = ({ data, onUpdate }: FinancialCalculationStepPr
           apr: apr,
           total_cost_of_credit: totalCost.toFixed(2),
           loan_amount_per_10k: loanAmountPer10k,
-          lender: pricing.lender_list,
           offer_name: `${programCode} - ${config.order_type} - ${config.term}mo`
         };
       }

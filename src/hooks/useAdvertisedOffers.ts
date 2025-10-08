@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { AdvertisedOffer } from '@/types/advertisedOffer';
+import { AdvertisedOffer, DiscountInfo } from '@/types/advertisedOffer';
 import { toast } from 'sonner';
 
 export const useAdvertisedOffers = () => {
@@ -16,7 +16,14 @@ export const useAdvertisedOffers = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setOffers(data || []);
+      
+      // Transform the data to match our AdvertisedOffer type
+      const transformedData = (data || []).map(offer => ({
+        ...offer,
+        applicable_discounts: (offer.applicable_discounts || []) as any as DiscountInfo[]
+      })) as AdvertisedOffer[];
+      
+      setOffers(transformedData);
     } catch (error: any) {
       console.error('Error fetching advertised offers:', error);
       toast.error('Failed to fetch advertised offers');

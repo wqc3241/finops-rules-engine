@@ -53,7 +53,6 @@ const OfferConfirmationStep = ({ data }: OfferConfirmationStepProps) => {
                 <TableHead>Credit Score</TableHead>
                 <TableHead>Monthly Payment</TableHead>
                 <TableHead>APR</TableHead>
-                <TableHead>Lender</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -78,7 +77,6 @@ const OfferConfirmationStep = ({ data }: OfferConfirmationStepProps) => {
                       ${details?.monthly_payment?.toFixed(2) || 'N/A'}
                     </TableCell>
                     <TableCell>{details?.apr || 'N/A'}%</TableCell>
-                    <TableCell>{details?.lender || 'N/A'}</TableCell>
                   </TableRow>
                 );
               })}

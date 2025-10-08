@@ -17,7 +17,7 @@ export type Database = {
       advertised_offers: {
         Row: {
           annual_mileage: number | null
-          applicable_discounts: string[] | null
+          applicable_discounts: Json | null
           apr: number | null
           created_at: string | null
           created_by: string | null
@@ -41,7 +41,7 @@ export type Database = {
         }
         Insert: {
           annual_mileage?: number | null
-          applicable_discounts?: string[] | null
+          applicable_discounts?: Json | null
           apr?: number | null
           created_at?: string | null
           created_by?: string | null
@@ -65,7 +65,7 @@ export type Database = {
         }
         Update: {
           annual_mileage?: number | null
-          applicable_discounts?: string[] | null
+          applicable_discounts?: Json | null
           apr?: number | null
           created_at?: string | null
           created_by?: string | null
@@ -2124,7 +2124,7 @@ export type Database = {
       pending_advertised_offers: {
         Row: {
           annual_mileage: number | null
-          applicable_discounts: string[] | null
+          applicable_discounts: Json | null
           apr: number | null
           created_at: string | null
           created_by: string | null
@@ -2135,7 +2135,6 @@ export type Database = {
           financial_program_code: string
           id: string
           is_active: boolean | null
-          lender: string | null
           loan_amount_per_10k: string | null
           marketing_description: string | null
           monthly_payment: number | null
@@ -2151,7 +2150,7 @@ export type Database = {
         }
         Insert: {
           annual_mileage?: number | null
-          applicable_discounts?: string[] | null
+          applicable_discounts?: Json | null
           apr?: number | null
           created_at?: string | null
           created_by?: string | null
@@ -2162,7 +2161,6 @@ export type Database = {
           financial_program_code: string
           id?: string
           is_active?: boolean | null
-          lender?: string | null
           loan_amount_per_10k?: string | null
           marketing_description?: string | null
           monthly_payment?: number | null
@@ -2178,7 +2176,7 @@ export type Database = {
         }
         Update: {
           annual_mileage?: number | null
-          applicable_discounts?: string[] | null
+          applicable_discounts?: Json | null
           apr?: number | null
           created_at?: string | null
           created_by?: string | null
@@ -2189,7 +2187,6 @@ export type Database = {
           financial_program_code?: string
           id?: string
           is_active?: boolean | null
-          lender?: string | null
           loan_amount_per_10k?: string | null
           marketing_description?: string | null
           monthly_payment?: number | null
