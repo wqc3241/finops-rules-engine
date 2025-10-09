@@ -28,13 +28,21 @@ async function migrateApplication(app: any) {
   // Generate UUID for this application based on its original ID
   const newUUID = generateUUID(app.id);
   idMap.set(app.id, newUUID);
+  // Map status to valid enum values
+  const statusMap: Record<string, string> = {
+    'Void': 'Declined',
+    'Voided': 'Declined'
+  };
+  
+  const mappedStatus = statusMap[app.status] || app.status;
+
   // Insert main application with generated UUID
   const { data: appData, error: appError } = await supabase
     .from('applications')
     .insert([{
       id: newUUID,
       name: app.name,
-      status: app.status as any,
+      status: mappedStatus as any,
       type: app.type as any,
       date: app.date,
       state: app.state,
@@ -48,22 +56,26 @@ async function migrateApplication(app: any) {
     .select()
     .single();
 
-  if (appError) throw appError;
+  if (appError) {
+    console.error(`Error inserting application ${app.name}:`, appError);
+    throw appError;
+  }
 
   // Insert application details
   if (app.orderNumber || app.model || app.edition || app.orderedBy) {
-    await supabase.from('application_details').insert({
+    const { error: detailsError } = await supabase.from('application_details').insert({
       application_id: newUUID,
       order_number: app.orderNumber,
       model: app.model,
       edition: app.edition,
       ordered_by: app.orderedBy,
     });
+    if (detailsError) console.error(`Error inserting application_details for ${app.name}:`, detailsError);
   }
 
   // Insert applicant info (primary)
   if (app.applicantInfo) {
-    await supabase.from('applicant_info').insert({
+    const { error: applicantError } = await supabase.from('applicant_info').insert({
       application_id: newUUID,
       is_co_applicant: false,
       first_name: app.applicantInfo.firstName,
@@ -86,11 +98,12 @@ async function migrateApplication(app: any) {
       other_income_amount: app.applicantInfo.otherIncomeAmount,
       relationship: app.applicantInfo.relationship,
     });
+    if (applicantError) console.error(`Error inserting applicant_info for ${app.name}:`, applicantError);
   }
 
   // Insert co-applicant info
   if (app.coApplicantInfo) {
-    await supabase.from('applicant_info').insert({
+    const { error: coApplicantError } = await supabase.from('applicant_info').insert({
       application_id: newUUID,
       is_co_applicant: true,
       first_name: app.coApplicantInfo.firstName,
@@ -113,6 +126,7 @@ async function migrateApplication(app: any) {
       other_income_amount: app.coApplicantInfo.otherIncomeAmount,
       relationship: app.coApplicantInfo.relationship,
     });
+    if (coApplicantError) console.error(`Error inserting co-applicant_info for ${app.name}:`, coApplicantError);
   }
 
   // Insert vehicle data
@@ -221,17 +235,26 @@ async function migrateApplication(app: any) {
     }
   }
 
-  // Insert history
-  if (app.history && app.history.length > 0) {
-    await supabase.from('application_history').insert(
-      app.history.map((h: any) => ({
+  // Insert history - convert notesArray to history if history doesn't exist
+  const historyData = app.history || (app.notesArray ? app.notesArray.map((note: any) => ({
+    action: 'Note Added',
+    title: note.content,
+    user: note.user,
+    date: note.date,
+    time: note.time
+  })) : []);
+  
+  if (historyData && historyData.length > 0) {
+    const { error: historyError } = await supabase.from('application_history').insert(
+      historyData.map((h: any) => ({
         application_id: newUUID,
-        action: h.title || h.action || 'Update',
-        description: h.title || '',
+        action: h.title || h.action || 'Note Added',
+        description: h.title || h.content || '',
         user_name: h.user || 'System',
         date: h.date ? new Date(`${h.date} ${h.time || '12:00'}`).toISOString() : new Date().toISOString(),
       }))
     );
+    if (historyError) console.error(`Error inserting application_history for ${app.name}:`, historyError);
   }
 }
 
