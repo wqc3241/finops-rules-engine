@@ -75,7 +75,7 @@ export class ApplicationService {
             app_dt_references(*),
             vehicle_data(*),
             order_details(*),
-            financial_summary(*)
+            financial_summaries(*)
           `)
           .eq('id', id)
           .single();

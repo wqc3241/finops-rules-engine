@@ -24,6 +24,42 @@ function generateUUIDv5(namespace: string, name: string): string {
 // Store mapping of original IDs to generated UUIDs
 const idMap = new Map<string, string>();
 
+// Helper function to generate applicant info from application name
+function generateApplicantInfo(fullName: string, appState: string, isCoApplicant: boolean = false) {
+  const nameParts = fullName.trim().split(' ');
+  const firstName = nameParts[0] || 'Unknown';
+  const lastName = nameParts[nameParts.length - 1] || 'Customer';
+  const middleName = nameParts.length > 2 ? nameParts.slice(1, -1).join(' ') : '';
+  const email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}@example.com`;
+  
+  const randomPhone = `(555) ${Math.floor(Math.random() * 900 + 100)}-${Math.floor(Math.random() * 9000 + 1000)}`;
+  const randomIncome = Math.floor(Math.random() * 5000 + 5000); // $5,000 - $10,000 monthly
+  const randomRent = Math.floor(Math.random() * 2000 + 1000); // $1,000 - $3,000 monthly
+  
+  return {
+    first_name: firstName,
+    middle_name: middleName,
+    last_name: lastName,
+    email_address: email,
+    contact_number: randomPhone,
+    dob: '01/01/1985',
+    address: '123 Main Street',
+    city: appState === 'CA' ? 'San Francisco' : (appState === 'TX' ? 'Austin' : 'New York'),
+    state: appState || 'CA',
+    zip_code: appState === 'CA' ? '94102' : (appState === 'TX' ? '73301' : '10001'),
+    residence_type: 'Rent',
+    housing_payment_amount: `$${randomRent.toLocaleString()}.00`,
+    employment_type: 'Full-time',
+    employer_name: 'Tech Company Inc.',
+    job_title: 'Professional',
+    income_amount: `$${randomIncome.toLocaleString()}.00`,
+    other_source_of_income: '',
+    other_income_amount: '$0.00',
+    relationship: isCoApplicant ? 'Spouse' : 'Self',
+    is_co_applicant: isCoApplicant
+  };
+}
+
 async function migrateApplication(app: any) {
   // Generate UUID for this application based on its original ID
   const newUUID = generateUUID(app.id);
@@ -73,58 +109,25 @@ async function migrateApplication(app: any) {
     if (detailsError) console.error(`Error inserting application_details for ${app.name}:`, detailsError);
   }
 
-  // Insert applicant info (primary)
-  if (app.applicantInfo) {
-    const { error: applicantError } = await supabase.from('applicant_info').insert({
-      application_id: newUUID,
-      is_co_applicant: false,
-      first_name: app.applicantInfo.firstName,
-      middle_name: app.applicantInfo.middleName,
-      last_name: app.applicantInfo.lastName,
-      email_address: app.applicantInfo.emailAddress,
-      contact_number: app.applicantInfo.contactNumber,
-      dob: app.applicantInfo.dob,
-      address: app.applicantInfo.address,
-      city: app.applicantInfo.city,
-      state: app.applicantInfo.state,
-      zip_code: app.applicantInfo.zipCode,
-      residence_type: app.applicantInfo.residenceType,
-      housing_payment_amount: app.applicantInfo.housingPaymentAmount,
-      employment_type: app.applicantInfo.employmentType,
-      employer_name: app.applicantInfo.employerName,
-      job_title: app.applicantInfo.jobTitle,
-      income_amount: app.applicantInfo.incomeAmount,
-      other_source_of_income: app.applicantInfo.otherSourceOfIncome,
-      other_income_amount: app.applicantInfo.otherIncomeAmount,
-      relationship: app.applicantInfo.relationship,
-    });
-    if (applicantError) console.error(`Error inserting applicant_info for ${app.name}:`, applicantError);
-  }
+  // Always generate and insert primary applicant info
+  const primaryApplicant = generateApplicantInfo(app.name, app.state || 'CA', false);
+  const { error: applicantError } = await supabase.from('applicant_info').insert({
+    application_id: newUUID,
+    ...primaryApplicant
+  });
+  if (applicantError) console.error(`Error inserting applicant_info for ${app.name}:`, applicantError);
 
-  // Insert co-applicant info
-  if (app.coApplicantInfo) {
+  // Generate co-applicant for approximately 30% of applications
+  if (Math.random() > 0.7) {
+    const nameParts = app.name.split(' ');
+    const coApplicantName = nameParts.length > 1 
+      ? `${nameParts[nameParts.length - 1]} Co-Applicant` 
+      : `${app.name} Spouse`;
+    
+    const coApplicant = generateApplicantInfo(coApplicantName, app.state || 'CA', true);
     const { error: coApplicantError } = await supabase.from('applicant_info').insert({
       application_id: newUUID,
-      is_co_applicant: true,
-      first_name: app.coApplicantInfo.firstName,
-      middle_name: app.coApplicantInfo.middleName,
-      last_name: app.coApplicantInfo.lastName,
-      email_address: app.coApplicantInfo.emailAddress,
-      contact_number: app.coApplicantInfo.contactNumber,
-      dob: app.coApplicantInfo.dob,
-      address: app.coApplicantInfo.address,
-      city: app.coApplicantInfo.city,
-      state: app.coApplicantInfo.state,
-      zip_code: app.coApplicantInfo.zipCode,
-      residence_type: app.coApplicantInfo.residenceType,
-      housing_payment_amount: app.coApplicantInfo.housingPaymentAmount,
-      employment_type: app.coApplicantInfo.employmentType,
-      employer_name: app.coApplicantInfo.employerName,
-      job_title: app.coApplicantInfo.jobTitle,
-      income_amount: app.coApplicantInfo.incomeAmount,
-      other_source_of_income: app.coApplicantInfo.otherSourceOfIncome,
-      other_income_amount: app.coApplicantInfo.otherIncomeAmount,
-      relationship: app.coApplicantInfo.relationship,
+      ...coApplicant
     });
     if (coApplicantError) console.error(`Error inserting co-applicant_info for ${app.name}:`, coApplicantError);
   }
