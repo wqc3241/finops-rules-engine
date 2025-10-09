@@ -157,6 +157,70 @@ async function migrateApplication(app: any) {
     });
   }
 
+  // Insert order details
+  await supabase.from('order_details').insert({
+    application_id: newUUID,
+    delivery_date: '2024-12-15',
+    vehicle_trade_in_year: '2018',
+    vehicle_trade_in_make: 'Tesla',
+    vehicle_trade_in_model: 'Model 3',
+    vehicle_trade_in_trim: 'Base',
+    vehicle_trade_in_mileage: '45000',
+    vehicle_trade_in_value: '$50,000',
+    vehicle_trade_in_lien_holder: 'Bank of America',
+    vehicle_trade_in_payoff_amount: '$35,000',
+    sale_data: {
+      invoiceSummary: {
+        model: 'Air',
+        trim: 'Touring',
+        options: [
+          { name: 'Premium Package', price: '$10,000.00' },
+          { name: 'Extended Warranty', price: '$2,000.00' },
+          { name: 'Paint Protection', price: '$5,500.00' },
+          { name: 'Wheel Upgrade', price: '$3,200.00' },
+        ],
+        discounts: [
+          { name: 'Studio Unit', value: '$2,000.00' },
+          { name: 'January Program', value: '$1,500.00' },
+        ],
+        subTotal: '$113,700.00'
+      },
+      credits: {
+        items: [
+          { name: 'Referral', value: '$2,000.00' },
+          { name: 'Deposit', value: '$1,000.00' },
+        ],
+        subTotal: '$3,000.00'
+      },
+      taxesAndFees: {
+        salesTax: { rate: '10%', amount: '$11,370.00' },
+        registrationFees: { type: 'DMV', amount: '$500.00' },
+        otherFees: { type: 'FL Doc Stamp', amount: '$12.00' },
+        total: '$11,882.00'
+      },
+      amountFinanced: '$100,000.00',
+      totalDueAtDelivery: '$22,582.00',
+      invoiceSummaryDetails: Array(15).fill(null).map((_, i) => ({ 
+        label: `Item ${i + 1}`, 
+        subLabel: 'Detail', 
+        value: `$${(Math.random() * 5000).toFixed(2)}` 
+      }))
+    },
+    registration_data: [
+      { label: 'Registration Type', value: 'Personal' },
+      { label: 'Global Region', value: 'North America' },
+      { label: 'Registration Country', value: 'United States' },
+      { label: 'Registration State/Province', value: app.state || 'California' },
+      { label: 'Registration Street', value: '1000 Pine Tree Ln' },
+      { label: 'Registration City', value: 'San Francisco' },
+      { label: 'Registration Zip/Postal Code', value: '94107' },
+      { label: 'Borough/Municipality', value: '' },
+      { label: 'Buyer DOB', value: '8/20/1975' },
+      { label: "Buyer's DL Expiration Date", value: '8/20/2026' },
+      { label: 'Is Mailing Add different than Regis Add?', value: 'No' }
+    ]
+  });
+
   // Insert notes
   if (app.notesArray && app.notesArray.length > 0) {
     await supabase.from('application_notes').insert(

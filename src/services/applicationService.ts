@@ -271,12 +271,25 @@ export class ApplicationService {
 
     // Transform order details
     const orderDetails = record.order_details?.[0] ? {
-      vehiclePrice: parseFloat(record.order_details[0].vehicle_price || '0'),
-      downPayment: parseFloat(record.order_details[0].down_payment || '0'),
-      tradeInValue: parseFloat(record.order_details[0].trade_in_value || '0'),
-      tradeInPayoff: parseFloat(record.order_details[0].trade_in_payoff || '0'),
-      taxesAndFees: parseFloat(record.order_details[0].taxes_and_fees || '0'),
-      totalAmount: parseFloat(record.order_details[0].total_amount || '0'),
+      deliveryDate: record.order_details[0].delivery_date,
+      vehicleTradeIn: {
+        year: record.order_details[0].vehicle_trade_in_year || '',
+        make: record.order_details[0].vehicle_trade_in_make || '',
+        model: record.order_details[0].vehicle_trade_in_model || '',
+        trim: record.order_details[0].vehicle_trade_in_trim || '',
+        lienHolder: record.order_details[0].vehicle_trade_in_lien_holder || '',
+        totalValue: record.order_details[0].vehicle_trade_in_value || '',
+        payoffAmount: record.order_details[0].vehicle_trade_in_payoff_amount || '',
+      },
+      sale: record.order_details[0].sale_data || {
+        invoiceSummary: { model: '', trim: '', options: [], discounts: [], subTotal: '' },
+        credits: { items: [], subTotal: '' },
+        taxesAndFees: { salesTax: { rate: '', amount: '' }, registrationFees: { type: '', amount: '' }, otherFees: { type: '', amount: '' }, total: '' },
+        amountFinanced: '',
+        totalDueAtDelivery: '',
+        invoiceSummaryDetails: []
+      },
+      registrationData: record.order_details[0].registration_data || []
     } : undefined;
 
     // Transform financial summary

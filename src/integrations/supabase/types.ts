@@ -2034,10 +2034,15 @@ export type Database = {
           created_at: string | null
           delivery_date: string | null
           id: string
+          registration_data: Json | null
+          sale_data: Json | null
           updated_at: string | null
+          vehicle_trade_in_lien_holder: string | null
           vehicle_trade_in_make: string | null
           vehicle_trade_in_mileage: string | null
           vehicle_trade_in_model: string | null
+          vehicle_trade_in_payoff_amount: string | null
+          vehicle_trade_in_trim: string | null
           vehicle_trade_in_value: string | null
           vehicle_trade_in_year: string | null
         }
@@ -2046,10 +2051,15 @@ export type Database = {
           created_at?: string | null
           delivery_date?: string | null
           id?: string
+          registration_data?: Json | null
+          sale_data?: Json | null
           updated_at?: string | null
+          vehicle_trade_in_lien_holder?: string | null
           vehicle_trade_in_make?: string | null
           vehicle_trade_in_mileage?: string | null
           vehicle_trade_in_model?: string | null
+          vehicle_trade_in_payoff_amount?: string | null
+          vehicle_trade_in_trim?: string | null
           vehicle_trade_in_value?: string | null
           vehicle_trade_in_year?: string | null
         }
@@ -2058,10 +2068,15 @@ export type Database = {
           created_at?: string | null
           delivery_date?: string | null
           id?: string
+          registration_data?: Json | null
+          sale_data?: Json | null
           updated_at?: string | null
+          vehicle_trade_in_lien_holder?: string | null
           vehicle_trade_in_make?: string | null
           vehicle_trade_in_mileage?: string | null
           vehicle_trade_in_model?: string | null
+          vehicle_trade_in_payoff_amount?: string | null
+          vehicle_trade_in_trim?: string | null
           vehicle_trade_in_value?: string | null
           vehicle_trade_in_year?: string | null
         }
