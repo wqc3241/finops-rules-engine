@@ -1,12 +1,38 @@
 import { supabase } from '@/integrations/supabase/client';
 import { applications } from '@/data/mock/applicationsData';
 
+// Generate deterministic UUID based on mock ID format
+function generateUUID(mockId: string): string {
+  // Use UUID v5 (name-based) with a custom namespace
+  const namespace = '6ba7b810-9dad-11d1-80b4-00c04fd430c8'; // ISO OID namespace
+  return generateUUIDv5(namespace, mockId);
+}
+
+// Simple UUID v5 implementation
+function generateUUIDv5(namespace: string, name: string): string {
+  const crypto = window.crypto || (window as any).msCrypto;
+  const data = namespace + name;
+  const hash = Array.from(data).reduce((hash, char) => {
+    return ((hash << 5) - hash) + char.charCodeAt(0);
+  }, 0);
+  
+  // Generate a deterministic UUID from the hash
+  const hex = Math.abs(hash).toString(16).padStart(32, '0').slice(0, 32);
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-5${hex.slice(13, 16)}-${hex.slice(16, 20)}-${hex.slice(20, 32)}`;
+}
+
+// Store mapping of original IDs to generated UUIDs
+const idMap = new Map<string, string>();
+
 async function migrateApplication(app: any) {
-  // Insert main application
+  // Generate UUID for this application based on its original ID
+  const newUUID = generateUUID(app.id);
+  idMap.set(app.id, newUUID);
+  // Insert main application with generated UUID
   const { data: appData, error: appError } = await supabase
     .from('applications')
     .insert([{
-      id: app.id,
+      id: newUUID,
       name: app.name,
       status: app.status as any,
       type: app.type as any,
@@ -16,8 +42,8 @@ async function migrateApplication(app: any) {
       amount: app.amount,
       reapply_enabled: app.reapplyEnabled,
       reapplication_sequence: app.reapplicationSequence,
-      original_application_id: app.originalApplicationId,
-      parent_application_id: app.parentApplicationId,
+      original_application_id: app.originalApplicationId ? idMap.get(app.originalApplicationId) : null,
+      parent_application_id: app.parentApplicationId ? idMap.get(app.parentApplicationId) : null,
     }])
     .select()
     .single();
@@ -27,7 +53,7 @@ async function migrateApplication(app: any) {
   // Insert application details
   if (app.orderNumber || app.model || app.edition || app.orderedBy) {
     await supabase.from('application_details').insert({
-      application_id: app.id,
+      application_id: newUUID,
       order_number: app.orderNumber,
       model: app.model,
       edition: app.edition,
@@ -38,7 +64,7 @@ async function migrateApplication(app: any) {
   // Insert applicant info (primary)
   if (app.applicantInfo) {
     await supabase.from('applicant_info').insert({
-      application_id: app.id,
+      application_id: newUUID,
       is_co_applicant: false,
       first_name: app.applicantInfo.firstName,
       middle_name: app.applicantInfo.middleName,
@@ -65,7 +91,7 @@ async function migrateApplication(app: any) {
   // Insert co-applicant info
   if (app.coApplicantInfo) {
     await supabase.from('applicant_info').insert({
-      application_id: app.id,
+      application_id: newUUID,
       is_co_applicant: true,
       first_name: app.coApplicantInfo.firstName,
       middle_name: app.coApplicantInfo.middleName,
@@ -92,7 +118,7 @@ async function migrateApplication(app: any) {
   // Insert vehicle data
   if (app.vehicleData) {
     await supabase.from('vehicle_data').insert({
-      application_id: app.id,
+      application_id: newUUID,
       vin: app.vehicleData.vin,
       year: app.vehicleData.year,
       model: app.vehicleData.model,
@@ -107,7 +133,7 @@ async function migrateApplication(app: any) {
   // Insert app DT references
   if (app.appDtReferences) {
     await supabase.from('app_dt_references').insert({
-      application_id: app.id,
+      application_id: newUUID,
       dt_portal_state: app.appDtReferences.dtPortalState,
       dt_id: app.appDtReferences.dtId,
       application_date: app.appDtReferences.applicationDate,
@@ -118,7 +144,7 @@ async function migrateApplication(app: any) {
   if (app.notesArray && app.notesArray.length > 0) {
     await supabase.from('application_notes').insert(
       app.notesArray.map((note: any) => ({
-        application_id: app.id,
+        application_id: newUUID,
         content: note.content,
         author: note.user,
         date: new Date().toISOString(),
@@ -130,7 +156,7 @@ async function migrateApplication(app: any) {
   if (app.dealStructure && app.dealStructure.length > 0) {
     const { data: dealStructureData } = await supabase
       .from('deal_structures')
-      .insert({ application_id: app.id })
+      .insert({ application_id: newUUID })
       .select()
       .single();
 
@@ -199,7 +225,7 @@ async function migrateApplication(app: any) {
   if (app.history && app.history.length > 0) {
     await supabase.from('application_history').insert(
       app.history.map((h: any) => ({
-        application_id: app.id,
+        application_id: newUUID,
         action: h.title || h.action || 'Update',
         description: h.title || '',
         user_name: h.user || 'System',
@@ -212,6 +238,14 @@ async function migrateApplication(app: any) {
 export async function seedMockData() {
   console.log('🌱 Starting mock data seeding to Supabase...');
   console.log(`📦 Found ${applications.length} mock applications to seed`);
+  
+  // Pre-generate all UUIDs to handle relationships
+  applications.forEach(app => {
+    const uuid = generateUUID(app.id);
+    idMap.set(app.id, uuid);
+  });
+  
+  console.log('✅ Generated UUIDs for all applications');
 
   let successCount = 0;
   let errorCount = 0;
