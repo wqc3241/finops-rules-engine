@@ -158,6 +158,33 @@ export type Database = {
         }
         Relationships: []
       }
+      analytics_events: {
+        Row: {
+          created_at: string | null
+          event: string
+          id: string
+          properties: Json | null
+          timestamp: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          event: string
+          id?: string
+          properties?: Json | null
+          timestamp?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          event?: string
+          id?: string
+          properties?: Json | null
+          timestamp?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       app_dt_references: {
         Row: {
           application_date: string | null
@@ -1504,6 +1531,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      feature_flags: {
+        Row: {
+          enable_date_range_filter: boolean | null
+          enable_realtime_sync: boolean | null
+          id: string
+          updated_at: string | null
+          updated_by: string | null
+          use_supabase_applications: boolean | null
+        }
+        Insert: {
+          enable_date_range_filter?: boolean | null
+          enable_realtime_sync?: boolean | null
+          id?: string
+          updated_at?: string | null
+          updated_by?: string | null
+          use_supabase_applications?: boolean | null
+        }
+        Update: {
+          enable_date_range_filter?: boolean | null
+          enable_realtime_sync?: boolean | null
+          id?: string
+          updated_at?: string | null
+          updated_by?: string | null
+          use_supabase_applications?: boolean | null
+        }
+        Relationships: []
       }
       fee_rules: {
         Row: {

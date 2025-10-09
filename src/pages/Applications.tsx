@@ -8,7 +8,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import SortPopover from "@/components/applications/filters/SortPopover";
 import FilterPopover from "@/components/applications/filters/FilterPopover";
 import DateRangeFilter, { DateRange } from "@/components/applications/filters/DateRangeFilter";
-import { useSupabaseApplications } from "@/hooks/useSupabaseApplications";
+import { useApplications } from "@/hooks/useApplications";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 
 const Applications = () => {
@@ -37,7 +37,7 @@ const Applications = () => {
     toggleTypeFilter,
     toggleStateFilter,
     clearFilters,
-  } = useSupabaseApplications();
+  } = useApplications();
 
   return (
     <div className="h-screen flex flex-col bg-gray-50">

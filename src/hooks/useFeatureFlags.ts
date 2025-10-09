@@ -22,14 +22,21 @@ export const useFeatureFlags = () => {
       const { data: userData } = await supabase.auth.getUser();
       
       if (userData?.user) {
-        const { data: profile } = await supabase
-          .from('user_profiles')
-          .select('role')
-          .eq('user_id', userData.user.id)
-          .single();
+        // Check for system-wide feature flags in database
+        const { data: systemFlags } = await supabase
+          .from('feature_flags')
+          .select('*')
+          .limit(1)
+          .maybeSingle();
 
-        // Enable all features for all authenticated users
-        if (profile?.role) {
+        if (systemFlags) {
+          setFlags({
+            useSupabaseApplications: systemFlags.use_supabase_applications ?? true,
+            enableRealtimeSync: systemFlags.enable_realtime_sync ?? true,
+            enableDateRangeFilter: systemFlags.enable_date_range_filter ?? true,
+          });
+        } else {
+          // Use default flags
           setFlags(DEFAULT_FLAGS);
         }
       }
