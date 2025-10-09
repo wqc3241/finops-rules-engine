@@ -1,5 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
-import { getSavedApplications } from '@/utils/localStorageUtils';
+import { applications } from '@/data/mock/applicationsData';
 
 async function migrateApplication(app: any) {
   // Insert main application
@@ -209,26 +209,25 @@ async function migrateApplication(app: any) {
   }
 }
 
-export async function migrateLocalStorageToSupabase() {
-  console.log('🚀 Starting migration from localStorage to Supabase...');
-  
-  const localApplications = getSavedApplications();
-  
-  if (localApplications.length === 0) {
-    console.log('✅ No applications to migrate');
-    return;
-  }
+export async function seedMockData() {
+  console.log('🌱 Starting mock data seeding to Supabase...');
+  console.log(`📦 Found ${applications.length} mock applications to seed`);
 
-  console.log(`📦 Found ${localApplications.length} applications to migrate`);
+  let successCount = 0;
+  let errorCount = 0;
 
-  for (const app of localApplications) {
+  for (const app of applications) {
     try {
       await migrateApplication(app);
-      console.log(`✅ Migrated: ${app.name}`);
+      successCount++;
+      console.log(`✅ Seeded: ${app.name} (${app.orderNumber || app.id})`);
     } catch (error) {
-      console.error(`❌ Failed to migrate ${app.name}:`, error);
+      errorCount++;
+      console.error(`❌ Failed to seed ${app.name}:`, error);
     }
   }
 
-  console.log('🎉 Migration completed!');
+  console.log(`🎉 Mock data seeding completed!`);
+  console.log(`✅ Successful: ${successCount}`);
+  console.log(`❌ Failed: ${errorCount}`);
 }

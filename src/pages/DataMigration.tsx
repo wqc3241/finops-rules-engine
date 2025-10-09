@@ -15,7 +15,6 @@ const DataMigration = () => {
     setMessage('Migration in progress... This may take a few minutes.');
 
     try {
-      // Import migration function - use relative path from scripts folder
       const { migrateLocalStorageToSupabase } = await import('../../scripts/migrateToSupabase.ts');
       await migrateLocalStorageToSupabase();
       
@@ -25,6 +24,23 @@ const DataMigration = () => {
       setStatus('error');
       setMessage(`Migration failed: ${error.message}`);
       console.error('Migration error:', error);
+    }
+  };
+
+  const handleSeedMockData = async () => {
+    setStatus('migrating');
+    setMessage('Seeding mock data... This may take a few minutes.');
+
+    try {
+      const { seedMockData } = await import('../../scripts/seedMockData.ts');
+      await seedMockData();
+      
+      setStatus('success');
+      setMessage('Mock data seeded successfully! All sample applications have been added to the database.');
+    } catch (error: any) {
+      setStatus('error');
+      setMessage(`Seeding failed: ${error.message}`);
+      console.error('Seeding error:', error);
     }
   };
 
@@ -49,17 +65,23 @@ const DataMigration = () => {
               <h3 className="font-semibold mb-2">What will be migrated:</h3>
               <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
                 <li>All application records</li>
-                <li>Applicant information</li>
+                <li>Applicant information (primary & co-applicant)</li>
+                <li>Vehicle data and details</li>
                 <li>Application notes and history</li>
-                <li>Deal structures and offers</li>
-                <li>User preferences and filters</li>
+                <li>Deal structures with offers and stipulations</li>
+                <li>Order details and financial summaries</li>
               </ul>
             </div>
 
             {status === 'idle' && (
-              <Button onClick={handleMigration} size="lg">
-                Start Migration
-              </Button>
+              <div className="flex gap-4">
+                <Button onClick={handleMigration} size="lg" variant="outline">
+                  Migrate from localStorage
+                </Button>
+                <Button onClick={handleSeedMockData} size="lg">
+                  Seed Mock Data (~50 Apps)
+                </Button>
+              </div>
             )}
 
             {status === 'migrating' && (
