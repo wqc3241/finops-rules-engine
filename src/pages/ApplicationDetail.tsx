@@ -25,6 +25,7 @@ const ApplicationDetail = () => {
   
   const { 
     application,
+    applicationFullDetails,
     loading
   } = useSupabaseApplicationDetail(id);
 
@@ -71,8 +72,8 @@ const ApplicationDetail = () => {
       tabs={tabs}
       currentTab={tab}
       applicationId={id}
-      applicationDetails={application as any}
-      applicationFullDetails={application as any}
+      applicationDetails={applicationFullDetails?.details}
+      applicationFullDetails={applicationFullDetails}
       notes={application.notesArray || []}
       onTabNavigation={handleTabNavigation}
     />
