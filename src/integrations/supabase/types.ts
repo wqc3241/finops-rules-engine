@@ -402,10 +402,13 @@ export type Database = {
       applications: {
         Row: {
           amount: number | null
+          country: string | null
           created_at: string | null
           date: string | null
           id: string
           name: string
+          original_application_id: string | null
+          parent_application_id: string | null
           reapplication_sequence: number | null
           reapply_enabled: boolean | null
           state: string | null
@@ -415,10 +418,13 @@ export type Database = {
         }
         Insert: {
           amount?: number | null
+          country?: string | null
           created_at?: string | null
           date?: string | null
           id?: string
           name: string
+          original_application_id?: string | null
+          parent_application_id?: string | null
           reapplication_sequence?: number | null
           reapply_enabled?: boolean | null
           state?: string | null
@@ -428,10 +434,13 @@ export type Database = {
         }
         Update: {
           amount?: number | null
+          country?: string | null
           created_at?: string | null
           date?: string | null
           id?: string
           name?: string
+          original_application_id?: string | null
+          parent_application_id?: string | null
           reapplication_sequence?: number | null
           reapply_enabled?: boolean | null
           state?: string | null
@@ -439,7 +448,15 @@ export type Database = {
           type?: Database["public"]["Enums"]["application_type"]
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fk_parent_application"
+            columns: ["parent_application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       bulletin_pricing: {
         Row: {
@@ -2623,6 +2640,42 @@ export type Database = {
           rate?: number | null
           tax_name?: string
           tax_type?: string
+        }
+        Relationships: []
+      }
+      user_preferences: {
+        Row: {
+          created_at: string | null
+          id: string
+          sort_direction: string | null
+          sort_option: string | null
+          state_filters: Json | null
+          status_filters: Json | null
+          type_filters: Json | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          sort_direction?: string | null
+          sort_option?: string | null
+          state_filters?: Json | null
+          status_filters?: Json | null
+          type_filters?: Json | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          sort_direction?: string | null
+          sort_option?: string | null
+          state_filters?: Json | null
+          status_filters?: Json | null
+          type_filters?: Json | null
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
