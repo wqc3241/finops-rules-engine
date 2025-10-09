@@ -10,6 +10,8 @@ import {
   extractUniqueTypes,
   extractUniqueStates 
 } from '@/utils/filterUtils';
+import { Analytics } from '@/utils/analytics';
+import { toast } from 'sonner';
 
 export const useSupabaseApplications = () => {
   const { selectedCountry } = useCountry();
@@ -58,14 +60,54 @@ export const useSupabaseApplications = () => {
       .on(
         'postgres_changes',
         {
-          event: '*',
+          event: 'INSERT',
+          schema: 'public',
+          table: 'applications',
+          filter: `country=eq.${selectedCountry.code}`,
+        },
+        async (payload) => {
+          console.log('New application:', payload);
+          
+          // Fetch the full application with all relations
+          const fullApp = await ApplicationService.fetchApplicationById(payload.new.id);
+          if (fullApp) {
+            setApplications(prev => [fullApp, ...prev]);
+            toast.success('New application received');
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'applications',
+          filter: `country=eq.${selectedCountry.code}`,
+        },
+        async (payload) => {
+          console.log('Application updated:', payload);
+          
+          // Fetch the full updated application
+          const fullApp = await ApplicationService.fetchApplicationById(payload.new.id);
+          if (fullApp) {
+            setApplications(prev => 
+              prev.map(app => app.id === fullApp.id ? fullApp : app)
+            );
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'DELETE',
           schema: 'public',
           table: 'applications',
           filter: `country=eq.${selectedCountry.code}`,
         },
         (payload) => {
-          console.log('Realtime update:', payload);
-          loadApplications();
+          console.log('Application deleted:', payload);
+          setApplications(prev => prev.filter(app => app.id !== payload.old.id));
+          toast.info('Application removed');
         }
       )
       .subscribe();
@@ -73,7 +115,7 @@ export const useSupabaseApplications = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [selectedCountry.code, loadApplications]);
+  }, [selectedCountry.code]);
 
   useEffect(() => {
     UserPreferencesService.savePreferences({
@@ -129,21 +171,36 @@ export const useSupabaseApplications = () => {
   const uniqueStates = useMemo(() => extractUniqueStates(applications), [applications]);
 
   const toggleStatusFilter = (status: string) => {
-    setStatusFilters(prev => 
-      prev.includes(status) ? prev.filter(s => s !== status) : [...prev, status]
-    );
+    setStatusFilters(prev => {
+      const newFilters = prev.includes(status) 
+        ? prev.filter(s => s !== status) 
+        : [...prev, status];
+      
+      Analytics.trackFilterUsage('status', newFilters);
+      return newFilters;
+    });
   };
 
   const toggleTypeFilter = (type: string) => {
-    setTypeFilters(prev => 
-      prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]
-    );
+    setTypeFilters(prev => {
+      const newFilters = prev.includes(type) 
+        ? prev.filter(t => t !== type) 
+        : [...prev, type];
+      
+      Analytics.trackFilterUsage('type', newFilters);
+      return newFilters;
+    });
   };
 
   const toggleStateFilter = (state: string) => {
-    setStateFilters(prev => 
-      prev.includes(state) ? prev.filter(s => s !== state) : [...prev, state]
-    );
+    setStateFilters(prev => {
+      const newFilters = prev.includes(state) 
+        ? prev.filter(s => s !== state) 
+        : [...prev, state];
+      
+      Analytics.trackFilterUsage('state', newFilters);
+      return newFilters;
+    });
   };
 
   const clearFilters = () => {

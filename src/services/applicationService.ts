@@ -1,70 +1,103 @@
 import { supabase } from '@/integrations/supabase/client';
 import { Application, Note } from '@/types/application';
 import { toast } from 'sonner';
+import { retryOperation, handleSupabaseError } from '@/utils/errorHandling';
+import { Analytics } from '@/utils/analytics';
 
 export class ApplicationService {
   /**
    * Fetch all applications for the current user's country
    */
   static async fetchApplications(countryCode: string = 'US'): Promise<Application[]> {
-    const { data, error } = await supabase
-      .from('applications')
-      .select(`
-        *,
-        applicant_info(*),
-        application_details(*),
-        application_notes(
-          id,
-          content,
-          author,
-          date,
-          created_at
-        ),
-        application_history(*)
-      `)
-      .eq('country', countryCode)
-      .order('date', { ascending: false });
+    const startTime = Date.now();
+    try {
+      return await retryOperation(async () => {
+        const { data, error } = await supabase
+          .from('applications')
+          .select(`
+            *,
+            applicant_info(*),
+            application_details(*),
+            application_notes(
+              id,
+              content,
+              author,
+              date,
+              created_at
+            ),
+            application_history(*)
+          `)
+          .eq('country', countryCode)
+          .order('date', { ascending: false });
 
-    if (error) {
-      console.error('Error fetching applications:', error);
-      toast.error('Failed to load applications');
+        if (error) throw error;
+
+        const result = this.transformToApplications(data || []);
+        
+        Analytics.trackEvent('applications_fetched', {
+          count: result.length,
+          duration: Date.now() - startTime,
+          country: countryCode,
+        });
+        
+        return result;
+      }, 3, 1000);
+    } catch (error) {
+      Analytics.trackError(error as Error, 'fetchApplications');
+      handleSupabaseError(error, 'Fetch applications');
       throw error;
     }
-
-    return this.transformToApplications(data || []);
   }
 
   /**
    * Fetch single application by ID
    */
   static async fetchApplicationById(id: string): Promise<Application | null> {
-    const { data, error } = await supabase
-      .from('applications')
-      .select(`
-        *,
-        applicant_info(*),
-        application_details(*),
-        application_notes(*),
-        application_history(*),
-        deal_structures(
-          *,
-          deal_structure_offers(
+    const startTime = Date.now();
+    try {
+      return await retryOperation(async () => {
+        const { data, error } = await supabase
+          .from('applications')
+          .select(`
             *,
-            deal_structure_parameters(*),
-            deal_stipulations(*)
-          )
-        ),
-        app_dt_references(*)
-      `)
-      .eq('id', id)
-      .single();
+            applicant_info(*),
+            application_details(*),
+            application_notes(*),
+            application_history(*),
+            deal_structures(
+              *,
+              deal_structure_offers(
+                *,
+                deal_structure_parameters(*),
+                deal_stipulations(*)
+              )
+            ),
+            app_dt_references(*),
+            vehicle_data(*),
+            order_details(*),
+            financial_summary(*)
+          `)
+          .eq('id', id)
+          .single();
 
-    if (error) {
-      console.error('Error fetching application:', error);
+        if (error) throw error;
+
+        const result = data ? this.transformToApplication(data) : null;
+        
+        if (result) {
+          Analytics.trackApplicationView(id);
+          Analytics.trackEvent('application_detail_loaded', {
+            duration: Date.now() - startTime,
+          });
+        }
+        
+        return result;
+      }, 3, 1000);
+    } catch (error) {
+      Analytics.trackError(error as Error, 'fetchApplicationById');
+      handleSupabaseError(error, 'Fetch application');
       return null;
     }
-
-    return this.transformToApplication(data);
   }
 
   /**
@@ -94,21 +127,27 @@ export class ApplicationService {
    * Update application status
    */
   static async updateStatus(applicationId: string, newStatus: string, userName: string): Promise<void> {
-    const { error } = await supabase
-      .from('applications')
-      .update({ 
-        status: newStatus as any,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', applicationId);
+    const toastId = toast.loading('Updating status...');
+    
+    try {
+      const { error } = await supabase
+        .from('applications')
+        .update({ 
+          status: newStatus as any,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', applicationId);
 
-    if (error) {
+      if (error) throw error;
+
+      await this.addHistory(applicationId, 'Status Changed', `Status updated to ${newStatus}`);
+      
+      toast.success('Status updated successfully', { id: toastId });
+    } catch (error) {
       console.error('Error updating status:', error);
-      toast.error('Failed to update status');
+      toast.error('Failed to update status', { id: toastId });
       throw error;
     }
-
-    await this.addHistory(applicationId, 'Status Changed', `Status updated to ${newStatus}`);
   }
 
   /**
@@ -160,30 +199,93 @@ export class ApplicationService {
       }))
       .sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-    // Transform applicant info
-    const applicantInfo = record.applicant_info?.[0] ? {
-      firstName: record.applicant_info[0].first_name,
-      middleName: record.applicant_info[0].middle_name,
-      lastName: record.applicant_info[0].last_name,
-      email: record.applicant_info[0].email_address,
-      phone: record.applicant_info[0].contact_number,
-      dateOfBirth: record.applicant_info[0].dob,
-      address: {
-        street: record.applicant_info[0].address,
-        city: record.applicant_info[0].city,
-        state: record.applicant_info[0].state,
-        zipCode: record.applicant_info[0].zip_code,
-      },
-      employment: {
-        type: record.applicant_info[0].employment_type,
-        employer: record.applicant_info[0].employer_name,
-        title: record.applicant_info[0].job_title,
-        income: parseFloat(record.applicant_info[0].income_amount || '0'),
-      },
-      housing: {
-        type: record.applicant_info[0].residence_type,
-        payment: parseFloat(record.applicant_info[0].housing_payment_amount || '0'),
-      },
+    // Transform primary applicant info
+    const applicantInfo = record.applicant_info?.find((info: any) => !info.is_co_applicant) 
+      ? {
+          relationship: record.applicant_info.find((i: any) => !i.is_co_applicant)?.relationship,
+          firstName: record.applicant_info.find((i: any) => !i.is_co_applicant)?.first_name,
+          middleName: record.applicant_info.find((i: any) => !i.is_co_applicant)?.middle_name,
+          lastName: record.applicant_info.find((i: any) => !i.is_co_applicant)?.last_name,
+          emailAddress: record.applicant_info.find((i: any) => !i.is_co_applicant)?.email_address,
+          contactNumber: record.applicant_info.find((i: any) => !i.is_co_applicant)?.contact_number,
+          dob: record.applicant_info.find((i: any) => !i.is_co_applicant)?.dob,
+          residenceType: record.applicant_info.find((i: any) => !i.is_co_applicant)?.residence_type,
+          housingPaymentAmount: record.applicant_info.find((i: any) => !i.is_co_applicant)?.housing_payment_amount,
+          address: record.applicant_info.find((i: any) => !i.is_co_applicant)?.address,
+          city: record.applicant_info.find((i: any) => !i.is_co_applicant)?.city,
+          state: record.applicant_info.find((i: any) => !i.is_co_applicant)?.state,
+          zipCode: record.applicant_info.find((i: any) => !i.is_co_applicant)?.zip_code,
+          employmentType: record.applicant_info.find((i: any) => !i.is_co_applicant)?.employment_type,
+          employerName: record.applicant_info.find((i: any) => !i.is_co_applicant)?.employer_name,
+          jobTitle: record.applicant_info.find((i: any) => !i.is_co_applicant)?.job_title,
+          incomeAmount: record.applicant_info.find((i: any) => !i.is_co_applicant)?.income_amount,
+          otherSourceOfIncome: record.applicant_info.find((i: any) => !i.is_co_applicant)?.other_source_of_income,
+          otherIncomeAmount: record.applicant_info.find((i: any) => !i.is_co_applicant)?.other_income_amount,
+        } 
+      : undefined;
+
+    // Transform co-applicant info
+    const coApplicantInfo = record.applicant_info?.find((info: any) => info.is_co_applicant)
+      ? {
+          relationship: record.applicant_info.find((i: any) => i.is_co_applicant)?.relationship,
+          firstName: record.applicant_info.find((i: any) => i.is_co_applicant)?.first_name,
+          middleName: record.applicant_info.find((i: any) => i.is_co_applicant)?.middle_name,
+          lastName: record.applicant_info.find((i: any) => i.is_co_applicant)?.last_name,
+          emailAddress: record.applicant_info.find((i: any) => i.is_co_applicant)?.email_address,
+          contactNumber: record.applicant_info.find((i: any) => i.is_co_applicant)?.contact_number,
+          dob: record.applicant_info.find((i: any) => i.is_co_applicant)?.dob,
+          residenceType: record.applicant_info.find((i: any) => i.is_co_applicant)?.residence_type,
+          housingPaymentAmount: record.applicant_info.find((i: any) => i.is_co_applicant)?.housing_payment_amount,
+          address: record.applicant_info.find((i: any) => i.is_co_applicant)?.address,
+          city: record.applicant_info.find((i: any) => i.is_co_applicant)?.city,
+          state: record.applicant_info.find((i: any) => i.is_co_applicant)?.state,
+          zipCode: record.applicant_info.find((i: any) => i.is_co_applicant)?.zip_code,
+          employmentType: record.applicant_info.find((i: any) => i.is_co_applicant)?.employment_type,
+          employerName: record.applicant_info.find((i: any) => i.is_co_applicant)?.employer_name,
+          jobTitle: record.applicant_info.find((i: any) => i.is_co_applicant)?.job_title,
+          incomeAmount: record.applicant_info.find((i: any) => i.is_co_applicant)?.income_amount,
+          otherSourceOfIncome: record.applicant_info.find((i: any) => i.is_co_applicant)?.other_source_of_income,
+          otherIncomeAmount: record.applicant_info.find((i: any) => i.is_co_applicant)?.other_income_amount,
+        }
+      : undefined;
+
+    // Transform vehicle data
+    const vehicleData = record.vehicle_data?.[0] ? {
+      vin: record.vehicle_data[0].vin,
+      year: record.vehicle_data[0].year,
+      make: record.vehicle_data[0].make,
+      model: record.vehicle_data[0].model,
+      trim: record.vehicle_data[0].trim,
+      mileage: record.vehicle_data[0].mileage,
+      condition: record.vehicle_data[0].condition,
+      exteriorColor: record.vehicle_data[0].exterior_color,
+      interiorColor: record.vehicle_data[0].interior_color,
+    } : undefined;
+
+    // Transform DT references
+    const appDtReferences = record.app_dt_references?.[0] ? {
+      dtId: record.app_dt_references[0].dt_id,
+      dtPortalState: record.app_dt_references[0].dt_portal_state,
+      applicationDate: record.app_dt_references[0].application_date,
+    } : undefined;
+
+    // Transform order details
+    const orderDetails = record.order_details?.[0] ? {
+      vehiclePrice: parseFloat(record.order_details[0].vehicle_price || '0'),
+      downPayment: parseFloat(record.order_details[0].down_payment || '0'),
+      tradeInValue: parseFloat(record.order_details[0].trade_in_value || '0'),
+      tradeInPayoff: parseFloat(record.order_details[0].trade_in_payoff || '0'),
+      taxesAndFees: parseFloat(record.order_details[0].taxes_and_fees || '0'),
+      totalAmount: parseFloat(record.order_details[0].total_amount || '0'),
+    } : undefined;
+
+    // Transform financial summary
+    const financialSummary = record.financial_summary?.[0] ? {
+      loanAmount: parseFloat(record.financial_summary[0].loan_amount || '0'),
+      interestRate: parseFloat(record.financial_summary[0].interest_rate || '0'),
+      term: parseInt(record.financial_summary[0].term || '0'),
+      monthlyPayment: parseFloat(record.financial_summary[0].monthly_payment || '0'),
+      totalInterest: parseFloat(record.financial_summary[0].total_interest || '0'),
     } : undefined;
 
     // Transform deal structure
@@ -229,8 +331,8 @@ export class ApplicationService {
       id: record.id,
       orderNumber: appDetails?.order_number || 'N/A',
       name: record.name,
-      status: record.status as Application['status'],
-      type: record.type as Application['type'],
+      status: record.status,
+      type: record.type,
       date: record.date,
       state: record.state,
       country: record.country || 'US',
@@ -245,8 +347,13 @@ export class ApplicationService {
       edition: appDetails?.edition || '',
       orderedBy: appDetails?.ordered_by || '',
       applicantInfo,
+      coApplicantInfo,
+      vehicleData,
+      appDtReferences,
+      orderDetails,
+      financialSummary,
       dealStructure,
       history,
-    } as any;
+    };
   }
 }
