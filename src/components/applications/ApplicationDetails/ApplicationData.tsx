@@ -11,7 +11,7 @@ import CreditReportModal from './CreditReport/CreditReportModal';
 interface ApplicationDataProps {
   applicantInfo: ApplicantInfo;
   coApplicantInfo?: ApplicantInfo;
-  vehicleData: VehicleData;
+  vehicleData?: VehicleData;
   appDtReferences: AppDTReferences;
 }
 
@@ -66,7 +66,7 @@ const ApplicationData: React.FC<ApplicationDataProps> = ({
         />
       )}
 
-      <VehicleDataSection vehicleData={vehicleData} />
+      {vehicleData && <VehicleDataSection vehicleData={vehicleData} />}
 
       <AppDTReferencesSection appDtReferences={appDtReferences} />
 

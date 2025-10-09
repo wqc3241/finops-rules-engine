@@ -8,6 +8,15 @@ interface VehicleDataSectionProps {
 }
 
 const VehicleDataSection: React.FC<VehicleDataSectionProps> = ({ vehicleData }) => {
+  if (!vehicleData) {
+    return (
+      <section className="mt-3">
+        <h4 className="text-sm font-medium mb-2">Vehicle Data</h4>
+        <p className="text-sm text-muted-foreground">No vehicle data available</p>
+      </section>
+    );
+  }
+
   return (
     <section className="mt-3">
       <h4 className="text-sm font-medium mb-2">Vehicle Data</h4>

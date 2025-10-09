@@ -60,6 +60,57 @@ function generateApplicantInfo(fullName: string, appState: string, isCoApplicant
   };
 }
 
+// Generate Lucid vehicle data for an application
+function generateVehicleData(applicationId: string) {
+  const years = ['2025', '2026'];
+  const models = ['Air', 'Gravity'];
+  const trims = ['Pure', 'Grand Touring', 'Touring'];
+  
+  const year = years[Math.floor(Math.random() * years.length)];
+  const model = models[Math.floor(Math.random() * models.length)];
+  const trim = trims[Math.floor(Math.random() * trims.length)];
+  const mileage = Math.floor(Math.random() * 500); // 0-499 miles
+  
+  // Generate realistic VIN for Lucid (starts with 5YJ)
+  const vinSuffix = Math.random().toString(36).substring(2, 11).toUpperCase();
+  const vin = `5YJ${vinSuffix}${Math.floor(Math.random() * 100000)}`;
+  
+  // Generate realistic pricing based on model and trim
+  let baseMsrp = 0;
+  if (model === 'Air') {
+    baseMsrp = trim === 'Pure' ? 69900 : trim === 'Touring' ? 87400 : 109900;
+  } else { // Gravity
+    baseMsrp = trim === 'Pure' ? 79900 : trim === 'Touring' ? 94900 : 109900;
+  }
+  
+  const discountAmount = Math.floor(Math.random() * 10000) + 5000; // $5,000-$15,000
+  const gccCashPrice = baseMsrp - discountAmount;
+  
+  const discounts = [
+    'Studio Unit',
+    'Referral Discount',
+    'Early Adopter',
+    'Loyalty Program',
+    'On-site Discount'
+  ];
+  const applicableDiscounts = discounts
+    .sort(() => 0.5 - Math.random())
+    .slice(0, Math.floor(Math.random() * 3) + 1)
+    .join(', ');
+  
+  return {
+    application_id: applicationId,
+    vin: vin,
+    year: year,
+    model: model,
+    trim: trim,
+    msrp: `$${baseMsrp.toLocaleString()}.00`,
+    gcc_cash_price: `$${gccCashPrice.toLocaleString()}.00`,
+    applicable_discounts: applicableDiscounts,
+    total_discount_amount: `$${discountAmount.toLocaleString()}.00`
+  };
+}
+
 async function migrateApplication(app: any) {
   // Generate UUID for this application based on its original ID
   const newUUID = generateUUID(app.id);
@@ -132,20 +183,10 @@ async function migrateApplication(app: any) {
     if (coApplicantError) console.error(`Error inserting co-applicant_info for ${app.name}:`, coApplicantError);
   }
 
-  // Insert vehicle data
-  if (app.vehicleData) {
-    await supabase.from('vehicle_data').insert({
-      application_id: newUUID,
-      vin: app.vehicleData.vin,
-      year: app.vehicleData.year,
-      model: app.vehicleData.model,
-      trim: app.vehicleData.trim,
-      msrp: app.vehicleData.msrp,
-      gcc_cash_price: app.vehicleData.gccCashPrice,
-      applicable_discounts: app.vehicleData.applicableDiscounts,
-      total_discount_amount: app.vehicleData.totalDiscountAmount,
-    });
-  }
+  // Always insert vehicle data with Lucid specifications
+  const vehicleData = generateVehicleData(newUUID);
+  const { error: vehicleError } = await supabase.from('vehicle_data').insert(vehicleData);
+  if (vehicleError) console.error(`Error inserting vehicle_data for ${app.name}:`, vehicleError);
 
   // Insert app DT references
   if (app.appDtReferences) {
