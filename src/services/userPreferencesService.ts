@@ -43,10 +43,13 @@ export class UserPreferencesService {
         user_id: userData.user.id,
         ...preferences,
         updated_at: new Date().toISOString(),
+      }, {
+        onConflict: 'user_id'
       });
 
     if (error) {
       console.error('Error saving preferences:', error);
+      throw error;
     }
   }
 }

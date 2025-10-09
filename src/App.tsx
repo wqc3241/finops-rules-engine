@@ -24,6 +24,8 @@ import AdminSettings from "./pages/AdminSettings";
 import Releases from "./pages/Releases";
 import AuthPage from "./pages/AuthPage";
 import DocumentConfiguration from "./pages/DocumentConfiguration";
+import DataMigration from "./pages/DataMigration";
+import ErrorBoundary from "./components/ErrorBoundary";
 import AIAgentButton from "./components/ai-agent/AIAgentButton";
 
 // Protected Route Component
@@ -61,9 +63,9 @@ const App = () => (
             <Routes>
               <Route path="/auth" element={<AuthPage />} />
               <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
-              <Route path="/applications" element={<ProtectedRoute><Applications /></ProtectedRoute>} />
-              <Route path="/applications/:id" element={<ProtectedRoute><ApplicationDetail /></ProtectedRoute>} />
-              <Route path="/applications/:id/:tab" element={<ProtectedRoute><ApplicationDetail /></ProtectedRoute>} />
+              <Route path="/applications" element={<ProtectedRoute><ErrorBoundary><Applications /></ErrorBoundary></ProtectedRoute>} />
+              <Route path="/applications/:id" element={<ProtectedRoute><ErrorBoundary><ApplicationDetail /></ErrorBoundary></ProtectedRoute>} />
+              <Route path="/applications/:id/:tab" element={<ProtectedRoute><ErrorBoundary><ApplicationDetail /></ErrorBoundary></ProtectedRoute>} />
               <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
               <Route path="/report" element={<ProtectedRoute><Report /></ProtectedRoute>} />
               <Route path="/tasks" element={<ProtectedRoute><Tasks /></ProtectedRoute>} />
@@ -75,6 +77,7 @@ const App = () => (
               <Route path="/user-permissions" element={<ProtectedRoute><UserPermissions /></ProtectedRoute>} />
               <Route path="/admin-settings" element={<ProtectedRoute><AdminSettings /></ProtectedRoute>} />
               <Route path="/document-configuration" element={<ProtectedRoute><DocumentConfiguration /></ProtectedRoute>} />
+              <Route path="/data-migration" element={<ProtectedRoute><DataMigration /></ProtectedRoute>} />
               <Route path="/releases" element={<ProtectedRoute><Releases /></ProtectedRoute>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />

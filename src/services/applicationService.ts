@@ -143,6 +143,7 @@ export class ApplicationService {
   }
 
   private static transformToApplication(record: any): Application {
+    const appDetails = record.application_details?.[0];
     const notesArray = (record.application_notes || [])
       .map((note: any) => ({
         content: note.content,
@@ -159,7 +160,70 @@ export class ApplicationService {
       }))
       .sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-    const appDetails = record.application_details?.[0];
+    // Transform applicant info
+    const applicantInfo = record.applicant_info?.[0] ? {
+      firstName: record.applicant_info[0].first_name,
+      middleName: record.applicant_info[0].middle_name,
+      lastName: record.applicant_info[0].last_name,
+      email: record.applicant_info[0].email_address,
+      phone: record.applicant_info[0].contact_number,
+      dateOfBirth: record.applicant_info[0].dob,
+      address: {
+        street: record.applicant_info[0].address,
+        city: record.applicant_info[0].city,
+        state: record.applicant_info[0].state,
+        zipCode: record.applicant_info[0].zip_code,
+      },
+      employment: {
+        type: record.applicant_info[0].employment_type,
+        employer: record.applicant_info[0].employer_name,
+        title: record.applicant_info[0].job_title,
+        income: parseFloat(record.applicant_info[0].income_amount || '0'),
+      },
+      housing: {
+        type: record.applicant_info[0].residence_type,
+        payment: parseFloat(record.applicant_info[0].housing_payment_amount || '0'),
+      },
+    } : undefined;
+
+    // Transform deal structure
+    const dealStructure = record.deal_structures?.[0]?.deal_structure_offers?.map((offer: any) => ({
+      lenderName: offer.lender_name,
+      status: offer.status,
+      decision: offer.decision,
+      requested: offer.deal_structure_parameters
+        ?.filter((p: any) => p.parameter_key.startsWith('requested_'))
+        .map((p: any) => ({
+          name: p.parameter_key.replace('requested_', ''),
+          label: p.parameter_key.replace('requested_', '').replace(/_/g, ' '),
+          value: p.parameter_value,
+        })) || [],
+      approved: offer.deal_structure_parameters
+        ?.filter((p: any) => p.parameter_key.startsWith('approved_'))
+        .map((p: any) => ({
+          name: p.parameter_key.replace('approved_', ''),
+          label: p.parameter_key.replace('approved_', '').replace(/_/g, ' '),
+          value: p.parameter_value,
+        })) || [],
+      stipulations: offer.deal_stipulations?.map((s: any) => s.description) || [],
+      contractStatus: offer.status === 'approved' ? 'Contract Ready' : 'Application Under Review',
+    })) || [];
+
+    // Transform history
+    const history = record.application_history?.map((h: any) => ({
+      date: new Date(h.date).toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric' 
+      }),
+      time: new Date(h.date).toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit'
+      }),
+      action: h.action,
+      description: h.description,
+      user: h.user_name || 'System',
+    })) || [];
 
     return {
       id: record.id,
@@ -170,6 +234,7 @@ export class ApplicationService {
       date: record.date,
       state: record.state,
       country: record.country || 'US',
+      amount: record.amount ? parseFloat(record.amount) : undefined,
       notesArray,
       notes: notesArray[0]?.content || '',
       reapplyEnabled: record.reapply_enabled,
@@ -179,6 +244,9 @@ export class ApplicationService {
       model: appDetails?.model || '',
       edition: appDetails?.edition || '',
       orderedBy: appDetails?.ordered_by || '',
+      applicantInfo,
+      dealStructure,
+      history,
     } as any;
   }
 }

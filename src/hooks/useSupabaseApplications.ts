@@ -20,6 +20,7 @@ export const useSupabaseApplications = () => {
   const [statusFilters, setStatusFilters] = useState<string[]>([]);
   const [typeFilters, setTypeFilters] = useState<string[]>([]);
   const [stateFilters, setStateFilters] = useState<string[]>([]);
+  const [dateRange, setDateRange] = useState<'all' | 'today' | '3days' | '7days' | '14days' | '30days' | '60days'>('all');
 
   useEffect(() => {
     const loadPreferences = async () => {
@@ -87,6 +88,27 @@ export const useSupabaseApplications = () => {
   const filteredApplications = useMemo(() => {
     let filtered = [...applications];
 
+    // Date range filtering
+    if (dateRange !== 'all') {
+      const now = new Date();
+      const rangeMap = {
+        'today': 0,
+        '3days': 3,
+        '7days': 7,
+        '14days': 14,
+        '30days': 30,
+        '60days': 60,
+      };
+      const daysAgo = rangeMap[dateRange] || 0;
+      const cutoffDate = new Date(now);
+      cutoffDate.setDate(cutoffDate.getDate() - daysAgo);
+
+      filtered = filtered.filter(app => {
+        const appDate = new Date(app.date);
+        return appDate >= cutoffDate;
+      });
+    }
+
     if (statusFilters.length > 0) {
       filtered = filtered.filter(app => statusFilters.includes(app.status));
     }
@@ -100,7 +122,7 @@ export const useSupabaseApplications = () => {
     }
 
     return sortByProperty(filtered, sortOption as keyof Application, sortDirection);
-  }, [applications, statusFilters, typeFilters, stateFilters, sortOption, sortDirection]);
+  }, [applications, dateRange, statusFilters, typeFilters, stateFilters, sortOption, sortDirection]);
 
   const uniqueStatuses = useMemo(() => extractUniqueStatuses(applications), [applications]);
   const uniqueTypes = useMemo(() => extractUniqueTypes(applications), [applications]);
@@ -146,6 +168,8 @@ export const useSupabaseApplications = () => {
     statusFilters,
     typeFilters,
     stateFilters,
+    dateRange,
+    setDateRange,
     uniqueStatuses,
     uniqueTypes,
     uniqueStates,

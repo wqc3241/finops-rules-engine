@@ -9,14 +9,16 @@ import SortPopover from "@/components/applications/filters/SortPopover";
 import FilterPopover from "@/components/applications/filters/FilterPopover";
 import DateRangeFilter, { DateRange } from "@/components/applications/filters/DateRangeFilter";
 import { useSupabaseApplications } from "@/hooks/useSupabaseApplications";
+import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 
 const Applications = () => {
   const [sidebarOpen, setSidebarOpen] = React.useState(true);
   const [activeItem, setActiveItem] = React.useState('Applications');
   const [currentView, setCurrentView] = React.useState<ViewType>('list');
-  const [selectedDateRange, setSelectedDateRange] = React.useState<DateRange>('all');
+  const isOnline = useOnlineStatus();
   
   const {
+    applications: filteredApplications,
     loading,
     sortOption,
     setSortOption,
@@ -26,10 +28,11 @@ const Applications = () => {
     statusFilters,
     typeFilters,
     stateFilters,
+    dateRange,
+    setDateRange,
     uniqueStatuses,
     uniqueTypes,
     uniqueStates,
-    filteredApplications,
     toggleStatusFilter,
     toggleTypeFilter,
     toggleStateFilter,
@@ -39,6 +42,11 @@ const Applications = () => {
   return (
     <div className="h-screen flex flex-col bg-gray-50">
       <Navbar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+      {!isOnline && (
+        <div className="bg-yellow-100 border-b border-yellow-300 px-4 py-2 text-center text-sm text-yellow-800">
+          ⚠️ You are offline. Changes will not be saved.
+        </div>
+      )}
       <div className="flex flex-1 overflow-hidden">
         <Sidebar 
           open={sidebarOpen}
@@ -63,8 +71,8 @@ const Applications = () => {
                     toggleSortDirection={toggleSortDirection}
                   />
                   <DateRangeFilter
-                    selectedRange={selectedDateRange}
-                    onRangeChange={setSelectedDateRange}
+                    selectedRange={dateRange}
+                    onRangeChange={setDateRange}
                   />
                   <FilterPopover 
                     uniqueStatuses={uniqueStatuses}

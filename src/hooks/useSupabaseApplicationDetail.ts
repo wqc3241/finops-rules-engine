@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 export const useSupabaseApplicationDetail = (id: string | undefined) => {
   const [application, setApplication] = useState<Application | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAddingNote, setIsAddingNote] = useState(false);
 
   const loadApplication = useCallback(async () => {
     if (!id) return;
@@ -51,13 +52,19 @@ export const useSupabaseApplicationDetail = (id: string | undefined) => {
 
   const addNote = async (note: Omit<Note, 'id'>) => {
     if (!id) return;
-    await ApplicationService.addNote(id, note);
-    await loadApplication();
+    setIsAddingNote(true);
+    try {
+      await ApplicationService.addNote(id, note);
+      await loadApplication();
+    } finally {
+      setIsAddingNote(false);
+    }
   };
 
   return {
     application,
     loading,
+    isAddingNote,
     addNote,
     refreshApplication: loadApplication,
   };

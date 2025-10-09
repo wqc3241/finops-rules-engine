@@ -17,11 +17,11 @@ export async function migrateLocalStorageToSupabase() {
     try {
       const { data: appData, error: appError } = await supabase
         .from('applications')
-        .insert({
+        .insert([{
           id: app.id,
           name: app.name,
-          status: app.status,
-          type: app.type,
+          status: app.status as any,
+          type: app.type as any,
           date: app.date,
           state: app.state,
           country: app.country || 'US',
@@ -29,7 +29,7 @@ export async function migrateLocalStorageToSupabase() {
           reapplication_sequence: app.reapplicationSequence,
           original_application_id: app.originalApplicationId,
           parent_application_id: app.parentApplicationId,
-        })
+        }])
         .select()
         .single();
 
