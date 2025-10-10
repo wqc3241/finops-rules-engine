@@ -8,7 +8,7 @@ interface CardActionsProps {
   onPresentToCustomer: () => void;
   onSendToDT: () => void;
   showFinancialDetailButton?: boolean;
-  onViewFinancialSummary?: () => void;
+  onViewFinancialSummary?: (e?: React.MouseEvent) => void;
 }
 
 const CardActions: React.FC<CardActionsProps> = ({
@@ -46,10 +46,12 @@ const CardActions: React.FC<CardActionsProps> = ({
           variant="outline" 
           size="sm"
           onClick={(e) => {
+            e.preventDefault();
             e.stopPropagation();
-            onViewFinancialSummary?.();
+            onViewFinancialSummary?.(e);
           }}
           className="flex items-center gap-1"
+          data-prevent-toggle
         >
           <BarChart2 className="h-3 w-3" />
           Summary

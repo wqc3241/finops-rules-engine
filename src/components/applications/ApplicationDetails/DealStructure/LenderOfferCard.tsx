@@ -134,7 +134,12 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
   };
 
   // Simple toggle for financial summary - basic approach
-  const handleInlineFinancialSummary = () => {
+  const handleInlineFinancialSummary = (e?: React.MouseEvent) => {
+    // Stop event propagation to prevent card collapse
+    if (e) {
+      e.stopPropagation();
+    }
+    
     // If card is not expanded, expand it first, then show financial summary
     if (!cardIsExpanded) {
       // First expand the card through the parent

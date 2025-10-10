@@ -16,7 +16,7 @@ interface CardHeaderProps {
   onSendToDT: () => void;
   offer?: DealStructureOffer;
   showFinancialDetailButton?: boolean;
-  onViewFinancialSummary?: () => void;
+  onViewFinancialSummary?: (e?: React.MouseEvent) => void;
   orderNumber?: string;
   onStatusChange?: (newStatus: string) => void;
 }
@@ -42,7 +42,7 @@ const CardHeader: React.FC<CardHeaderProps> = ({
           <h4 className="text-lg font-semibold">{lenderName}</h4>
           <StatusBadge status={status} orderNumber={orderNumber} onStatusChange={onStatusChange} />
         </div>
-        <div className="flex space-x-1 items-center">
+        <div className="flex space-x-1 items-center" data-prevent-toggle>
           <CardActions 
             isSelected={isSelected} 
             onPresentToCustomer={onPresentToCustomer} 
