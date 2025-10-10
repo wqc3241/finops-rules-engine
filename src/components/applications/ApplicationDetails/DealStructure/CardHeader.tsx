@@ -16,7 +16,7 @@ interface CardHeaderProps {
   onSendToDT: () => void;
   offer?: DealStructureOffer;
   showFinancialDetailButton?: boolean;
-  onViewFinancialSummary?: (e?: React.MouseEvent) => void;
+  onShowSummary?: () => void;
   orderNumber?: string;
   onStatusChange?: (newStatus: string) => void;
 }
@@ -31,7 +31,7 @@ const CardHeader: React.FC<CardHeaderProps> = ({
   onSendToDT,
   offer,
   showFinancialDetailButton = false,
-  onViewFinancialSummary,
+  onShowSummary,
   orderNumber,
   onStatusChange
 }) => {
@@ -48,7 +48,7 @@ const CardHeader: React.FC<CardHeaderProps> = ({
             onPresentToCustomer={onPresentToCustomer} 
             onSendToDT={onSendToDT}
             showFinancialDetailButton={showFinancialDetailButton}
-            onViewFinancialSummary={onViewFinancialSummary}
+            onShowSummary={onShowSummary}
           />
           
           <Button variant="ghost" size="sm" onClick={onToggleExpand}>
