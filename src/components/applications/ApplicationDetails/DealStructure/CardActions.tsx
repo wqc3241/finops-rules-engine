@@ -46,6 +46,16 @@ const CardActions: React.FC<CardActionsProps> = ({
           variant="outline" 
           size="sm"
           onClick={(e) => {
+            console.log('=== Summary Button Click Debug ===');
+            console.log('Event target:', e.target);
+            console.log('Target tagName:', (e.target as HTMLElement).tagName);
+            console.log('Target className:', (e.target as HTMLElement).className);
+            console.log('Current target (button):', e.currentTarget);
+            console.log('Has data-prevent-toggle:', (e.currentTarget as HTMLElement).hasAttribute('data-prevent-toggle'));
+            console.log('Closest button:', (e.target as HTMLElement).closest('button'));
+            console.log('Closest [data-prevent-toggle]:', (e.target as HTMLElement).closest('[data-prevent-toggle]'));
+            console.log('==================================');
+            
             e.preventDefault();
             e.stopPropagation();
             onViewFinancialSummary?.(e);
