@@ -10,8 +10,7 @@ import {
   Settings, 
   Receipt,
   FileCheck,
-  GitBranch,
-  Database
+  GitBranch
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useSupabaseAuth';
 
@@ -73,11 +72,6 @@ const Sidebar = ({ open, activeItem, setActiveItem }: SidebarProps) => {
       title: 'Releases',
       icon: <GitBranch className="h-5 w-5" />,
       path: '/releases'
-    }] : []),
-    ...(showReleases ? [{
-      title: 'Data Migration',
-      icon: <Database className="h-5 w-5" />,
-      path: '/data-migration'
     }] : []),
     {
       title: 'Document Configuration',

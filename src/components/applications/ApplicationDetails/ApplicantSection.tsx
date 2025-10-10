@@ -12,16 +12,6 @@ interface ApplicantSectionProps {
 }
 
 const ApplicantSection: React.FC<ApplicantSectionProps> = ({ applicantInfo, title, onViewCreditReport }) => {
-  // Handle missing applicant info
-  if (!applicantInfo) {
-    return (
-      <section>
-        <h4 className="text-base font-medium mb-2">{title}</h4>
-        <p className="text-sm text-muted-foreground">No applicant data available</p>
-      </section>
-    );
-  }
-
   // Detect if this is a Canadian address by checking postal code format
   // Canadian postal codes contain letters (e.g., H2X 2T3), US zip codes are numeric (e.g., 94107)
   const isCanadianAddress = /[A-Z]/i.test(applicantInfo.zipCode || '');

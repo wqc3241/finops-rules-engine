@@ -9,9 +9,9 @@ import AppDTReferencesSection from './AppDTReferencesSection';
 import CreditReportModal from './CreditReport/CreditReportModal';
 
 interface ApplicationDataProps {
-  applicantInfo?: ApplicantInfo;
+  applicantInfo: ApplicantInfo;
   coApplicantInfo?: ApplicantInfo;
-  vehicleData?: VehicleData;
+  vehicleData: VehicleData;
   appDtReferences: AppDTReferences;
 }
 
@@ -52,13 +52,11 @@ const ApplicationData: React.FC<ApplicationDataProps> = ({
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2 text-base">
-      {applicantInfo && (
-        <ApplicantSection 
-          applicantInfo={applicantInfo} 
-          title="Applicant" 
-          onViewCreditReport={() => handleViewCreditReport('primary')}
-        />
-      )}
+      <ApplicantSection 
+        applicantInfo={applicantInfo} 
+        title="Applicant" 
+        onViewCreditReport={() => handleViewCreditReport('primary')}
+      />
       
       {coApplicantInfo && (
         <ApplicantSection 
@@ -68,7 +66,7 @@ const ApplicationData: React.FC<ApplicationDataProps> = ({
         />
       )}
 
-      {vehicleData && <VehicleDataSection vehicleData={vehicleData} />}
+      <VehicleDataSection vehicleData={vehicleData} />
 
       <AppDTReferencesSection appDtReferences={appDtReferences} />
 

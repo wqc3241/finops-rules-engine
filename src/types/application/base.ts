@@ -1,3 +1,4 @@
+
 // Base application type
 export interface Application {
   id: string;
@@ -15,28 +16,11 @@ export interface Application {
   }>;
   state?: string;
   country?: string;
-  
-  // Additional fields from transformation
-  amount?: number;
-  model?: string;
-  edition?: string;
-  orderedBy?: string;
-  
-  // Nested data structures
-  applicantInfo?: any;
-  coApplicantInfo?: any;
-  vehicleData?: any;
-  appDtReferences?: any;
-  orderDetails?: any;
-  financialSummary?: any;
-  dealStructure?: any[];
-  history?: any[];
-  
   // Reapplication tracking fields
-  originalApplicationId?: string;
-  parentApplicationId?: string;
-  reapplicationSequence?: number;
-  reapplyEnabled?: boolean;
+  originalApplicationId?: string; // Links to the first application in the reapply chain
+  parentApplicationId?: string; // Links to the immediate previous application
+  reapplicationSequence?: number; // Tracks the sequence (1 for original, 2 for first reapply, etc.)
+  reapplyEnabled?: boolean; // Indicates if this application can be reapplied
 }
 
 export interface Note {

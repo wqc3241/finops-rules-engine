@@ -10,14 +10,6 @@ interface OrderDetailsViewProps {
 }
 
 const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({ orderDetails }) => {
-  if (!orderDetails) {
-    return (
-      <div className="flex items-center justify-center p-8 text-muted-foreground">
-        No order details available
-      </div>
-    );
-  }
-
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {/* Left Column: Vehicle Trade In and Registration Data */}

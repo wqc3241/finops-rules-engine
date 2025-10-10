@@ -1,7 +1,7 @@
 
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
-import { useSupabaseApplicationDetail } from '@/hooks/useSupabaseApplicationDetail';
+import { useApplicationDetail } from '@/hooks/useApplicationDetail';
 import ApplicationDetailLayout from '@/components/applications/ApplicationDetails/ApplicationDetailLayout';
 
 // Define the tabs configuration at the module level
@@ -23,11 +23,20 @@ const ApplicationDetail = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   
+  // Use our custom hook to manage application details
   const { 
-    application,
-    applicationFullDetails,
-    loading
-  } = useSupabaseApplicationDetail(id);
+    currentNotes,
+    currentApplicationDetails,
+    currentApplicationFullDetails,
+    refreshNotesFromStorage
+  } = useApplicationDetail(id);
+  
+  // Refresh notes when tab changes to Notes tab
+  useEffect(() => {
+    if (tab === 'notes') {
+      refreshNotesFromStorage();
+    }
+  }, [tab, refreshNotesFromStorage]);
 
   // When lender or section params are present, ensure we're on the financial-summary tab
   useEffect(() => {
@@ -55,14 +64,6 @@ const ApplicationDetail = () => {
     }
   };
 
-  if (loading || !application) {
-    return (
-      <div className="h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
   return (
     <ApplicationDetailLayout
       sidebarOpen={sidebarOpen}
@@ -72,9 +73,9 @@ const ApplicationDetail = () => {
       tabs={tabs}
       currentTab={tab}
       applicationId={id}
-      applicationDetails={applicationFullDetails?.details}
-      applicationFullDetails={applicationFullDetails}
-      notes={application.notesArray || []}
+      applicationDetails={currentApplicationDetails}
+      applicationFullDetails={currentApplicationFullDetails}
+      notes={currentNotes}
       onTabNavigation={handleTabNavigation}
     />
   );
