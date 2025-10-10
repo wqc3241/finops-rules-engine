@@ -325,7 +325,8 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
       target.closest('textarea') ||
       target.closest('[role="button"]') ||
       target.getAttribute('role') === 'button' ||
-      target.hasAttribute('data-prevent-toggle')
+      target.hasAttribute('data-prevent-toggle') ||
+      target.closest('[data-prevent-toggle]')
     );
     
     if (isInteractiveElement) {
