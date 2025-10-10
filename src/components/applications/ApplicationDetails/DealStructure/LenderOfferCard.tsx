@@ -307,8 +307,21 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
     // Stop event from bubbling up to parent sections
     e.stopPropagation();
     
+    console.log('=== LenderOfferCard Click Debug ===');
+    console.log('Lender:', offer.lenderName);
+    console.log('Click target:', e.target);
+    console.log('Target tagName:', (e.target as HTMLElement).tagName);
+    console.log('Target className:', (e.target as HTMLElement).className);
+    
     // Prevent toggle when clicking directly on interactive elements
     const target = e.target as HTMLElement;
+    
+    // Log all the checks
+    console.log('Checking interactive element...');
+    console.log('  - tagName === BUTTON:', target.tagName === 'BUTTON');
+    console.log('  - closest("button"):', target.closest('button'));
+    console.log('  - hasAttribute("data-prevent-toggle"):', target.hasAttribute('data-prevent-toggle'));
+    console.log('  - closest("[data-prevent-toggle]"):', target.closest('[data-prevent-toggle]'));
     
     // More comprehensive check for interactive elements
     const isInteractiveElement = (
@@ -329,9 +342,16 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
       target.closest('[data-prevent-toggle]')
     );
     
+    console.log('isInteractiveElement:', isInteractiveElement);
+    
     if (isInteractiveElement) {
+      console.log('Interactive element detected - NOT toggling');
+      console.log('===================================');
       return;
     }
+    
+    console.log('NOT interactive element - TOGGLING card');
+    console.log('===================================');
     
     // Toggle the card expansion
     handleToggleExpand();
