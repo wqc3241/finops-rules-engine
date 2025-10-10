@@ -41,6 +41,7 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
 }) => {
   const [showFinancialSummary, setShowFinancialSummary] = useState(false);
   const [selectedSection, setSelectedSection] = useState<'requested' | 'approved' | 'customer'>('approved');
+  const [pendingFinancialSummary, setPendingFinancialSummary] = useState(false);
   const [showHistoryDialog, setShowHistoryDialog] = useState(false);
   const [showCustomerHistoryDialog, setShowCustomerHistoryDialog] = useState(false);
   const [dealVersions, setDealVersions] = useState<DealVersion[]>([]);
@@ -72,6 +73,20 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
 
   // Card expansion is managed independently
   const cardIsExpanded = isCardExpanded;
+
+  // Handle showing financial summary after card expansion
+  React.useEffect(() => {
+    if (cardIsExpanded && pendingFinancialSummary) {
+      console.log('=== Financial Summary useEffect ===');
+      console.log('cardIsExpanded:', cardIsExpanded);
+      console.log('pendingFinancialSummary:', pendingFinancialSummary);
+      console.log('Setting showFinancialSummary to true');
+      
+      setShowFinancialSummary(true);
+      setSelectedSection('approved');
+      setPendingFinancialSummary(false);
+    }
+  }, [cardIsExpanded, pendingFinancialSummary]);
   
   const handlePresentToCustomer = () => {
     onSelectOffer(offer.lenderName);
@@ -140,17 +155,28 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
       e.stopPropagation();
     }
     
-    // If card is not expanded, expand it first, then show financial summary
+    console.log('=== Summary Button Handler ===');
+    console.log('Lender:', offer.lenderName);
+    console.log('cardIsExpanded:', cardIsExpanded);
+    console.log('showFinancialSummary before:', showFinancialSummary);
+    
+    // If card is not expanded, expand it first
     if (!cardIsExpanded) {
-      // First expand the card through the parent
+      console.log('Card not expanded - setting pending flag and expanding card');
+      // Set pending flag to show financial summary after expansion
+      setPendingFinancialSummary(true);
+      
+      // Expand the card through the parent
       if (onCardToggle) {
         onCardToggle(true);
       }
+      // Don't set showFinancialSummary here - let useEffect do it after expansion
+    } else {
+      console.log('Card already expanded - showing financial summary immediately');
+      // Card is already expanded, show financial summary immediately
+      setShowFinancialSummary(true);
+      setSelectedSection('approved');
     }
-    
-    // Always show financial summary (never toggle it off)
-    setShowFinancialSummary(true);
-    setSelectedSection('approved');
   };
 
   const handleBackToDealStructure = () => {
