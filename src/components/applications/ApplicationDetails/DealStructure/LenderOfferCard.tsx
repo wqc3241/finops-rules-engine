@@ -146,14 +146,11 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
       if (onCardToggle) {
         onCardToggle(true);
       }
-      // Then show financial summary
-      setShowFinancialSummary(true);
-      setSelectedSection('approved');
-    } else {
-      // If already expanded, just toggle the financial summary
-      setShowFinancialSummary(!showFinancialSummary);
-      setSelectedSection('approved');
     }
+    
+    // Always show financial summary (never toggle it off)
+    setShowFinancialSummary(true);
+    setSelectedSection('approved');
   };
 
   const handleBackToDealStructure = () => {
