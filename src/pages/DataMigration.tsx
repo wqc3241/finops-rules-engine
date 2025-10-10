@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle, CheckCircle2, Loader2, Database } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Loader2, Database, Car } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Sidebar from '@/components/Sidebar';
+import { populateVehicleData } from '@/utils/populateVehicleData';
 
 const DataMigration = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -44,6 +45,27 @@ const DataMigration = () => {
     }
   };
 
+  const handlePopulateVehicleData = async () => {
+    setStatus('migrating');
+    setMessage('Generating and inserting Lucid vehicle data... This may take a moment.');
+
+    try {
+      const result = await populateVehicleData();
+      
+      if (result.success) {
+        setStatus('success');
+        setMessage(result.message || 'Vehicle data populated successfully!');
+      } else {
+        setStatus('error');
+        setMessage(result.message || 'Failed to populate vehicle data');
+      }
+    } catch (error: any) {
+      setStatus('error');
+      setMessage(`Population failed: ${error.message}`);
+      console.error('Vehicle data population error:', error);
+    }
+  };
+
   return (
     <div className="h-screen flex flex-col bg-background">
       <Navbar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
@@ -74,13 +96,29 @@ const DataMigration = () => {
             </div>
 
             {status === 'idle' && (
-              <div className="flex gap-4">
-                <Button onClick={handleMigration} size="lg" variant="outline">
-                  Migrate from localStorage
-                </Button>
-                <Button onClick={handleSeedMockData} size="lg">
-                  Seed Mock Data (~50 Apps)
-                </Button>
+              <div className="space-y-4">
+                <div className="flex gap-4">
+                  <Button onClick={handleMigration} size="lg" variant="outline">
+                    Migrate from localStorage
+                  </Button>
+                  <Button onClick={handleSeedMockData} size="lg">
+                    Seed Mock Data (~50 Apps)
+                  </Button>
+                </div>
+                
+                <div className="border-t pt-4">
+                  <h3 className="font-semibold mb-3 flex items-center gap-2">
+                    <Car className="h-5 w-5 text-primary" />
+                    Vehicle Data Population
+                  </h3>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Generate and insert Lucid vehicle data for all existing applications (2025-2026, Air/Gravity models, new condition).
+                  </p>
+                  <Button onClick={handlePopulateVehicleData} size="lg" variant="default">
+                    <Car className="h-4 w-4 mr-2" />
+                    Populate Vehicle Data
+                  </Button>
+                </div>
               </div>
             )}
 
