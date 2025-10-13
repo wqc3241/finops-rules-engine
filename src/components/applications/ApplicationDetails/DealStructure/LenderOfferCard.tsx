@@ -389,6 +389,7 @@ const LenderOfferCard: React.FC<LenderOfferCardProps> = ({
           onCancelRequestedEdit={handleCancelRequestedEdit}
           onSaveCustomerEdit={handleSaveCustomerEdit}
           onCancelCustomerEdit={handleCancelCustomerEdit}
+          applicationType={currentOffer.applicationType}
         />
 
         <DealVersionHistory

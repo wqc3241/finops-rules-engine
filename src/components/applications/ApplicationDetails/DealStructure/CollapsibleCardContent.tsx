@@ -32,6 +32,7 @@ interface CollapsibleCardContentProps {
   onCancelRequestedEdit?: () => void;
   onSaveCustomerEdit?: (updatedItems: DealStructureItem[]) => void;
   onCancelCustomerEdit?: () => void;
+  applicationType: 'Loan' | 'Lease';
 }
 
 const CollapsibleCardContent: React.FC<CollapsibleCardContentProps> = ({
@@ -57,9 +58,9 @@ const CollapsibleCardContent: React.FC<CollapsibleCardContentProps> = ({
   onSaveRequestedEdit,
   onCancelRequestedEdit,
   onSaveCustomerEdit,
-  onCancelCustomerEdit
+  onCancelCustomerEdit,
+  applicationType
 }) => {
-  const applicationType = offer.applicationType || 'Lease';
 
   return (
     <div>
@@ -90,7 +91,8 @@ const CollapsibleCardContent: React.FC<CollapsibleCardContentProps> = ({
               lenderName={offer.lenderName} 
               section={selectedSection} 
               financialSummary={financialSummary} 
-              onBackToDealStructure={onBackToDealStructure} 
+              onBackToDealStructure={onBackToDealStructure}
+              applicationType={applicationType}
             />
           ) : (
             <ExpandedView 

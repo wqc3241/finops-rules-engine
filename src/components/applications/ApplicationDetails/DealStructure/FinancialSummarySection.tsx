@@ -9,27 +9,23 @@ interface FinancialSummarySectionProps {
   section: 'requested' | 'approved' | 'customer';
   financialSummary: FinancialSummary | undefined;
   onBackToDealStructure: () => void;
+  applicationType: 'Loan' | 'Lease';
 }
 
 const FinancialSummarySection: React.FC<FinancialSummarySectionProps> = ({
   lenderName,
   section,
   financialSummary,
-  onBackToDealStructure
+  onBackToDealStructure,
+  applicationType
 }) => {
   if (!financialSummary) return null;
 
-  // Get lender-specific financial summary if available
-  const lenderFinancialSummary = financialSummary.lenderSummaries?.[lenderName];
-  
-  // Create a financial summary object for this specific lender if we have data
-  const lenderSpecificSummary = lenderFinancialSummary ? {
+  // Create simplified summary based on application type only
+  const simplifiedSummary: FinancialSummary = {
     ...financialSummary,
-    selectedLender: lenderName,
-    selectedTab: section
-  } : undefined;
-
-  if (!lenderSpecificSummary) return null;
+    type: applicationType
+  };
 
   return (
     <div>
@@ -43,7 +39,7 @@ const FinancialSummarySection: React.FC<FinancialSummarySectionProps> = ({
         </button>
       </div>
       <FinancialSummaryView 
-        financialSummary={lenderSpecificSummary}
+        financialSummary={simplifiedSummary}
         showBackButton={false}
         initialSection={section.charAt(0).toUpperCase() + section.slice(1) as 'Requested' | 'Approved' | 'Customer'}
       />

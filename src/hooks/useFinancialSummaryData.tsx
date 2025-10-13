@@ -27,30 +27,18 @@ export function useFinancialSummaryData({ financialSummary, initialSection }: Us
   // Check if we have lender summaries to display
   const hasMultipleLenders = financialSummary.lenderSummaries && Object.keys(financialSummary.lenderSummaries).length > 0;
   
-  // Determine which tabs to show based on application type and selected lender
-  const [selectedLenderName, setSelectedLenderName] = useState<string | null>(
-    lenderFromUrl || 
-    (hasMultipleLenders ? Object.keys(financialSummary.lenderSummaries!)[0] : null)
-  );
-  
-  // If lender summaries exist and a lender is specified in the URL, find that lender
-  const selectedLender = selectedLenderName && financialSummary.lenderSummaries?.[selectedLenderName];
-  
-  // Get tabs based on the selection
-  const tabs = selectedLender
-    ? selectedLender.tabs || ['Requested', 'Approved', 'Customer']
-    : (defaultIsLoanType 
-        ? financialSummary.loan?.tabs || ['Requested', 'Approved', 'Customer']
-        : financialSummary.lfs?.tabs || ['Requested', 'Approved', 'Customer']);
+  // Get tabs based on application type
+  const tabs = defaultIsLoanType 
+    ? financialSummary.loan?.tabs || ['Requested', 'Approved', 'Customer']
+    : financialSummary.lfs?.tabs || ['Requested', 'Approved', 'Customer'];
   
   // Set initial active tab based on initialSection, URL, or default
   const initialTabName = initialSection || 
     (sectionFromUrl 
       ? sectionFromUrl.charAt(0).toUpperCase() + sectionFromUrl.slice(1) as 'Requested' | 'Approved' | 'Customer'
-      : (selectedLender?.activeTab || 
-        (defaultIsLoanType 
+      : (defaultIsLoanType 
           ? financialSummary.loan?.activeTab || 'Approved' 
-          : financialSummary.lfs?.activeTab || 'Approved')));
+          : financialSummary.lfs?.activeTab || 'Approved'));
           
   const [activeTab, setActiveTab] = useState<string>(initialTabName);
 
@@ -66,15 +54,6 @@ export function useFinancialSummaryData({ financialSummary, initialSection }: Us
     }
   }, [sectionFromUrl, initialSection, tabs]);
   
-  // Update selected lender when URL changes
-  useEffect(() => {
-    if (lenderFromUrl) {
-      setSelectedLenderName(lenderFromUrl);
-    } else if (hasMultipleLenders) {
-      // Default to first lender if none specified
-      setSelectedLenderName(Object.keys(financialSummary.lenderSummaries!)[0]);
-    }
-  }, [lenderFromUrl, hasMultipleLenders, financialSummary.lenderSummaries]);
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
@@ -83,61 +62,30 @@ export function useFinancialSummaryData({ financialSummary, initialSection }: Us
     newParams.set('section', tab.toLowerCase());
     setSearchParams(newParams);
   };
-  
-  // Handle lender tab change
-  const handleLenderChange = (lenderName: string) => {
-    setSelectedLenderName(lenderName);
-    // Update URL to reflect the selected lender
-    const newParams = new URLSearchParams(searchParams);
-    newParams.set('lender', lenderName);
-    setSearchParams(newParams);
-  };
 
-  // Get current financial data based on selected lender and tab
+  // Get current financial data based on application type only
   const getCurrentFinancialData = () => {
-    // FIXED: Determine the type for the current view based on selected lender
-    let currentIsLoanType = defaultIsLoanType;
+    const currentIsLoanType = financialSummary.type === 'Loan';
+    const tabLower = activeTab.toLowerCase() as 'requested' | 'approved' | 'customer';
     
-    if (selectedLenderName && financialSummary.lenderSummaries?.[selectedLenderName]) {
-      // Use selected lender's type - this is the key fix
-      const lender = financialSummary.lenderSummaries[selectedLenderName];
-      currentIsLoanType = lender.type === 'Loan';
-      
-      const tabLower = activeTab.toLowerCase() as 'requested' | 'approved' | 'customer';
-      
-      console.log('getCurrentFinancialData - using lender data:', lender[tabLower]);
-      console.log('getCurrentFinancialData - lender type:', lender.type, 'currentIsLoanType:', currentIsLoanType);
-      
-      // Make sure we're getting the right data format based on lender type
+    // Always use application-level data, ignore lender-specific summaries
+    if (currentIsLoanType && financialSummary.loan) {
       return {
-        data: lender[tabLower],
-        isLoanType: currentIsLoanType
+        data: financialSummary.loan[tabLower] || {},
+        isLoanType: true
       };
-    } else {
-      // Use default financial summary data
-      const tabLower = activeTab.toLowerCase() as 'requested' | 'approved' | 'customer';
-      
-      // Make sure we're getting the right data format based on application type
-      if (currentIsLoanType && financialSummary.loan) {
-        console.log('getCurrentFinancialData - using loan data:', financialSummary.loan[tabLower]);
-        return {
-          data: financialSummary.loan[tabLower] || {},
-          isLoanType: true
-        };
-      } else if (financialSummary.lfs) {
-        console.log('getCurrentFinancialData - using lease data:', financialSummary.lfs[tabLower]);
-        return {
-          data: financialSummary.lfs[tabLower],
-          isLoanType: false
-        };
-      } else {
-        console.warn('getCurrentFinancialData - no data found');
-        return {
-          data: {},
-          isLoanType: currentIsLoanType
-        };
-      }
+    } else if (financialSummary.lfs) {
+      return {
+        data: financialSummary.lfs[tabLower] || {},
+        isLoanType: false
+      };
     }
+    
+    // Fallback
+    return {
+      data: {},
+      isLoanType: currentIsLoanType
+    };
   };
 
   const { data, isLoanType: currentTypeIsLoan } = getCurrentFinancialData();
@@ -148,12 +96,8 @@ export function useFinancialSummaryData({ financialSummary, initialSection }: Us
     tabs,
     activeTab,
     handleTabChange,
-    selectedLenderName,
-    handleLenderChange,
-    lenderSummaries: financialSummary.lenderSummaries,
-    presentedLender,
     data,
     currentTypeIsLoan,
-    hasMultipleLenders
+    hasMultipleLenders: false
   };
 }
