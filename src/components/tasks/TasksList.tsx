@@ -1,9 +1,10 @@
-
-import React from "react";
+import React, { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useTasks } from "@/hooks/useTasks";
+import TaskDetailModal from "./TaskDetailModal";
+import type { Task } from "@/hooks/useTasks";
 
 interface TasksListProps {
   type: "unassigned" | "assigned" | "completed";
@@ -13,6 +14,13 @@ interface TasksListProps {
 
 const TasksList: React.FC<TasksListProps> = ({ type, showMyTasksOnly = false, currentUser = "" }) => {
   const { data: tasks, isLoading, error } = useTasks(type, showMyTasksOnly ? currentUser : undefined);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
+
+  const handleTaskNumberClick = (task: Task) => {
+    setSelectedTask(task);
+    setDetailModalOpen(true);
+  };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -90,6 +98,7 @@ const TasksList: React.FC<TasksListProps> = ({ type, showMyTasksOnly = false, cu
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>Task Number</TableHead>
                 <TableHead>Order Number</TableHead>
                 <TableHead>Subject</TableHead>
                 <TableHead>Type</TableHead>
@@ -107,6 +116,14 @@ const TasksList: React.FC<TasksListProps> = ({ type, showMyTasksOnly = false, cu
             <TableBody>
               {tasks.map((task) => (
                 <TableRow key={task.id}>
+                  <TableCell>
+                    <button
+                      onClick={() => handleTaskNumberClick(task)}
+                      className="text-primary hover:underline font-medium"
+                    >
+                      {task.task_number}
+                    </button>
+                  </TableCell>
                   <TableCell className="font-medium">{task.order_number}</TableCell>
                   <TableCell>{task.subject || '-'}</TableCell>
                   <TableCell>{task.type || '-'}</TableCell>
@@ -136,6 +153,11 @@ const TasksList: React.FC<TasksListProps> = ({ type, showMyTasksOnly = false, cu
           </Table>
         )}
       </CardContent>
+      <TaskDetailModal
+        task={selectedTask}
+        open={detailModalOpen}
+        onOpenChange={setDetailModalOpen}
+      />
     </Card>
   );
 };

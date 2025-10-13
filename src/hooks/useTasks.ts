@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 export interface Task {
   id: string;
+  task_number: string;
   order_number: string;
   priority: 'P1' | 'P2' | 'P3' | 'P4' | 'P5' | 'P6' | 'P7';
   delivery_date: string;

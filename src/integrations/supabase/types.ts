@@ -2703,6 +2703,7 @@ export type Database = {
           sub_reason: string | null
           sub_type: string | null
           subject: string | null
+          task_number: string
           trade_in_id: string | null
           type: string | null
           updated_at: string | null
@@ -2727,6 +2728,7 @@ export type Database = {
           sub_reason?: string | null
           sub_type?: string | null
           subject?: string | null
+          task_number?: string
           trade_in_id?: string | null
           type?: string | null
           updated_at?: string | null
@@ -2751,6 +2753,7 @@ export type Database = {
           sub_reason?: string | null
           sub_type?: string | null
           subject?: string | null
+          task_number?: string
           trade_in_id?: string | null
           type?: string | null
           updated_at?: string | null
@@ -3060,6 +3063,10 @@ export type Database = {
     }
     Functions: {
       current_user_role: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      generate_task_number: {
         Args: Record<PropertyKey, never>
         Returns: string
       }
