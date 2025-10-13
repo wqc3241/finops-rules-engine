@@ -2684,45 +2684,86 @@ export type Database = {
       }
       tasks: {
         Row: {
+          additional_reasons: string[] | null
+          application_id: string | null
           assigned_at: string | null
           assigned_to: string | null
+          case_origin: string | null
+          case_reason: string | null
+          case_status: Database["public"]["Enums"]["case_status"]
           category: Database["public"]["Enums"]["task_category"]
           completed_at: string | null
           created_at: string | null
           delivery_date: string
+          description: string | null
           id: string
+          isassigned: boolean
           order_number: string
           priority: Database["public"]["Enums"]["task_priority"]
-          status: Database["public"]["Enums"]["task_status"]
+          sub_reason: string | null
+          sub_type: string | null
+          subject: string | null
+          trade_in_id: string | null
+          type: string | null
           updated_at: string | null
         }
         Insert: {
+          additional_reasons?: string[] | null
+          application_id?: string | null
           assigned_at?: string | null
           assigned_to?: string | null
+          case_origin?: string | null
+          case_reason?: string | null
+          case_status?: Database["public"]["Enums"]["case_status"]
           category: Database["public"]["Enums"]["task_category"]
           completed_at?: string | null
           created_at?: string | null
           delivery_date: string
+          description?: string | null
           id?: string
+          isassigned?: boolean
           order_number: string
           priority: Database["public"]["Enums"]["task_priority"]
-          status?: Database["public"]["Enums"]["task_status"]
+          sub_reason?: string | null
+          sub_type?: string | null
+          subject?: string | null
+          trade_in_id?: string | null
+          type?: string | null
           updated_at?: string | null
         }
         Update: {
+          additional_reasons?: string[] | null
+          application_id?: string | null
           assigned_at?: string | null
           assigned_to?: string | null
+          case_origin?: string | null
+          case_reason?: string | null
+          case_status?: Database["public"]["Enums"]["case_status"]
           category?: Database["public"]["Enums"]["task_category"]
           completed_at?: string | null
           created_at?: string | null
           delivery_date?: string
+          description?: string | null
           id?: string
+          isassigned?: boolean
           order_number?: string
           priority?: Database["public"]["Enums"]["task_priority"]
-          status?: Database["public"]["Enums"]["task_status"]
+          sub_reason?: string | null
+          sub_type?: string | null
+          subject?: string | null
+          trade_in_id?: string | null
+          type?: string | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "tasks_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tax_rules: {
         Row: {
@@ -3070,6 +3111,7 @@ export type Database = {
       application_type: "Lease" | "Loan"
       approval_status: "PENDING" | "APPROVED" | "REJECTED" | "IN_REVIEW"
       capitalize_type_enum: "CapCostReduction" | "PostTaxCredit" | "N/A"
+      case_status: "New" | "In Progress" | "Closed"
       deal_status: "requested" | "approved" | "customer"
       discount_type_enum: "Cash" | "Lease" | "Loan"
       financial_type: "Lease" | "Loan"
@@ -3081,7 +3123,6 @@ export type Database = {
         | "credit_notice"
         | "review_copy"
       task_priority: "P1" | "P2" | "P3" | "P4" | "P5" | "P6" | "P7"
-      task_status: "unassigned" | "assigned" | "completed"
       user_role: "FS_OPS" | "FS_ADMIN" | "admin"
       vehicle_condition_enum: "New" | "CPO" | "Demo" | "Used"
       verification_mode_enum: "Documentation" | "ReferralCode"
@@ -3228,6 +3269,7 @@ export const Constants = {
       application_type: ["Lease", "Loan"],
       approval_status: ["PENDING", "APPROVED", "REJECTED", "IN_REVIEW"],
       capitalize_type_enum: ["CapCostReduction", "PostTaxCredit", "N/A"],
+      case_status: ["New", "In Progress", "Closed"],
       deal_status: ["requested", "approved", "customer"],
       discount_type_enum: ["Cash", "Lease", "Loan"],
       financial_type: ["Lease", "Loan"],
@@ -3240,7 +3282,6 @@ export const Constants = {
         "review_copy",
       ],
       task_priority: ["P1", "P2", "P3", "P4", "P5", "P6", "P7"],
-      task_status: ["unassigned", "assigned", "completed"],
       user_role: ["FS_OPS", "FS_ADMIN", "admin"],
       vehicle_condition_enum: ["New", "CPO", "Demo", "Used"],
       verification_mode_enum: ["Documentation", "ReferralCode"],

@@ -27,6 +27,14 @@ const TasksList: React.FC<TasksListProps> = ({ type, showMyTasksOnly = false, cu
     }
   };
 
+  const getCaseStatusVariant = (caseStatus: string): "default" | "secondary" | "outline" => {
+    switch (caseStatus) {
+      case "Closed": return "default";
+      case "In Progress": return "secondary";
+      default: return "outline";
+    }
+  };
+
   const getTitle = () => {
     const baseTitle = (() => {
       switch (type) {
@@ -83,6 +91,9 @@ const TasksList: React.FC<TasksListProps> = ({ type, showMyTasksOnly = false, cu
             <TableHeader>
               <TableRow>
                 <TableHead>Order Number</TableHead>
+                <TableHead>Subject</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead>Case Status</TableHead>
                 <TableHead>Priority</TableHead>
                 <TableHead>Delivery Date</TableHead>
                 {(type === "assigned" || type === "completed") && (
@@ -97,6 +108,13 @@ const TasksList: React.FC<TasksListProps> = ({ type, showMyTasksOnly = false, cu
               {tasks.map((task) => (
                 <TableRow key={task.id}>
                   <TableCell className="font-medium">{task.order_number}</TableCell>
+                  <TableCell>{task.subject || '-'}</TableCell>
+                  <TableCell>{task.type || '-'}</TableCell>
+                  <TableCell>
+                    <Badge variant={getCaseStatusVariant(task.case_status)}>
+                      {task.case_status}
+                    </Badge>
+                  </TableCell>
                   <TableCell>
                     <Badge className={getPriorityColor(task.priority)}>
                       {task.priority}

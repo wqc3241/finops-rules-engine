@@ -6,33 +6,51 @@ export interface Task {
   order_number: string;
   priority: 'P1' | 'P2' | 'P3' | 'P4' | 'P5' | 'P6' | 'P7';
   delivery_date: string;
-  status: 'unassigned' | 'assigned' | 'completed';
+  isAssigned: boolean;
   category: 'pending_application' | 'contract_redraft' | 'ofac_review' | 'credit_notice' | 'review_copy';
   assigned_to?: string;
   assigned_at?: string;
   completed_at?: string;
   created_at: string;
   updated_at: string;
+  application_id?: string;
+  case_status: 'New' | 'In Progress' | 'Closed';
+  subject?: string;
+  case_origin?: string;
+  description?: string;
+  type?: string;
+  sub_type?: string;
+  case_reason?: string;
+  sub_reason?: string;
+  additional_reasons?: string[];
+  trade_in_id?: string;
   assignee?: {
     email: string;
     role: string;
   };
 }
 
-export const useTasks = (status?: 'unassigned' | 'assigned' | 'completed', userId?: string) => {
+export const useTasks = (filterType?: 'unassigned' | 'assigned' | 'completed', userId?: string) => {
   return useQuery({
-    queryKey: ['tasks', status, userId],
+    queryKey: ['tasks', filterType, userId],
     queryFn: async () => {
-      let query = supabase
+      let query: any = supabase
         .from('tasks')
         .select('*')
         .order('delivery_date', { ascending: true });
 
-      if (status) {
-        query = query.eq('status', status);
+      if (filterType === 'unassigned') {
+        query = query.eq('isAssigned', false);
+      } else if (filterType === 'assigned') {
+        query = query.eq('isAssigned', true);
+        if (userId) {
+          query = query.eq('assigned_to', userId);
+        }
+      } else if (filterType === 'completed') {
+        query = query.eq('case_status', 'Closed');
       }
 
-      if (userId) {
+      if (userId && !filterType) {
         query = query.eq('assigned_to', userId);
       }
 
@@ -40,11 +58,13 @@ export const useTasks = (status?: 'unassigned' | 'assigned' | 'completed', userI
 
       if (error) throw error;
 
+      if (!data) return [] as Task[];
+
       // Fetch user profiles for assigned tasks
-      if (data && data.length > 0) {
+      if (data.length > 0) {
         const userIds = data
-          .map(task => task.assigned_to)
-          .filter((id): id is string => id !== null);
+          .map((task: any) => task.assigned_to)
+          .filter((id: any): id is string => id !== null);
 
         if (userIds.length > 0) {
           const { data: profiles } = await supabase
@@ -54,14 +74,14 @@ export const useTasks = (status?: 'unassigned' | 'assigned' | 'completed', userI
 
           const profileMap = new Map(profiles?.map(p => [p.user_id, p]) || []);
 
-          return data.map(task => ({
+          return data.map((task: any) => ({
             ...task,
             assignee: task.assigned_to ? profileMap.get(task.assigned_to) : undefined
           })) as Task[];
         }
       }
 
-      return data as Task[];
+      return (data as any) as Task[];
     }
   });
 };
@@ -70,9 +90,10 @@ export const useTasksSummary = (userId?: string) => {
   return useQuery({
     queryKey: ['tasks-summary', userId],
     queryFn: async () => {
-      let query = supabase
+      let query: any = supabase
         .from('tasks')
-        .select('category, status');
+        .select('category, case_status')
+        .neq('case_status', 'Closed');
 
       if (userId) {
         query = query.eq('assigned_to', userId);
@@ -82,7 +103,7 @@ export const useTasksSummary = (userId?: string) => {
 
       if (error) throw error;
 
-      // Count tasks by category (excluding completed)
+      // Count tasks by category
       const counts = {
         pendingApplications: 0,
         contractsToRedraft: 0,
@@ -92,8 +113,6 @@ export const useTasksSummary = (userId?: string) => {
       };
 
       data?.forEach((task: any) => {
-        if (task.status === 'completed') return;
-        
         switch (task.category) {
           case 'pending_application':
             counts.pendingApplications++;
@@ -124,12 +143,12 @@ export const useUpcomingDeliveries = (userId?: string) => {
     queryFn: async () => {
       const today = new Date().toISOString().split('T')[0];
       
-      let query = supabase
+      let query: any = supabase
         .from('tasks')
         .select('delivery_date')
-        .neq('status', 'completed')
+        .neq('case_status', 'Closed')
         .gte('delivery_date', today)
-        .order('delivery_date', { ascending: true });
+        .order('delivery_date', { ascending: true});
 
       if (userId) {
         query = query.eq('assigned_to', userId);
