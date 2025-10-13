@@ -1,4 +1,3 @@
-
 import React from 'react';
 import VehicleTradeInCard from './VehicleTradeInCard';
 import RegistrationDataCard from './RegistrationDataCard';
@@ -7,15 +6,16 @@ import { OrderDetail } from '@/types/application';
 
 interface OrderDetailsViewProps {
   orderDetails: OrderDetail;
+  applicationId: string;
 }
 
-const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({ orderDetails }) => {
+const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({ orderDetails, applicationId }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {/* Left Column: Vehicle Trade In and Registration Data */}
       <div className="space-y-6">
         {/* Vehicle Trade In Card */}
-        <VehicleTradeInCard vehicleTradeIn={orderDetails.vehicleTradeIn} />
+        <VehicleTradeInCard applicationId={applicationId} />
 
         {/* Registration Data Card */}
         <RegistrationDataCard registrationData={orderDetails.registrationData} />

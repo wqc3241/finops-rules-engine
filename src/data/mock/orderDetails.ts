@@ -3,15 +3,7 @@ import { OrderDetail } from '../../types/application';
 
 export const orderDetails: OrderDetail = {
   deliveryDate: '2024-12-15',
-  vehicleTradeIn: {
-    year: '2018',
-    make: 'Tesla',
-    model: 'Model 3',
-    trim: 'Base',
-    lienHolder: 'Bank of America',
-    totalValue: '$50,000',
-    payoffAmount: '$35,000'
-  },
+  // vehicleTradeIn removed - now fetched from database via application_id
   sale: {
     invoiceSummary: {
       model: 'Air',

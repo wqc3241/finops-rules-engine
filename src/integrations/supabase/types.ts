@@ -2798,6 +2798,71 @@ export type Database = {
         }
         Relationships: []
       }
+      trade_ins: {
+        Row: {
+          application_id: string | null
+          created_at: string | null
+          created_by: string | null
+          equity_payout_amount: number | null
+          final_offer: number
+          id: string
+          lien_holder: string | null
+          make: string
+          model: string
+          net_trade_in: number
+          payoff_amount: number | null
+          trim: string | null
+          updated_at: string | null
+          valuation_odometer: number
+          vin: string
+          year: number
+        }
+        Insert: {
+          application_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          equity_payout_amount?: number | null
+          final_offer: number
+          id?: string
+          lien_holder?: string | null
+          make: string
+          model: string
+          net_trade_in: number
+          payoff_amount?: number | null
+          trim?: string | null
+          updated_at?: string | null
+          valuation_odometer: number
+          vin: string
+          year: number
+        }
+        Update: {
+          application_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          equity_payout_amount?: number | null
+          final_offer?: number
+          id?: string
+          lien_holder?: string | null
+          make?: string
+          model?: string
+          net_trade_in?: number
+          payoff_amount?: number | null
+          trim?: string | null
+          updated_at?: string | null
+          valuation_odometer?: number
+          vin?: string
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trade_ins_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_preferences: {
         Row: {
           created_at: string | null

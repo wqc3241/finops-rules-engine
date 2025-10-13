@@ -52,6 +52,7 @@ const TabContent: React.FC<TabContentProps> = ({
           notes={notes}
           activeSection={tab}
           onActiveSectionChange={onActiveSectionChange}
+          applicationId={applicationId}
         />
       );
   }

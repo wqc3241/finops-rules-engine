@@ -1,29 +1,40 @@
-
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { DataField } from './DataField';
+import { useTradeInByApplication } from '@/hooks/useTradeInByApplication';
 
 interface VehicleTradeInProps {
-  vehicleTradeIn: {
-    year: string;
-    make: string;
-    model: string;
-    trim: string;
-    lienHolder: string;
-    totalValue: string;
-    payoffAmount: string;
-  };
+  applicationId: string;
 }
 
-const VehicleTradeInCard: React.FC<VehicleTradeInProps> = ({ vehicleTradeIn }) => {
-  // Only show if there's meaningful vehicle trade in data
-  const hasVehicleTradeIn = 
-    vehicleTradeIn && 
-    (vehicleTradeIn.year || 
-     vehicleTradeIn.make || 
-     vehicleTradeIn.model);
+const VehicleTradeInCard: React.FC<VehicleTradeInProps> = ({ applicationId }) => {
+  const { data: tradeIn, isLoading } = useTradeInByApplication(applicationId);
 
-  if (!hasVehicleTradeIn) {
+  // Format currency values
+  const formatCurrency = (value: number) => 
+    new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
+
+  // Format number with commas
+  const formatNumber = (value: number) => 
+    new Intl.NumberFormat('en-US').format(value);
+
+  if (isLoading) {
+    return (
+      <Card className="h-fit">
+        <CardContent className="p-6">
+          <Skeleton className="h-6 w-40 mb-4" />
+          <div className="space-y-2">
+            {Array.from({ length: 7 }).map((_, i) => (
+              <Skeleton key={i} className="h-5 w-full" />
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!tradeIn) {
     return null;
   }
 
@@ -32,13 +43,19 @@ const VehicleTradeInCard: React.FC<VehicleTradeInProps> = ({ vehicleTradeIn }) =
       <CardContent className="p-6">
         <h3 className="text-lg font-medium mb-4">Vehicle Trade In</h3>
         <div className="space-y-2">
-          <DataField label="Year" value={vehicleTradeIn.year} />
-          <DataField label="Make" value={vehicleTradeIn.make} />
-          <DataField label="Model" value={vehicleTradeIn.model} />
-          <DataField label="Trim" value={vehicleTradeIn.trim} />
-          <DataField label="Lien Holder" value={vehicleTradeIn.lienHolder} />
-          <DataField label="Total Value" value={vehicleTradeIn.totalValue} />
-          <DataField label="Payoff Amount" value={vehicleTradeIn.payoffAmount} />
+          <DataField label="Year" value={tradeIn.year.toString()} />
+          <DataField label="Make" value={tradeIn.make} />
+          <DataField label="Model" value={tradeIn.model} />
+          <DataField label="Trim" value={tradeIn.trim || ''} />
+          <DataField label="VIN" value={tradeIn.vin} />
+          <DataField label="Odometer" value={formatNumber(tradeIn.valuation_odometer)} />
+          <DataField label="Lien Holder" value={tradeIn.lien_holder || 'None'} />
+          <DataField label="Final Offer" value={formatCurrency(tradeIn.final_offer)} />
+          <DataField label="Payoff Amount" value={formatCurrency(tradeIn.payoff_amount)} />
+          <DataField label="Net Trade In" value={formatCurrency(tradeIn.net_trade_in)} />
+          {tradeIn.equity_payout_amount > 0 && (
+            <DataField label="Equity Payout" value={formatCurrency(tradeIn.equity_payout_amount)} />
+          )}
         </div>
       </CardContent>
     </Card>

@@ -15,12 +15,14 @@ interface CombinedApplicationViewProps {
   notes: Note[];
   activeSection?: string;
   onActiveSectionChange?: (section: string) => void;
+  applicationId?: string;
 }
 const CombinedApplicationView: React.FC<CombinedApplicationViewProps> = ({
   applicationFullDetails,
   notes,
   activeSection,
-  onActiveSectionChange
+  onActiveSectionChange,
+  applicationId
 }) => {
   const {
     toast
@@ -231,7 +233,10 @@ const CombinedApplicationView: React.FC<CombinedApplicationViewProps> = ({
             </div>
             <CollapsibleContent>
               <div className="px-3 pb-3">
-                <OrderDetailsView orderDetails={applicationFullDetails.orderDetails} />
+                <OrderDetailsView 
+                  orderDetails={applicationFullDetails.orderDetails} 
+                  applicationId={applicationId || ''} 
+                />
               </div>
             </CollapsibleContent>
           </div>
