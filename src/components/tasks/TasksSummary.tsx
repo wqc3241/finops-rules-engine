@@ -3,6 +3,7 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Clock, AlertTriangle, FileText, Shield, CreditCard, Eye } from "lucide-react";
+import { useTasksSummary } from "@/hooks/useTasks";
 
 interface TasksSummaryProps {
   showMyTasksOnly?: boolean;
@@ -10,28 +11,31 @@ interface TasksSummaryProps {
 }
 
 const TasksSummary: React.FC<TasksSummaryProps> = ({ showMyTasksOnly = false, currentUser = "" }) => {
-  // Mock data - in a real app this would be filtered based on the user
-  const getTaskCounts = () => {
-    if (showMyTasksOnly) {
-      return {
-        pendingApplications: 8,
-        contractsToRedraft: 3,
-        ofacReview: 5,
-        creditNotice: 2,
-        reviewCopy: 6
-      };
-    }
-    
-    return {
-      pendingApplications: 24,
-      contractsToRedraft: 8,
-      ofacReview: 12,
-      creditNotice: 6,
-      reviewCopy: 15
-    };
-  };
+  const { data: counts, isLoading, error } = useTasksSummary(showMyTasksOnly ? currentUser : undefined);
 
-  const counts = getTaskCounts();
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-muted-foreground">Loading...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (error || !counts) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-destructive">Error loading summary</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

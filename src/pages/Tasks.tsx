@@ -9,14 +9,15 @@ import { Label } from "@/components/ui/label";
 import TasksSummary from "@/components/tasks/TasksSummary";
 import TasksList from "@/components/tasks/TasksList";
 import UpcomingDeliveries from "@/components/tasks/UpcomingDeliveries";
+import { useAuth } from "@/hooks/useAuth";
 
 const Tasks = () => {
   const [sidebarOpen, setSidebarOpen] = React.useState(true);
   const [activeItem, setActiveItem] = React.useState('Tasks');
   const [showMyTasksOnly, setShowMyTasksOnly] = useState(false);
+  const { user } = useAuth();
 
-  // Mock current user - in a real app this would come from auth context
-  const currentUser = "John Smith";
+  const currentUserId = user?.id;
 
   return (
     <div className="h-screen flex flex-col bg-gray-50">
@@ -53,20 +54,20 @@ const Tasks = () => {
                 </TabsList>
 
                 <TabsContent value="overview" className="space-y-4">
-                  <TasksSummary showMyTasksOnly={showMyTasksOnly} currentUser={currentUser} />
-                  <UpcomingDeliveries showMyTasksOnly={showMyTasksOnly} currentUser={currentUser} />
+                  <TasksSummary showMyTasksOnly={showMyTasksOnly} currentUser={currentUserId} />
+                  <UpcomingDeliveries showMyTasksOnly={showMyTasksOnly} currentUser={currentUserId} />
                 </TabsContent>
 
                 <TabsContent value="unassigned">
-                  <TasksList type="unassigned" showMyTasksOnly={showMyTasksOnly} currentUser={currentUser} />
+                  <TasksList type="unassigned" showMyTasksOnly={showMyTasksOnly} currentUser={currentUserId} />
                 </TabsContent>
 
                 <TabsContent value="assigned">
-                  <TasksList type="assigned" showMyTasksOnly={showMyTasksOnly} currentUser={currentUser} />
+                  <TasksList type="assigned" showMyTasksOnly={showMyTasksOnly} currentUser={currentUserId} />
                 </TabsContent>
 
                 <TabsContent value="completed">
-                  <TasksList type="completed" showMyTasksOnly={showMyTasksOnly} currentUser={currentUser} />
+                  <TasksList type="completed" showMyTasksOnly={showMyTasksOnly} currentUser={currentUserId} />
                 </TabsContent>
               </Tabs>
             </div>

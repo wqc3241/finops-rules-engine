@@ -158,6 +158,33 @@ export type Database = {
         }
         Relationships: []
       }
+      analytics_events: {
+        Row: {
+          created_at: string | null
+          event: string
+          id: string
+          properties: Json | null
+          timestamp: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          event: string
+          id?: string
+          properties?: Json | null
+          timestamp?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          event?: string
+          id?: string
+          properties?: Json | null
+          timestamp?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       app_dt_references: {
         Row: {
           application_date: string | null
@@ -402,10 +429,13 @@ export type Database = {
       applications: {
         Row: {
           amount: number | null
+          country: string | null
           created_at: string | null
           date: string | null
           id: string
           name: string
+          original_application_id: string | null
+          parent_application_id: string | null
           reapplication_sequence: number | null
           reapply_enabled: boolean | null
           state: string | null
@@ -415,10 +445,13 @@ export type Database = {
         }
         Insert: {
           amount?: number | null
+          country?: string | null
           created_at?: string | null
           date?: string | null
           id?: string
           name: string
+          original_application_id?: string | null
+          parent_application_id?: string | null
           reapplication_sequence?: number | null
           reapply_enabled?: boolean | null
           state?: string | null
@@ -428,10 +461,13 @@ export type Database = {
         }
         Update: {
           amount?: number | null
+          country?: string | null
           created_at?: string | null
           date?: string | null
           id?: string
           name?: string
+          original_application_id?: string | null
+          parent_application_id?: string | null
           reapplication_sequence?: number | null
           reapply_enabled?: boolean | null
           state?: string | null
@@ -439,7 +475,15 @@ export type Database = {
           type?: Database["public"]["Enums"]["application_type"]
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fk_parent_application"
+            columns: ["parent_application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       bulletin_pricing: {
         Row: {
@@ -1488,6 +1532,33 @@ export type Database = {
           },
         ]
       }
+      feature_flags: {
+        Row: {
+          enable_date_range_filter: boolean | null
+          enable_realtime_sync: boolean | null
+          id: string
+          updated_at: string | null
+          updated_by: string | null
+          use_supabase_applications: boolean | null
+        }
+        Insert: {
+          enable_date_range_filter?: boolean | null
+          enable_realtime_sync?: boolean | null
+          id?: string
+          updated_at?: string | null
+          updated_by?: string | null
+          use_supabase_applications?: boolean | null
+        }
+        Update: {
+          enable_date_range_filter?: boolean | null
+          enable_realtime_sync?: boolean | null
+          id?: string
+          updated_at?: string | null
+          updated_by?: string | null
+          use_supabase_applications?: boolean | null
+        }
+        Relationships: []
+      }
       fee_rules: {
         Row: {
           __v: string | null
@@ -1963,10 +2034,15 @@ export type Database = {
           created_at: string | null
           delivery_date: string | null
           id: string
+          registration_data: Json | null
+          sale_data: Json | null
           updated_at: string | null
+          vehicle_trade_in_lien_holder: string | null
           vehicle_trade_in_make: string | null
           vehicle_trade_in_mileage: string | null
           vehicle_trade_in_model: string | null
+          vehicle_trade_in_payoff_amount: string | null
+          vehicle_trade_in_trim: string | null
           vehicle_trade_in_value: string | null
           vehicle_trade_in_year: string | null
         }
@@ -1975,10 +2051,15 @@ export type Database = {
           created_at?: string | null
           delivery_date?: string | null
           id?: string
+          registration_data?: Json | null
+          sale_data?: Json | null
           updated_at?: string | null
+          vehicle_trade_in_lien_holder?: string | null
           vehicle_trade_in_make?: string | null
           vehicle_trade_in_mileage?: string | null
           vehicle_trade_in_model?: string | null
+          vehicle_trade_in_payoff_amount?: string | null
+          vehicle_trade_in_trim?: string | null
           vehicle_trade_in_value?: string | null
           vehicle_trade_in_year?: string | null
         }
@@ -1987,10 +2068,15 @@ export type Database = {
           created_at?: string | null
           delivery_date?: string | null
           id?: string
+          registration_data?: Json | null
+          sale_data?: Json | null
           updated_at?: string | null
+          vehicle_trade_in_lien_holder?: string | null
           vehicle_trade_in_make?: string | null
           vehicle_trade_in_mileage?: string | null
           vehicle_trade_in_model?: string | null
+          vehicle_trade_in_payoff_amount?: string | null
+          vehicle_trade_in_trim?: string | null
           vehicle_trade_in_value?: string | null
           vehicle_trade_in_year?: string | null
         }
@@ -2596,6 +2682,48 @@ export type Database = {
           },
         ]
       }
+      tasks: {
+        Row: {
+          assigned_at: string | null
+          assigned_to: string | null
+          category: Database["public"]["Enums"]["task_category"]
+          completed_at: string | null
+          created_at: string | null
+          delivery_date: string
+          id: string
+          order_number: string
+          priority: Database["public"]["Enums"]["task_priority"]
+          status: Database["public"]["Enums"]["task_status"]
+          updated_at: string | null
+        }
+        Insert: {
+          assigned_at?: string | null
+          assigned_to?: string | null
+          category: Database["public"]["Enums"]["task_category"]
+          completed_at?: string | null
+          created_at?: string | null
+          delivery_date: string
+          id?: string
+          order_number: string
+          priority: Database["public"]["Enums"]["task_priority"]
+          status?: Database["public"]["Enums"]["task_status"]
+          updated_at?: string | null
+        }
+        Update: {
+          assigned_at?: string | null
+          assigned_to?: string | null
+          category?: Database["public"]["Enums"]["task_category"]
+          completed_at?: string | null
+          created_at?: string | null
+          delivery_date?: string
+          id?: string
+          order_number?: string
+          priority?: Database["public"]["Enums"]["task_priority"]
+          status?: Database["public"]["Enums"]["task_status"]
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       tax_rules: {
         Row: {
           created_at: string | null
@@ -2623,6 +2751,42 @@ export type Database = {
           rate?: number | null
           tax_name?: string
           tax_type?: string
+        }
+        Relationships: []
+      }
+      user_preferences: {
+        Row: {
+          created_at: string | null
+          id: string
+          sort_direction: string | null
+          sort_option: string | null
+          state_filters: Json | null
+          status_filters: Json | null
+          type_filters: Json | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          sort_direction?: string | null
+          sort_option?: string | null
+          state_filters?: Json | null
+          status_filters?: Json | null
+          type_filters?: Json | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          sort_direction?: string | null
+          sort_option?: string | null
+          state_filters?: Json | null
+          status_filters?: Json | null
+          type_filters?: Json | null
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -2910,6 +3074,14 @@ export type Database = {
       discount_type_enum: "Cash" | "Lease" | "Loan"
       financial_type: "Lease" | "Loan"
       inventory_scope_enum: "InventoryVINs" | "ConfiguredBuilds" | "Both"
+      task_category:
+        | "pending_application"
+        | "contract_redraft"
+        | "ofac_review"
+        | "credit_notice"
+        | "review_copy"
+      task_priority: "P1" | "P2" | "P3" | "P4" | "P5" | "P6" | "P7"
+      task_status: "unassigned" | "assigned" | "completed"
       user_role: "FS_OPS" | "FS_ADMIN" | "admin"
       vehicle_condition_enum: "New" | "CPO" | "Demo" | "Used"
       verification_mode_enum: "Documentation" | "ReferralCode"
@@ -3060,6 +3232,15 @@ export const Constants = {
       discount_type_enum: ["Cash", "Lease", "Loan"],
       financial_type: ["Lease", "Loan"],
       inventory_scope_enum: ["InventoryVINs", "ConfiguredBuilds", "Both"],
+      task_category: [
+        "pending_application",
+        "contract_redraft",
+        "ofac_review",
+        "credit_notice",
+        "review_copy",
+      ],
+      task_priority: ["P1", "P2", "P3", "P4", "P5", "P6", "P7"],
+      task_status: ["unassigned", "assigned", "completed"],
       user_role: ["FS_OPS", "FS_ADMIN", "admin"],
       vehicle_condition_enum: ["New", "CPO", "Demo", "Used"],
       verification_mode_enum: ["Documentation", "ReferralCode"],

@@ -3,6 +3,7 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Truck } from "lucide-react";
+import { useUpcomingDeliveries } from "@/hooks/useTasks";
 
 interface UpcomingDeliveriesProps {
   showMyTasksOnly?: boolean;
@@ -10,24 +11,39 @@ interface UpcomingDeliveriesProps {
 }
 
 const UpcomingDeliveries: React.FC<UpcomingDeliveriesProps> = ({ showMyTasksOnly = false, currentUser = "" }) => {
-  // Mock data - in a real app this would be filtered based on the user
-  const getAllDeliveries = () => [
-    { date: "2024-01-15", count: 8, status: "today" },
-    { date: "2024-01-16", count: 12, status: "tomorrow" },
-    { date: "2024-01-17", count: 6, status: "upcoming" },
-    { date: "2024-01-18", count: 9, status: "upcoming" },
-    { date: "2024-01-19", count: 4, status: "upcoming" },
-  ];
+  const { data: deliveries, isLoading, error } = useUpcomingDeliveries(showMyTasksOnly ? currentUser : undefined);
 
-  const getMyDeliveries = () => [
-    { date: "2024-01-15", count: 3, status: "today" },
-    { date: "2024-01-16", count: 4, status: "tomorrow" },
-    { date: "2024-01-17", count: 2, status: "upcoming" },
-    { date: "2024-01-18", count: 3, status: "upcoming" },
-    { date: "2024-01-19", count: 1, status: "upcoming" },
-  ];
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Truck className="h-5 w-5" />
+            {showMyTasksOnly ? "My Upcoming Deliveries by Date" : "Upcoming Deliveries by Date"}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground">Loading deliveries...</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
-  const deliveries = showMyTasksOnly ? getMyDeliveries() : getAllDeliveries();
+  if (error || !deliveries) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Truck className="h-5 w-5" />
+            {showMyTasksOnly ? "My Upcoming Deliveries by Date" : "Upcoming Deliveries by Date"}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-destructive">Error loading deliveries</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -46,8 +62,11 @@ const UpcomingDeliveries: React.FC<UpcomingDeliveriesProps> = ({ showMyTasksOnly
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-          {deliveries.map((delivery, index) => (
+        {deliveries.length === 0 ? (
+          <p className="text-muted-foreground">No upcoming deliveries</p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            {deliveries.map((delivery, index) => (
             <div key={index} className="text-center p-3 border rounded-lg">
               <div className="text-sm text-muted-foreground mb-1">
                 {new Date(delivery.date).toLocaleDateString('en-US', { 
@@ -61,8 +80,9 @@ const UpcomingDeliveries: React.FC<UpcomingDeliveriesProps> = ({ showMyTasksOnly
                  delivery.status === "tomorrow" ? "Tomorrow" : "Upcoming"}
               </Badge>
             </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </CardContent>
     </Card>
   );
