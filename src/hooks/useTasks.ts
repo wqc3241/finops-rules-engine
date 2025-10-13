@@ -6,7 +6,7 @@ export interface Task {
   order_number: string;
   priority: 'P1' | 'P2' | 'P3' | 'P4' | 'P5' | 'P6' | 'P7';
   delivery_date: string;
-  isAssigned: boolean;
+  is_assigned: boolean;
   category: 'pending_application' | 'contract_redraft' | 'ofac_review' | 'credit_notice' | 'review_copy';
   assigned_to?: string;
   assigned_at?: string;
@@ -40,9 +40,9 @@ export const useTasks = (filterType?: 'unassigned' | 'assigned' | 'completed', u
         .order('delivery_date', { ascending: true });
 
       if (filterType === 'unassigned') {
-        query = query.eq('isAssigned', false);
+        query = query.eq('is_assigned', false);
       } else if (filterType === 'assigned') {
-        query = query.eq('isAssigned', true);
+        query = query.eq('is_assigned', true);
         if (userId) {
           query = query.eq('assigned_to', userId);
         }

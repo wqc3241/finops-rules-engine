@@ -2697,7 +2697,7 @@ export type Database = {
           delivery_date: string
           description: string | null
           id: string
-          isassigned: boolean
+          is_assigned: boolean
           order_number: string
           priority: Database["public"]["Enums"]["task_priority"]
           sub_reason: string | null
@@ -2721,7 +2721,7 @@ export type Database = {
           delivery_date: string
           description?: string | null
           id?: string
-          isassigned?: boolean
+          is_assigned?: boolean
           order_number: string
           priority: Database["public"]["Enums"]["task_priority"]
           sub_reason?: string | null
@@ -2745,7 +2745,7 @@ export type Database = {
           delivery_date?: string
           description?: string | null
           id?: string
-          isassigned?: boolean
+          is_assigned?: boolean
           order_number?: string
           priority?: Database["public"]["Enums"]["task_priority"]
           sub_reason?: string | null
