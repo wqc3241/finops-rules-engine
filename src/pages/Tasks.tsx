@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import TasksSummary from "@/components/tasks/TasksSummary";
 import TasksList from "@/components/tasks/TasksList";
 import UpcomingDeliveries from "@/components/tasks/UpcomingDeliveries";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/useSupabaseAuth";
 
 const Tasks = () => {
   const [sidebarOpen, setSidebarOpen] = React.useState(true);
