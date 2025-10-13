@@ -15,7 +15,7 @@ interface TaskDetailModalProps {
 
 const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, open, onOpenChange }) => {
   const [caseStatus, setCaseStatus] = useState<"New" | "In Progress" | "Closed">(task?.case_status || "New");
-  const [assignedTo, setAssignedTo] = useState(task?.assigned_to || "");
+  const [assignedTo, setAssignedTo] = useState(task?.assigned_to || "unassigned");
   
   const { mutate: updateTask, isPending } = useUpdateTask();
   const { data: userProfiles } = useUserProfiles();
@@ -23,7 +23,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, open, onOpenCha
   React.useEffect(() => {
     if (task) {
       setCaseStatus(task.case_status);
-      setAssignedTo(task.assigned_to || "");
+      setAssignedTo(task.assigned_to || "unassigned");
     }
   }, [task]);
 
@@ -32,8 +32,8 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, open, onOpenCha
 
     const updates: Partial<Task> = {
       case_status: caseStatus,
-      assigned_to: assignedTo || null,
-      is_assigned: !!assignedTo,
+      assigned_to: assignedTo === "unassigned" ? null : assignedTo,
+      is_assigned: assignedTo !== "unassigned",
     };
 
     if (caseStatus === "Closed" && !task.completed_at) {
@@ -132,7 +132,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, open, onOpenCha
                   <SelectValue placeholder="Select user..." />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Unassigned</SelectItem>
+                  <SelectItem value="unassigned">Unassigned</SelectItem>
                   {userProfiles?.map((profile) => (
                     <SelectItem key={profile.user_id} value={profile.user_id}>
                       {profile.email} ({profile.role})
