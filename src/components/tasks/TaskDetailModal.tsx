@@ -55,67 +55,61 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, open, onOpenCha
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-4">
         <DialogHeader>
           <DialogTitle>Task Details - {task.task_number}</DialogTitle>
         </DialogHeader>
         
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <div className="grid grid-cols-2 gap-2">
             <div>
-              <Label className="text-muted-foreground">Task Number</Label>
-              <p className="font-medium">{task.task_number}</p>
+              <Label className="text-muted-foreground text-xs">Task Number</Label>
+              <p className="font-medium text-sm">{task.task_number}</p>
             </div>
             <div>
-              <Label className="text-muted-foreground">Order Number</Label>
-              <p className="font-medium">{task.order_number}</p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label className="text-muted-foreground">Priority</Label>
-              <p className="font-medium">{task.priority}</p>
-            </div>
-            <div>
-              <Label className="text-muted-foreground">Category</Label>
-              <p className="font-medium">{task.category}</p>
+              <Label className="text-muted-foreground text-xs">Order Number</Label>
+              <p className="font-medium text-sm">{task.order_number}</p>
             </div>
           </div>
 
-          <div>
-            <Label className="text-muted-foreground">Subject</Label>
-            <p className="font-medium">{task.subject || '-'}</p>
-          </div>
-
-          <div>
-            <Label className="text-muted-foreground">Type</Label>
-            <p className="font-medium">{task.type || '-'}</p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-2">
             <div>
-              <Label className="text-muted-foreground">Delivery Date</Label>
-              <p className="font-medium">{new Date(task.delivery_date).toLocaleDateString()}</p>
+              <Label className="text-muted-foreground text-xs">Priority</Label>
+              <p className="font-medium text-sm">{task.priority}</p>
             </div>
             <div>
-              <Label className="text-muted-foreground">Created At</Label>
-              <p className="font-medium">{new Date(task.created_at).toLocaleDateString()}</p>
+              <Label className="text-muted-foreground text-xs">Category</Label>
+              <p className="font-medium text-sm">{task.category}</p>
             </div>
           </div>
 
-          {task.completed_at && (
+          <div className="grid grid-cols-2 gap-2">
             <div>
-              <Label className="text-muted-foreground">Completed At</Label>
-              <p className="font-medium">{new Date(task.completed_at).toLocaleString()}</p>
+              <Label className="text-muted-foreground text-xs">Subject</Label>
+              <p className="font-medium text-sm">{task.subject || '-'}</p>
             </div>
-          )}
+            <div>
+              <Label className="text-muted-foreground text-xs">Type</Label>
+              <p className="font-medium text-sm">{task.type || '-'}</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <Label className="text-muted-foreground text-xs">Delivery Date</Label>
+              <p className="font-medium text-sm">{new Date(task.delivery_date).toLocaleDateString()}</p>
+            </div>
+            <div>
+              <Label className="text-muted-foreground text-xs">Created At</Label>
+              <p className="font-medium text-sm">{new Date(task.created_at).toLocaleDateString()}</p>
+            </div>
+          </div>
 
           <TradeInSection tradeInId={task.trade_in_id} />
 
-          <div className="pt-4 border-t space-y-4">
+          <div className="pt-2 border-t space-y-2">
             <div>
-              <Label htmlFor="case-status">Case Status</Label>
+              <Label htmlFor="case-status" className="text-xs">Case Status</Label>
               <Select value={caseStatus} onValueChange={(value) => setCaseStatus(value as "New" | "In Progress" | "Closed")}>
                 <SelectTrigger id="case-status">
                   <SelectValue />
@@ -129,7 +123,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, open, onOpenCha
             </div>
 
             <div>
-              <Label htmlFor="assigned-to">Assigned To</Label>
+              <Label htmlFor="assigned-to" className="text-xs">Assigned To</Label>
               <Select value={assignedTo} onValueChange={setAssignedTo}>
                 <SelectTrigger id="assigned-to">
                   <SelectValue placeholder="Select user..." />

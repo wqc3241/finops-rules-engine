@@ -21,13 +21,13 @@ const TradeInSection: React.FC<TradeInSectionProps> = ({ tradeInId }) => {
 
   if (isLoading) {
     return (
-      <div className="pt-4 border-t space-y-3">
-        <Label className="text-lg font-semibold">Trade-In Vehicle</Label>
+      <div className="pt-2 space-y-1">
+        <Label className="text-sm font-semibold">Trade-In Vehicle</Label>
         <Card>
-          <CardContent className="p-4">
-            <div className="space-y-2">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <Skeleton key={i} className="h-5 w-full" />
+          <CardContent className="p-2">
+            <div className="space-y-1">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <Skeleton key={i} className="h-4 w-full" />
               ))}
             </div>
           </CardContent>
@@ -39,57 +39,57 @@ const TradeInSection: React.FC<TradeInSectionProps> = ({ tradeInId }) => {
   if (!tradeIn) return null;
 
   return (
-    <div className="pt-4 border-t space-y-3">
-      <Label className="text-lg font-semibold">Trade-In Vehicle</Label>
+    <div className="pt-2 space-y-1">
+      <Label className="text-sm font-semibold">Trade-In Vehicle</Label>
       <Card>
-        <CardContent className="p-4">
-          <div className="grid grid-cols-2 gap-4">
+        <CardContent className="p-2">
+          <div className="grid grid-cols-2 gap-2">
             <div>
               <Label className="text-muted-foreground text-xs">Vehicle</Label>
-              <p className="font-medium">{`${tradeIn.year} ${tradeIn.make} ${tradeIn.model}`}</p>
+              <p className="font-medium text-sm">{`${tradeIn.year} ${tradeIn.make} ${tradeIn.model}`}</p>
             </div>
             <div>
               <Label className="text-muted-foreground text-xs">VIN</Label>
-              <p className="font-medium font-mono text-sm">{tradeIn.vin}</p>
+              <p className="font-medium font-mono text-xs">{tradeIn.vin}</p>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 mt-3">
+          <div className="grid grid-cols-2 gap-2 mt-2">
             {tradeIn.trim && (
               <div>
                 <Label className="text-muted-foreground text-xs">Trim</Label>
-                <p className="font-medium">{tradeIn.trim}</p>
+                <p className="font-medium text-sm">{tradeIn.trim}</p>
               </div>
             )}
             <div>
               <Label className="text-muted-foreground text-xs">Odometer</Label>
-              <p className="font-medium">{formatNumber(tradeIn.valuation_odometer)} miles</p>
+              <p className="font-medium text-sm">{formatNumber(tradeIn.valuation_odometer)} miles</p>
             </div>
           </div>
 
-          <div className="border-t mt-3 pt-3 space-y-2">
+          <div className="border-t mt-2 pt-2 space-y-1">
             <div className="flex justify-between items-center">
               <Label className="text-muted-foreground text-xs">Final Offer</Label>
-              <p className="font-semibold text-green-600">{formatCurrency(tradeIn.final_offer)}</p>
+              <p className="font-semibold text-sm text-green-600">{formatCurrency(tradeIn.final_offer)}</p>
             </div>
             <div className="flex justify-between items-center">
               <Label className="text-muted-foreground text-xs">Payoff Amount</Label>
-              <p className="font-medium">{formatCurrency(tradeIn.payoff_amount)}</p>
+              <p className="font-medium text-sm">{formatCurrency(tradeIn.payoff_amount)}</p>
             </div>
             <div className="flex justify-between items-center">
               <Label className="text-muted-foreground text-xs">Net Trade-In</Label>
-              <p className="font-semibold">{formatCurrency(tradeIn.net_trade_in)}</p>
+              <p className="font-semibold text-sm">{formatCurrency(tradeIn.net_trade_in)}</p>
             </div>
             {tradeIn.equity_payout_amount > 0 && (
               <div className="flex justify-between items-center">
                 <Label className="text-muted-foreground text-xs">Equity Payout</Label>
-                <p className="font-semibold text-blue-600">{formatCurrency(tradeIn.equity_payout_amount)}</p>
+                <p className="font-semibold text-sm text-blue-600">{formatCurrency(tradeIn.equity_payout_amount)}</p>
               </div>
             )}
             {tradeIn.lien_holder && (
-              <div className="flex justify-between items-center pt-2 border-t">
+              <div className="flex justify-between items-center pt-1 border-t">
                 <Label className="text-muted-foreground text-xs">Lien Holder</Label>
-                <p className="font-medium">{tradeIn.lien_holder}</p>
+                <p className="font-medium text-sm">{tradeIn.lien_holder}</p>
               </div>
             )}
           </div>
