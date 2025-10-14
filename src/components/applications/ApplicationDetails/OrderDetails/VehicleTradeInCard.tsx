@@ -2,14 +2,15 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DataField } from './DataField';
-import { useTradeInByApplication } from '@/hooks/useTradeInByApplication';
+import { useRandomTradeIn } from '@/hooks/useRandomTradeIn';
 
 interface VehicleTradeInProps {
   applicationId: string;
 }
 
 const VehicleTradeInCard: React.FC<VehicleTradeInProps> = ({ applicationId }) => {
-  const { data: tradeIn, isLoading } = useTradeInByApplication(applicationId);
+  // For demonstration: fetch any random trade-in regardless of application_id
+  const { data: tradeIn, isLoading } = useRandomTradeIn();
 
   // Format currency values
   const formatCurrency = (value: number) => 
