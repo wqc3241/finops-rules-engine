@@ -11,23 +11,18 @@ import AIDashboardsList from "@/components/dashboard/AIDashboardsList";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { applications } from "@/data/mock/applicationsData";
 import { useAIGeneratedDashboards } from "@/hooks/useAIReports";
+import { useCustomDashboards, useCreateCustomDashboard } from "@/hooks/useCustomDashboards";
 import AIAgentButton from "@/components/ai-agent/AIAgentButton";
-
-interface CustomDashboard {
-  id: string;
-  name: string;
-  description: string;
-  createdDate: string;
-}
 
 const DashboardPage = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeItem, setActiveItem] = useState('Dashboard');
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [customDashboards, setCustomDashboards] = useState<CustomDashboard[]>([]);
   const [selectedAIDashboard, setSelectedAIDashboard] = useState<string | null>(null);
 
+  const { data: customDashboards = [] } = useCustomDashboards();
   const { data: aiDashboards } = useAIGeneratedDashboards();
+  const createDashboard = useCreateCustomDashboard();
 
   // Stats for the top cards
   const totalApplications = applications.length;
@@ -48,13 +43,8 @@ const DashboardPage = () => {
   }, []);
 
   const handleCreateDashboard = (dashboard: { name: string; description: string }) => {
-    const newDashboard: CustomDashboard = {
-      id: Date.now().toString(),
-      name: dashboard.name,
-      description: dashboard.description,
-      createdDate: new Date().toISOString().split('T')[0]
-    };
-    setCustomDashboards(prev => [...prev, newDashboard]);
+    createDashboard.mutate(dashboard);
+    setShowCreateModal(false);
   };
 
   const handleViewAIDashboard = (dashboardId: string) => {
@@ -199,7 +189,9 @@ const DashboardPage = () => {
                       <div className="p-4 border border-dashed border-gray-300 rounded-lg text-center">
                         <h3 className="text-lg font-semibold mb-2">{dashboard.name}</h3>
                         <p className="text-gray-600 mb-4">{dashboard.description || 'No description provided'}</p>
-                        <p className="text-sm text-gray-500">Created on: {dashboard.createdDate}</p>
+                        <p className="text-sm text-gray-500">
+                          Created on: {new Date(dashboard.created_at).toLocaleDateString()}
+                        </p>
                         <div className="mt-4">
                           <p className="text-gray-500">Dashboard content can be customized here</p>
                         </div>

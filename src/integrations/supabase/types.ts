@@ -809,6 +809,39 @@ export type Database = {
         }
         Relationships: []
       }
+      custom_dashboards: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          layout_config: Json | null
+          name: string
+          updated_at: string
+          widgets: Json | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          layout_config?: Json | null
+          name: string
+          updated_at?: string
+          widgets?: Json | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          layout_config?: Json | null
+          name?: string
+          updated_at?: string
+          widgets?: Json | null
+        }
+        Relationships: []
+      }
       deal_stipulations: {
         Row: {
           created_at: string | null
