@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { useUpdateTask } from "@/hooks/useUpdateTask";
 import { useUserProfiles } from "@/hooks/useUserProfiles";
+import TradeInSection from "./TradeInSection";
 import type { Task } from "@/hooks/useTasks";
 
 interface TaskDetailModalProps {
@@ -109,6 +110,8 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, open, onOpenCha
               <p className="font-medium">{new Date(task.completed_at).toLocaleString()}</p>
             </div>
           )}
+
+          <TradeInSection tradeInId={task.trade_in_id} />
 
           <div className="pt-4 border-t space-y-4">
             <div>
