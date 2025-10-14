@@ -2766,6 +2766,13 @@ export type Database = {
             referencedRelation: "applications"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "tasks_trade_in_id_fkey"
+            columns: ["trade_in_id"]
+            isOneToOne: false
+            referencedRelation: "trade_ins"
+            referencedColumns: ["id"]
+          },
         ]
       }
       tax_rules: {
