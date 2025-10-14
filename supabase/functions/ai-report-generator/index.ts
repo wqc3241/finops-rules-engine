@@ -170,7 +170,8 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4.1-2025-04-14',
+        model: 'gpt-5-2025-08-07',
+        response_format: { type: "json_object" },
         messages: [
           {
             role: 'system',
@@ -201,9 +202,20 @@ You can analyze requests about:
 **Advanced Filters**: Support complex filtering across multiple tables and fields
 **Aggregations**: Calculate counts, sums, averages, trends, and business metrics
 
+## CRITICAL: RESPONSE FORMAT REQUIREMENTS
+
+**YOU MUST return ONLY valid, strict JSON** - absolutely no comments, no explanations outside the JSON structure.
+
+**STRICT JSON RULES:**
+- NO JavaScript comments (// or /* */)
+- NO trailing commas
+- All keys must be double-quoted strings
+- Use empty objects {} or empty arrays [] for empty values
+- Do NOT add any text before or after the JSON object
+
 ## RESPONSE FORMAT
 
-Generate a detailed JSON response with this structure:
+Generate a detailed JSON response with this EXACT structure:
 {
   "type": "report" | "dashboard",
   "title": "Descriptive title for the analysis",
@@ -262,11 +274,28 @@ Analyze all requests comprehensively and provide actionable business insights.`
     
     console.log('AI parsed intent:', aiContent);
 
+    // Helper to clean JSON-like content before parsing
+    const cleanJsonResponse = (content: string): string => {
+      // Remove single-line comments
+      let cleaned = content.replace(/\/\/.*$/gm, '');
+      // Remove multi-line comments  
+      cleaned = cleaned.replace(/\/\*[\s\S]*?\*\//g, '');
+      // Remove trailing commas before closing braces/brackets
+      cleaned = cleaned.replace(/,(\s*[}\]])/g, '$1');
+      // Trim whitespace
+      return cleaned.trim();
+    };
+
     let queryIntent: QueryIntent;
     try {
-      queryIntent = JSON.parse(aiContent);
+      // Clean the response before parsing
+      const cleanedContent = cleanJsonResponse(aiContent);
+      queryIntent = JSON.parse(cleanedContent);
     } catch (e) {
-      throw new Error('Failed to parse AI response as JSON');
+      console.error('JSON Parse Error:', e);
+      console.error('Raw AI Response:', aiContent);
+      console.error('Cleaned Response:', cleanJsonResponse(aiContent));
+      throw new Error(`Failed to parse AI response as JSON: ${e.message}`);
     }
 
     // Initialize Supabase client
