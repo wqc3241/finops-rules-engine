@@ -242,19 +242,30 @@ const CreateReportModal: React.FC<CreateReportModalProps> = ({
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="order-column">Order By (Optional)</Label>
-                    <Select value={orderColumn} onValueChange={setOrderColumn}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select column" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="">None</SelectItem>
-                        {tableColumns.map(col => (
-                          <SelectItem key={col.name} value={col.name}>
-                            {col.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <div className="flex gap-2">
+                      <Select value={orderColumn} onValueChange={setOrderColumn}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select column" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {tableColumns.map(col => (
+                            <SelectItem key={col.name} value={col.name}>
+                              {col.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {orderColumn && (
+                        <Button 
+                          variant="outline" 
+                          size="icon"
+                          onClick={() => setOrderColumn('')}
+                          type="button"
+                        >
+                          ×
+                        </Button>
+                      )}
+                    </div>
                   </div>
                   <div>
                     <Label htmlFor="order-direction">Direction</Label>
