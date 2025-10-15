@@ -207,7 +207,6 @@ const AddComponentModal: React.FC<AddComponentModalProps> = ({
                     {availableColumns.map(col => (
                       <div key={col.name} className="flex items-center space-x-2">
                         <Checkbox
-                          id={col.name}
                           checked={selectedColumns.includes(col.name)}
                           onCheckedChange={(checked) => {
                             if (checked) {
@@ -217,7 +216,7 @@ const AddComponentModal: React.FC<AddComponentModalProps> = ({
                             }
                           }}
                         />
-                        <label htmlFor={col.name} className="text-sm cursor-pointer">
+                        <label className="text-sm cursor-pointer">
                           {col.name} <span className="text-muted-foreground">({col.type})</span>
                         </label>
                       </div>
