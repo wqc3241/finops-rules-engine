@@ -6,7 +6,7 @@ import { useDashboardComponents } from "@/hooks/useDashboardComponents";
 import { useDashboardLayout } from "@/hooks/useDashboardLayout";
 import { useDashboardFilters } from "@/hooks/useDashboardFilters";
 import CreateDashboardModal from "@/components/dashboard/CreateDashboardModal";
-import FolderSidebar from "@/components/dashboard/sidebar/FolderSidebar";
+import DashboardNavigation from "@/components/dashboard/navigation/DashboardNavigation";
 import DashboardHeader from "@/components/dashboard/layout/DashboardHeader";
 import FilterBar from "@/components/dashboard/layout/FilterBar";
 import DashboardGrid from "@/components/dashboard/layout/DashboardGrid";
@@ -64,8 +64,8 @@ const DashboardPage = () => {
       <Navbar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar open={sidebarOpen} activeItem={activeItem} setActiveItem={setActiveItem} />
-        <div className="flex-1 flex overflow-hidden">
-          <FolderSidebar
+        <main className="flex-1 flex flex-col overflow-hidden">
+          <DashboardNavigation
             selectedFolderId={selectedFolderId}
             onFolderSelect={setSelectedFolderId}
             selectedDashboardId={selectedDashboardId}
@@ -73,7 +73,6 @@ const DashboardPage = () => {
             onCreateDashboard={() => setShowCreateModal(true)}
             onManageFolders={() => setShowFolderModal(true)}
           />
-          <main className="flex-1 flex flex-col overflow-hidden">
             {selectedDashboard ? (
               <>
                 <DashboardHeader
@@ -119,8 +118,7 @@ const DashboardPage = () => {
                 </div>
               </div>
             )}
-          </main>
-        </div>
+        </main>
       </div>
 
       <CreateDashboardModal
