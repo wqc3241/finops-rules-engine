@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Table,
   TableBody,
@@ -7,13 +7,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { dashboardDataService } from '@/services/dashboardDataService';
+import { DataSourceConfig, VisualizationConfig } from '@/types/dashboard';
 
 interface TableRendererProps {
-  config: {
-    columns?: string[];
-    sortable?: boolean;
-  };
-  dataSource: string | null;
+  config: VisualizationConfig;
+  dataSource: DataSourceConfig | null;
 }
 
 // Mock data
@@ -25,13 +24,35 @@ const MOCK_DATA = [
 ];
 
 const TableRenderer: React.FC<TableRendererProps> = ({ config, dataSource }) => {
-  const data = MOCK_DATA;
+  const [data, setData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const result = await dashboardDataService.fetchData(dataSource);
+        setData(result.length > 0 ? result : MOCK_DATA);
+      } catch (error) {
+        console.error('Failed to fetch table data:', error);
+        setData(MOCK_DATA);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [dataSource]);
+
+  if (loading) {
+    return <div className="text-center text-muted-foreground p-4">Loading...</div>;
+  }
   
   if (data.length === 0) {
     return <div className="text-center text-muted-foreground p-4">No data available</div>;
   }
 
-  const columns = config.columns || Object.keys(data[0]);
+  const columns = config.columns && config.columns.length > 0 ? config.columns : Object.keys(data[0]);
 
   return (
     <div className="overflow-auto max-h-full">

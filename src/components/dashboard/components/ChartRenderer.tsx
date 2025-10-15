@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   LineChart,
   Line,
@@ -16,18 +16,12 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
+import { dashboardDataService } from '@/services/dashboardDataService';
+import { DataSourceConfig, VisualizationConfig } from '@/types/dashboard';
 
 interface ChartRendererProps {
-  config: {
-    chartType?: 'line' | 'bar' | 'area' | 'pie';
-    xAxis?: string;
-    yAxis?: string;
-    colors?: string[];
-    legend?: boolean;
-    tooltip?: boolean;
-    grid?: { horizontal?: boolean; vertical?: boolean };
-  };
-  dataSource: string | null;
+  config: VisualizationConfig;
+  dataSource: DataSourceConfig | null;
 }
 
 // Mock data for demonstration
@@ -43,12 +37,37 @@ const MOCK_DATA = [
 const DEFAULT_COLORS = ['#9333EA', '#F59E0B', '#10B981', '#3B82F6', '#EF4444'];
 
 const ChartRenderer: React.FC<ChartRendererProps> = ({ config, dataSource }) => {
-  // In real implementation, fetch data from dataSource
-  const data = MOCK_DATA;
+  const [data, setData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const result = await dashboardDataService.fetchData(dataSource);
+        setData(result.length > 0 ? result : MOCK_DATA);
+      } catch (error) {
+        console.error('Failed to fetch chart data:', error);
+        setData(MOCK_DATA);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [dataSource]);
+
+  if (loading) {
+    return <div className="flex items-center justify-center h-full text-muted-foreground">Loading...</div>;
+  }
+
+  if (data.length === 0) {
+    return <div className="flex items-center justify-center h-full text-muted-foreground">No data available</div>;
+  }
 
   const chartType = config.chartType || 'bar';
   const xAxis = config.xAxis || 'month';
-  const yAxis = config.yAxis || 'count';
+  const yAxis = typeof config.yAxis === 'string' ? config.yAxis : (config.yAxis?.[0] || 'count');
   const colors = config.colors || DEFAULT_COLORS;
   const showLegend = config.legend !== false;
   const showTooltip = config.tooltip !== false;

@@ -1,13 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { DataSourceConfig } from '@/types/dashboard';
 
 export interface DashboardComponent {
   id: string;
   dashboard_id: string;
   type: 'chart' | 'table' | 'metric' | 'gauge';
   title: string;
-  data_source: string | null;
+  data_source: DataSourceConfig | null;
   visualization_config: any;
   filter_bindings: any[];
   position: {
@@ -33,7 +34,7 @@ export const useDashboardComponents = (dashboardId: string | null) => {
         .order('created_at');
       
       if (error) throw error;
-      return data as DashboardComponent[];
+      return (data || []) as unknown as DashboardComponent[];
     },
     enabled: !!dashboardId,
   });
@@ -47,7 +48,7 @@ export const useCreateComponent = () => {
     mutationFn: async (component: Omit<DashboardComponent, 'id' | 'created_at' | 'updated_at'>) => {
       const { data, error } = await supabase
         .from('dashboard_components')
-        .insert(component)
+        .insert(component as any)
         .select()
         .single();
 
@@ -72,7 +73,7 @@ export const useUpdateComponent = () => {
     mutationFn: async ({ id, dashboard_id, ...updates }: Partial<DashboardComponent> & { id: string; dashboard_id: string }) => {
       const { data, error } = await supabase
         .from('dashboard_components')
-        .update(updates)
+        .update(updates as any)
         .eq('id', id)
         .select()
         .single();

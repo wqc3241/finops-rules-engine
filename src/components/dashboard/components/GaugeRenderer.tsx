@@ -1,5 +1,6 @@
 import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import { DataSourceConfig } from '@/types/dashboard';
 
 interface GaugeRendererProps {
   config: {
@@ -8,7 +9,7 @@ interface GaugeRendererProps {
     label?: string;
     colors?: string[];
   };
-  dataSource: string | null;
+  dataSource: DataSourceConfig | null;
 }
 
 const GaugeRenderer: React.FC<GaugeRendererProps> = ({ config, dataSource }) => {

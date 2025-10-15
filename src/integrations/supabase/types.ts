@@ -904,7 +904,7 @@ export type Database = {
         Row: {
           created_at: string | null
           dashboard_id: string
-          data_source: string | null
+          data_source: Json | null
           filter_bindings: Json | null
           id: string
           position: Json | null
@@ -916,7 +916,7 @@ export type Database = {
         Insert: {
           created_at?: string | null
           dashboard_id: string
-          data_source?: string | null
+          data_source?: Json | null
           filter_bindings?: Json | null
           id?: string
           position?: Json | null
@@ -928,7 +928,7 @@ export type Database = {
         Update: {
           created_at?: string | null
           dashboard_id?: string
-          data_source?: string | null
+          data_source?: Json | null
           filter_bindings?: Json | null
           id?: string
           position?: Json | null
@@ -3321,6 +3321,13 @@ export type Database = {
       generate_template_id: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      get_all_tables: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          table_name: string
+          table_type: string
+        }[]
       }
       get_primary_keys: {
         Args: { table_name_param: string }

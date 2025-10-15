@@ -1,5 +1,6 @@
 import React from 'react';
 import { TrendingUp, TrendingDown } from 'lucide-react';
+import { DataSourceConfig } from '@/types/dashboard';
 
 interface MetricCardProps {
   config: {
@@ -9,7 +10,7 @@ interface MetricCardProps {
     trendLabel?: string;
     format?: 'number' | 'currency' | 'percentage';
   };
-  dataSource: string | null;
+  dataSource: DataSourceConfig | null;
 }
 
 const MetricCard: React.FC<MetricCardProps> = ({ config, dataSource }) => {
