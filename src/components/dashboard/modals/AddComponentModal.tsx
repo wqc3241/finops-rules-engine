@@ -209,14 +209,29 @@ const AddComponentModal: React.FC<AddComponentModalProps> = ({
                         <Checkbox
                           checked={selectedColumns.includes(col.name)}
                           onCheckedChange={(checked) => {
+                            console.log('🔵 Checkbox onCheckedChange triggered:', {
+                              column: col.name,
+                              newCheckedState: checked,
+                              currentSelectedColumns: [...selectedColumns],
+                              isCurrentlySelected: selectedColumns.includes(col.name),
+                              timestamp: new Date().toISOString()
+                            });
+                            
                             if (checked) {
+                              console.log('✅ Adding column:', col.name);
                               setSelectedColumns([...selectedColumns, col.name]);
                             } else {
+                              console.log('❌ Removing column:', col.name);
                               setSelectedColumns(selectedColumns.filter(c => c !== col.name));
                             }
                           }}
                         />
-                        <label className="text-sm cursor-pointer">
+                        <label 
+                          className="text-sm cursor-pointer"
+                          onClick={(e) => {
+                            console.log('🟡 Label clicked:', col.name, 'Event:', e.type);
+                          }}
+                        >
                           {col.name} <span className="text-muted-foreground">({col.type})</span>
                         </label>
                       </div>
