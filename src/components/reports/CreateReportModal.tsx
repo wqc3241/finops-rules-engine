@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useSupabaseTables } from '@/hooks/useSupabaseTables';
 import { useTableRelations } from '@/hooks/useTableRelations';
@@ -13,7 +14,6 @@ import { ReportConfig, ReportFilter } from '@/types/report';
 import { TableColumn } from '@/types/dashboard';
 import ColumnSelector from './ColumnSelector';
 import AdvancedFilterBuilder from './AdvancedFilterBuilder';
-import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface CreateReportModalProps {
@@ -27,7 +27,6 @@ const CreateReportModal: React.FC<CreateReportModalProps> = ({
   onOpenChange,
   onCreateReport
 }) => {
-  const [step, setStep] = useState(1);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [sourceTable, setSourceTable] = useState('');
@@ -70,26 +69,6 @@ const CreateReportModal: React.FC<CreateReportModalProps> = ({
     }
   }, [foreignKeys, fetchColumnsForTable]);
 
-  const handleNext = () => {
-    if (step === 1 && !title.trim()) {
-      toast.error('Please enter a report title');
-      return;
-    }
-    if (step === 2 && !sourceTable) {
-      toast.error('Please select a data source');
-      return;
-    }
-    if (step === 3 && selectedColumns.length === 0) {
-      toast.error('Please select at least one column');
-      return;
-    }
-    setStep(step + 1);
-  };
-
-  const handleBack = () => {
-    setStep(step - 1);
-  };
-
   const handlePreview = async () => {
     setIsLoadingPreview(true);
     try {
@@ -112,6 +91,22 @@ const CreateReportModal: React.FC<CreateReportModalProps> = ({
   };
 
   const handleCreate = async () => {
+    // Validate all required fields
+    if (!title.trim()) {
+      toast.error('Please enter a report title');
+      return;
+    }
+    
+    if (!sourceTable) {
+      toast.error('Please select a data source');
+      return;
+    }
+    
+    if (selectedColumns.length === 0) {
+      toast.error('Please select at least one column');
+      return;
+    }
+
     try {
       const config: ReportConfig = {
         sourceTable,
@@ -131,7 +126,6 @@ const CreateReportModal: React.FC<CreateReportModalProps> = ({
       });
 
       // Reset form
-      setStep(1);
       setTitle('');
       setDescription('');
       setSourceTable('');
@@ -149,11 +143,17 @@ const CreateReportModal: React.FC<CreateReportModalProps> = ({
     }
   };
 
-  const renderStep = () => {
-    switch (step) {
-      case 1:
-        return (
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Create Report</DialogTitle>
+        </DialogHeader>
+        
+        <div className="py-4 space-y-6">
+          {/* Section 1: Basic Information */}
           <div className="space-y-4">
+            <h3 className="text-lg font-semibold">1. Basic Information</h3>
             <div>
               <Label htmlFor="report-title">Report Title *</Label>
               <Input
@@ -174,13 +174,14 @@ const CreateReportModal: React.FC<CreateReportModalProps> = ({
               />
             </div>
           </div>
-        );
 
-      case 2:
-        return (
+          <Separator />
+
+          {/* Section 2: Data Source */}
           <div className="space-y-4">
+            <h3 className="text-lg font-semibold">2. Data Source</h3>
             <div>
-              <Label htmlFor="source-table">Data Source *</Label>
+              <Label htmlFor="source-table">Select Table *</Label>
               <Select value={sourceTable} onValueChange={setSourceTable}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select a table" />
@@ -195,168 +196,146 @@ const CreateReportModal: React.FC<CreateReportModalProps> = ({
               </Select>
             </div>
           </div>
-        );
 
-      case 3:
-        return (
-          <div className="space-y-4">
-            <Label>Select Columns *</Label>
-            <ColumnSelector
-              columns={tableColumns}
-              foreignKeys={foreignKeys}
-              selectedColumns={selectedColumns}
-              onChange={setSelectedColumns}
-              foreignColumns={foreignColumns}
-            />
-          </div>
-        );
-
-      case 4:
-        return (
-          <div className="space-y-4">
-            <Label>Add Filters (Optional)</Label>
-            <AdvancedFilterBuilder
-              columns={tableColumns}
-              foreignKeys={foreignKeys}
-              filters={filters}
-              onChange={setFilters}
-              foreignColumns={foreignColumns}
-            />
-          </div>
-        );
-
-      case 5:
-        return (
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="order-column">Order By (Optional)</Label>
-              <Select value={orderColumn} onValueChange={setOrderColumn}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select column" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">None</SelectItem>
-                  {tableColumns.map(col => (
-                    <SelectItem key={col.name} value={col.name}>
-                      {col.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label htmlFor="order-direction">Direction</Label>
-              <Select value={orderDirection} onValueChange={(val: 'asc' | 'desc') => setOrderDirection(val)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="asc">Ascending</SelectItem>
-                  <SelectItem value="desc">Descending</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label htmlFor="limit">Row Limit</Label>
-              <Input
-                id="limit"
-                type="number"
-                value={limit}
-                onChange={(e) => setLimit(parseInt(e.target.value) || 100)}
-                min={1}
-                max={1000}
-              />
-            </div>
-          </div>
-        );
-
-      case 6:
-        return (
-          <div className="space-y-4">
-            <div>
-              <h4 className="font-semibold mb-2">Report Summary</h4>
-              <div className="space-y-2 text-sm">
-                <p><strong>Title:</strong> {title}</p>
-                <p><strong>Table:</strong> {sourceTable}</p>
-                <p><strong>Columns:</strong> {selectedColumns.length} selected</p>
-                <p><strong>Filters:</strong> {filters.length} applied</p>
-                <p><strong>Limit:</strong> {limit} rows</p>
+          {/* Section 3: Select Columns - Visible when table is selected */}
+          {sourceTable && (
+            <>
+              <Separator />
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">3. Select Columns</h3>
+                <Label>Choose the columns to include in your report *</Label>
+                <ColumnSelector
+                  columns={tableColumns}
+                  foreignKeys={foreignKeys}
+                  selectedColumns={selectedColumns}
+                  onChange={setSelectedColumns}
+                  foreignColumns={foreignColumns}
+                />
               </div>
-            </div>
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <h4 className="font-semibold">Preview (First 10 rows)</h4>
-                <Button onClick={handlePreview} disabled={isLoadingPreview} size="sm">
-                  {isLoadingPreview ? 'Loading...' : 'Refresh Preview'}
-                </Button>
+            </>
+          )}
+
+          {/* Section 4: Filters - Visible when table is selected */}
+          {sourceTable && (
+            <>
+              <Separator />
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">4. Filters (Optional)</h3>
+                <Label>Add filters to refine your data</Label>
+                <AdvancedFilterBuilder
+                  columns={tableColumns}
+                  foreignKeys={foreignKeys}
+                  filters={filters}
+                  onChange={setFilters}
+                  foreignColumns={foreignColumns}
+                />
               </div>
-              <div className="border rounded-lg max-h-[300px] overflow-auto">
-                {previewData.length > 0 ? (
-                  <table className="w-full text-xs">
-                    <thead className="bg-muted">
-                      <tr>
-                        {Object.keys(previewData[0]).map(key => (
-                          <th key={key} className="p-2 text-left font-semibold">{key}</th>
+            </>
+          )}
+
+          {/* Section 5: Sorting & Limits - Visible when table and columns are selected */}
+          {sourceTable && tableColumns.length > 0 && (
+            <>
+              <Separator />
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">5. Sorting & Limits</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="order-column">Order By (Optional)</Label>
+                    <Select value={orderColumn} onValueChange={setOrderColumn}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select column" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">None</SelectItem>
+                        {tableColumns.map(col => (
+                          <SelectItem key={col.name} value={col.name}>
+                            {col.name}
+                          </SelectItem>
                         ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {previewData.map((row, i) => (
-                        <tr key={i} className="border-t">
-                          {Object.values(row).map((val: any, j) => (
-                            <td key={j} className="p-2">{JSON.stringify(val)}</td>
-                          ))}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                ) : (
-                  <p className="p-4 text-sm text-muted-foreground text-center">
-                    Click "Refresh Preview" to see data
-                  </p>
-                )}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="order-direction">Direction</Label>
+                    <Select value={orderDirection} onValueChange={(val: 'asc' | 'desc') => setOrderDirection(val)}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="asc">Ascending</SelectItem>
+                        <SelectItem value="desc">Descending</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="limit">Row Limit</Label>
+                  <Input
+                    id="limit"
+                    type="number"
+                    value={limit}
+                    onChange={(e) => setLimit(parseInt(e.target.value) || 100)}
+                    min={1}
+                    max={1000}
+                  />
+                </div>
               </div>
-            </div>
-          </div>
-        );
+            </>
+          )}
 
-      default:
-        return null;
-    }
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Create Report - Step {step} of 6</DialogTitle>
-        </DialogHeader>
-        
-        <div className="py-4">
-          {renderStep()}
+          {/* Section 6: Preview - Visible when columns are selected */}
+          {selectedColumns.length > 0 && (
+            <>
+              <Separator />
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">6. Preview</h3>
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <Label>Data Preview (First 10 rows)</Label>
+                    <Button onClick={handlePreview} disabled={isLoadingPreview} size="sm">
+                      {isLoadingPreview ? 'Loading...' : 'Refresh Preview'}
+                    </Button>
+                  </div>
+                  <div className="border rounded-lg max-h-[300px] overflow-auto">
+                    {previewData.length > 0 ? (
+                      <table className="w-full text-xs">
+                        <thead className="bg-muted">
+                          <tr>
+                            {Object.keys(previewData[0]).map(key => (
+                              <th key={key} className="p-2 text-left font-semibold">{key}</th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {previewData.map((row, i) => (
+                            <tr key={i} className="border-t">
+                              {Object.values(row).map((val: any, j) => (
+                                <td key={j} className="p-2">{JSON.stringify(val)}</td>
+                              ))}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    ) : (
+                      <p className="p-4 text-sm text-muted-foreground text-center">
+                        Click "Refresh Preview" to see data
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
         </div>
 
-        <div className="flex justify-between pt-4 border-t">
-          <Button
-            variant="outline"
-            onClick={handleBack}
-            disabled={step === 1}
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
+        <div className="flex justify-end gap-2 pt-4 border-t">
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
           </Button>
-          
-          {step < 6 ? (
-            <Button onClick={handleNext}>
-              Next
-              <ArrowRight className="h-4 w-4 ml-2" />
-            </Button>
-          ) : (
-            <Button onClick={handleCreate}>
-              <Check className="h-4 w-4 mr-2" />
-              Create Report
-            </Button>
-          )}
+          <Button onClick={handleCreate}>
+            Create Report
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
