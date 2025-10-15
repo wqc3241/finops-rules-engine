@@ -2747,6 +2747,7 @@ export type Database = {
           description: string | null
           generated_date: string | null
           id: string
+          report_config: Json | null
           report_data: Json
           report_type: string
           title: string
@@ -2759,6 +2760,7 @@ export type Database = {
           description?: string | null
           generated_date?: string | null
           id?: string
+          report_config?: Json | null
           report_data: Json
           report_type: string
           title: string
@@ -2771,6 +2773,7 @@ export type Database = {
           description?: string | null
           generated_date?: string | null
           id?: string
+          report_config?: Json | null
           report_data?: Json
           report_type?: string
           title?: string
@@ -3366,6 +3369,14 @@ export type Database = {
         Returns: {
           table_name: string
           table_type: string
+        }[]
+      }
+      get_foreign_keys: {
+        Args: { table_name_param: string }
+        Returns: {
+          foreign_column: string
+          foreign_table: string
+          source_column: string
         }[]
       }
       get_primary_keys: {

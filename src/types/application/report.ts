@@ -104,6 +104,7 @@ export interface StandardReportRow {
   description: string | null;
   report_type: 'status' | 'application' | 'timeline' | 'financial';
   report_data: StatusReportData | ApplicationTypeReportData | TimelineReportData | FinancialReportData;
+  report_config: any | null;
   generated_date: string;
   created_by: string | null;
   created_at: string;

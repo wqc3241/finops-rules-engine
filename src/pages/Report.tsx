@@ -22,7 +22,7 @@ const Report = () => {
   const [activeTab, setActiveTab] = useState("standard");
   const [showCreateModal, setShowCreateModal] = useState(false);
   
-  const { reports: standardReports, isLoading, deleteReport } = useStandardReports();
+  const { reports: standardReports, isLoading, deleteReport, createReport } = useStandardReports();
   const { data: aiReports } = useAIGeneratedReports();
   
   const selectedReport = selectedReportId 
@@ -47,9 +47,14 @@ const Report = () => {
     setSelectedAIReportId(null);
   };
 
-  const handleCreateReport = (reportData: { title: string; description: string; type: string }) => {
-    // This will be implemented when user wants to create custom reports
-    // For now, close the modal
+  const handleCreateReport = (report: { title: string; description: string; config: any; data: any }) => {
+    createReport.mutate({
+      title: report.title,
+      description: report.description,
+      report_type: 'status',
+      report_data: report.data,
+      report_config: report.config
+    });
     setShowCreateModal(false);
   };
 

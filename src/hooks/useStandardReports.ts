@@ -26,16 +26,23 @@ export const useStandardReports = () => {
 
   // Create a new report
   const createReport = useMutation({
-    mutationFn: async (reportData: Partial<StandardReportRow>) => {
+    mutationFn: async (reportData: {
+      title: string;
+      description?: string;
+      report_type: 'status' | 'application' | 'timeline' | 'financial';
+      report_data: any;
+      report_config?: any;
+    }) => {
       const { data: userData } = await supabase.auth.getUser();
       
       const { data, error } = await supabase
         .from('standard_reports')
         .insert({
-          title: reportData.title!,
-          description: reportData.description,
-          report_type: reportData.report_type!,
+          title: reportData.title,
+          description: reportData.description || null,
+          report_type: reportData.report_type,
           report_data: reportData.report_data as any,
+          report_config: reportData.report_config as any,
           created_by: userData.user?.id,
         })
         .select()
