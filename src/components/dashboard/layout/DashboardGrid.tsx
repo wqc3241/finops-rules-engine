@@ -10,6 +10,7 @@ interface DashboardGridProps {
   layout: Layout[];
   editMode: boolean;
   onLayoutChange: (layout: Layout[]) => void;
+  onLayoutSave?: (layout: Layout[]) => void;
   onDeleteComponent?: (componentId: string) => void;
   onEditComponent?: (component: DashboardComponent) => void;
 }
@@ -19,12 +20,23 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
   layout,
   editMode,
   onLayoutChange,
+  onLayoutSave,
   onDeleteComponent,
   onEditComponent,
 }) => {
   const handleLayoutChange = (newLayout: Layout[]) => {
-    if (editMode) {
-      onLayoutChange(newLayout);
+    onLayoutChange(newLayout);
+  };
+
+  const handleDragStop = (newLayout: Layout[]) => {
+    if (editMode && onLayoutSave) {
+      onLayoutSave(newLayout);
+    }
+  };
+
+  const handleResizeStop = (newLayout: Layout[]) => {
+    if (editMode && onLayoutSave) {
+      onLayoutSave(newLayout);
     }
   };
 
@@ -35,6 +47,8 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
       cols={12}
       rowHeight={60}
       onLayoutChange={handleLayoutChange}
+      onDragStop={handleDragStop}
+      onResizeStop={handleResizeStop}
       isDraggable={editMode}
       isResizable={editMode}
       draggableHandle=".react-grid-draghandle"

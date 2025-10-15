@@ -40,9 +40,10 @@ const DashboardPage = () => {
 
   const handleLayoutChange = (newLayout: Layout[]) => {
     setLayout(newLayout);
-    if (editMode) {
-      saveLayout.mutate(newLayout);
-    }
+  };
+
+  const handleLayoutSave = (newLayout: Layout[]) => {
+    saveLayout.mutate(newLayout);
   };
 
   const refreshDashboard = useMutation({
@@ -97,6 +98,7 @@ const DashboardPage = () => {
                       layout={layout}
                       editMode={editMode}
                       onLayoutChange={handleLayoutChange}
+                      onLayoutSave={handleLayoutSave}
                     />
                   ) : (
                     <div className="flex items-center justify-center h-full">
