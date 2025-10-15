@@ -41,16 +41,20 @@ const ColumnSelector: React.FC<ColumnSelectorProps> = ({
           <h4 className="text-sm font-semibold mb-3">Direct Columns</h4>
           <div className="space-y-2">
             {directColumns.map(column => (
-              <div key={column.name} className="flex items-center space-x-2">
+              <div 
+                key={column.name} 
+                className="flex items-center space-x-2 cursor-pointer"
+                onClick={() => toggleColumn(column.name)}
+              >
                 <Checkbox
                   id={`col-${column.name}`}
                   checked={selectedColumns.includes(column.name)}
                   onCheckedChange={() => toggleColumn(column.name)}
                 />
-                <Label htmlFor={`col-${column.name}`} className="cursor-pointer flex-1">
+                <div className="flex-1">
                   <span className="font-medium">{column.name}</span>
                   <span className="text-xs text-muted-foreground ml-2">({column.type})</span>
-                </Label>
+                </div>
               </div>
             ))}
           </div>
@@ -72,16 +76,20 @@ const ColumnSelector: React.FC<ColumnSelectorProps> = ({
                   {foreignColumns[fk.foreignTable]?.map(column => {
                     const fkColumnName = `${fk.sourceColumn}.${column.name}`;
                     return (
-                      <div key={fkColumnName} className="flex items-center space-x-2">
+                      <div 
+                        key={fkColumnName} 
+                        className="flex items-center space-x-2 cursor-pointer"
+                        onClick={() => toggleColumn(fkColumnName)}
+                      >
                         <Checkbox
                           id={`col-${fkColumnName}`}
                           checked={selectedColumns.includes(fkColumnName)}
                           onCheckedChange={() => toggleColumn(fkColumnName)}
                         />
-                        <Label htmlFor={`col-${fkColumnName}`} className="cursor-pointer flex-1">
+                        <div className="flex-1">
                           <span className="font-medium">{column.name}</span>
                           <span className="text-xs text-muted-foreground ml-2">({column.type})</span>
-                        </Label>
+                        </div>
                       </div>
                     );
                   })}
