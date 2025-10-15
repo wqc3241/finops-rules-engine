@@ -1,7 +1,5 @@
 import React from 'react';
 import GridLayout, { Layout } from 'react-grid-layout';
-import 'react-grid-layout/css/styles.css';
-import 'react-grid-layout/css/resizable.css';
 import DashboardCard from './DashboardCard';
 import { DashboardComponent } from '@/hooks/useDashboardComponents';
 
