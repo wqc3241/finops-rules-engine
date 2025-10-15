@@ -57,7 +57,7 @@ const AddComponentModal: React.FC<AddComponentModalProps> = ({
         setYAxis('');
       });
     }
-  }, [selectedTable, fetchColumnsForTable]);
+  }, [selectedTable]); // Only re-run when table selection changes
 
   const handleSubmit = () => {
     const position = {
