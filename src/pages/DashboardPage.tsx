@@ -30,7 +30,8 @@ const DashboardPage = () => {
 
   const { data: dashboards } = useCustomDashboards(selectedFolderId);
   const { data: components } = useDashboardComponents(selectedDashboardId);
-  const { layout, setLayout, saveLayout } = useDashboardLayout(selectedDashboardId);
+  const componentIds = components?.map(c => c.id) || [];
+  const { layout, setLayout, saveLayout } = useDashboardLayout(selectedDashboardId, componentIds);
   const { filters, updateFilter, clearFilters } = useDashboardFilters([]);
   
   const queryClient = useQueryClient();

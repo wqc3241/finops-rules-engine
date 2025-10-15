@@ -3,7 +3,34 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Layout } from 'react-grid-layout';
 
-export const useDashboardLayout = (dashboardId: string | null) => {
+// Helper to ensure all components have layout entries
+const syncLayoutWithComponents = (
+  existingLayout: Layout[], 
+  componentIds: string[]
+): Layout[] => {
+  const layoutMap = new Map(existingLayout.map(item => [item.i, item]));
+  const synced: Layout[] = [];
+  
+  componentIds.forEach((id, index) => {
+    if (layoutMap.has(id)) {
+      // Component has layout entry, use it
+      synced.push(layoutMap.get(id)!);
+    } else {
+      // Component missing from layout, create default entry
+      synced.push({
+        i: id,
+        x: (index * 6) % 12,
+        y: Math.floor(index / 2) * 4,
+        w: 6,
+        h: 4,
+      });
+    }
+  });
+  
+  return synced;
+};
+
+export const useDashboardLayout = (dashboardId: string | null, componentIds: string[] = []) => {
   const [layout, setLayout] = useState<Layout[]>([]);
   const queryClient = useQueryClient();
 
@@ -17,13 +44,13 @@ export const useDashboardLayout = (dashboardId: string | null) => {
         .eq('id', dashboardId)
         .single();
 
-      if (data?.layout_config && Array.isArray(data.layout_config)) {
-        setLayout(data.layout_config as unknown as Layout[]);
-      }
+      const existingLayout = (Array.isArray(data?.layout_config) ? data.layout_config as unknown as Layout[] : []);
+      const syncedLayout = syncLayoutWithComponents(existingLayout, componentIds);
+      setLayout(syncedLayout);
     };
 
     loadLayout();
-  }, [dashboardId]);
+  }, [dashboardId, componentIds.join(',')]);
 
   const saveLayout = useMutation({
     mutationFn: async (newLayout: Layout[]) => {
