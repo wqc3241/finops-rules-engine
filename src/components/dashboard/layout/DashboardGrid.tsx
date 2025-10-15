@@ -37,6 +37,8 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
       onLayoutChange={handleLayoutChange}
       isDraggable={editMode}
       isResizable={editMode}
+      draggableHandle=".react-grid-draghandle"
+      draggableCancel=".react-grid-no-drag"
       compactType={editMode ? null : "vertical"}
       preventCollision={false}
     >

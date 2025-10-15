@@ -40,11 +40,11 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
     <Card className="h-full flex flex-col">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <div className="flex items-center gap-2">
-          {editMode && <GripVertical className="h-4 w-4 text-muted-foreground cursor-move" />}
+          {editMode && <GripVertical className="h-4 w-4 text-muted-foreground cursor-move react-grid-draghandle" />}
           <CardTitle className="text-sm font-medium">{component.title}</CardTitle>
         </div>
         {editMode && (
-          <div className="flex gap-1">
+          <div className="flex gap-1 react-grid-no-drag">
             <Button variant="ghost" size="icon" onClick={onEdit}>
               <Pencil className="h-4 w-4" />
             </Button>
