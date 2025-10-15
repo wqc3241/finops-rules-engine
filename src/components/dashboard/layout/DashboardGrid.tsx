@@ -1,7 +1,9 @@
 import React from 'react';
-import GridLayout, { Layout } from 'react-grid-layout';
+import GridLayout, { Layout, WidthProvider } from 'react-grid-layout';
 import DashboardCard from './DashboardCard';
 import { DashboardComponent } from '@/hooks/useDashboardComponents';
+
+const ResponsiveGridLayout = WidthProvider(GridLayout);
 
 interface DashboardGridProps {
   components: DashboardComponent[];
@@ -27,16 +29,15 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
   };
 
   return (
-    <GridLayout
+    <ResponsiveGridLayout
       className="layout"
       layout={layout}
       cols={12}
       rowHeight={60}
-      width={1200}
       onLayoutChange={handleLayoutChange}
       isDraggable={editMode}
       isResizable={editMode}
-      compactType="vertical"
+      compactType={editMode ? null : "vertical"}
       preventCollision={false}
     >
       {components.map((component) => (
@@ -49,7 +50,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
           />
         </div>
       ))}
-    </GridLayout>
+    </ResponsiveGridLayout>
   );
 };
 
