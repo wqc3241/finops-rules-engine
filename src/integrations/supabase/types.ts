@@ -814,9 +814,14 @@ export type Database = {
           created_at: string
           created_by: string | null
           description: string | null
+          filters: Json | null
+          folder_id: string | null
           id: string
+          is_active: boolean | null
+          last_refreshed_at: string | null
           layout_config: Json | null
           name: string
+          run_as: string | null
           updated_at: string
           widgets: Json | null
         }
@@ -824,9 +829,14 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           description?: string | null
+          filters?: Json | null
+          folder_id?: string | null
           id?: string
+          is_active?: boolean | null
+          last_refreshed_at?: string | null
           layout_config?: Json | null
           name: string
+          run_as?: string | null
           updated_at?: string
           widgets?: Json | null
         }
@@ -834,13 +844,146 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           description?: string | null
+          filters?: Json | null
+          folder_id?: string | null
           id?: string
+          is_active?: boolean | null
+          last_refreshed_at?: string | null
           layout_config?: Json | null
           name?: string
+          run_as?: string | null
           updated_at?: string
           widgets?: Json | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "custom_dashboards_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "dashboard_folders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dashboard_audit_log: {
+        Row: {
+          action: string
+          dashboard_id: string | null
+          details: Json | null
+          id: string
+          timestamp: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          dashboard_id?: string | null
+          details?: Json | null
+          id?: string
+          timestamp?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          dashboard_id?: string | null
+          details?: Json | null
+          id?: string
+          timestamp?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dashboard_audit_log_dashboard_id_fkey"
+            columns: ["dashboard_id"]
+            isOneToOne: false
+            referencedRelation: "custom_dashboards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dashboard_components: {
+        Row: {
+          created_at: string | null
+          dashboard_id: string
+          data_source: string | null
+          filter_bindings: Json | null
+          id: string
+          position: Json | null
+          title: string
+          type: string
+          updated_at: string | null
+          visualization_config: Json | null
+        }
+        Insert: {
+          created_at?: string | null
+          dashboard_id: string
+          data_source?: string | null
+          filter_bindings?: Json | null
+          id?: string
+          position?: Json | null
+          title: string
+          type: string
+          updated_at?: string | null
+          visualization_config?: Json | null
+        }
+        Update: {
+          created_at?: string | null
+          dashboard_id?: string
+          data_source?: string | null
+          filter_bindings?: Json | null
+          id?: string
+          position?: Json | null
+          title?: string
+          type?: string
+          updated_at?: string | null
+          visualization_config?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dashboard_components_dashboard_id_fkey"
+            columns: ["dashboard_id"]
+            isOneToOne: false
+            referencedRelation: "custom_dashboards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dashboard_folders: {
+        Row: {
+          access_roles: Json | null
+          created_at: string | null
+          created_by: string | null
+          id: string
+          name: string
+          parent_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          access_roles?: Json | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          name: string
+          parent_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          access_roles?: Json | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          name?: string
+          parent_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dashboard_folders_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "dashboard_folders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       deal_stipulations: {
         Row: {
