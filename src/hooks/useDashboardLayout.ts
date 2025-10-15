@@ -50,7 +50,7 @@ export const useDashboardLayout = (dashboardId: string | null, componentIds: str
     };
 
     loadLayout();
-  }, [dashboardId, componentIds.join(',')]);
+  }, [dashboardId]);
 
   const saveLayout = useMutation({
     mutationFn: async (newLayout: Layout[]) => {
