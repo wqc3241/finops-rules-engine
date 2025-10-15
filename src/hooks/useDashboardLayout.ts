@@ -67,9 +67,6 @@ export const useDashboardLayout = (dashboardId: string | null, componentIds: str
       if (error) throw error;
       return newLayout;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['custom-dashboards'] });
-    },
   });
 
   return { layout, setLayout, saveLayout };
