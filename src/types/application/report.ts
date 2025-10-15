@@ -96,3 +96,23 @@ export interface FinancialReportData {
     rate: number;
   }>;
 }
+
+// Database row type for standard reports
+export interface StandardReportRow {
+  id: string;
+  title: string;
+  description: string | null;
+  report_type: 'status' | 'application' | 'timeline' | 'financial';
+  report_data: StatusReportData | ApplicationTypeReportData | TimelineReportData | FinancialReportData;
+  generated_date: string;
+  created_by: string | null;
+  created_at: string;
+  updated_by: string | null;
+  updated_at: string;
+  created_by_profile?: {
+    email: string;
+  };
+  updated_by_profile?: {
+    email: string;
+  };
+}

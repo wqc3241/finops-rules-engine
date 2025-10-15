@@ -5,12 +5,12 @@ import Sidebar from "@/components/Sidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Plus, Bot } from "lucide-react";
-import ReportList from "@/components/reports/ReportList";
+import ReportTable from "@/components/reports/ReportTable";
 import ReportDetail from "@/components/reports/ReportDetail";
 import CreateReportModal from "@/components/reports/CreateReportModal";
 import AIReportsList from "@/components/reports/AIReportsList";
-import { mockReports, getReportById } from "@/data/mock/reports";
-import { Report as ReportType } from "@/types/application/report";
+import { useStandardReports } from "@/hooks/useStandardReports";
+import { StandardReportRow } from "@/types/application/report";
 import { useAIGeneratedReports } from "@/hooks/useAIReports";
 import AIAgentButton from "@/components/ai-agent/AIAgentButton";
 
@@ -21,20 +21,16 @@ const Report = () => {
   const [selectedAIReportId, setSelectedAIReportId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("standard");
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [customReports, setCustomReports] = useState<ReportType[]>([]);
   
+  const { reports: standardReports, isLoading, deleteReport } = useStandardReports();
   const { data: aiReports } = useAIGeneratedReports();
   
-  const selectedReport = selectedReportId ? getReportById(selectedReportId) : null;
+  const selectedReport = selectedReportId 
+    ? standardReports.find(r => r.id === selectedReportId) 
+    : null;
   const selectedAIReport = selectedAIReportId && aiReports 
     ? aiReports.find(r => r.id === selectedAIReportId) 
     : null;
-  
-  // Combine mock reports with custom reports for standard tab
-  const allReports = [...mockReports, ...customReports];
-  
-  // Filter reports based on the selected tab
-  const filteredReports = activeTab === "standard" ? allReports : [];
   
   const handleViewReport = (reportId: string) => {
     setSelectedReportId(reportId);
@@ -52,19 +48,9 @@ const Report = () => {
   };
 
   const handleCreateReport = (reportData: { title: string; description: string; type: string }) => {
-    const newReport: ReportType = {
-      id: `custom-${Date.now()}`,
-      title: reportData.title,
-      description: reportData.description,
-      type: reportData.type as 'status' | 'application' | 'timeline' | 'financial',
-      generatedDate: new Date().toISOString(),
-      filters: [],
-      data: {
-        totalApplications: 0,
-        statusDistribution: []
-      } as any // Placeholder data structure
-    };
-    setCustomReports(prev => [...prev, newReport]);
+    // This will be implemented when user wants to create custom reports
+    // For now, close the modal
+    setShowCreateModal(false);
   };
 
   return (
@@ -92,7 +78,25 @@ const Report = () => {
               </div>
               
               {selectedReport ? (
-                <ReportDetail report={selectedReport} onBack={handleBack} />
+                <div className="space-y-4">
+                  <Button onClick={handleBack} variant="outline" size="sm">
+                    ← Back to Reports
+                  </Button>
+                  <div className="bg-muted/50 p-4 rounded-lg">
+                    <h2 className="text-lg font-semibold mb-2">{selectedReport.title}</h2>
+                    {selectedReport.description && (
+                      <p className="text-muted-foreground mb-4">{selectedReport.description}</p>
+                    )}
+                    <div className="text-sm">
+                      <strong>Report Type:</strong> {selectedReport.report_type}
+                    </div>
+                    <div className="mt-4 p-3 bg-background rounded border">
+                      <pre className="text-xs overflow-auto">
+                        {JSON.stringify(selectedReport.report_data, null, 2)}
+                      </pre>
+                    </div>
+                  </div>
+                </div>
               ) : selectedAIReport ? (
                 <div className="space-y-4">
                   <Button onClick={handleBack} variant="outline" size="sm">
@@ -147,7 +151,12 @@ const Report = () => {
                       </TabsTrigger>
                     </TabsList>
                     <TabsContent value="standard">
-                      <ReportList reports={filteredReports} onViewReport={handleViewReport} />
+                      <ReportTable 
+                        reports={standardReports}
+                        onViewReport={handleViewReport}
+                        onDeleteReport={(id) => deleteReport.mutate(id)}
+                        isLoading={isLoading}
+                      />
                     </TabsContent>
                     <TabsContent value="ai">
                       <AIReportsList onViewReport={handleViewAIReport} />

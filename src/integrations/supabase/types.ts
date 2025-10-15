@@ -2740,6 +2740,45 @@ export type Database = {
         }
         Relationships: []
       }
+      standard_reports: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          generated_date: string | null
+          id: string
+          report_data: Json
+          report_type: string
+          title: string
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          generated_date?: string | null
+          id?: string
+          report_data: Json
+          report_type: string
+          title: string
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          generated_date?: string | null
+          id?: string
+          report_data?: Json
+          report_type?: string
+          title?: string
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       states: {
         Row: {
           country_id: string | null
