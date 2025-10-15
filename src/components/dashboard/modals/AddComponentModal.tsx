@@ -282,12 +282,11 @@ const AddComponentModal: React.FC<AddComponentModalProps> = ({
 
                     <div className="space-y-2">
                       <Label htmlFor="groupBy">Group By (Optional)</Label>
-                      <Select value={groupBy} onValueChange={setGroupBy}>
+                      <Select value={groupBy || undefined} onValueChange={(val) => setGroupBy(val)}>
                         <SelectTrigger id="groupBy">
-                          <SelectValue placeholder="Select grouping column" />
+                          <SelectValue placeholder="None (select to group)" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">None</SelectItem>
                           {selectedColumns.map(col => (
                             <SelectItem key={col} value={col}>{col}</SelectItem>
                           ))}
