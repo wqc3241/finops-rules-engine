@@ -212,17 +212,25 @@ const AddComponentModal: React.FC<AddComponentModalProps> = ({
                             console.log('🔵 Checkbox onCheckedChange triggered:', {
                               column: col.name,
                               newCheckedState: checked,
-                              currentSelectedColumns: [...selectedColumns],
-                              isCurrentlySelected: selectedColumns.includes(col.name),
                               timestamp: new Date().toISOString()
                             });
                             
                             if (checked) {
                               console.log('✅ Adding column:', col.name);
-                              setSelectedColumns([...selectedColumns, col.name]);
+                              setSelectedColumns(prev => {
+                                console.log('Previous state:', prev);
+                                if (prev.includes(col.name)) {
+                                  console.log('⚠️ Column already exists, skipping');
+                                  return prev;
+                                }
+                                return [...prev, col.name];
+                              });
                             } else {
                               console.log('❌ Removing column:', col.name);
-                              setSelectedColumns(selectedColumns.filter(c => c !== col.name));
+                              setSelectedColumns(prev => {
+                                console.log('Previous state:', prev);
+                                return prev.filter(c => c !== col.name);
+                              });
                             }
                           }}
                         />
