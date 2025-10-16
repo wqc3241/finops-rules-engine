@@ -43,15 +43,23 @@ const ColumnSelector: React.FC<ColumnSelectorProps> = ({
             {directColumns.map(column => (
               <div 
                 key={column.name} 
-                className="flex items-center space-x-2 cursor-pointer"
-                onClick={() => toggleColumn(column.name)}
+                className="flex items-center space-x-2"
               >
                 <Checkbox
                   id={`col-${column.name}`}
                   checked={selectedColumns.includes(column.name)}
-                  onCheckedChange={() => toggleColumn(column.name)}
+                  onCheckedChange={(checked) => {
+                    if (checked) {
+                      onChange([...selectedColumns, column.name]);
+                    } else {
+                      onChange(selectedColumns.filter(col => col !== column.name));
+                    }
+                  }}
                 />
-                <div className="flex-1">
+                <div 
+                  className="flex-1 cursor-pointer" 
+                  onClick={() => toggleColumn(column.name)}
+                >
                   <span className="font-medium">{column.name}</span>
                   <span className="text-xs text-muted-foreground ml-2">({column.type})</span>
                 </div>
@@ -78,15 +86,23 @@ const ColumnSelector: React.FC<ColumnSelectorProps> = ({
                     return (
                       <div 
                         key={fkColumnName} 
-                        className="flex items-center space-x-2 cursor-pointer"
-                        onClick={() => toggleColumn(fkColumnName)}
+                        className="flex items-center space-x-2"
                       >
                         <Checkbox
                           id={`col-${fkColumnName}`}
                           checked={selectedColumns.includes(fkColumnName)}
-                          onCheckedChange={() => toggleColumn(fkColumnName)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              onChange([...selectedColumns, fkColumnName]);
+                            } else {
+                              onChange(selectedColumns.filter(col => col !== fkColumnName));
+                            }
+                          }}
                         />
-                        <div className="flex-1">
+                        <div 
+                          className="flex-1 cursor-pointer" 
+                          onClick={() => toggleColumn(fkColumnName)}
+                        >
                           <span className="font-medium">{column.name}</span>
                           <span className="text-xs text-muted-foreground ml-2">({column.type})</span>
                         </div>
