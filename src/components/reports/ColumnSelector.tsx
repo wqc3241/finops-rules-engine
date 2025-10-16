@@ -22,9 +22,13 @@ const ColumnSelector: React.FC<ColumnSelectorProps> = ({
   foreignColumns
 }) => {
   const toggleColumn = (columnName: string) => {
+    console.log('[ColumnSelector] toggleColumn called:', columnName);
+    console.log('[ColumnSelector] Current selected:', selectedColumns);
     if (selectedColumns.includes(columnName)) {
+      console.log('[ColumnSelector] Removing column:', columnName);
       onChange(selectedColumns.filter(col => col !== columnName));
     } else {
+      console.log('[ColumnSelector] Adding column:', columnName);
       onChange([...selectedColumns, columnName]);
     }
   };
@@ -49,16 +53,31 @@ const ColumnSelector: React.FC<ColumnSelectorProps> = ({
                   id={`col-${column.name}`}
                   checked={selectedColumns.includes(column.name)}
                   onCheckedChange={(checked) => {
+                    console.log('[ColumnSelector] Direct Column Checkbox onCheckedChange:', { 
+                      column: column.name, 
+                      checked, 
+                      selectedColumns 
+                    });
                     if (checked) {
-                      onChange([...selectedColumns, column.name]);
+                      const newSelection = [...selectedColumns, column.name];
+                      console.log('[ColumnSelector] Adding column via checkbox, new selection:', newSelection);
+                      onChange(newSelection);
                     } else {
-                      onChange(selectedColumns.filter(col => col !== column.name));
+                      const newSelection = selectedColumns.filter(col => col !== column.name);
+                      console.log('[ColumnSelector] Removing column via checkbox, new selection:', newSelection);
+                      onChange(newSelection);
                     }
                   }}
                 />
                 <div 
                   className="flex-1 cursor-pointer" 
-                  onClick={() => toggleColumn(column.name)}
+                  onClick={() => {
+                    console.log('[ColumnSelector] Direct Column Label clicked:', {
+                      column: column.name,
+                      currentlyChecked: selectedColumns.includes(column.name)
+                    });
+                    toggleColumn(column.name);
+                  }}
                 >
                   <span className="font-medium">{column.name}</span>
                   <span className="text-xs text-muted-foreground ml-2">({column.type})</span>
@@ -92,16 +111,31 @@ const ColumnSelector: React.FC<ColumnSelectorProps> = ({
                           id={`col-${fkColumnName}`}
                           checked={selectedColumns.includes(fkColumnName)}
                           onCheckedChange={(checked) => {
+                            console.log('[ColumnSelector] FK Column Checkbox onCheckedChange:', { 
+                              column: fkColumnName, 
+                              checked, 
+                              selectedColumns 
+                            });
                             if (checked) {
-                              onChange([...selectedColumns, fkColumnName]);
+                              const newSelection = [...selectedColumns, fkColumnName];
+                              console.log('[ColumnSelector] Adding FK column via checkbox, new selection:', newSelection);
+                              onChange(newSelection);
                             } else {
-                              onChange(selectedColumns.filter(col => col !== fkColumnName));
+                              const newSelection = selectedColumns.filter(col => col !== fkColumnName);
+                              console.log('[ColumnSelector] Removing FK column via checkbox, new selection:', newSelection);
+                              onChange(newSelection);
                             }
                           }}
                         />
                         <div 
                           className="flex-1 cursor-pointer" 
-                          onClick={() => toggleColumn(fkColumnName)}
+                          onClick={() => {
+                            console.log('[ColumnSelector] FK Column Label clicked:', {
+                              column: fkColumnName,
+                              currentlyChecked: selectedColumns.includes(fkColumnName)
+                            });
+                            toggleColumn(fkColumnName);
+                          }}
                         >
                           <span className="font-medium">{column.name}</span>
                           <span className="text-xs text-muted-foreground ml-2">({column.type})</span>
