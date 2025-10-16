@@ -74,24 +74,13 @@ const ColumnSelector: React.FC<ColumnSelectorProps> = ({
                     });
                   }}
                 />
-                <div 
-                  className="flex-1 cursor-pointer" 
-                  onClick={() => {
-                    console.log('[ColumnSelector] Direct Column Label clicked:', {
-                      column: column.name
-                    });
-                    onChange((prevSelected: string[]) => {
-                      if (prevSelected.includes(column.name)) {
-                        return prevSelected.filter(col => col !== column.name);
-                      } else {
-                        return [...prevSelected, column.name];
-                      }
-                    });
-                  }}
+                <Label 
+                  htmlFor={`col-${column.name}`}
+                  className="flex-1 cursor-pointer"
                 >
                   <span className="font-medium">{column.name}</span>
                   <span className="text-xs text-muted-foreground ml-2">({column.type})</span>
-                </div>
+                </Label>
               </div>
             ))}
           </div>
@@ -142,24 +131,13 @@ const ColumnSelector: React.FC<ColumnSelectorProps> = ({
                             });
                           }}
                         />
-                        <div 
-                          className="flex-1 cursor-pointer" 
-                          onClick={() => {
-                            console.log('[ColumnSelector] FK Column Label clicked:', {
-                              column: fkColumnName
-                            });
-                            onChange((prevSelected: string[]) => {
-                              if (prevSelected.includes(fkColumnName)) {
-                                return prevSelected.filter(col => col !== fkColumnName);
-                              } else {
-                                return [...prevSelected, fkColumnName];
-                              }
-                            });
-                          }}
+                        <Label 
+                          htmlFor={`col-${fkColumnName}`}
+                          className="flex-1 cursor-pointer"
                         >
                           <span className="font-medium">{column.name}</span>
                           <span className="text-xs text-muted-foreground ml-2">({column.type})</span>
-                        </div>
+                        </Label>
                       </div>
                     );
                   })}
