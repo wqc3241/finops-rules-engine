@@ -208,7 +208,10 @@ const CreateReportModal: React.FC<CreateReportModalProps> = ({
                   columns={tableColumns}
                   foreignKeys={foreignKeys}
                   selectedColumns={selectedColumns}
-                  onChange={setSelectedColumns}
+                  onChange={(newColumns) => {
+                    console.log('[CreateReportModal] onChange called with:', newColumns);
+                    setSelectedColumns(newColumns);
+                  }}
                   foreignColumns={foreignColumns}
                 />
               </div>
