@@ -10,7 +10,7 @@ interface ColumnSelectorProps {
   columns: TableColumn[];
   foreignKeys: ForeignKeyRelation[];
   selectedColumns: string[];
-  onChange: (columns: string[]) => void;
+  onChange: (columns: string[] | ((prev: string[]) => string[])) => void;
   foreignColumns: Record<string, TableColumn[]>;
 }
 
@@ -55,28 +55,38 @@ const ColumnSelector: React.FC<ColumnSelectorProps> = ({
                   onCheckedChange={(checked) => {
                     console.log('[ColumnSelector] Direct Column Checkbox onCheckedChange:', { 
                       column: column.name, 
-                      checked, 
-                      selectedColumns 
+                      checked
                     });
-                    if (checked) {
-                      const newSelection = [...selectedColumns, column.name];
-                      console.log('[ColumnSelector] Adding column via checkbox, new selection:', newSelection);
-                      onChange(newSelection);
-                    } else {
-                      const newSelection = selectedColumns.filter(col => col !== column.name);
-                      console.log('[ColumnSelector] Removing column via checkbox, new selection:', newSelection);
-                      onChange(newSelection);
-                    }
+                    onChange((prevSelected: string[]) => {
+                      console.log('[ColumnSelector] prevSelected:', prevSelected);
+                      if (checked) {
+                        if (prevSelected.includes(column.name)) {
+                          return prevSelected;
+                        }
+                        const newSelection = [...prevSelected, column.name];
+                        console.log('[ColumnSelector] Adding column, new selection:', newSelection);
+                        return newSelection;
+                      } else {
+                        const newSelection = prevSelected.filter(col => col !== column.name);
+                        console.log('[ColumnSelector] Removing column, new selection:', newSelection);
+                        return newSelection;
+                      }
+                    });
                   }}
                 />
                 <div 
                   className="flex-1 cursor-pointer" 
                   onClick={() => {
                     console.log('[ColumnSelector] Direct Column Label clicked:', {
-                      column: column.name,
-                      currentlyChecked: selectedColumns.includes(column.name)
+                      column: column.name
                     });
-                    toggleColumn(column.name);
+                    onChange((prevSelected: string[]) => {
+                      if (prevSelected.includes(column.name)) {
+                        return prevSelected.filter(col => col !== column.name);
+                      } else {
+                        return [...prevSelected, column.name];
+                      }
+                    });
                   }}
                 >
                   <span className="font-medium">{column.name}</span>
@@ -113,28 +123,38 @@ const ColumnSelector: React.FC<ColumnSelectorProps> = ({
                           onCheckedChange={(checked) => {
                             console.log('[ColumnSelector] FK Column Checkbox onCheckedChange:', { 
                               column: fkColumnName, 
-                              checked, 
-                              selectedColumns 
+                              checked
                             });
-                            if (checked) {
-                              const newSelection = [...selectedColumns, fkColumnName];
-                              console.log('[ColumnSelector] Adding FK column via checkbox, new selection:', newSelection);
-                              onChange(newSelection);
-                            } else {
-                              const newSelection = selectedColumns.filter(col => col !== fkColumnName);
-                              console.log('[ColumnSelector] Removing FK column via checkbox, new selection:', newSelection);
-                              onChange(newSelection);
-                            }
+                            onChange((prevSelected: string[]) => {
+                              console.log('[ColumnSelector] FK prevSelected:', prevSelected);
+                              if (checked) {
+                                if (prevSelected.includes(fkColumnName)) {
+                                  return prevSelected;
+                                }
+                                const newSelection = [...prevSelected, fkColumnName];
+                                console.log('[ColumnSelector] Adding FK column, new selection:', newSelection);
+                                return newSelection;
+                              } else {
+                                const newSelection = prevSelected.filter(col => col !== fkColumnName);
+                                console.log('[ColumnSelector] Removing FK column, new selection:', newSelection);
+                                return newSelection;
+                              }
+                            });
                           }}
                         />
                         <div 
                           className="flex-1 cursor-pointer" 
                           onClick={() => {
                             console.log('[ColumnSelector] FK Column Label clicked:', {
-                              column: fkColumnName,
-                              currentlyChecked: selectedColumns.includes(fkColumnName)
+                              column: fkColumnName
                             });
-                            toggleColumn(fkColumnName);
+                            onChange((prevSelected: string[]) => {
+                              if (prevSelected.includes(fkColumnName)) {
+                                return prevSelected.filter(col => col !== fkColumnName);
+                              } else {
+                                return [...prevSelected, fkColumnName];
+                              }
+                            });
                           }}
                         >
                           <span className="font-medium">{column.name}</span>
